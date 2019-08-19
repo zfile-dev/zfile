@@ -1,0 +1,8 @@
+{
+    "properties": [
+        {
+            "name": "zfile.cache.timeout",
+            "type": "java.lang.Long",
+            "description": "目录缓存过期时间 和 下载地址过期时间. 单位为秒."
+        }
+    ] }

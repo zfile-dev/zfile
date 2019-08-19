@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="">
+    <title></title>
+    <link rel="shortcut icon" th:href="@{/h5ai/public/images/favicon/favicon-16-32.ico}">
+    <link rel="apple-touch-icon-precomposed" type="image/png" th:href="@{/h5ai/public/images/favicon/favicon-152.png}">
+    <link rel="stylesheet" th:href="@{/h5ai/public/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/DPlayer/DPlayer.min.css}">
+    <link rel="stylesheet" th:href="@{/shikwasa/shikwasa.min.css}">
+    <link rel="stylesheet" th:href="@{/highlight/github.min.css}">
+    <link rel="stylesheet" th:href="@{/contextMenu/jquery.contextMenu.css}" />
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_1344832_gf3dk056va.css">
+    <script th:src="@{/script/jquery-3.3.1.min.js}"></script>
+    <script th:src="@{/script/jquery.cookie.js}"></script>
+    <script th:src="@{/layer/layer.js}"></script>
+    <script th:src="@{/script/main.js}"></script>
+    <script th:src="@{/script/admin.js}"></script>
+    <script th:src="@{/DPlayer/DPlayer.min.js}"></script>
+    <script th:src="@{/mustache/mustache.min.js}"></script>
+    <script th:src="@{/qrcode/qrcode.js}"></script>
+    <script th:src="@{/shikwasa/shikwasa.min.js}"></script>
+    <script th:src="@{/highlight/highlight.min.js}"></script>
+    <script th:src="@{/contextMenu/jquery.ui.position.js}"></script>
+    <script th:src="@{/contextMenu/jquery.contextMenu.js}"></script>
+    <script th:src="@{/marked/marked.min.js}"></script>
+</head>
+
+<body class="index" id="root">
+
+    <div id="topbar">
+
+        <div id="toolbar">
+            <div id="search" class="tool hidden">
+                <img alt="search" th:src="@{/h5ai/public/images/ui/search.svg}">
+                <input class="l10n_ph-search" type="text" value="" placeholder="搜索">
+            </div>
+        </div>
+
+        <div id="flowbar">
+            <div id="crumbbar" style="display: inline">
+                <a class="crumb" href="#">
+                    <img class="sep" th:src="@{/h5ai/public/images/themes/default/folder-page.svg}" alt=">">
+                    <span class="name">Loading...</span>
+                </a>
+            </div>
+            <div id="tool">
+                <i class="zfile-icon zfile-icon-shangchuan"></i>
+                <i class="zfile-icon zfile-icon-xiazai"></i>
+                <i class="zfile-icon zfile-icon-delete"></i>
+                <i class="zfile-icon zfile-icon-share"></i>
+            </div>
+        </div>
+
+        <a id="backlink" href="https://larsjung.de/h5ai/" target="_blank"
+           title="Themed by h5ai - https://larsjung.de/h5ai/">
+            <div>Themed</div>
+            <div>by h5ai</div>
+        </a>
+    </div>
+
+    <div id="mainrow">
+        <div id="content">
+            <div id="view" class="view-size-20" th:class="${'view-' + #strings.toLowerCase(systemConfig.mode)}">
+
+                <div style="margin-top:25px;">
+                    <span id="header"></span>
+                </div>
+
+                <ul id="items" class="clearfix">
+                    <li class="header">
+                        <a class="name ascending">
+                            <span>文件名</span>
+                            <img th:src="@{/h5ai/public/images/ui/sort.svg}" class="sort" alt="sort order">
+                        </a>
+                        <a class="time">
+                            <span>修改时间</span>
+                            <img th:src="@{/h5ai/public/images/ui/sort.svg}" class="sort" alt="sort order">
+                        </a>
+                        <a class="size">
+                            <span>大小</span>
+                            <img th:src="@{/h5ai/public/images/ui/sort.svg}" class="sort" alt="sort order">
+                        </a>
+                    </li>
+                    <div id="back"></div>
+                    <div id="list"></div>
+                </ul>
+                <div style="margin-top:25px;">
+                    <span id="footer"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="sidebar" style="position: unset;">
+            <div class="block">
+                <div class="button view" style="width: 100%; height: 44px;line-height: 44px;">
+                    <img th:src="@{/h5ai/public/images/themes/default/file.svg}" class="sort" alt="sort order">
+                    <span>新建文件</span>
+                </div>
+                <div class="button view" style="width: 100%; height: 44px;line-height: 44px;">
+                    <img th:src="@{/h5ai/public/images/themes/default/folder.svg}" class="sort" alt="sort order">
+                    <span>新建文件夹</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/html" id="crumbTemplate">
+        <a href="#" class="crumb" data="">
+            <span class="name">H5AI</span>
+            <img class="hint" src="h5ai/public/images/themes/default/folder-page.svg" alt=">">
+        </a>
+        {{#data}}
+            <a href="#{{{path}}}" class="crumb" data="{{{path}}}">
+                <img class="sep" src="h5ai/public/images/ui/crumb.svg" alt="/">
+                <span class="name">{{text}}</span>
+            </a>
+        {{/data}}
+    </script>
+
+    <script type="text/html" id="backTemplate">
+        <li class="item folder folder-parent" data="{{{path}}}">
+            <a href="#{{{path}}}">
+                <span class="icon square">
+                    <img src="h5ai/public/images/themes/default/folder-parent.svg" alt="folder">
+                </span>
+                <span class="icon landscape">
+                    <img src="h5ai/public/images/themes/default/folder-parent.svg" alt="folder"></span>
+                <span class="name">
+                    <b>{{{text}}}</b>
+                </span>
+                <span class="size" data-bytes="null"></span>
+            </a>
+        </li>
+    </script>
+
+
+    <script type="text/html" id="listTemplate">
+        {{#data}}
+        <li class="item {{{class}}}" data-type="{{{type}}}" data="{{{path}}}">
+            <a href="{{{url}}}">
+                <span class="icon square">
+                    <img src="{{{icon}}}"/>
+                </span>
+                <span class="icon landscape">
+                    <img src="{{{icon}}}">
+                </span>
+                <span class="name">{{{name}}}</span>
+                <span class="time">{{{time}}}</span>
+                <span class="size">{{{size}}}</span>
+            </a>
+        </li>
+        {{/data}}
+    </script>
+
+</body>
+
+</html>
