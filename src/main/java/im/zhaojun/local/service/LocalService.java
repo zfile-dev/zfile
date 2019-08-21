@@ -72,12 +72,12 @@ public class LocalService implements FileService {
         // 网络协议
         String networkProtocol = request.getScheme();
         // 网络ip
-        String ip = request.getServerName();
+        String host = request.getServerName();
         // 端口号
         int port = request.getServerPort();
         // 项目发布名称
         String webApp = request.getContextPath();
-        return StringUtils.concatDomainAndPath(networkProtocol + "://" + ip + ":" + port + webApp, "local-download?fileName=" + path);
+        return StringUtils.concatDomainAndPath(networkProtocol + "://" + host + ":" + port + webApp, "local-download?fileName=" + path);
     }
 
     @Override
