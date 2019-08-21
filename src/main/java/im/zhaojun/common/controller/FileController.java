@@ -5,23 +5,15 @@ import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.enums.FileTypeEnum;
 import im.zhaojun.common.enums.StorageTypeEnum;
 import im.zhaojun.common.model.FileItem;
-import im.zhaojun.common.model.ImageInfo;
 import im.zhaojun.common.model.ResultBean;
 import im.zhaojun.common.model.SiteConfig;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.SystemConfigService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +27,7 @@ public class FileController {
 
     @GetMapping("/filelist")
     public ResultBean list(String path, String sortBy, boolean descending) throws Exception {
-        List<FileItem> fileItems = fileService.fileList(path);
+        List<FileItem> fileItems = fileService.fileList(URLUtil.decode(path));
 
         // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
         fileItems.sort((o1, o2) -> {
@@ -72,7 +64,7 @@ public class FileController {
      */
     @GetMapping("/downloadUrl")
     public ResultBean getDownloadUrl(String path) throws Exception {
-        return ResultBean.successData(fileService.getDownloadUrl(path));
+        return ResultBean.successData(fileService.getDownloadUrl(URLUtil.decode(path)));
     }
 
     /**

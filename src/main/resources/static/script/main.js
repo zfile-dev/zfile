@@ -89,7 +89,7 @@ function listObjects(path, sortBy, descending) {
         type: 'GET',
         url: 'filelist',
         data: {
-            path: path,
+            path: encodeURI(decodeURI(path)),   // 先解码, 再编码, 防止重复编码
             sortBy: sortBy,
             descending: descending
         },
@@ -130,7 +130,7 @@ function getDownloadUrl(path) {
         type: 'GET',
         url: 'downloadUrl',
         data: {
-            path: path
+            path: encodeURI(decodeURI(path))
         },
         async: false,
         success: function (data) {
@@ -149,7 +149,7 @@ function getImageInfo(url) {
         type: 'GET',
         url: 'getImageInfo',
         data: {
-            url: encodeURI(url)
+            url: encodeURI(decodeURI(url))
         },
         async: false,
         success: function (data) {
@@ -440,7 +440,7 @@ function openText(fileType, fileName, path) {
         content: '<div id="markdown-content" class="hidden"></div><pre><code id="text-content" class="hidden"></code></pre>'
     });
 
-    $.get('/getContent', {path: path}, function (result) {
+    $.get('/getContent', {path: encodeURI(decodeURI(path))}, function (result) {
         var text = result.data;
         var markdownContent = $("#markdown-content");
         var textContent = $("#text-content");

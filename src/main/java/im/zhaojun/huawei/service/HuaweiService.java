@@ -96,7 +96,6 @@ public class HuaweiService implements FileService {
     @Override
     public String getDownloadUrl(String path) throws Exception {
         path = StringUtils.removeFirstSeparator(path);
-        path = URLDecoder.decode(path, "utf8");
         TemporarySignatureRequest req = new TemporarySignatureRequest(HttpMethodEnum.GET, timeout);
         req.setBucketName(bucketName);
         req.setObjectKey(path);

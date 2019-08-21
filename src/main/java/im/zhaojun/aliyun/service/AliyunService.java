@@ -96,7 +96,6 @@ public class AliyunService implements FileService {
     @Override
     public String getDownloadUrl(String path) throws Exception {
         path = StringUtils.removeFirstSeparator(path);
-        path = URLDecoder.decode(path, "utf8");
 
         if (isPrivate) {
             Date expirationDate = new Date(new Date().getTime() + timeout * 1000);
