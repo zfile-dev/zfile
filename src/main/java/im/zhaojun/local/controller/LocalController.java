@@ -26,7 +26,7 @@ public class LocalController {
     @GetMapping("/local-download")
     @ResponseBody
     public ResponseEntity<FileSystemResource> downAttachment(String fileName) throws IOException {
-        return export(new File(StringUtils.concatDomainAndPath(localService.getFilePath(), URLUtil.decode(fileName))));
+        return export(new File(StringUtils.concatPath(localService.getFilePath(), URLUtil.decode(fileName))));
     }
 
     private ResponseEntity<FileSystemResource> export(File file) throws IOException {

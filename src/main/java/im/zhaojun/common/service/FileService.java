@@ -46,6 +46,9 @@ public interface FileService {
         return siteConfig;
     }
 
+    /**
+     * 获取文件内容.
+     */
     default String getTextContent(String path) throws Exception {
         return HttpUtil.get(URLDecoder.decode(getDownloadUrl(path), "utf8"));
     }
@@ -68,6 +71,9 @@ public interface FileService {
     @Cacheable
     default ImageInfo getImageInfo(String url) throws Exception {
         url = URLUtil.decode(url);
+        URL urlObject = new URL(url);
+        String originPath = urlObject.getPath();
+        url = url.replace(originPath, URLUtil.encode(originPath));
         InputStream inputStream = new URL(url).openStream();
         BufferedImage sourceImg = ImageIO.read(inputStream);
         return new ImageInfo(sourceImg.getWidth(), sourceImg.getHeight());

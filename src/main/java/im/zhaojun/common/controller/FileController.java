@@ -10,6 +10,7 @@ import im.zhaojun.common.model.SiteConfig;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.SystemConfigService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 
+@RequestMapping("/api")
 @RestController
 public class FileController {
 
@@ -25,7 +27,7 @@ public class FileController {
     @Resource
     private SystemConfigService configService;
 
-    @GetMapping("/filelist")
+    @GetMapping("/list")
     public ResultBean list(String path, String sortBy, boolean descending) throws Exception {
         List<FileItem> fileItems = fileService.fileList(URLUtil.decode(path));
 
@@ -99,7 +101,7 @@ public class FileController {
         return ResultBean.success();
     }
 
-    @GetMapping("clearCache")
+    @GetMapping("/clearCache")
     public ResultBean clearCache() throws Exception {
         fileService.clearCache();
         return ResultBean.success();

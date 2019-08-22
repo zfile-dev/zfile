@@ -30,7 +30,7 @@ public class StringUtils {
      * @param path      路径
      * @return          URL
      */
-    public static String concatDomainAndPath(String domain, String path) {
+    public static String concatPath(String domain, String path) {
         if (path != null && path.length() > 1 && path.charAt(0) != '/') {
             path = '/' + path;
         }

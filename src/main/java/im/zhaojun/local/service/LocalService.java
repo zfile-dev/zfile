@@ -1,5 +1,6 @@
 package im.zhaojun.local.service;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.enums.FileTypeEnum;
 import im.zhaojun.common.enums.StorageTypeEnum;
@@ -46,7 +47,7 @@ public class LocalService implements FileService {
     public List<FileItem> fileList(String path) throws Exception {
         List<FileItem> fileItemList = new ArrayList<>();
 
-        String fullPath = StringUtils.concatDomainAndPath(filePath, path);
+        String fullPath = StringUtils.concatPath(filePath, path);
 
         File file = new File(fullPath);
         File[] files = file.listFiles();
@@ -77,7 +78,7 @@ public class LocalService implements FileService {
         int port = request.getServerPort();
         // 项目发布名称
         String webApp = request.getContextPath();
-        return StringUtils.concatDomainAndPath(networkProtocol + "://" + host + ":" + port + webApp, "local-download?fileName=" + path);
+        return StringUtils.concatPath(networkProtocol + "://" + host + ":" + port + webApp, "local-download?fileName=" + path);
     }
 
     @Override
@@ -87,6 +88,11 @@ public class LocalService implements FileService {
         InputStream inputStream = new URL(url).openStream();
         BufferedImage sourceImg = ImageIO.read(inputStream);
         return new ImageInfo(sourceImg.getWidth(), sourceImg.getHeight());
+    }
+
+    @Override
+    public String getTextContent(String path) throws Exception {
+        return FileUtil.readUtf8String(StringUtils.concatPath(filePath, URLUtil.decode(path)));
     }
 
     public String getFilePath() {

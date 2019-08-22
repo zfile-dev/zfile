@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class IndexController {
@@ -14,7 +15,12 @@ public class IndexController {
     private SystemConfigService systemConfigService;
 
     @GetMapping("/")
-    public ModelAndView index(ModelAndView modelAndView) {
+    public String index() {
+        return "redirect:/file/";
+    }
+
+    @GetMapping("/file/**")
+    public ModelAndView index(ModelAndView modelAndView, HttpServletRequest request) {
         modelAndView.setViewName("index");
         modelAndView.addObject("systemConfig", systemConfigService.getSystemConfig());
         return modelAndView;

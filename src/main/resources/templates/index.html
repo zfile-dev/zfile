@@ -15,14 +15,13 @@
     <link rel="stylesheet" th:href="@{/shikwasa/shikwasa.min.css}">
     <link rel="stylesheet" th:href="@{/highlight/github.min.css}">
     <link rel="stylesheet" th:href="@{/contextMenu/jquery.contextMenu.css}"/>
-    <link rel="stylesheet" th:href="@{/photoSwipe/photoswipe.css}"/>
-    <link rel="stylesheet" th:href="@{/photoSwipe/default-skin/default-skin.css}"/>
     <link rel="stylesheet" href="//at.alicdn.com/t/font_1344832_6wa9n9olj42.css">
     <script th:src="@{/script/jquery-3.3.1.min.js}"></script>
     <script th:src="@{/script/jquery.cookie.js}"></script>
     <script th:src="@{/layer/layer.js}"></script>
     <script th:src="@{/script/main.js}"></script>
     <script th:src="@{/script/index.js}"></script>
+    <script th:src="@{/flv/flv.js}"></script>
     <script th:src="@{/DPlayer/DPlayer.min.js}"></script>
     <script th:src="@{/mustache/mustache.min.js}"></script>
     <script th:src="@{/qrcode/qrcode.js}"></script>
@@ -31,8 +30,6 @@
     <script th:src="@{/contextMenu/jquery.ui.position.js}"></script>
     <script th:src="@{/contextMenu/jquery.contextMenu.js}"></script>
     <script th:src="@{/marked/marked.min.js}"></script>
-    <script th:src="@{/photoSwipe/photoswipe.js}"></script>
-    <script th:src="@{/photoSwipe/photoswipe-ui-default.js}"></script>
 </head>
 
 <body class="index" id="root">
@@ -116,7 +113,7 @@
 
         <div id="info" th:classappend="${systemConfig.infoEnable ? 'hidden' : ''}">
             <div class="icon">
-                <img id="info-icon" th:src="@{h5ai/public/images/themes/default/folder.svg}">
+                <img id="info-icon" th:src="@{/h5ai/public/images/themes/default/folder.svg}">
             </div>
             <div class="block">
                 <div class="name"></div>
@@ -132,83 +129,14 @@
         </div>
     </div>
 
-
-    <!-- Root element of PhotoSwipe. Must have class pswp. -->
-    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-        <!-- Background of PhotoSwipe.
-             It's a separate element as animating opacity is faster than rgba(). -->
-        <div class="pswp__bg"></div>
-
-        <!-- Slides wrapper with overflow:hidden. -->
-        <div class="pswp__scroll-wrap">
-
-            <!-- Container that holds slides.
-                PhotoSwipe keeps only 3 of them in the DOM to save memory.
-                Don't modify these 3 pswp__item elements, data is added later on. -->
-            <div class="pswp__container">
-                <div class="pswp__item"></div>
-                <div class="pswp__item"></div>
-                <div class="pswp__item"></div>
-            </div>
-
-            <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-            <div class="pswp__ui pswp__ui--hidden">
-
-                <div class="pswp__top-bar">
-
-                    <!--  Controls are self-explanatory. Order can be changed. -->
-
-                    <div class="pswp__counter"></div>
-
-                    <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                    <button class="pswp__button pswp__button--share" title="Share"></button>
-
-                    <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                    <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                    <!-- Preloader demo https://codepen.io/dimsemenov/pen/yyBWoR -->
-                    <!-- element will get class pswp__preloader--active when preloader is running -->
-                    <div class="pswp__preloader">
-                        <div class="pswp__preloader__icn">
-                            <div class="pswp__preloader__cut">
-                                <div class="pswp__preloader__donut"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                    <div class="pswp__share-tooltip"></div>
-                </div>
-
-                <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-                </button>
-
-                <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-                </button>
-
-                <div class="pswp__caption">
-                    <div class="pswp__caption__center"></div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
     <script type="text/html" id="crumbTemplate">
         <a href="#" class="crumb" data="">
             <span class="name">H5AI</span>
-            <img class="hint" src="h5ai/public/images/themes/default/folder-page.svg" alt=">">
+            <img class="hint" th:src="@{/h5ai/public/images/themes/default/folder-page.svg}" alt=">">
         </a>
         {{#data}}
             <a href="#{{{path}}}" class="crumb" data="{{{path}}}">
-                <img class="sep" src="h5ai/public/images/ui/crumb.svg" alt="/">
+                <img class="sep" th:src="@{/h5ai/public/images/ui/crumb.svg}" alt="/">
                 <span class="name">{{text}}</span>
             </a>
         {{/data}}
@@ -216,12 +144,12 @@
 
     <script type="text/html" id="backTemplate">
         <li class="item folder folder-parent" data="{{{path}}}">
-            <a href="#{{{path}}}">
+            <a href="{{{url}}}">
                 <span class="icon square">
-                    <img src="h5ai/public/images/themes/default/folder-parent.svg" alt="folder">
+                    <img th:src="@{/h5ai/public/images/themes/default/folder-parent.svg}" alt="folder">
                 </span>
                 <span class="icon landscape">
-                    <img src="h5ai/public/images/themes/default/folder-parent.svg" alt="folder"></span>
+                    <img th:src="@{/h5ai/public/images/themes/default/folder-parent.svg}" alt="folder"></span>
                 <span class="name">
                     <b>{{{text}}}</b>
                 </span>

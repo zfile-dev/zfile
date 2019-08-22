@@ -62,7 +62,7 @@ $(document).ready(function () {
         var size = $(e.currentTarget).find('.size').html();
         var path = $(e.currentTarget).attr("data");
         var url = $(e.currentTarget).find("a")[0].href;
-        var fileIcon = $(e.currentTarget).data('type') === 'folder' ? "h5ai/public/images/themes/default/folder.svg" : getFileType(path).fileIcon;
+        var fileIcon = $(e.currentTarget).data('type') === 'folder' ? "/h5ai/public/images/themes/default/folder.svg" : getFileType(path).fileIcon;
         buildInfo({name: name, time: time, path: path, url: url, size: size, fileIcon: fileIcon})
     });
 
@@ -73,7 +73,7 @@ $(document).ready(function () {
         var size = '';
         var path = arr[arr.length - 1].path;
         var url = window.location.protocol + "//" + window.location.host + arr[arr.length - 1].path;
-        var fileIcon = "h5ai/public/images/themes/default/folder.svg";
+        var fileIcon = "/h5ai/public/images/themes/default/folder.svg";
         if (name === '/') {
             name = window.location.host;
         }
@@ -117,13 +117,14 @@ $(document).ready(function () {
 /**
  * 加载配置项, 获取当前的
  * @param path
+ * @param first 是否是第一次请求, 如果是, 则加载所有配置项, 如果不是, 则只刷新标题, 页头和页尾
  */
-function buildConfig(path) {
+function buildConfig(path, first) {
     path = path ? path : '';
 
     $.ajax({
         type: 'GET',
-        url: 'getConfig',
+        url: '/api/getConfig',
         data: {
             path: path
         },
@@ -137,8 +138,15 @@ function buildConfig(path) {
                 systemConfig = JSON.parse(systemConfigCache);
             }
 
+            var directoryList = getDirectoryList();
+            var currentDirecotryName = "";
+
+            if (directoryList.length > 1) {
+                currentDirecotryName = ' - ' + directoryList[directoryList.length - 1].text;
+            }
+
             // 构建标题
-            $(document).attr("title", systemConfig.siteName);
+            $(document).attr("title", systemConfig.siteName + currentDirecotryName);
 
             // 构建页头
             if (result.header) {
@@ -157,42 +165,44 @@ function buildConfig(path) {
             }
 
 
+            if (first) {
 
-            if (systemConfig.infoEnable) {
-                $("#info").removeClass('hidden');
-                $("#view-info").addClass('active');
-            } else {
-                $("#info").addClass('hidden');
+                if (systemConfig.infoEnable) {
+                    $("#info").removeClass('hidden');
+                    $("#view-info").addClass('active');
+                } else {
+                    $("#info").addClass('hidden');
+                }
+
+                if (systemConfig.searchEnable) {
+                    $("#search").removeClass('hidden');
+                } else {
+                    $("#search").addClass('hidden');
+                }
+
+                if (systemConfig.sidebarEnable) {
+                    $("#sidebar-toggle").removeClass('hidden');
+                } else {
+                    $("#sidebar-toggle").addClass('hidden');
+                }
+
+                if (systemConfig.sidebarIsVisible) {
+                    $("#sidebar").removeClass('hidden');
+                    $("#sidebar-toggle").find("img").attr('src', '/h5ai/public/images/ui/back.svg');
+                }
+
+                if (systemConfig.mode) {
+                    $("#view").removeClass('view-details view-grid view-icons').addClass('view-' + systemConfig.mode.toLowerCase());
+                    $("#viewmode-details").siblings().removeClass('active');
+                    $("#viewmode-" + systemConfig.mode.toLowerCase()).addClass('active');
+                }
+
+                if (systemConfig.listSize) {
+                    updateListSize(systemConfig.listSize);
+                    $("#viewmode-size").val(systemConfig.listSize);
+                }
+
             }
-
-            if (systemConfig.searchEnable) {
-                $("#search").removeClass('hidden');
-            } else {
-                $("#search").addClass('hidden');
-            }
-
-            if (systemConfig.sidebarEnable) {
-                $("#sidebar-toggle").removeClass('hidden');
-            } else {
-                $("#sidebar-toggle").addClass('hidden');
-            }
-
-            if (systemConfig.sidebarIsVisible) {
-                $("#sidebar").removeClass('hidden');
-                $("#sidebar-toggle").find("img").attr('src', '/h5ai/public/images/ui/back.svg');
-            }
-
-            if (systemConfig.mode) {
-                $("#view").removeClass('view-details view-grid view-icons').addClass('view-' + systemConfig.mode.toLowerCase());
-                $("#viewmode-details").siblings().removeClass('active');
-                $("#viewmode-" + systemConfig.mode.toLowerCase()).addClass('active');
-            }
-
-            if (systemConfig.listSize) {
-                updateListSize(systemConfig.listSize);
-                $("#viewmode-size").val(systemConfig.listSize);
-            }
-
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(systemConfig));
         },
         error: function (textStatus, errorThrown) {
