@@ -111,4 +111,9 @@ public class FileController {
     public ResultBean getImageInfo(String url) throws Exception {
         return ResultBean.success(fileService.getImageInfo(url));
     }
+
+    @GetMapping("/audioInfo")
+    public ResultBean getAudioInfo(String url) throws Exception {
+        return ResultBean.success(fileService.getAudioInfo(url));
+    }
 }
