@@ -9,12 +9,14 @@ import im.zhaojun.common.model.ResultBean;
 import im.zhaojun.common.model.SiteConfig;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.SystemConfigService;
+import im.zhaojun.common.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class FileController {
 
     @GetMapping("/list")
     public ResultBean list(String path, String sortBy, boolean descending) throws Exception {
-        List<FileItem> fileItems = fileService.fileList(URLUtil.decode(path));
+        List<FileItem> fileItems = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + URLUtil.decode(path)));
 
         // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
         fileItems.sort((o1, o2) -> {
@@ -85,7 +87,7 @@ public class FileController {
      */
     @GetMapping("/getConfig")
     public ResultBean getConfig(String path) throws Exception {
-        SiteConfig config = fileService.getConfig(path);
+        SiteConfig config = fileService.getConfig(URLUtil.decode(path));
         config.setSystemConfig(configService.getSystemConfig());
         return ResultBean.successData(config);
     }

@@ -41,4 +41,29 @@ public class StringUtils {
 
         return domain + path;
     }
+
+    public static String removeDuplicateSeparator(String path) {
+        if (path == null || path.length() < 2) {
+            return path;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        if (path.indexOf("http://") == 0) {
+            sb.append("http://");
+        } else if (path.indexOf("https://") == 0) {
+            sb.append("http://");
+        }
+
+        for (int i = sb.length(); i < path.length() - 1; i++) {
+            char current = path.charAt(i);
+            char next = path.charAt(i + 1);
+            if (!(current == '/' && next == '/')) {
+                sb.append(current);
+            }
+        }
+        sb.append(path.charAt(path.length() - 1));
+        return sb.toString();
+    }
+
 }

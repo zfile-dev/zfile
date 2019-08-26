@@ -1,8 +1,13 @@
 package im.zhaojun.common.service;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
 import im.zhaojun.common.config.CaffeineConfiguration;
+import im.zhaojun.common.enums.FileTypeEnum;
+import im.zhaojun.common.model.AudioInfo;
 import im.zhaojun.common.model.FileItem;
 import im.zhaojun.common.model.ImageInfo;
 import im.zhaojun.common.model.SiteConfig;
@@ -36,7 +41,7 @@ public interface FileService {
     default SiteConfig getConfig(String path) throws Exception {
         path = StringUtils.removeLastSeparator(path);
         SiteConfig siteConfig = new SiteConfig();
-        for (FileItem fileItem : fileList(path)) {
+        for (FileItem fileItem : fileList(StringUtils.removeDuplicateSeparator("/" + path + "/"))) {
             if ("readme.md".equalsIgnoreCase(fileItem.getName())) {
                 siteConfig.setFooter(getTextContent(path + "/" + fileItem.getName()));
             } else if ("header.md".equalsIgnoreCase(fileItem.getName())) {
@@ -50,7 +55,7 @@ public interface FileService {
      * 获取文件内容.
      */
     default String getTextContent(String path) throws Exception {
-        return HttpUtil.get(URLDecoder.decode(getDownloadUrl(path), "utf8"));
+        return HttpUtil.get(URLUtil.decode(getDownloadUrl(path)));
     }
 
     @PostConstruct
