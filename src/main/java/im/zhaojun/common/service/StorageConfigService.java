@@ -1,8 +1,8 @@
 package im.zhaojun.common.service;
 
 import im.zhaojun.common.enums.StorageTypeEnum;
-import im.zhaojun.common.mapper.StorageConfigMapper;
 import im.zhaojun.common.model.StorageConfig;
+import im.zhaojun.common.repository.StorageConfigRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -14,10 +14,10 @@ import java.util.Map;
 public class StorageConfigService {
 
     @Resource
-    private StorageConfigMapper storageConfigMapper;
+    private StorageConfigRepository storageConfigRepository;
 
-    public List<StorageConfig> selectStorageConfigByType(StorageTypeEnum storageTypeEnum) {
-        return storageConfigMapper.selectStorageConfigByType(storageTypeEnum);
+    private List<StorageConfig> selectStorageConfigByType(StorageTypeEnum storageTypeEnum) {
+        return storageConfigRepository.findByType(storageTypeEnum);
     }
 
     public Map<String, StorageConfig> selectStorageConfigMapByKey(StorageTypeEnum storageTypeEnum) {

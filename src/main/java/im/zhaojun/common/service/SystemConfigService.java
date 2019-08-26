@@ -1,8 +1,7 @@
 package im.zhaojun.common.service;
 
-import im.zhaojun.common.mapper.SystemConfigMapper;
 import im.zhaojun.common.model.SystemConfig;
-import org.springframework.cache.annotation.Cacheable;
+import im.zhaojun.common.repository.SystemConfigRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -11,10 +10,9 @@ import javax.annotation.Resource;
 public class SystemConfigService {
 
     @Resource
-    private SystemConfigMapper systemConfigMapper;
+    private SystemConfigRepository systemConfigRepository;
 
-    @Cacheable("zfile")
     public SystemConfig getSystemConfig() {
-        return systemConfigMapper.selectFirstConfig();
+        return systemConfigRepository.findFirstBy();
     }
 }
