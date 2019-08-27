@@ -392,7 +392,14 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
         },
         removeDuplicateSeparator: function (path) {
             var result = '';
-            for (var i = 0; i < path.length - 1; i++) {
+
+            if (path.indexOf("http://") === 0) {
+                result = "http://";
+            } else if (path.indexOf("https://") === 0) {
+                result = "https://";
+            }
+
+            for (var i = result.length; i < path.length - 1; i++) {
                 var current = path.charAt(i);
                 var next = path.charAt(i + 1);
                 if (!(current === '/' && next === '/')) {
