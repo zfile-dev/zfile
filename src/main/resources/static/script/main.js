@@ -176,11 +176,11 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
         sortSwitch: function (who) {
             if ($(who).hasClass("descending")) {
                 this.listObjects(zfile.getPath(), zfile.getSortBy(), false);
-                zfile.clearList();
+                zfile.sortClear();
                 $(who).addClass("ascending");
             } else {
                 this.listObjects(zfile.getPath(), zfile.getSortBy(), true);		//默认新一次排序为倒序
-                zfile.clearList();
+                zfile.sortClear();
                 $(who).addClass("descending");
             }
         },
@@ -395,7 +395,7 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
             for (var i = 0; i < path.length - 1; i++) {
                 var current = path.charAt(i);
                 var next = path.charAt(i + 1);
-                if ( !(current === '/' && next === '/') ) {
+                if (!(current === '/' && next === '/')) {
                     result += current;
                 }
             }
