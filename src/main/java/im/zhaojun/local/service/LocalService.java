@@ -1,9 +1,15 @@
 package im.zhaojun.local.service;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.URLUtil;
+import cn.hutool.http.HttpUtil;
+import com.mpatric.mp3agic.ID3v2;
+import com.mpatric.mp3agic.Mp3File;
 import im.zhaojun.common.enums.FileTypeEnum;
 import im.zhaojun.common.enums.StorageTypeEnum;
+import im.zhaojun.common.model.AudioInfo;
 import im.zhaojun.common.model.FileItem;
 import im.zhaojun.common.model.ImageInfo;
 import im.zhaojun.common.model.StorageConfig;
@@ -62,6 +68,7 @@ public class LocalService implements FileService {
             fileItem.setSize(f.length());
             fileItem.setName(f.getName());
             fileItemList.add(fileItem);
+            fileItem.setPath(path);
         }
 
         return fileItemList;
@@ -95,11 +102,35 @@ public class LocalService implements FileService {
         return FileUtil.readUtf8String(StringUtils.concatPath(filePath, URLUtil.decode(path)));
     }
 
+    @Override
+    public AudioInfo getAudioInfo(String url) throws Exception {
+        String query = new URL(URLUtil.decode(url)).getQuery();
+        url = url.replace(query, URLUtil.encode(query));
+        File file = new File(System.getProperty("user.home") + "/zfile/tmp/audio/" + UUID.fastUUID());
+        FileUtil.mkParentDirs(file);
+        HttpUtil.downloadFile(url, file);
+        Mp3File mp3file = new Mp3File(file);
+        ID3v2 audioTag = mp3file.getId3v2Tag();
+        String imageMimeType = audioTag.getAlbumImageMimeType();
+        AudioInfo audioInfo = new AudioInfo();
+        audioInfo.setArtist(audioTag.getArtist());
+        audioInfo.setTitle(audioTag.getTitle());
+        audioInfo.setCover("data:" + imageMimeType + ";base64," + Base64.encode(audioTag.getAlbumImage()));
+        audioInfo.setSrc(url);
+        file.deleteOnExit();
+        return audioInfo;
+    }
+
     public String getFilePath() {
         return filePath;
     }
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    @Override
+    public StorageTypeEnum getStorageTypeEnum() {
+        return StorageTypeEnum.LOCAL;
     }
 }

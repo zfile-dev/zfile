@@ -2,7 +2,6 @@ package im.zhaojun.upyun.service;
 
 import cn.hutool.core.util.URLUtil;
 import com.UpYun;
-import com.upyun.UpException;
 import im.zhaojun.common.enums.FileTypeEnum;
 import im.zhaojun.common.enums.StorageTypeEnum;
 import im.zhaojun.common.model.FileItem;
@@ -12,7 +11,6 @@ import im.zhaojun.common.service.StorageConfigService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +43,9 @@ public class UpYunService implements FileService {
         upYun = new UpYun(bucketName, username, password);
     }
 
-    public List<FileItem> fileList(String path) throws IOException, UpException {
+    public List<FileItem> fileList(String path) throws Exception {
         ArrayList<FileItem> fileItems = new ArrayList<>();
-
-        List<UpYun.FolderItem> folderItems = upYun.readDir(path, null);
+        List<UpYun.FolderItem> folderItems = upYun.readDir(URLUtil.encode(path), null);
 
         if (folderItems != null) {
             for (UpYun.FolderItem folderItem : folderItems) {
@@ -56,6 +53,7 @@ public class UpYunService implements FileService {
                 fileItem.setName(folderItem.name);
                 fileItem.setSize(folderItem.size);
                 fileItem.setTime(folderItem.date);
+                fileItem.setPath(path);
 
                 if ("Folder".equals(folderItem.type)) {
                     fileItem.setType(FileTypeEnum.FOLDER);
@@ -73,4 +71,8 @@ public class UpYunService implements FileService {
         return URLUtil.complateUrl(domain, path);
     }
 
+    @Override
+    public StorageTypeEnum getStorageTypeEnum() {
+        return StorageTypeEnum.UPYUN;
+    }
 }

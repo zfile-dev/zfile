@@ -79,6 +79,7 @@ public class HuaweiService implements FileService {
             fileItem.setSize(metadata.getContentLength());
             fileItem.setTime(metadata.getLastModified());
             fileItem.setType(FileTypeEnum.FILE);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
 
@@ -86,6 +87,7 @@ public class HuaweiService implements FileService {
             FileItem fileItem = new FileItem();
             fileItem.setName(commonPrefix.substring(0, commonPrefix.length() - 1));
             fileItem.setType(FileTypeEnum.FOLDER);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
 
@@ -101,5 +103,10 @@ public class HuaweiService implements FileService {
         TemporarySignatureResponse res = obsClient.createTemporarySignature(req);
         URL url = new URL(res.getSignedUrl());
         return URLUtil.complateUrl(domain, url.getFile());
+    }
+
+    @Override
+    public StorageTypeEnum getStorageTypeEnum() {
+        return StorageTypeEnum.HUAWEI;
     }
 }

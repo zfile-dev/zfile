@@ -79,6 +79,7 @@ public class AliyunService implements FileService {
             fileItem.setSize(s.getSize());
             fileItem.setTime(s.getLastModified());
             fileItem.setType(FileTypeEnum.FILE);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
 
@@ -86,6 +87,7 @@ public class AliyunService implements FileService {
             FileItem fileItem = new FileItem();
             fileItem.setName(commonPrefix.substring(path.length(), commonPrefix.length() - 1));
             fileItem.setType(FileTypeEnum.FOLDER);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
 
@@ -103,5 +105,10 @@ public class AliyunService implements FileService {
         } else {
             return URLUtil.complateUrl(domain, path);
         }
+    }
+
+    @Override
+    public StorageTypeEnum getStorageTypeEnum() {
+        return StorageTypeEnum.ALIYUN;
     }
 }

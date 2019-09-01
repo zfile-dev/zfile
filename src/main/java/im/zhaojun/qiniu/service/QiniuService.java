@@ -86,6 +86,7 @@ public class QiniuService implements FileService {
             fileItem.setSize(item.fsize);
             fileItem.setTime(new Date(item.putTime / 1000));
             fileItem.setType(FileTypeEnum.FILE);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
 
@@ -95,6 +96,7 @@ public class QiniuService implements FileService {
             FileItem fileItem = new FileItem();
             fileItem.setName(commonPrefix.substring(0, commonPrefix.length() - 1));
             fileItem.setType(FileTypeEnum.FOLDER);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
 
@@ -108,5 +110,10 @@ public class QiniuService implements FileService {
             url = auth.privateDownloadUrl(url, timeout);
         }
         return url;
+    }
+
+    @Override
+    public StorageTypeEnum getStorageTypeEnum() {
+        return StorageTypeEnum.QINIU;
     }
 }

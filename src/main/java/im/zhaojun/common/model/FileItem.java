@@ -11,6 +11,7 @@ public class FileItem implements Serializable {
     private Date time;
     private Long size;
     private FileTypeEnum type;
+    private String path;
 
     public String getName() {
         return name;
@@ -42,5 +43,13 @@ public class FileItem implements Serializable {
 
     public void setType(FileTypeEnum type) {
         this.type = type;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

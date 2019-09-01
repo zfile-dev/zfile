@@ -1,5 +1,6 @@
 package im.zhaojun.common.controller;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.enums.FileTypeEnum;
@@ -7,16 +8,17 @@ import im.zhaojun.common.enums.StorageTypeEnum;
 import im.zhaojun.common.model.FileItem;
 import im.zhaojun.common.model.ResultBean;
 import im.zhaojun.common.model.SiteConfig;
+import im.zhaojun.common.model.SystemConfig;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.SystemConfigService;
 import im.zhaojun.common.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,10 +26,12 @@ import java.util.List;
 @RestController
 public class FileController {
 
+    private static final Logger log = LoggerFactory.getLogger(FileController.class);
+
     private FileService fileService;
 
     @Resource
-    private SystemConfigService configService;
+    private SystemConfigService systemConfigService;
 
     @GetMapping("/list")
     public ResultBean list(String path, String sortBy, boolean descending) throws Exception {
@@ -87,8 +91,8 @@ public class FileController {
      */
     @GetMapping("/getConfig")
     public ResultBean getConfig(String path) throws Exception {
-        SiteConfig config = fileService.getConfig(URLUtil.decode(path));
-        config.setSystemConfig(configService.getSystemConfig());
+        SiteConfig config = fileService.getConfig(URLUtil.decode(StringUtils.removeDuplicateSeparator("/" + path + "/")));
+        config.setSystemConfig(systemConfigService.getSystemConfig());
         return ResultBean.successData(config);
     }
 
@@ -98,8 +102,11 @@ public class FileController {
     @PostConstruct
     @GetMapping("/updateStorageStrategy")
     public ResultBean updateConfig() {
-        StorageTypeEnum storageStrategy = configService.getSystemConfig().getStorageStrategy();
+        SystemConfig systemConfig = systemConfigService.getSystemConfig();
+        StorageTypeEnum storageStrategy = systemConfig.getStorageStrategy();
         fileService = StorageTypeFactory.getTrafficMode(storageStrategy);
+        log.info("当前启用存储类型: {}", storageStrategy.getDescription());
+        initSearchCache();
         return ResultBean.success();
     }
 
@@ -117,5 +124,30 @@ public class FileController {
     @GetMapping("/audioInfo")
     public ResultBean getAudioInfo(String url) throws Exception {
         return ResultBean.success(fileService.getAudioInfo(url));
+    }
+
+    @GetMapping("/search")
+    public ResultBean search(@RequestParam("path") String name) throws Exception {
+        return ResultBean.success(fileService.search(name));
+    }
+
+    private void initSearchCache() {
+        StorageTypeEnum storageStrategy = systemConfigService.getSystemConfig().getStorageStrategy();
+        FileService fileService = StorageTypeFactory.getTrafficMode(storageStrategy);
+
+        ThreadUtil.execute(() -> {
+            try {
+                long startTime = System.currentTimeMillis();
+                log.info("初始化 {} 文件列表", storageStrategy.getDescription());
+                List<FileItem> fileItemList = fileService.selectAllFileList();
+                long endTime = System.currentTimeMillis();
+                log.info("完成 {} 缓存, 共缓存了 {} 个文件夹, 使用时间 {} 秒",
+                        storageStrategy.getDescription(),
+                        fileItemList.size(),
+                        (endTime - startTime) / 1000);
+            } catch (Exception e) {
+                log.info("初始化 " + storageStrategy.getDescription() + " 文件列表异常", e);
+            }
+        });
     }
 }

@@ -1,0 +1,236 @@
+[[
+   "ruleset",
+  ["variable",".text-layer"],
+  ["text"," "],
+  ["paren.lparen","{"]
+],[
+   "ruleset",
+  ["text","    "],
+  ["support.type","font"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["constant.numeric","12"],
+  ["keyword","px"],
+  ["text"," Monaco, "],
+  ["string.start","\""],
+  ["string","Courier New"],
+  ["string.end","\""],
+  ["text",", "],
+  ["support.constant.fonts","monospace"],
+  ["punctuation.operator",";"]
+],[
+   "ruleset",
+  ["text","    "],
+  ["support.type","cursor"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["support.constant","text"],
+  ["punctuation.operator",";"]
+],[
+   "start",
+  ["paren.rparen","}"]
+],[
+   "start"
+],[
+   "ruleset",
+  ["variable",".blinker"],
+  ["text"," "],
+  ["paren.lparen","{"]
+],[
+   "ruleset",
+  ["text","    "],
+  ["support.type","animation"],
+  ["punctuation.operator",":"],
+  ["text"," blink "],
+  ["constant.numeric","1"],
+  ["keyword","s"],
+  ["text"," "],
+  ["support.constant","linear"],
+  ["text"," infinite alternate"],
+  ["punctuation.operator",";"]
+],[
+   "start",
+  ["paren.rparen","}"]
+],[
+   "start"
+],[
+   "start",
+  ["string","@"],
+  ["keyword","keyframes"],
+  ["text"," blink "],
+  ["paren.lparen","{"]
+],[
+   "ruleset",
+  ["text","    "],
+  ["constant.numeric","0"],
+  ["keyword","%"],
+  ["text",", "],
+  ["constant.numeric","40"],
+  ["keyword","%"],
+  ["text"," "],
+  ["paren.lparen","{"]
+],[
+   ["comment","ruleset"],
+  ["text","        "],
+  ["support.type","opacity"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["constant.numeric","0"],
+  ["punctuation.operator",";"],
+  ["text"," "],
+  ["comment","/*"]
+],[
+   "ruleset",
+  ["comment","        */"]
+],[
+   "ruleset",
+  ["text","        "],
+  ["support.type","opacity"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["constant.numeric","1"]
+],[
+   "start",
+  ["text","    "],
+  ["paren.rparen","}"]
+],[
+   "start"
+],[
+   "ruleset",
+  ["text","    "],
+  ["constant.numeric","40.5"],
+  ["keyword","%"],
+  ["text",", "],
+  ["constant.numeric","100"],
+  ["keyword","%"],
+  ["text"," "],
+  ["paren.lparen","{"]
+],[
+   "ruleset",
+  ["text","        "],
+  ["support.type","opacity"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["constant.numeric","1"]
+],[
+   "start",
+  ["text","    "],
+  ["paren.rparen","}"]
+],[
+   "start",
+  ["paren.rparen","}"]
+],[
+   "start"
+],[
+   "media",
+  ["string","@"],
+  ["keyword","document"],
+  ["text"," "],
+  ["support.function","url("],
+  ["string","http://c9.io/"],
+  ["support.function",")"],
+  ["text",", "],
+  ["support.function","url-prefix("],
+  ["string","http://ace.c9.io/build/"],
+  ["support.function",")"],
+  ["text",","]
+],[
+   "media",
+  ["text","   "],
+  ["support.function","domain("],
+  ["string","c9.io"],
+  ["support.function",")"],
+  ["text",", "],
+  ["support.function","regexp("],
+  ["string","\"https:.*\""],
+  ["support.function",")"],
+  ["text"," "],
+  ["comment","/**/"]
+],[
+   "start",
+  ["paren.lparen","{"]
+],[
+   "start",
+  ["text","    "],
+  ["comment","/**/"]
+],[
+   "start",
+  ["text","    "],
+  ["constant","img"],
+  ["text","["],
+  ["constant","title"],
+  ["text","]"],
+  ["string",":before"],
+  ["text"," "]
+],[
+   "ruleset",
+  ["text","    "],
+  ["paren.lparen","{"]
+],[
+   ["string.start0","ruleset"],
+  ["text","        "],
+  ["support.type","content"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["support.function","attr"],
+  ["text","(title) "],
+  ["string.start","\""],
+  ["constant.language.escape","\\A"],
+  ["string","Image "],
+  ["constant.language.escape","\\"]
+],[
+   "ruleset",
+  ["string","            retrieved from"],
+  ["string.end","\""]
+],[
+   ["comment","ruleset"],
+  ["text","            "],
+  ["support.function","attr"],
+  ["text","(src)"],
+  ["punctuation.operator",";"],
+  ["text"," "],
+  ["comment","/*"]
+],[
+   "ruleset",
+  ["comment","            */"]
+],[
+   "ruleset",
+  ["text","        "],
+  ["support.type","white-space"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["support.constant","pre"],
+  ["punctuation.operator",";"]
+],[
+   "ruleset",
+  ["text","        "],
+  ["support.type","display"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["support.constant","block"],
+  ["punctuation.operator",";"]
+],[
+   "ruleset",
+  ["text","        "],
+  ["support.type","background"],
+  ["punctuation.operator",":"],
+  ["text"," "],
+  ["support.function","url("],
+  ["string","asdasd"],
+  ["support.function",")"],
+  ["punctuation.operator",";"],
+  ["text"," "],
+  ["string.start","\""],
+  ["string","err"]
+],[
+   "start",
+  ["text","    "],
+  ["paren.rparen","}"]
+],[
+   "start",
+  ["paren.rparen","}"]
+],[
+   "start"
+],[
+   "start"
+]]

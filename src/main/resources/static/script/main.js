@@ -35,9 +35,10 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
             $.each(data, function (i, val) {
                 var fileType, url;
                 var type = val.type.toLocaleLowerCase();
+                var path = zfile.removeDuplicateSeparator(val.path + "/" + val.name);
                 if (type === 'file') {
                     fileType = zfile.getFileType(val.name);
-                    url = zfile.getDownloadUrl(path + '/' + val.name);
+                    url = zfile.getDownloadUrl(path);
                 } else {
                     fileType = {
                         fileIcon: '/h5ai/public/images/themes/default/folder.svg',
@@ -47,7 +48,7 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
                 }
 
                 list[i] = {
-                    path: path + '/' + val.name,
+                    path: path,
                     url: url,
                     time: val.time,
                     name: val.name,
@@ -66,28 +67,34 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
         getPath: function () {
             return window.location.pathname.substring(this.prefixPath.length);
         },
-        listObjects: function (path, sortBy, descending) {
-            // 如文件路径后没加 "/" , 则加上 "/".
-            if (path !== '' && path.charAt(path.length - 1) !== '/') {
-                path += '/';
+        listObjects: function (settings) {
+
+            var defaultSetting = {
+                path: zfile.getPath(),
+                sortBy: zfile.getSortBy(),
+                descending: zfile.getDescending() === 'desc',
+                search: false
+            };
+
+            $.extend(defaultSetting, settings);
+
+            if (!defaultSetting.search && defaultSetting.path !== '' && defaultSetting.path.charAt(defaultSetting.path.length - 1) !== '/') {
+                defaultSetting.path += '/';
             }
 
-            // 如果没有指定排序方式, 则获取当前的排序方式.
-            if (!sortBy) {
-                sortBy = zfile.getSortBy();
+            var url = '/api/list';
+            if (defaultSetting.search && defaultSetting.path !== "") {
+                url = '/api/search';
             }
 
-            if (descending === '') {
-                descending = zfile.getDescending() === 'desc';
-            }
             $("#items").attr("style", "opacity: 0.5;-moz-opacit: 0.5;");
             $.ajax({
                 type: 'GET',
-                url: '/api/list',
+                url: url,
                 data: {
-                    path: encodeURIComponent(decodeURIComponent(path)),   // 先解码, 再编码, 防止重复编码
-                    sortBy: sortBy,
-                    descending: descending
+                    path: encodeURIComponent(decodeURIComponent(defaultSetting.path)),   // 先解码, 再编码, 防止重复编码
+                    sortBy: defaultSetting.sortBy,
+                    descending: defaultSetting.descending
                 },
                 dataType: 'json',
                 success: function (result) {
@@ -175,11 +182,11 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
         },
         sortSwitch: function (who) {
             if ($(who).hasClass("descending")) {
-                this.listObjects(zfile.getPath(), zfile.getSortBy(), false);
+                this.listObjects({descending: false});
                 zfile.sortClear();
                 $(who).addClass("ascending");
             } else {
-                this.listObjects(zfile.getPath(), zfile.getSortBy(), true);		//默认新一次排序为倒序
+                this.listObjects({descending: true});		//默认新一次排序为倒序
                 zfile.sortClear();
                 $(who).addClass("descending");
             }
@@ -361,7 +368,9 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
             layer.open({
                 type: 1,
                 title: false,
-                area: ['66%', '120px'],
+                // area: ['66%', '120px'],
+                area: screen.availWidth > 768 ? ['66%', '120px'] : ['100%', '60px'],
+                offset: screen.availWidth > 768 ? 'auto' : 'b',
                 shade: 0.3,
                 shadeClose: true,
                 closeBtn: 1,
@@ -417,7 +426,7 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
         }
     };
 
-    zfile.listObjects(zfile.getPath());
+    zfile.listObjects();
 
     $("#search").on("click", function (e) {
         if ($(e.target).hasClass('l10n_ph-search')) {
@@ -426,8 +435,13 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
         $(this).toggleClass("active")
     });
 
+    $("#search").on("input", ".l10n_ph-search",function (e) {
+        zfile.listObjects({path: $(this).val(), search: true});
+    });
+
     $("#crumbbar").on("click", 'a.crumb', function () {
-        zfile.listObjects($(this).attr("data"));							// 回到首页, 看是不是可以直接写死为 '/'
+        zfile.listObjects({path: "/"});							// 回到首页, 看是不是可以直接写死为 '/'
+        // zfile.listObjects({path: $(this).attr("data")});							// 回到首页, 看是不是可以直接写死为 '/'
     });
 
     $(".header").on("click", ".name, .time, .size", function () {     // 排序功能
@@ -439,7 +453,7 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
         e.preventDefault();
         var path = $(this).attr("data");
         var href = $(this).find("a").attr("href");
-        zfile.listObjects(path);
+        zfile.listObjects({path: path});
         window.history.pushState(null, null, zfile.removeDuplicateSeparator(href));
     });
 
@@ -447,7 +461,7 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
     zfile.listObj.on("click", "li.item.folder", function (e) {
         e.preventDefault();
         var path = $(this).attr("data");
-        zfile.listObjects(path);
+        zfile.listObjects({path: path});
         window.history.pushState(null, null, zfile.removeDuplicateSeparator(zfile.prefixPath + "/" + path));
     });
 
@@ -484,7 +498,7 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
     });
 
     window.addEventListener("popstate", function(e) {
-        zfile.listObjects(zfile.getPath());
+        zfile.listObjects();
     });
 
     return zfile;

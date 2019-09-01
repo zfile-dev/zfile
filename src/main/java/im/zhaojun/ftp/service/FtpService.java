@@ -61,6 +61,7 @@ public class FtpService implements FileService {
             fileItem.setSize(ftpFile.getSize());
             fileItem.setTime(ftpFile.getTimestamp().getTime());
             fileItem.setType(ftpFile.isDirectory() ? FileTypeEnum.FOLDER : FileTypeEnum.FILE);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
         return fileItemList;
@@ -69,5 +70,10 @@ public class FtpService implements FileService {
     @Override
     public String getDownloadUrl(String path) {
         return URLUtil.complateUrl(domain, path);
+    }
+
+    @Override
+    public StorageTypeEnum getStorageTypeEnum() {
+        return StorageTypeEnum.FTP;
     }
 }

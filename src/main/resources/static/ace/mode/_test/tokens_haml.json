@@ -1,0 +1,259 @@
+[[
+   "start",
+  ["keyword.other.doctype","!!!5"]
+],[
+   "start"
+],[
+   "embedded_ruby",
+  ["text","# <!--["],
+  ["keyword","if"],
+  ["text"," "],
+  ["identifier","lt"],
+  ["text"," "],
+  ["support.class","IE"],
+  ["text"," "],
+  ["constant.numeric","7"],
+  ["text","]> <"],
+  ["identifier","html"],
+  ["text"," "],
+  ["keyword","class"],
+  ["text","="],
+  ["string","\"no-js lt-ie9 lt-ie8 lt-ie7\""],
+  ["text"," "],
+  ["identifier","lang"],
+  ["text","="],
+  ["string","\"en\""],
+  ["text","> <!["],
+  ["identifier","endif"],
+  ["text","]-->"]
+],[
+   "embedded_ruby",
+  ["text","# <!--["],
+  ["keyword","if"],
+  ["text"," "],
+  ["support.class","IE"],
+  ["text"," "],
+  ["constant.numeric","7"],
+  ["text","]>    <"],
+  ["identifier","html"],
+  ["text"," "],
+  ["keyword","class"],
+  ["text","="],
+  ["string","\"no-js lt-ie9 lt-ie8\""],
+  ["text"," "],
+  ["identifier","lang"],
+  ["text","="],
+  ["string","\"en\""],
+  ["text","> <!["],
+  ["identifier","endif"],
+  ["text","]-->"]
+],[
+   "embedded_ruby",
+  ["text","# <!--["],
+  ["keyword","if"],
+  ["text"," "],
+  ["support.class","IE"],
+  ["text"," "],
+  ["constant.numeric","8"],
+  ["text","]>    <"],
+  ["identifier","html"],
+  ["text"," "],
+  ["keyword","class"],
+  ["text","="],
+  ["string","\"no-js lt-ie9\""],
+  ["text"," "],
+  ["identifier","lang"],
+  ["text","="],
+  ["string","\"en\""],
+  ["text","> <!["],
+  ["identifier","endif"],
+  ["text","]-->"]
+],[
+   "embedded_ruby",
+  ["text","# <!--["],
+  ["keyword","if"],
+  ["text"," "],
+  ["identifier","gt"],
+  ["text"," "],
+  ["support.class","IE"],
+  ["text"," "],
+  ["constant.numeric","8"],
+  ["text","]><!--> <"],
+  ["identifier","html"],
+  ["text"," "],
+  ["keyword","class"],
+  ["text","="],
+  ["string","\"no-js\""],
+  ["text"," "],
+  ["identifier","lang"],
+  ["text","="],
+  ["string","\"en\""],
+  ["text","> <!--<!["],
+  ["identifier","endif"],
+  ["text","]-->"]
+],[
+   "start"
+],[
+   "start"
+],[
+   "start",
+  ["comment.line","/adasdasdad"]
+],[
+   "embedded_ruby",
+  ["meta.tag.haml","%div"],
+  ["text","{"],
+  ["constant.other.symbol.ruby",":id"],
+  ["text"," => "],
+  ["string","\"#{@item.type}_#{@item.number}\""],
+  ["text",", :"],
+  ["keyword","class"],
+  ["text"," => "],
+  ["string","'#{@item.type} #{@item.urgency}'"],
+  ["text",", :"],
+  ["identifier","phoney"],
+  ["text"," => "],
+  ["string","`asdasdasd`"],
+  ["text","}"]
+],[
+   "start",
+  ["comment.line","/ file: app/views/movies/index.html.haml"]
+],[
+   "start",
+  ["text","\\d"]
+],[
+   "embedded_ruby",
+  ["meta.tag.haml","%ads:"],
+  ["text","{"],
+  ["constant.other.symbol.ruby",":bleh"],
+  ["text"," => "],
+  ["constant.numeric","33"],
+  ["text","}"]
+],[
+   "embedded_ruby",
+  ["meta.tag.haml","%p"],
+  ["text","=="],
+  ["identifier","ddd"],
+  ["text","=="]
+],[
+   "start",
+  ["text","  Date"],
+  ["comment.line","/Time:"]
+],[
+   "embedded_ruby",
+  ["text","  - "],
+  ["identifier","now"],
+  ["text"," = "],
+  ["support.class","DateTime"],
+  ["text","."],
+  ["identifier","now"],
+  ["text"," "]
+],[
+   "embedded_ruby",
+  ["text","  "],
+  ["meta.tag.haml","%strong"],
+  ["text","= "],
+  ["identifier","now"]
+],[
+   "embedded_ruby",
+  ["text","   = "],
+  ["keyword","if"],
+  ["text"," "],
+  ["identifier","now"],
+  ["text","  "],
+  ["support.class","DateTime"],
+  ["text","."],
+  ["identifier","parse"],
+  ["text","("],
+  ["string","\"December 31, 2006\""],
+  ["text",")"]
+],[
+   "embedded_ruby",
+  ["text","    = "],
+  ["string","\"Happy new \""],
+  ["text"," + "],
+  ["string","\"year!\""]
+],[
+   "start",
+  ["meta.tag.haml","%sfd"],
+  ["keyword.attribute-name.class.haml",".dfdfg"]
+],[
+   "element_class",
+  ["keyword.attribute-name.id.haml","#content"]
+],[
+   "start",
+  ["text"," "],
+  ["keyword.attribute-name.class.haml",".title"]
+],[
+   "embedded_ruby",
+  ["text","   "],
+  ["meta.tag.haml","%h1"],
+  ["text","= "],
+  ["variable.instance","@title"]
+],[
+   "embedded_ruby",
+  ["text","   = "],
+  ["support.function","link_to"],
+  ["text"," "],
+  ["string","'Home'"],
+  ["text",", "],
+  ["identifier","home_url"]
+],[
+   "start"
+],[
+   "element_class",
+  ["text","   "],
+  ["keyword.attribute-name.id.haml","#contents"]
+],[
+   "element_class",
+  ["meta.tag.haml","%div"],
+  ["keyword.attribute-name.id.haml","#content"]
+],[
+   "start",
+  ["text","  "],
+  ["meta.tag.haml","%div"],
+  ["keyword.attribute-name.class.haml",".articles"]
+],[
+   "start",
+  ["text","    "],
+  ["meta.tag.haml","%div"],
+  ["keyword.attribute-name.class.haml",".article.title"],
+  ["text"," Blah"]
+],[
+   "start",
+  ["text","    "],
+  ["meta.tag.haml","%div"],
+  ["keyword.attribute-name.class.haml",".article.date"],
+  ["text"," "],
+  ["constant.numeric","2006-11-05"]
+],[
+   "start",
+  ["text","    "],
+  ["meta.tag.haml","%div"],
+  ["keyword.attribute-name.class.haml",".article.entry"]
+],[
+   "start",
+  ["text","      Neil Patrick Harris "]
+],[
+   "start"
+],[
+   "start",
+  ["meta.tag.haml","%div"],
+  ["text","[@user, "],
+  ["constant.other.symbol.ruby",":greeting"],
+  ["text","]"]
+],[
+   "start",
+  ["text","  "],
+  ["meta.tag.haml","%bar"],
+  ["text","["],
+  ["constant.numeric","290"],
+  ["text","]"],
+  ["comment.line","/"]
+],[
+   "embedded_ruby",
+  ["text","  =="],
+  ["support.class","Hello"],
+  ["text","!=="]
+],[
+   "start"
+]]

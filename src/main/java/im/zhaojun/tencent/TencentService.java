@@ -81,6 +81,7 @@ public class TencentService implements FileService {
             fileItem.setSize(s.getSize());
             fileItem.setTime(s.getLastModified());
             fileItem.setType(FileTypeEnum.FILE);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
 
@@ -88,6 +89,7 @@ public class TencentService implements FileService {
             FileItem fileItem = new FileItem();
             fileItem.setName(commonPrefix.substring(path.length(), commonPrefix.length() - 1));
             fileItem.setType(FileTypeEnum.FOLDER);
+            fileItem.setPath(path);
             fileItemList.add(fileItem);
         }
 
@@ -99,5 +101,10 @@ public class TencentService implements FileService {
         Date expirationDate = new Date(new Date().getTime() + timeout * 1000);
         URL url = cosClient.generatePresignedUrl(bucketName, path, expirationDate);
         return URLUtil.complateUrl(domain, url.getFile());
+    }
+
+    @Override
+    public StorageTypeEnum getStorageTypeEnum() {
+        return StorageTypeEnum.TENCENT;
     }
 }
