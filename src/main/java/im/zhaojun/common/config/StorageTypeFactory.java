@@ -10,9 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-/**
- * 存储类型工厂类
- */
 @Component
 public class StorageTypeFactory implements ApplicationContextAware {
 
@@ -20,13 +17,21 @@ public class StorageTypeFactory implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;
 
+    /**
+     * 项目启动时执行
+     */
     @Override
     public void setApplicationContext(ApplicationContext act) throws BeansException {
         applicationContext = act;
+
+        // 获取 Spring 容器中所有 FileService 类型的类
         storageTypeEnumFileServiceMap = act.getBeansOfType(FileService.class);
     }
 
-    public static FileService getTrafficMode(StorageTypeEnum type) {
+    /**
+     * 获取指定存储类型 Service
+     */
+    public static FileService getStorageTypeService(StorageTypeEnum type) {
         FileService result = null;
         for (FileService fileService : storageTypeEnumFileServiceMap.values()) {
             if (fileService.getStorageTypeEnum() == type) {

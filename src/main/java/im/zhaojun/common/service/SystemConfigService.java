@@ -21,7 +21,7 @@ public class SystemConfigService {
     public FileService getCurrentFileService() {
         SystemConfig systemConfig = getSystemConfig();
         StorageTypeEnum storageStrategy = systemConfig.getStorageStrategy();
-        return StorageTypeFactory.getTrafficMode(storageStrategy);
+        return StorageTypeFactory.getStorageTypeService(storageStrategy);
     }
 
 }

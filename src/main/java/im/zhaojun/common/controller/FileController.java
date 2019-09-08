@@ -118,7 +118,7 @@ public class FileController {
     public ResultBean updateConfig() {
         SystemConfig systemConfig = systemConfigService.getSystemConfig();
         StorageTypeEnum storageStrategy = systemConfig.getStorageStrategy();
-        fileService = StorageTypeFactory.getTrafficMode(storageStrategy);
+        fileService = StorageTypeFactory.getStorageTypeService(storageStrategy);
         log.info("当前启用存储类型: {}", storageStrategy.getDescription());
         initSearchCache();
         return ResultBean.success();
@@ -142,26 +142,6 @@ public class FileController {
 
     @GetMapping("/search")
     public ResultBean search(@RequestParam("path") String name) throws Exception {
-        return ResultBean.success(fileService.search(name));
-    }
-
-    private void initSearchCache() {
-        StorageTypeEnum storageStrategy = systemConfigService.getSystemConfig().getStorageStrategy();
-        FileService fileService = StorageTypeFactory.getTrafficMode(storageStrategy);
-
-        ThreadUtil.execute(() -> {
-            try {
-                long startTime = System.currentTimeMillis();
-                log.info("初始化 {} 文件列表", storageStrategy.getDescription());
-                List<FileItem> fileItemList = fileService.selectAllFileList();
-                long endTime = System.currentTimeMillis();
-                log.info("完成 {} 缓存, 共缓存了 {} 个文件夹, 使用时间 {} 秒",
-                        storageStrategy.getDescription(),
-                        fileItemList.size(),
-                        (endTime - startTime) / 1000);
-            } catch (Exception e) {
-                log.info("初始化 " + storageStrategy.getDescription() + " 文件列表异常", e);
-            }
-        });
+        return ResultBean.success(fileService.search(URLUtil.decode(name)));
     }
 }
