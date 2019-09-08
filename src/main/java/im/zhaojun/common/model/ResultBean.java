@@ -6,9 +6,11 @@ public class ResultBean implements Serializable {
 
     private static final long serialVersionUID = -8276264968757808344L;
 
-    private static final int SUCCESS = 0;
+    public static final int SUCCESS = 0;
 
-    private static final int FAIL = -1;
+    public static final int FAIL = -1;
+
+    public static final int REQUIRED_PASSWORD = -2;
 
     private String msg = "操作成功";
 
@@ -49,6 +51,13 @@ public class ResultBean implements Serializable {
     public static ResultBean error(String msg) {
         ResultBean resultBean = new ResultBean();
         resultBean.setCode(FAIL);
+        resultBean.setMsg(msg);
+        return resultBean;
+    }
+
+    public static ResultBean error(String msg, Integer code) {
+        ResultBean resultBean = new ResultBean();
+        resultBean.setCode(code);
         resultBean.setMsg(msg);
         return resultBean;
     }

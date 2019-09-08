@@ -10,7 +10,8 @@ requirejs.config({
         layer: '/layer/layer',
         highlight: '/highlight/highlight.min',
         DPlayer: '/DPlayer/DPlayer.min',
-        Shikwasa: '/shikwasa/shikwasa.min'
+        Shikwasa: '/shikwasa/shikwasa.min',
+        swal: '/sweetalert/sweetalert.min'
     },
     shim: {
         zfile: {
@@ -33,5 +34,4 @@ requirejs.config({
 });
 
 requirejs(['index'], function(index) {
-
 });

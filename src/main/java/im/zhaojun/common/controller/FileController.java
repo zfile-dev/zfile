@@ -1,8 +1,8 @@
 package im.zhaojun.common.controller;
 
-import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.config.StorageTypeFactory;
+import im.zhaojun.common.constant.ZfileConstant;
 import im.zhaojun.common.enums.FileTypeEnum;
 import im.zhaojun.common.enums.StorageTypeEnum;
 import im.zhaojun.common.model.FileItem;
@@ -14,11 +14,13 @@ import im.zhaojun.common.service.SystemConfigService;
 import im.zhaojun.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,8 +36,21 @@ public class FileController {
     private SystemConfigService systemConfigService;
 
     @GetMapping("/list")
-    public ResultBean list(String path, String sortBy, boolean descending) throws Exception {
+    public ResultBean list(String path, String sortBy, boolean descending, @RequestParam(required = false) String password) throws Exception {
         List<FileItem> fileItems = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + URLUtil.decode(path)));
+
+        for (FileItem fileItem : fileItems) {
+            if (ZfileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())) {
+
+                String url = StringUtils.removeDuplicateSeparator("/" + fileItem.getPath() + "/" + fileItem.getName());
+
+                if (!fileService.getTextContent(url).equals(password)) {
+                    if (password != null && !"".equals(password)) return ResultBean.error("密码错误.");
+                    return ResultBean.error("此文件夹需要密码.", ResultBean.REQUIRED_PASSWORD);
+                }
+            }
+        }
+
 
         // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
         fileItems.sort((o1, o2) -> {
@@ -61,7 +76,6 @@ public class FileController {
         if (descending) {
             Collections.reverse(fileItems);
         }
-
         return ResultBean.successData(fileItems);
     }
 

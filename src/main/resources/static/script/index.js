@@ -1,7 +1,7 @@
 define(['jquery', 'zfile', 'QRCode', 'contextMenu', 'marked'], function($, zfile, QRCode, contextMenu, marked) {
 
     var index = {
-        LOCAL_STORAGE_KEY: "zadmin-config",
+        LOCAL_STORAGE_CONFIG_KEY: "zadmin-config",
         buildInfo: function (info) {
             $("#info .block .name").html(info.name);
             $("#info .block .time").html(info.time);
@@ -15,10 +15,10 @@ define(['jquery', 'zfile', 'QRCode', 'contextMenu', 'marked'], function($, zfile
             }
         },
         updateConfig: function (key, value) {
-            var systemConfigStr = localStorage.getItem(index.LOCAL_STORAGE_KEY);
+            var systemConfigStr = localStorage.getItem(index.LOCAL_STORAGE_CONFIG_KEY);
             var systemConfig = JSON.parse(systemConfigStr);
             systemConfig[key] = value;
-            localStorage.setItem(index.LOCAL_STORAGE_KEY, JSON.stringify(systemConfig));
+            localStorage.setItem(index.LOCAL_STORAGE_CONFIG_KEY, JSON.stringify(systemConfig));
         },
         updateListSize: function (value) {
             var size;
@@ -50,7 +50,7 @@ define(['jquery', 'zfile', 'QRCode', 'contextMenu', 'marked'], function($, zfile
                     result = data.data;
                     var systemConfig = result.systemConfig;
 
-                    var systemConfigCache = localStorage.getItem(index.LOCAL_STORAGE_KEY);
+                    var systemConfigCache = localStorage.getItem(index.LOCAL_STORAGE_CONFIG_KEY);
                     if (systemConfigCache) {
                         systemConfig = JSON.parse(systemConfigCache);
                     }
@@ -120,7 +120,7 @@ define(['jquery', 'zfile', 'QRCode', 'contextMenu', 'marked'], function($, zfile
                         }
 
                     }
-                    localStorage.setItem(index.LOCAL_STORAGE_KEY, JSON.stringify(systemConfig));
+                    localStorage.setItem(index.LOCAL_STORAGE_CONFIG_KEY, JSON.stringify(systemConfig));
                 },
                 error: function (textStatus, errorThrown) {
                     alert("加载站点配置失败.!");

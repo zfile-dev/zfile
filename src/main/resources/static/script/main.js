@@ -1,4 +1,4 @@
-define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwasa'], function ($, Mustache, layer, marked, hljs, DPlayer, Shikwasa){
+define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwasa', 'swal'], function ($, Mustache, layer, marked, hljs, DPlayer, Shikwasa, swal){
 
     var zfile = {
         prefixPath: '/file',
@@ -7,6 +7,7 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
         sizeObj: $(".size"),
         infoObj: $("#info"),
         listObj: $("#list"),
+        LOCAL_STORAGE_PWD_KEY_PREFIX: "zadmin-pwd-",
         util: {
             bytesToSize: function (bytes) {
                 if (bytes === 0) return '0 B';
@@ -29,8 +30,6 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
             }
         },
         buildList: function (data) {
-            var path = zfile.getPath();
-
             var list = [];
             $.each(data, function (i, val) {
                 var fileType, url;
@@ -73,10 +72,15 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
                 path: zfile.getPath(),
                 sortBy: zfile.getSortBy(),
                 descending: zfile.getDescending() === 'desc',
-                search: false
+                search: false,
+                password: zfile.getPassword(zfile.getPath())
             };
 
+            console.log("尝试获取 key: " + zfile.getPath());
+
             $.extend(defaultSetting, settings);
+
+
 
             if (!defaultSetting.search && defaultSetting.path !== '' && defaultSetting.path.charAt(defaultSetting.path.length - 1) !== '/') {
                 defaultSetting.path += '/';
@@ -88,20 +92,32 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
             }
 
             $("#items").attr("style", "opacity: 0.5;-moz-opacit: 0.5;");
+
             $.ajax({
                 type: 'GET',
                 url: url,
                 data: {
                     path: encodeURIComponent(decodeURIComponent(defaultSetting.path)),   // 先解码, 再编码, 防止重复编码
                     sortBy: defaultSetting.sortBy,
-                    descending: defaultSetting.descending
+                    descending: defaultSetting.descending,
+                    password: defaultSetting.password
                 },
                 dataType: 'json',
                 success: function (result) {
+                    zfile.clearList();
                     var data = result.data;
-                    if (data.length === 0) {
+                    if (result.code === -1) {
+                        swal({
+                            title: result.msg,
+                            text: "请重新输入密码.",
+                            icon: "error"
+                        }).then(zfile.pwdModal);
+                    } else if (result.code === -2) {
+                        zfile.pwdModal();
+                    } else if (data.length === 0) {
                         zfile.listObj.html('<div id="view-hint" class="l10n-empty">空文件夹</div>');
                     } else {
+                        zfile.savePassword(zfile.getPath(), defaultSetting.password);
                         zfile.buildList(data);
                     }
                 },
@@ -121,6 +137,26 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
                     $("#items").attr("style", "opacity: 1.0;-moz-opacit: 1.0;");
                 }
             });
+        },
+        pwdModal: function () {
+            swal({
+                content: {
+                    element: "input",
+                    attributes: {
+                        placeholder: "输入密码进行查看."
+                    }
+                }
+            }).then(function (value) {
+                if (value !== null) {
+                    zfile.listObjects({password: value});
+                }
+            });
+        },
+        savePassword: function(path, pwd) {
+            localStorage.setItem(zfile.LOCAL_STORAGE_PWD_KEY_PREFIX + path, pwd);
+        },
+        getPassword: function(path) {
+            return localStorage.getItem(zfile.LOCAL_STORAGE_PWD_KEY_PREFIX + path);
         },
         clearList: function () {
             this.listObj.html('');
@@ -368,7 +404,6 @@ define(['jquery', 'Mustache', 'layer', 'marked', 'highlight', 'DPlayer', 'Shikwa
             layer.open({
                 type: 1,
                 title: false,
-                // area: ['66%', '120px'],
                 area: screen.availWidth > 768 ? ['66%', '120px'] : ['100%', '60px'],
                 offset: screen.availWidth > 768 ? 'auto' : 'b',
                 shade: 0.3,

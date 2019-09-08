@@ -1,20 +1,18 @@
 package im.zhaojun.common.service;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
-import com.mpatric.mp3agic.ID3v1;
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.Mp3File;
 import im.zhaojun.common.config.ZfileCacheConfiguration;
+import im.zhaojun.common.constant.ZfileConstant;
 import im.zhaojun.common.enums.FileTypeEnum;
 import im.zhaojun.common.enums.StorageTypeEnum;
 import im.zhaojun.common.model.AudioInfo;
 import im.zhaojun.common.model.FileItem;
 import im.zhaojun.common.model.ImageInfo;
 import im.zhaojun.common.model.SiteConfig;
+import im.zhaojun.common.util.AudioHelper;
 import im.zhaojun.common.util.StringUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheConfig;
@@ -52,9 +50,9 @@ public interface FileService {
         List<FileItem> fileItemList = fileService.fileList(path);
         path = StringUtils.removeLastSeparator(path);
         for (FileItem fileItem : fileItemList) {
-            if ("readme.md".equalsIgnoreCase(fileItem.getName())) {
+            if (ZfileConstant.README_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
                 siteConfig.setFooter(getTextContent(path + "/" + fileItem.getName()));
-            } else if ("header.md".equalsIgnoreCase(fileItem.getName())) {
+            } else if (ZfileConstant.HEADER_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
                 siteConfig.setHeader(getTextContent(path + "/" + fileItem.getName()));
             }
         }
