@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,27 +44,37 @@ public class UpYunService implements FileService {
         upYun = new UpYun(bucketName, username, password);
     }
 
+    @Override
     public List<FileItem> fileList(String path) throws Exception {
         ArrayList<FileItem> fileItems = new ArrayList<>();
-        List<UpYun.FolderItem> folderItems = upYun.readDir(URLUtil.encode(path), null);
+        String nextMark = null;
 
-        if (folderItems != null) {
-            for (UpYun.FolderItem folderItem : folderItems) {
-                FileItem fileItem = new FileItem();
-                fileItem.setName(folderItem.name);
-                fileItem.setSize(folderItem.size);
-                fileItem.setTime(folderItem.date);
-                fileItem.setPath(path);
+        do {
+            HashMap<String, String> hashMap = new HashMap<>();
+            hashMap.put("x-list-iter", nextMark);
+            hashMap.put("x-list-limit", "100");
+            UpYun.FolderItemIter folderItemIter = upYun.readDirIter(URLUtil.encode(path), hashMap);
+            nextMark = folderItemIter.iter;
+            ArrayList<UpYun.FolderItem> folderItems = folderItemIter.files;
+            if (folderItems != null) {
+                for (UpYun.FolderItem folderItem : folderItems) {
+                    FileItem fileItem = new FileItem();
+                    fileItem.setName(folderItem.name);
+                    fileItem.setSize(folderItem.size);
+                    fileItem.setTime(folderItem.date);
+                    fileItem.setPath(path);
 
-                if ("Folder".equals(folderItem.type)) {
-                    fileItem.setType(FileTypeEnum.FOLDER);
-                } else if ("File".equals(folderItem.type)) {
-                    fileItem.setType(FileTypeEnum.FILE);
+                    if ("folder".equals(folderItem.type)) {
+                        fileItem.setType(FileTypeEnum.FOLDER);
+                    } else {
+                        fileItem.setType(FileTypeEnum.FILE);
+                    }
+                    fileItems.add(fileItem);
                 }
-                fileItems.add(fileItem);
             }
-        }
+        } while (!"g2gCZAAEbmV4dGQAA2VvZg".equals(nextMark));
         return fileItems;
+
     }
 
     @Override
