@@ -3,14 +3,16 @@ package im.zhaojun.common.controller;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.constant.ZfileConstant;
-import im.zhaojun.common.enums.FileTypeEnum;
 import im.zhaojun.common.enums.StorageTypeEnum;
+import im.zhaojun.common.exception.SearchDisableException;
 import im.zhaojun.common.model.FileItem;
 import im.zhaojun.common.model.ResultBean;
 import im.zhaojun.common.model.SiteConfig;
-import im.zhaojun.common.model.SystemConfig;
+import im.zhaojun.common.model.ViewConfig;
 import im.zhaojun.common.service.FileService;
-import im.zhaojun.common.service.SystemConfigService;
+import im.zhaojun.common.service.SystemService;
+import im.zhaojun.common.service.ViewConfigService;
+import im.zhaojun.common.util.FileComparator;
 import im.zhaojun.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.util.Collections;
 import java.util.List;
 
 @RequestMapping("/api")
@@ -33,60 +34,53 @@ public class FileController {
     private FileService fileService;
 
     @Resource
-    private SystemConfigService systemConfigService;
+    private SystemService systemService;
+
+    @Resource
+    private ViewConfigService viewConfigService;
 
     @GetMapping("/list")
-    public ResultBean list(String path, String sortBy, boolean descending, @RequestParam(required = false) String password) throws Exception {
+    public ResultBean list(@RequestParam(defaultValue = "/") String path,
+                           @RequestParam(defaultValue = "name") String sortBy,
+                           @RequestParam(defaultValue = "asc") String order,
+                           @RequestParam(required = false) String password) throws Exception {
         List<FileItem> fileItems = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + URLUtil.decode(path)));
 
         for (FileItem fileItem : fileItems) {
             if (ZfileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())) {
-
                 String url = StringUtils.removeDuplicateSeparator("/" + fileItem.getPath() + "/" + fileItem.getName());
 
                 if (!fileService.getTextContent(url).equals(password)) {
-                    if (password != null && !"".equals(password)) return ResultBean.error("密码错误.");
+                    if (password != null && !"".equals(password)) {
+                        return ResultBean.error("密码错误.");
+                    }
                     return ResultBean.error("此文件夹需要密码.", ResultBean.REQUIRED_PASSWORD);
                 }
             }
         }
 
-
         // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
-        fileItems.sort((o1, o2) -> {
-            FileTypeEnum o1Type = o1.getType();
-            FileTypeEnum o2Type = o2.getType();
-
-            if (o1Type.equals(o2Type)) {
-                switch (sortBy) {
-                    case "name": return o1.getName().compareTo(o2.getName());
-                    case "time": return o1.getTime().compareTo(o2.getTime());
-                    case "size": return o1.getSize().compareTo(o2.getSize());
-                    default: return o1.getName().compareTo(o2.getName());
-                }
-            }
-
-            if (o1Type.equals(FileTypeEnum.FOLDER)) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
-
-        if (descending) {
-            Collections.reverse(fileItems);
-        }
+        fileItems.sort(new FileComparator(sortBy, order));
+        filterFileList(fileItems);
         return ResultBean.successData(fileItems);
     }
 
     /**
      * 获取下载链接
-     * @param path          路径
-     * @return              下载链接
+     *
+     * @param path 路径
+     * @param name 文件名称
+     * @return 下载链接
      */
     @GetMapping("/downloadUrl")
-    public ResultBean getDownloadUrl(String path) throws Exception {
-        return ResultBean.successData(fileService.getDownloadUrl(URLUtil.decode(path)));
+    public ResultBean getDownloadUrl(@RequestParam String path,
+                                     @RequestParam String name) throws Exception {
+        path = URLUtil.decode(path);
+        name = URLUtil.decode(name);
+
+        String fullPath = StringUtils.concatURL(path, name);
+        String downloadUrl = fileService.getDownloadUrl(fullPath);
+        return ResultBean.successData(downloadUrl);
     }
 
     /**
@@ -94,7 +88,7 @@ public class FileController {
      * @param path   文件路径
      * @return       文件内容
      */
-    @GetMapping("/getContent")
+    @GetMapping("/content")
     public ResultBean getContent(String path) throws Exception {
         return ResultBean.successData(fileService.getTextContent(path));
     }
@@ -103,10 +97,10 @@ public class FileController {
      * 获取系统配置信息和当前页的标题, 文件头, 文件尾信息
      * @param path          路径
      */
-    @GetMapping("/getConfig")
+    @GetMapping("/config")
     public ResultBean getConfig(String path) throws Exception {
-        SiteConfig config = fileService.getConfig(URLUtil.decode(StringUtils.removeDuplicateSeparator("/" + path + "/")));
-        config.setSystemConfig(systemConfigService.getSystemConfig());
+        SiteConfig config = systemService.getConfig(URLUtil.decode(StringUtils.removeDuplicateSeparator("/" + path + "/")));
+        config.setViewConfig(viewConfigService.getViewConfig());
         return ResultBean.successData(config);
     }
 
@@ -116,11 +110,22 @@ public class FileController {
     @PostConstruct
     @GetMapping("/updateStorageStrategy")
     public ResultBean updateConfig() {
-        SystemConfig systemConfig = systemConfigService.getSystemConfig();
-        StorageTypeEnum storageStrategy = systemConfig.getStorageStrategy();
+        ViewConfig viewConfig = viewConfigService.getViewConfig();
+        StorageTypeEnum storageStrategy = viewConfig.getStorageStrategy();
         fileService = StorageTypeFactory.getStorageTypeService(storageStrategy);
         log.info("当前启用存储类型: {}", storageStrategy.getDescription());
-        initSearchCache();
+//        new Thread(() -> {
+//            log.info("缓存 {} 所有文件开始", storageStrategy.getDescription());
+//            long startTime = System.currentTimeMillis();
+//            try {
+//                fileService.selectAllFileList();
+//            } catch (Exception e) {
+//                log.error("缓存所有文件失败", e);
+//                e.printStackTrace();
+//            }
+//            long endTime = System.currentTimeMillis();
+//            log.info("缓存 {} 所有文件结束, 用时: {} 秒", storageStrategy.getDescription(), ( (endTime - startTime) / 1000 ));
+//        }).start();
         return ResultBean.success();
     }
 
@@ -132,6 +137,9 @@ public class FileController {
 
     @GetMapping("/getImageInfo")
     public ResultBean getImageInfo(String url) throws Exception {
+        if (url != null && url.indexOf("//") == 0) {
+            url = "http:" + url;
+        }
         return ResultBean.success(fileService.getImageInfo(url));
     }
 
@@ -141,7 +149,25 @@ public class FileController {
     }
 
     @GetMapping("/search")
-    public ResultBean search(@RequestParam("path") String name) throws Exception {
+    public ResultBean search(@RequestParam(value = "name", defaultValue = "/") String name) throws Exception {
+        ViewConfig viewConfig = viewConfigService.getViewConfig();
+        if (!viewConfig.getSearchEnable()) {
+            throw new SearchDisableException("搜索功能未开启");
+        }
         return ResultBean.success(fileService.search(URLUtil.decode(name)));
+    }
+
+
+    /**
+     * 过滤文件列表, 不显示密码, 头部和尾部文件.
+     */
+    private void filterFileList(List<FileItem> fileItemList) {
+        if (fileItemList == null) {
+            return;
+        }
+
+        fileItemList.removeIf(fileItem -> ZfileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())
+                || ZfileConstant.README_FILE_NAME.equals(fileItem.getName())
+                || ZfileConstant.HEADER_FILE_NAME.equals(fileItem.getName()));
     }
 }

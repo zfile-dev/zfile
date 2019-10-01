@@ -10,7 +10,7 @@ public class SiteConfig implements Serializable {
 
     private String footer;
 
-    private SystemConfig systemConfig;
+    private ViewConfig viewConfig;
 
     public String getHeader() {
         return header;
@@ -28,11 +28,11 @@ public class SiteConfig implements Serializable {
         this.footer = footer;
     }
 
-    public SystemConfig getSystemConfig() {
-        return systemConfig;
+    public ViewConfig getViewConfig() {
+        return viewConfig;
     }
 
-    public void setSystemConfig(SystemConfig systemConfig) {
-        this.systemConfig = systemConfig;
+    public void setViewConfig(ViewConfig viewConfig) {
+        this.viewConfig = viewConfig;
     }
 }

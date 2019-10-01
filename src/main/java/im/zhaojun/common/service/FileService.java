@@ -39,27 +39,6 @@ public interface FileService {
     String getDownloadUrl(String path) throws Exception;
 
     /**
-     * 构建指定路径下标题, 页头, 页尾
-     * @param path          路径
-     */
-    @Cacheable
-    default SiteConfig getConfig(String path) throws Exception {
-        SiteConfig siteConfig = new SiteConfig();
-        FileService fileService = (FileService) AopContext.currentProxy();
-
-        List<FileItem> fileItemList = fileService.fileList(path);
-        path = StringUtils.removeLastSeparator(path);
-        for (FileItem fileItem : fileItemList) {
-            if (ZfileConstant.README_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
-                siteConfig.setFooter(getTextContent(path + "/" + fileItem.getName()));
-            } else if (ZfileConstant.HEADER_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
-                siteConfig.setHeader(getTextContent(path + "/" + fileItem.getName()));
-            }
-        }
-        return siteConfig;
-    }
-
-    /**
      * 获取文件内容.
      */
     default String getTextContent(String path) throws Exception {

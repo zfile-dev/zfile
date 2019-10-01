@@ -12,6 +12,7 @@ public class FileItem implements Serializable {
     private Long size;
     private FileTypeEnum type;
     private String path;
+    private String url;
 
     public String getName() {
         return name;
@@ -51,5 +52,13 @@ public class FileItem implements Serializable {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

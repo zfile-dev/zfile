@@ -10,9 +10,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-@Entity
+@Entity(name = "SYSTEM_CONFIG")
 @Data
-public class SystemConfig {
+public class ViewConfig {
 
     @JsonIgnore
     @Id

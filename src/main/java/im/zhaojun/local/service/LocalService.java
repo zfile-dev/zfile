@@ -10,6 +10,7 @@ import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -20,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +33,12 @@ import java.util.Map;
 public class LocalService implements FileService {
 
     private static final String FILE_PATH_KEY = "filePath";
+
+    @Value("${server.port}")
+    private String port;
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
 
     @Resource
     private StorageConfigService storageConfigService;
@@ -61,8 +70,11 @@ public class LocalService implements FileService {
             fileItem.setTime(new Date(f.lastModified()));
             fileItem.setSize(f.length());
             fileItem.setName(f.getName());
-            fileItemList.add(fileItem);
             fileItem.setPath(path);
+            if (!f.isDirectory()) {
+                fileItem.setUrl(getDownloadUrl(StringUtils.concatURL(path, f.getName())));
+            }
+            fileItemList.add(fileItem);
         }
 
         return fileItemList;
@@ -70,16 +82,9 @@ public class LocalService implements FileService {
 
     @Override
     public String getDownloadUrl(String path) throws Exception {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        // 网络协议
-        String networkProtocol = request.getScheme();
-        // 网络ip
-        String host = request.getServerName();
-        // 端口号
-        int port = request.getServerPort();
-        // 项目发布名称
-        String webApp = request.getContextPath();
-        return StringUtils.concatPath(networkProtocol + "://" + host + ":" + port + webApp, "local-download?fileName=" + path);
+        InetAddress localHost = Inet4Address.getLocalHost();
+        String host = localHost.getHostAddress();
+        return StringUtils.concatPath( "//" + host + ":" + port + contextPath, "local-download?fileName=" + path);
     }
 
     @Override

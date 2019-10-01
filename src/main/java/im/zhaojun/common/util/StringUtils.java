@@ -24,6 +24,11 @@ public class StringUtils {
         return path;
     }
 
+    public static String concatURL(String path, String name) {
+        return removeDuplicateSeparator("/" + path + "/" + name);
+    }
+
+
     /**
      * 将域名和路径组装成 URL, 主要用来处理分隔符 '/'
      * @param domain    域名
