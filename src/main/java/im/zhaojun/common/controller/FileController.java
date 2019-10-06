@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/api")
@@ -39,18 +40,19 @@ public class FileController {
     @Resource
     private ViewConfigService viewConfigService;
 
+    public static final Integer PAGE_SIZE = 20;
+
     @GetMapping("/list")
     public ResultBean list(@RequestParam(defaultValue = "/") String path,
                            @RequestParam(defaultValue = "name") String sortBy,
                            @RequestParam(defaultValue = "asc") String order,
-                           @RequestParam(required = false) String password) throws Exception {
+                           @RequestParam(required = false) String password,
+                           @RequestParam(defaultValue = "1") Integer page) throws Exception {
         List<FileItem> fileItems = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + URLUtil.decode(path)));
 
         for (FileItem fileItem : fileItems) {
             if (ZfileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())) {
-                String url = StringUtils.removeDuplicateSeparator("/" + fileItem.getPath() + "/" + fileItem.getName());
-
-                if (!fileService.getTextContent(url).equals(password)) {
+                if (!fileService.getTextContent(fileItem.getUrl()).equals(password)) {
                     if (password != null && !"".equals(password)) {
                         return ResultBean.error("密码错误.");
                     }
@@ -62,35 +64,29 @@ public class FileController {
         // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
         fileItems.sort(new FileComparator(sortBy, order));
         filterFileList(fileItems);
-        return ResultBean.successData(fileItems);
-    }
 
-    /**
-     * 获取下载链接
-     *
-     * @param path 路径
-     * @param name 文件名称
-     * @return 下载链接
-     */
-    @GetMapping("/downloadUrl")
-    public ResultBean getDownloadUrl(@RequestParam String path,
-                                     @RequestParam String name) throws Exception {
-        path = URLUtil.decode(path);
-        name = URLUtil.decode(name);
+        Integer total = fileItems.size();
+        Integer totalPage = (total + PAGE_SIZE - 1) / PAGE_SIZE;
 
-        String fullPath = StringUtils.concatURL(path, name);
-        String downloadUrl = fileService.getDownloadUrl(fullPath);
-        return ResultBean.successData(downloadUrl);
+        if (page > totalPage) {
+            return ResultBean.successData(new ArrayList<>());
+        }
+
+        Integer start = (page - 1) * PAGE_SIZE;
+        Integer end = page * PAGE_SIZE;
+        end = end > total ? total : end;
+        List<FileItem> fileSubItem = fileItems.subList(start, end);
+        return ResultBean.successData(fileSubItem);
     }
 
     /**
      * 获取文件类容, 仅限用于, txt, md, ini 等普通文本文件.
-     * @param path   文件路径
+     * @param url   文件路径
      * @return       文件内容
      */
     @GetMapping("/content")
-    public ResultBean getContent(String path) throws Exception {
-        return ResultBean.successData(fileService.getTextContent(path));
+    public ResultBean getContent(String url) throws Exception {
+        return ResultBean.successData(fileService.getTextContent(url));
     }
 
     /**
@@ -137,9 +133,6 @@ public class FileController {
 
     @GetMapping("/getImageInfo")
     public ResultBean getImageInfo(String url) throws Exception {
-        if (url != null && url.indexOf("//") == 0) {
-            url = "http:" + url;
-        }
         return ResultBean.success(fileService.getImageInfo(url));
     }
 
@@ -167,7 +160,7 @@ public class FileController {
         }
 
         fileItemList.removeIf(fileItem -> ZfileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())
-                || ZfileConstant.README_FILE_NAME.equals(fileItem.getName())
+                || ZfileConstant.FOOTER_FILE_NAME.equals(fileItem.getName())
                 || ZfileConstant.HEADER_FILE_NAME.equals(fileItem.getName()));
     }
 }

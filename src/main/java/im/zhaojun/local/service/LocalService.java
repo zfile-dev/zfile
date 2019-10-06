@@ -84,7 +84,7 @@ public class LocalService implements FileService {
     public String getDownloadUrl(String path) throws Exception {
         InetAddress localHost = Inet4Address.getLocalHost();
         String host = localHost.getHostAddress();
-        return StringUtils.concatPath( "//" + host + ":" + port + contextPath, "local-download?fileName=" + path);
+        return StringUtils.concatPath( "http://" + host + ":" + port + contextPath, "local-download?fileName=" + path);
     }
 
     @Override
@@ -94,11 +94,6 @@ public class LocalService implements FileService {
         InputStream inputStream = new URL(url).openStream();
         BufferedImage sourceImg = ImageIO.read(inputStream);
         return new ImageInfo(sourceImg.getWidth(), sourceImg.getHeight());
-    }
-
-    @Override
-    public String getTextContent(String path) throws Exception {
-        return FileUtil.readUtf8String(StringUtils.concatPath(filePath, URLUtil.decode(path)));
     }
 
     public String getFilePath() {

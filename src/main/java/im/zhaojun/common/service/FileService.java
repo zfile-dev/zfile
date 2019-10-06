@@ -5,19 +5,19 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
 import im.zhaojun.common.config.ZfileCacheConfiguration;
-import im.zhaojun.common.constant.ZfileConstant;
 import im.zhaojun.common.enums.FileTypeEnum;
 import im.zhaojun.common.enums.StorageTypeEnum;
 import im.zhaojun.common.model.AudioInfo;
 import im.zhaojun.common.model.FileItem;
 import im.zhaojun.common.model.ImageInfo;
-import im.zhaojun.common.model.SiteConfig;
 import im.zhaojun.common.util.AudioHelper;
+import im.zhaojun.common.util.SpringContextHolder;
 import im.zhaojun.common.util.StringUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -41,8 +41,10 @@ public interface FileService {
     /**
      * 获取文件内容.
      */
-    default String getTextContent(String path) throws Exception {
-        return HttpUtil.get(URLUtil.decode(getDownloadUrl(path)));
+    default String getTextContent(String url) throws Exception {
+        RestTemplate restTemplate = SpringContextHolder.getBean(RestTemplate.class);
+        String result = restTemplate.getForObject(url, String.class);
+        return result == null ? "" : result;
     }
 
     @PostConstruct

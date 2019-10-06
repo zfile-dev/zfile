@@ -27,10 +27,10 @@ public class SystemService {
         List<FileItem> fileItemList = fileService.fileList(path);
         path = StringUtils.removeLastSeparator(path);
         for (FileItem fileItem : fileItemList) {
-            if (ZfileConstant.README_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
-                siteConfig.setFooter(fileService.getTextContent(path + "/" + fileItem.getName()));
+            if (ZfileConstant.FOOTER_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
+                siteConfig.setFooter(fileService.getTextContent(fileItem.getUrl()));
             } else if (ZfileConstant.HEADER_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
-                siteConfig.setHeader(fileService.getTextContent(path + "/" + fileItem.getName()));
+                siteConfig.setHeader(fileService.getTextContent(fileItem.getUrl()));
             }
         }
         return siteConfig;
