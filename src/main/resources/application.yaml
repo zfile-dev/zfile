@@ -1,0 +1,54 @@
+logging:
+  level:
+    im:
+      zhaojun:
+        common: debug
+  path: ${user.home}/.zfile/logs
+
+server:
+  port: 8080
+  servlet:
+    context-path: ''
+
+
+spring:
+  cache:
+    type: redis
+  datasource:
+    # 初始化数据导入
+    data: classpath*:db/data.sql
+    initialization-mode: always
+    continue-on-error: true
+
+    # h2 内存数据库 配置
+#    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:tcp://localhost/~/.zfile/db/zfile
+#    username: zfile
+#    password: 123456
+
+    # MySQL 配置
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/zfile?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: 123456
+  jackson:
+    date-format: yyyy-MM-dd HH:mm
+    time-zone: GMT+8
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+    show-sql: true
+  resources:
+    chain:
+      gzipped: true
+  redis:
+    host: 127.0.0.1
+    password: 12345
+zfile:
+  cache:
+    timeout: 300
+
+

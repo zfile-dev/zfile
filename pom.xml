@@ -35,6 +35,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
@@ -86,11 +90,11 @@
             <version>3.5.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.nuxeo.onedrive</groupId>
-            <artifactId>onedrive-java-client</artifactId>
-            <version>1.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.nuxeo.onedrive</groupId>-->
+<!--            <artifactId>onedrive-java-client</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -147,14 +151,33 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.1-jre</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+
     </dependencies>
 
     <repositories>
-        <repository>
-            <id>nuxeo</id>
-            <name>nuxeo</name>
-            <url>http://maven.nuxeo.org/nexus/content/groups/public</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>nuxeo</id>-->
+<!--            <name>nuxeo</name>-->
+<!--            <url>http://maven.nuxeo.org/nexus/content/groups/public</url>-->
+<!--        </repository>-->
     </repositories>
 
     <build>

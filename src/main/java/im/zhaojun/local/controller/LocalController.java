@@ -2,16 +2,19 @@ package im.zhaojun.local.controller;
 
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.util.StringUtils;
-import im.zhaojun.local.service.LocalService;
+import im.zhaojun.local.service.LocalServiceImpl;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,12 +24,18 @@ import java.util.Date;
 public class LocalController {
 
     @Resource
-    private LocalService localService;
+    private LocalServiceImpl localServiceImpl;
 
-    @GetMapping("/local-download")
+    @GetMapping("/file/**")
     @ResponseBody
-    public ResponseEntity<FileSystemResource> downAttachment(String fileName) throws IOException {
-        return export(new File(StringUtils.concatPath(localService.getFilePath(), URLUtil.decode(fileName))));
+    public ResponseEntity<FileSystemResource> downAttachment(final HttpServletRequest request) throws IOException {
+        String path = (String) request.getAttribute(
+                HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        String bestMatchPattern = (String ) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        AntPathMatcher apm = new AntPathMatcher();
+        String filePath = apm.extractPathWithinPattern(bestMatchPattern, path);
+
+        return export(new File(StringUtils.concatPath(localServiceImpl.getFilePath(), URLUtil.decode(filePath))));
     }
 
     private ResponseEntity<FileSystemResource> export(File file) throws IOException {
@@ -36,7 +45,6 @@ public class LocalController {
         MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
         HttpHeaders headers = new HttpHeaders();
 
-        // 如果
         if (fileMimeType == null || "".equals(fileMimeType)) {
             headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
             headers.add("Content-Disposition", "attachment; filename=" + file.getName());
@@ -54,6 +62,5 @@ public class LocalController {
                 .contentType(mediaType)
                 .body(new FileSystemResource(file));
     }
-
 
 }

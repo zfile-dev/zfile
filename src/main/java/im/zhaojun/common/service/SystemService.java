@@ -1,9 +1,9 @@
 package im.zhaojun.common.service;
 
-import im.zhaojun.common.constant.ZfileConstant;
-import im.zhaojun.common.model.FileItem;
-import im.zhaojun.common.model.SiteConfig;
-import im.zhaojun.common.util.StringUtils;
+import im.zhaojun.common.model.constant.ZFileConstant;
+import im.zhaojun.common.model.dto.FileItemDTO;
+import im.zhaojun.common.model.dto.SiteConfigDTO;
+import im.zhaojun.common.util.HttpUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -13,27 +13,26 @@ import java.util.List;
 public class SystemService {
 
     @Resource
-    private ViewConfigService viewConfigService;
+    private SystemConfigService systemConfigService;
 
     /**
      * 构建指定路径下标题, 页头, 页尾
      * @param path          路径
      */
-    public SiteConfig getConfig(String path) throws Exception {
+    public SiteConfigDTO getConfig(String path) throws Exception {
 
-        SiteConfig siteConfig = new SiteConfig();
-        FileService fileService = viewConfigService.getCurrentFileService();
+        SiteConfigDTO siteConfigDTO = new SiteConfigDTO();
+        FileService fileService = systemConfigService.getCurrentFileService();
 
-        List<FileItem> fileItemList = fileService.fileList(path);
-        path = StringUtils.removeLastSeparator(path);
-        for (FileItem fileItem : fileItemList) {
-            if (ZfileConstant.FOOTER_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
-                siteConfig.setFooter(fileService.getTextContent(fileItem.getUrl()));
-            } else if (ZfileConstant.HEADER_FILE_NAME.equalsIgnoreCase(fileItem.getName())) {
-                siteConfig.setHeader(fileService.getTextContent(fileItem.getUrl()));
+        List<FileItemDTO> fileItemList = fileService.fileList(path);
+        for (FileItemDTO fileItemDTO : fileItemList) {
+            if (ZFileConstant.FOOTER_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
+                siteConfigDTO.setFooter(HttpUtil.getTextContent(fileItemDTO.getUrl()));
+            } else if (ZFileConstant.HEADER_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
+                siteConfigDTO.setHeader(HttpUtil.getTextContent(fileItemDTO.getUrl()));
             }
         }
-        return siteConfig;
+        return siteConfigDTO;
     }
 
 }

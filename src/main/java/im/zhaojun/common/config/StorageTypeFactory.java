@@ -1,7 +1,6 @@
 package im.zhaojun.common.config;
 
-import im.zhaojun.common.enums.StorageTypeEnum;
-import im.zhaojun.common.exception.UnknownStorageTypeException;
+import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.FileService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -38,10 +37,6 @@ public class StorageTypeFactory implements ApplicationContextAware {
                 result = fileService;
                 break;
             }
-        }
-
-        if (result == null) {
-            throw new UnknownStorageTypeException(type.getDescription());
         }
         return result;
     }

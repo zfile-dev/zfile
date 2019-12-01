@@ -54,13 +54,13 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
      * 实现 DisposableBean 接口, 在 Context 关闭时清理静态变量.
      */
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         SpringContextHolder.clearHolder();
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+        SpringContextHolder.applicationContext = applicationContext;
     }
 
 }

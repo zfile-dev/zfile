@@ -1,7 +1,7 @@
 package im.zhaojun.common.util;
 
-import im.zhaojun.common.enums.FileTypeEnum;
-import im.zhaojun.common.model.FileItem;
+import im.zhaojun.common.model.enums.FileTypeEnum;
+import im.zhaojun.common.model.dto.FileItemDTO;
 
 import java.util.Comparator;
 
@@ -13,7 +13,7 @@ import java.util.Comparator;
  * - 默认排序为升序
  * - 按名称排序不区分大小写
  */
-public class FileComparator implements Comparator<FileItem> {
+public class FileComparator implements Comparator<FileItemDTO> {
 
     private String sortBy;
     private String order;
@@ -24,7 +24,7 @@ public class FileComparator implements Comparator<FileItem> {
     }
 
     @Override
-    public int compare(FileItem o1, FileItem o2) {
+    public int compare(FileItemDTO o1, FileItemDTO o2) {
         FileTypeEnum o1Type = o1.getType();
         FileTypeEnum o2Type = o2.getType();
 

@@ -24,7 +24,7 @@ public class StringUtils {
         return path;
     }
 
-    public static String concatURL(String path, String name) {
+    public static String concatUrl(String path, String name) {
         return removeDuplicateSeparator("/" + path + "/" + name);
     }
 
@@ -70,5 +70,10 @@ public class StringUtils {
         sb.append(path.charAt(path.length() - 1));
         return sb.toString();
     }
+
+    public static boolean isNullOrEmpty(String s) {
+        return s == null || "".equals(s);
+    }
+
 
 }

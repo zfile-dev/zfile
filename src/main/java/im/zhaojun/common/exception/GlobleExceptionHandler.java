@@ -1,9 +1,11 @@
 package im.zhaojun.common.exception;
 
-import im.zhaojun.common.model.ResultBean;
+import im.zhaojun.common.model.dto.ResultBean;
+import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,6 +27,37 @@ public class GlobleExceptionHandler {
             log.debug(e.getMessage(), e);
         }
         return ResultBean.error(e.getMessage());
+    }
+
+
+    @ExceptionHandler
+    @ResponseStatus
+    public ResultBean searchDisableExceptionHandler(StorageStrategyUninitializedException e) {
+        if (log.isDebugEnabled()) {
+            log.debug(e.getMessage(), e);
+        }
+        return ResultBean.error(e.getMessage());
+    }
+
+    /**
+     * 捕获 ClientAbortException 异常, 不做任何处理, 防止出现大量堆栈日志输出, 此异常不影响功能.
+     */
+    @ExceptionHandler({HttpMediaTypeNotAcceptableException.class, ClientAbortException.class})
+    @ResponseBody
+    @ResponseStatus
+    public void clientAbortException(Exception ex) {
+        // if (log.isDebugEnabled()) {
+        //     log.debug("出现了断开异常:", ex);
+        // }
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResultBean searchDisableExceptionHandler(Exception e) {
+        if (log.isDebugEnabled()) {
+            log.debug(e.getMessage(), e);
+        }
+        return ResultBean.error("系统异常, 请联系管理员");
     }
 
 }
