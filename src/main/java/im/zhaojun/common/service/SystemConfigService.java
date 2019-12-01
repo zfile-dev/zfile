@@ -62,6 +62,10 @@ public class SystemConfigService {
         systemConfig.setValue(systemConfigDTO.getSiteName());
         systemConfigList.add(systemConfig);
 
+        SystemConfig domainConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
+        domainConfig.setValue(systemConfigDTO.getDomain());
+        systemConfigList.add(domainConfig);
+
         SystemConfig infoEnableSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.INFO_ENABLE);
         infoEnableSystemConfig.setValue(systemConfigDTO.getInfoEnable() ? "true" : "false");
         systemConfigList.add(infoEnableSystemConfig);

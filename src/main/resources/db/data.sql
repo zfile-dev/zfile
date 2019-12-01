@@ -5,6 +5,8 @@ INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `VALUE`) VALUES (4, 'searchIgnor
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `VALUE`) VALUES (5, 'storageStrategy', '当前启用存储引擎', null);
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `VALUE`) VALUES (6, 'username', '管理员账号', null);
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `VALUE`) VALUES (7, 'password', '管理员密码', null);
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `VALUE`) VALUES (8, 'domain', '站点域名', null);
+
 
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (1, 'bucket-name', '云存储服务名称', 'upyun', null);
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (2, 'username', '操作员名称', 'upyun', null);

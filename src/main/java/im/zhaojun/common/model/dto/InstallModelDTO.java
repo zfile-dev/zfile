@@ -9,6 +9,7 @@ public class InstallModelDTO {
     private StorageTypeEnum storageStrategy;
     private String username;
     private String password;
+    private String domain;
     private Map<String, String> storageStrategyConfig;
 
     public String getSiteName() {
@@ -51,6 +52,14 @@ public class InstallModelDTO {
         this.password = password;
     }
 
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
     @Override
     public String toString() {
         return "InstallModelDTO{" +
@@ -58,6 +67,7 @@ public class InstallModelDTO {
                 ", storageStrategy=" + storageStrategy +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", domain='" + domain + '\'' +
                 ", storageStrategyConfig=" + storageStrategyConfig +
                 '}';
     }

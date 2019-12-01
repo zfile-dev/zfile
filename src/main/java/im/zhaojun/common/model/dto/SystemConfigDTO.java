@@ -26,6 +26,8 @@ public class SystemConfigDTO {
     @JsonIgnore
     private String password;
 
+    private String domain;
+
     public Integer getId() {
         return id;
     }
@@ -88,5 +90,13 @@ public class SystemConfigDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 }

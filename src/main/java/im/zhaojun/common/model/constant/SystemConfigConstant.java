@@ -16,4 +16,6 @@ public class SystemConfigConstant {
 
     public static final String PASSWORD = "password";
 
+    public static final String DOMAIN = "domain";
+
 }

@@ -59,6 +59,7 @@ public class InstallController {
         systemConfigDTO.setStorageStrategy(storageTypeEnum);
         systemConfigDTO.setUsername(installModelDTO.getUsername());
         systemConfigDTO.setPassword(new BCryptPasswordEncoder().encode(installModelDTO.getPassword()));
+        systemConfigDTO.setDomain(installModelDTO.getDomain());
         systemConfigService.updateSystemConfig(systemConfigDTO);
 
         Map<String, String> storageStrategyConfig = installModelDTO.getStorageStrategyConfig();

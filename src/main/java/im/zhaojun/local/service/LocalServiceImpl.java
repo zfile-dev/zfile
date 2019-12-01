@@ -1,9 +1,12 @@
 package im.zhaojun.local.service;
 
 import im.zhaojun.common.model.StorageConfig;
+import im.zhaojun.common.model.SystemConfig;
+import im.zhaojun.common.model.constant.SystemConfigConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
+import im.zhaojun.common.repository.SystemConfigRepository;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
@@ -28,14 +31,11 @@ public class LocalServiceImpl implements FileService {
 
     private static final String FILE_PATH_KEY = "filePath";
 
-    @Value("${server.port}")
-    private String port;
-
-    @Value("${server.servlet.context-path}")
-    private String contextPath;
-
     @Resource
     private StorageConfigService storageConfigService;
+
+    @Resource
+    private SystemConfigRepository systemConfigRepository;
 
     private String filePath;
 
@@ -83,9 +83,8 @@ public class LocalServiceImpl implements FileService {
 
     @Override
     public String getDownloadUrl(String path) throws Exception {
-        InetAddress localHost = Inet4Address.getLocalHost();
-        String host = localHost.getHostAddress();
-        return StringUtils.concatPath( "http://" + host + ":" + port + contextPath, "file" + path);
+        SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
+        return StringUtils.concatPath( usernameConfig.getValue(), "file" + path);
     }
 
     public String getFilePath() {
