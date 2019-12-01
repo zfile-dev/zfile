@@ -1,7 +1,7 @@
 package im.zhaojun.common.util;
 
-import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.dto.FileItemDTO;
+import im.zhaojun.common.model.enums.FileTypeEnum;
 
 import java.util.Comparator;
 

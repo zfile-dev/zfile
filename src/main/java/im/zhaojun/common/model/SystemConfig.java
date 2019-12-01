@@ -1,6 +1,5 @@
 package im.zhaojun.common.model;
 
-import im.zhaojun.common.model.enums.StorageTypeEnum;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -13,7 +12,7 @@ public class SystemConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "`key`")
+    @Column(name = "k")
     private String key;
 
     private String value;

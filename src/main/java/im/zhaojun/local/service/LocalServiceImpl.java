@@ -1,10 +1,9 @@
 package im.zhaojun.local.service;
 
-import cn.hutool.core.util.URLUtil;
+import im.zhaojun.common.model.StorageConfig;
+import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
-import im.zhaojun.common.model.dto.FileItemDTO;
-import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;

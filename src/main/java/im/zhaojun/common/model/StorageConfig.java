@@ -15,7 +15,7 @@ public class StorageConfig {
 
     private StorageTypeEnum type;
 
-    @Column(name = "`key`")
+    @Column(name = "k")
     private String key;
 
     private String title;

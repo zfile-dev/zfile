@@ -1,6 +1,6 @@
 package im.zhaojun.common.security;
 
-import im.zhaojun.common.model.SystemConfigDTO;
+import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.service.SystemConfigService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

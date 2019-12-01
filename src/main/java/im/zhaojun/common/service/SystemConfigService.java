@@ -2,8 +2,8 @@ package im.zhaojun.common.service;
 
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.SystemConfig;
-import im.zhaojun.common.model.SystemConfigDTO;
 import im.zhaojun.common.model.constant.SystemConfigConstant;
+import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.SystemConfigRepository;
 import im.zhaojun.common.util.StringUtils;

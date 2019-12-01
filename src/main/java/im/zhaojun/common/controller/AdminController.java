@@ -1,16 +1,15 @@
 package im.zhaojun.common.controller;
 
 import im.zhaojun.common.model.StorageConfig;
-import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.model.dto.ResultBean;
-import im.zhaojun.common.model.SystemConfigDTO;
+import im.zhaojun.common.model.dto.SystemConfigDTO;
+import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.FileAsyncCacheService;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,7 +1,7 @@
 package im.zhaojun.common.service;
 
-import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.model.StorageConfig;
+import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.StorageConfigRepository;
 import org.springframework.stereotype.Service;
 

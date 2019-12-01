@@ -1,4 +1,4 @@
-package im.zhaojun.common.model;
+package im.zhaojun.common.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

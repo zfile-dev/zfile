@@ -1,7 +1,7 @@
 package im.zhaojun.common.aspect;
 
-import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.exception.StorageStrategyUninitializedException;
+import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.SystemConfigService;
 import im.zhaojun.common.util.SpringContextHolder;
 import org.aspectj.lang.annotation.Aspect;

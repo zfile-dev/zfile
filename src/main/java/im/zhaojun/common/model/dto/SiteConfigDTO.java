@@ -1,7 +1,5 @@
 package im.zhaojun.common.model.dto;
 
-import im.zhaojun.common.model.SystemConfigDTO;
-
 import java.io.Serializable;
 
 public class SiteConfigDTO implements Serializable {
