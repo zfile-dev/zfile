@@ -16,12 +16,41 @@
 * 支持在线浏览文本文件, 视频, 图片, 音乐.
 * 文件/目录二维码
 
+## 快速开始
+
+
+安装 JDK 1.8 : 
+
+```bash
+yum instal -y java # 适用于 Centos 7.x
+```
+
+> 其他系统的 JDK 安装教程, 后续我也都会补上. 大家也可执行搜索安装方式, 应该不是很难.
+
+下载项目:
+
+```bash
+wget https://github.com/zhaojun1998/zfile/releases/download/0.1/zfile-0.1.jar
+```
+
+启动项目:
+
+```bash
+java -jar zfile-0.1.jar
+
+## 高级启动
+java -jar zfile-0.1.jar --server.port=18777
+```
+
+`--server.port` 为指定端口, 默认为 `8080`
+
+其他参数, 后面我会详细补充至文档, 最晚本周六日.
+
 ## 运行环境
 
 * JDK: `1.8`
 * 缓存: `caffeine/redis`
 * 数据库: `h2/mysql`
-
 
 ## 常见问题
 
