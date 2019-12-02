@@ -49,7 +49,9 @@ java -jar zfile-0.1.jar --server.port=18777
 访问地址:
 
 用户前台: http://127.0.0.1:8080/#/main
+
 初始安装: http://127.0.0.1:8080/#/install
+
 管理后台: http://127.0.0.1:8080/#/admin
 
 
