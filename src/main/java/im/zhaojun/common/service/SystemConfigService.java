@@ -48,6 +48,9 @@ public class SystemConfigService {
                 case SystemConfigConstant.PASSWORD:
                     systemConfigDTO.setPassword(systemConfig.getValue());
                     break;
+                case SystemConfigConstant.DOMAIN:
+                    systemConfigDTO.setDomain(systemConfig.getValue());
+                    break;
                 default:break;
             }
         }

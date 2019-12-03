@@ -17,7 +17,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Date;
 
 @Controller
@@ -39,18 +38,13 @@ public class LocalController {
     }
 
     private ResponseEntity<FileSystemResource> export(File file) throws IOException {
-        // 获取文件 MIME 类型
-        String fileMimeType = Files.probeContentType(file.toPath());
 
         MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-        HttpHeaders headers = new HttpHeaders();
 
-        if (fileMimeType == null || "".equals(fileMimeType)) {
-            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-            headers.add("Content-Disposition", "attachment; filename=" + file.getName());
-        } else {
-            mediaType = MediaType.parseMediaType(fileMimeType);
-        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.setContentDispositionFormData("attachment", URLUtil.encode(file.getName()));
+
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
         headers.add("Last-Modified", new Date().toString());

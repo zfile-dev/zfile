@@ -84,7 +84,7 @@ public class LocalServiceImpl implements FileService {
     @Override
     public String getDownloadUrl(String path) throws Exception {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
-        return StringUtils.concatPath( usernameConfig.getValue(), "file" + path);
+        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + path);
     }
 
     public String getFilePath() {
