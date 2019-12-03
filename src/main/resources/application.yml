@@ -23,13 +23,13 @@ spring:
 
     # h2 内存数据库 配置
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:~/.zfile/db/zfile
-    username: zfile
+    url: jdbc:h2:~/.zfile/db/zfile-demo
+    username: zfile-demo
     password: 123456
 
     # MySQL 配置
 #    driver-class-name: com.mysql.jdbc.Driver
-#    url: jdbc:mysql://127.0.0.1:3306/zfile?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+#    url: jdbc:mysql://127.0.0.1:3306/zfile-demo?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
 #    username: root
 #    password: 123456
   jackson:
@@ -51,5 +51,3 @@ spring:
 zfile:
   cache:
     timeout: 300
-
-
