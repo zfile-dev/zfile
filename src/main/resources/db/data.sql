@@ -37,3 +37,7 @@ INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (26, 'se
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (27, 'bucket-name', '云存储服务名称', 'tencent', null);
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (28, 'domain', '加速域名', 'tencent', null);
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (29, 'endPoint', '区域', 'tencent', null);
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (30, 'accessKey', 'SecretId', 'minio', null);
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (31, 'secretKey', 'SecretKey', 'minio', null);
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (32, 'endPoint', '服务地址', 'minio', null);
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`, `VALUE`) VALUES (33, 'bucket-name', '存储空间名称', 'minio', null);
