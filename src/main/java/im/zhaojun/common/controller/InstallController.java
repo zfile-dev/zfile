@@ -1,5 +1,6 @@
 package im.zhaojun.common.controller;
 
+import cn.hutool.crypto.SecureUtil;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.dto.InstallModelDTO;
 import im.zhaojun.common.model.dto.ResultBean;
@@ -8,7 +9,6 @@ import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,7 +58,7 @@ public class InstallController {
         StorageTypeEnum storageTypeEnum = installModelDTO.getStorageStrategy();
         systemConfigDTO.setStorageStrategy(storageTypeEnum);
         systemConfigDTO.setUsername(installModelDTO.getUsername());
-        systemConfigDTO.setPassword(new BCryptPasswordEncoder().encode(installModelDTO.getPassword()));
+        systemConfigDTO.setPassword(SecureUtil.md5(installModelDTO.getPassword()));
         systemConfigDTO.setDomain(installModelDTO.getDomain());
         systemConfigService.updateSystemConfig(systemConfigDTO);
 

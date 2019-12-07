@@ -1,5 +1,6 @@
 package im.zhaojun.common.service;
 
+import cn.hutool.crypto.SecureUtil;
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.SystemConfig;
 import im.zhaojun.common.model.constant.SystemConfigConstant;
@@ -105,7 +106,7 @@ public class SystemConfigService {
         usernameConfig.setValue(username);
         systemConfigRepository.save(usernameConfig);
 
-        password = new BCryptPasswordEncoder().encode(password);
+        password = SecureUtil.md5(password);;
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfigConstant.PASSWORD);
         systemConfig.setValue(password);
 
