@@ -14,7 +14,8 @@ public enum StorageTypeEnum {
     ALIYUN("aliyun", "阿里云 OSS"),
     FTP("ftp", "FTP"),
     LOCAL("local", "本地存储"),
-    TENCENT("tencent", "腾讯云 COS");
+    TENCENT("tencent", "腾讯云 COS"),
+    MINIO("minio", "MINIO");
 
     private static Map<String, StorageTypeEnum> enumMap = new HashMap<>();
 
