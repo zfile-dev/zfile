@@ -57,7 +57,7 @@ public class StringUtils {
         if (path.indexOf("http://") == 0) {
             sb.append("http://");
         } else if (path.indexOf("https://") == 0) {
-            sb.append("http://");
+            sb.append("https://");
         }
 
         for (int i = sb.length(); i < path.length() - 1; i++) {
