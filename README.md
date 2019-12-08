@@ -25,8 +25,6 @@
 yum instal -y java # 适用于 Centos 7.x
 ```
 
-> 其他系统的 JDK 安装教程, 后续我也都会补上. 大家也可执行搜索安装方式, 应该不是很难.
-
 下载项目:
 
 ```bash
@@ -43,14 +41,17 @@ java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.jar --server.port=18
 ```
 
 > 系统使用的是内置配置文件, 默认配置请参考: [application.yml](https://github.com/zhaojun1998/zfile/blob/master/src/main/resources/application.yml)
+
 > **可下载此文件放置与 jar 包同目录, 此时会以外部配置文件为准, 推荐适用此方式！.**
+
 > 所有参数都可在命令行启动时, 以类似 `--server.port=18777` 的方式强制执行, 此方式的优先级最高.
+
 > *指定 `-Djava.security.egd=file:/dev/./urandom` 是为了防止在 Linux 环境中, 生成首次登陆生成 sessionId 取系统随机数过慢的问题.*
 
 重要参数:
 - `server.port` 为指定端口, 默认为 `8080`
 - `logging.path` 为日志文件存放路径, 默认为 `${user.home}/.zfile/logs`
-- `spring.datasource` 下配置了 h2 和 mysql 两种数据库的支持,  默认采用 h2, 如需使用 mysql, 请将 h2 的设置注释
+- `spring.datasource` 下配置了 `h2` 和 `mysql` 两种数据库的支持,  默认采用 `h2`.
 - `spring.cache.type` 为指定缓存方式, 默认为 `caffeine`, 即内存缓存, 无需安装, 支持切换为 `redis`, 但需配置 `spring.redis.host` 和 `spring.redis.password` 参数后才可使用.
 
 
