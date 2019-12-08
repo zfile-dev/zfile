@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class MinIOService implements FileService {
+public class MinIOServiceImpl implements FileService {
 
 
-    private static final Logger log = LoggerFactory.getLogger(MinIOService.class);
+    private static final Logger log = LoggerFactory.getLogger(MinIOServiceImpl.class);
 
     private String bucketName;
 
@@ -58,7 +58,7 @@ public class MinIOService implements FileService {
             minioClient = new MinioClient(endPoint, accessKey, secretKey);
             isInitialized = true;
         } catch (Exception e) {
-            log.debug(StorageTypeEnum.HUAWEI.getDescription() + "初始化异常, 已跳过");
+            log.debug(StorageTypeEnum.MINIO.getDescription() + "初始化异常, 已跳过");
         }
     }
 
