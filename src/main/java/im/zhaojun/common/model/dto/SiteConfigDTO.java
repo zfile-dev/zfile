@@ -1,5 +1,7 @@
 package im.zhaojun.common.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 public class SiteConfigDTO implements Serializable {
@@ -10,6 +12,7 @@ public class SiteConfigDTO implements Serializable {
 
     private String footer;
 
+    @JsonProperty("viewConfig")
     private SystemConfigDTO systemConfigDTO;
 
     public String getHeader() {
