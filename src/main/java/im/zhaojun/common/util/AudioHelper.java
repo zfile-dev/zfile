@@ -32,7 +32,7 @@ public class AudioHelper {
 
         File file = new File(ZFileConstant.USER_HOME + ZFileConstant.AUDIO_TMP_PATH + UUID.fastUUID());
         FileUtil.mkParentDirs(file);
-        HttpUtil.downloadFile(url, file);
+        HttpUtil.downloadFile(URLUtil.decode(url), file);
         AudioInfoDTO audioInfoDTO = parseAudioInfo(file);
         audioInfoDTO.setSrc(url);
         file.deleteOnExit();
