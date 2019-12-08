@@ -19,7 +19,7 @@ public class SystemService {
      * 构建指定路径下标题, 页头, 页尾
      * @param path          路径
      */
-    public SiteConfigDTO getConfig(String path) throws Exception {
+    public synchronized SiteConfigDTO getConfig(String path) throws Exception {
 
         SiteConfigDTO siteConfigDTO = new SiteConfigDTO();
         FileService fileService = systemConfigService.getCurrentFileService();
