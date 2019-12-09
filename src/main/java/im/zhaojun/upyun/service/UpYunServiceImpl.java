@@ -35,11 +35,15 @@ public class UpYunServiceImpl implements FileService {
 
     private static final String DOMAIN_KEY = "domain";
 
+    private static final String BASE_PATH = "base-path";
+
     private String domain;
 
     private UpYun upYun;
 
     private boolean isInitialized;
+
+    private String basePath;
 
     @Override
     public void init() {
@@ -50,6 +54,7 @@ public class UpYunServiceImpl implements FileService {
             String username = stringStorageConfigMap.get(USERNAME_KEY).getValue();
             String password = stringStorageConfigMap.get(PASSWORD_KEY).getValue();
             domain = stringStorageConfigMap.get(DOMAIN_KEY).getValue();
+            basePath = stringStorageConfigMap.get(BASE_PATH).getValue();
             upYun = new UpYun(bucketName, username, password);
             isInitialized = true;
         } catch (Exception e) {
@@ -66,7 +71,7 @@ public class UpYunServiceImpl implements FileService {
             HashMap<String, String> hashMap = new HashMap<>(24);
             hashMap.put("x-list-iter", nextMark);
             hashMap.put("x-list-limit", "100");
-            UpYun.FolderItemIter folderItemIter = upYun.readDirIter(URLUtil.encode(path), hashMap);
+            UpYun.FolderItemIter folderItemIter = upYun.readDirIter(URLUtil.encode(basePath + path), hashMap);
             nextMark = folderItemIter.iter;
             ArrayList<UpYun.FolderItem> folderItems = folderItemIter.files;
             if (folderItems != null) {
@@ -81,7 +86,7 @@ public class UpYunServiceImpl implements FileService {
                         fileItemDTO.setType(FileTypeEnum.FOLDER);
                     } else {
                         fileItemDTO.setType(FileTypeEnum.FILE);
-                        fileItemDTO.setUrl(getDownloadUrl(StringUtils.concatUrl(path, fileItemDTO.getName())));
+                        fileItemDTO.setUrl(getDownloadUrl(StringUtils.concatUrl(basePath + path, fileItemDTO.getName())));
                     }
                     fileItemList.add(fileItemDTO);
                 }
@@ -106,6 +111,5 @@ public class UpYunServiceImpl implements FileService {
     public boolean getIsInitialized() {
         return isInitialized;
     }
-
 
 }
