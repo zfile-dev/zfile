@@ -18,7 +18,7 @@ import java.util.List;
 @CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public interface FileService {
 
-    @Cacheable
+    @Cacheable(condition = "#root.targetClass.simpleName != 'LocalServiceImpl'")
     List<FileItemDTO> fileList(String path) throws Exception;
 
     @Cacheable
