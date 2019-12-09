@@ -46,7 +46,7 @@ public class FileController {
     /**
      * 滚动加载每页条数.
      */
-    private static final Integer PAGE_SIZE = 20;
+    private static final Integer PAGE_SIZE = 30;
 
     @CheckStorageStrategyInit
     @GetMapping("/list")
