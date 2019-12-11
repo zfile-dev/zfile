@@ -38,6 +38,9 @@ java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.1.jar
 
 ## 高级启动
 java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.1.jar --server.port=18777
+
+## 后台运行
+nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.1.jar &
 ```
 
 > 系统使用的是内置配置文件, 默认配置请参考: [application.yml](https://github.com/zhaojun1998/zfile/blob/master/src/main/resources/application.yml)
