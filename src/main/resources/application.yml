@@ -51,3 +51,7 @@ spring:
 zfile:
   cache:
     timeout: 300
+  constant:
+    header: header.md
+    footer: footer.md
+    password: password.txt
