@@ -4,5 +4,24 @@
             "name": "zfile.cache.timeout",
             "type": "java.lang.Long",
             "description": "目录缓存过期时间 和 下载地址过期时间. 单位为秒."
+        },
+        {
+            "name": "zfile.constant.header",
+            "type": "java.lang.String",
+            "defaultValue": "header.md",
+            "description": "头部文件 文件名."
+        },
+        {
+            "name": "zfile.constant.footer",
+            "type": "java.lang.String",
+            "defaultValue": "footer.md",
+            "description": "尾部文件 文件名."
+        },
+        {
+            "name": "zfile.constant.password",
+            "type": "java.lang.String",
+            "defaultValue": "password.txt",
+            "description": "密码文件 文件名."
         }
-    ] }
+    ]
+}
