@@ -22,6 +22,7 @@ import java.util.Objects;
 
 /**
  * 系统安装初始化
+ * @author zhaojun
  */
 @Controller
 public class InstallController {

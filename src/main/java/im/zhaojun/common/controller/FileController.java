@@ -29,6 +29,7 @@ import java.util.List;
 
 /**
  * 前台文件管理
+ * @author zhaojun
  */
 @RequestMapping("/api")
 @RestController
@@ -72,16 +73,16 @@ public class FileController {
         fileItemList.sort(new FileComparator(sortBy, order));
         filterFileList(fileItemList);
 
-        Integer total = fileItemList.size();
-        Integer totalPage = (total + PAGE_SIZE - 1) / PAGE_SIZE;
+        int total = fileItemList.size();
+        int totalPage = (total + PAGE_SIZE - 1) / PAGE_SIZE;
 
         if (page > totalPage) {
             return ResultBean.successData(new ArrayList<>());
         }
 
-        Integer start = (page - 1) * PAGE_SIZE;
-        Integer end = page * PAGE_SIZE;
-        end = end > total ? total : end;
+        int start = (page - 1) * PAGE_SIZE;
+        int end = page * PAGE_SIZE;
+        end = Math.min(end, total);
         List<FileItemDTO> fileSubItem = fileItemList.subList(start, end);
         return ResultBean.successData(fileSubItem);
     }

@@ -1,5 +1,8 @@
 package im.zhaojun.common.model.enums;
 
+/**
+ * @author zhaojun
+ */
 public enum FileTypeEnum {
 
     /**

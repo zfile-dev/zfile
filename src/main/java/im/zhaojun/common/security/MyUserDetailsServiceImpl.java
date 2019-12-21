@@ -10,6 +10,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import javax.annotation.Resource;
 import java.util.Collections;
 
+/**
+ * @author zhaojun
+ */
 public class MyUserDetailsServiceImpl implements UserDetailsService {
 
     @Resource

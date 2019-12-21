@@ -4,6 +4,9 @@ import lombok.Data;
 
 import javax.persistence.*;
 
+/**
+ * @author zhaojun
+ */
 @Entity(name = "SYSTEM_CONFIG")
 @Data
 public class SystemConfig {

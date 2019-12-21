@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 
+/**
+ * @author zhaojun
+ */
 public class StorageTypeEnumSerializerConvert extends JsonSerializer<StorageTypeEnum> {
 
     @Override

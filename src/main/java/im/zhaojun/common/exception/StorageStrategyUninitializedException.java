@@ -2,6 +2,7 @@ package im.zhaojun.common.exception;
 
 /**
  * 存储策略未初始化异常
+ * @author zhaojun
  */
 public class StorageStrategyUninitializedException extends RuntimeException {
 

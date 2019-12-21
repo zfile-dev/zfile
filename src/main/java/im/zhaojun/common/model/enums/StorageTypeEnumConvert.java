@@ -3,6 +3,9 @@ package im.zhaojun.common.model.enums;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
+/**
+ * @author zhaojun
+ */
 @Converter(autoApply = true)
 public class StorageTypeEnumConvert implements AttributeConverter<StorageTypeEnum, String> {
 

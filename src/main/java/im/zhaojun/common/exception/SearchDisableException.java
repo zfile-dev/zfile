@@ -1,5 +1,8 @@
 package im.zhaojun.common.exception;
 
+/**
+ * @author zhaojun
+ */
 public class SearchDisableException extends RuntimeException {
 
     public SearchDisableException() {

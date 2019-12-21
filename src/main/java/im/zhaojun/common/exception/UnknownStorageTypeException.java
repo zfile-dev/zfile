@@ -2,6 +2,7 @@ package im.zhaojun.common.exception;
 
 /**
  * 未知的存储类型异常
+ * @author zhaojun
  */
 public class UnknownStorageTypeException extends RuntimeException {
 

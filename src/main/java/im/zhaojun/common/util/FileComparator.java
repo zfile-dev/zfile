@@ -12,6 +12,8 @@ import java.util.Comparator;
  * - 默认按照名称排序
  * - 默认排序为升序
  * - 按名称排序不区分大小写
+ *
+ * @author zhaojun
  */
 public class FileComparator implements Comparator<FileItemDTO> {
 

@@ -1,5 +1,8 @@
 package im.zhaojun.common.model.constant;
 
+/**
+ * @author zhaojun
+ */
 public class SystemConfigConstant {
 
     public static final String SITE_NAME = "siteName";

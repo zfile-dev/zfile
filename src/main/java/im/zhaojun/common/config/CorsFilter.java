@@ -14,6 +14,7 @@ import java.io.IOException;
 
 /**
  * 开启跨域支持. 一般用于开发环境, 或前后端分离部署时开启.
+ * @author zhaojun
  */
 public class CorsFilter extends GenericFilterBean {
 

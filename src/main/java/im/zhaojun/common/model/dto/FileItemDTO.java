@@ -5,6 +5,9 @@ import im.zhaojun.common.model.enums.FileTypeEnum;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * @author zhaojun
+ */
 public class FileItemDTO implements Serializable {
 
     private String name;

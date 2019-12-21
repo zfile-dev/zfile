@@ -5,6 +5,9 @@ import lombok.Data;
 
 import javax.persistence.*;
 
+/**
+ * @author zhaojun
+ */
 @Entity(name = "STORAGE_CONFIG")
 @Data
 public class StorageConfig {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * 全局异常处理器
+ * @author zhaojun
  */
 @ControllerAdvice
 @ResponseBody

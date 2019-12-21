@@ -1,5 +1,8 @@
 package im.zhaojun.common.model.dto;
 
+/**
+ * @author zhaojun
+ */
 public class AudioInfoDTO {
     private String title;
     private String artist;

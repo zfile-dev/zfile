@@ -7,6 +7,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * @author zhaojun
+ */
 @Configuration
 public class ZFileConfiguration {
 

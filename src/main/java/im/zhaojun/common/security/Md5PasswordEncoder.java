@@ -3,7 +3,10 @@ package im.zhaojun.common.security;
 import cn.hutool.crypto.SecureUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class MD5PasswordEncoder implements PasswordEncoder {
+/**
+ * @author zhaojun
+ */
+public class Md5PasswordEncoder implements PasswordEncoder {
 
     @Override
     public String encode(CharSequence rawPassword) {

@@ -7,8 +7,12 @@ import im.zhaojun.common.util.HttpUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Iterator;
 import java.util.List;
 
+/**
+ * @author zhaojun
+ */
 @Service
 public class SystemService {
 

@@ -3,6 +3,9 @@ package im.zhaojun.common.model.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author zhaojun
+ */
 public enum StorageTypeEnum {
 
     /**

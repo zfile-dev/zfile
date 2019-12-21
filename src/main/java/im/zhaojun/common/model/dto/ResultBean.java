@@ -2,6 +2,9 @@ package im.zhaojun.common.model.dto;
 
 import java.io.Serializable;
 
+/**
+ * @author zhaojun
+ */
 public class ResultBean implements Serializable {
 
     private static final long serialVersionUID = -8276264968757808344L;

@@ -15,6 +15,9 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author zhaojun
+ */
 @Service
 public class SystemConfigService {
 
@@ -86,13 +89,13 @@ public class SystemConfigService {
         storageStrategySystemConfig.setValue(systemConfigDTO.getStorageStrategy().getKey());
         systemConfigList.add(storageStrategySystemConfig);
 
-        if (!StringUtils.isNullOrEmpty(systemConfigDTO.getUsername())) {
+        if (StringUtils.isNotNullOrEmpty(systemConfigDTO.getUsername())) {
             SystemConfig usernameSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.USERNAME);
             usernameSystemConfig.setValue(systemConfigDTO.getUsername());
             systemConfigList.add(usernameSystemConfig);
         }
 
-        if (!StringUtils.isNullOrEmpty(systemConfigDTO.getPassword())) {
+        if (StringUtils.isNotNullOrEmpty(systemConfigDTO.getPassword())) {
             SystemConfig passwordSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.PASSWORD);
             passwordSystemConfig.setValue(systemConfigDTO.getPassword());
             systemConfigList.add(passwordSystemConfig);
@@ -106,7 +109,7 @@ public class SystemConfigService {
         usernameConfig.setValue(username);
         systemConfigRepository.save(usernameConfig);
 
-        password = SecureUtil.md5(password);;
+        password = SecureUtil.md5(password);
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfigConstant.PASSWORD);
         systemConfig.setValue(password);
 

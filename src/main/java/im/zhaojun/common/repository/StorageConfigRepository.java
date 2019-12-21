@@ -7,9 +7,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * @author zhaojun
+ */
 @Repository
 public interface StorageConfigRepository extends JpaRepository<StorageConfig, Integer> {
 
+    /**
+     * 根据存储类型找对应的配置信息
+     * @param type  存储类型
+     * @return      此类型所有的配置信息
+     */
     List<StorageConfig> findByTypeOrderById(StorageTypeEnum type);
 
 }

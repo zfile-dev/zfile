@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
+/**
+ * @author zhaojun
+ */
 public class SiteConfigDTO implements Serializable {
 
     private static final long serialVersionUID = 8811196207046121740L;

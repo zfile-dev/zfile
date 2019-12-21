@@ -3,6 +3,9 @@ package im.zhaojun.common.util;
 import cn.hutool.core.util.URLUtil;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * @author zhaojun
+ */
 public class HttpUtil {
 
     public static String getTextContent(String url) {

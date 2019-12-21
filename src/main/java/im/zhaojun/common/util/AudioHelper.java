@@ -18,6 +18,7 @@ import java.net.URL;
 
 /**
  * 音频解析工具类
+ * @author zhaojun
  */
 public class AudioHelper {
 

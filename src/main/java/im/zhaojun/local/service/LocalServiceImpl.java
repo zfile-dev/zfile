@@ -21,6 +21,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author zhaojun
+ */
 @Service
 public class LocalServiceImpl implements FileService {
 
@@ -51,7 +54,7 @@ public class LocalServiceImpl implements FileService {
     }
 
     @Override
-    public List<FileItemDTO> fileList(String path) throws Exception {
+    public List<FileItemDTO> fileList(String path) {
         List<FileItemDTO> fileItemList = new ArrayList<>();
 
         String fullPath = StringUtils.concatPath(filePath, path);
@@ -79,7 +82,7 @@ public class LocalServiceImpl implements FileService {
     }
 
     @Override
-    public String getDownloadUrl(String path) throws Exception {
+    public String getDownloadUrl(String path) {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
         return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + path);
     }

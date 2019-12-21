@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/**
+ * @author zhaojun
+ */
 @Component
 public class StorageTypeFactory implements ApplicationContextAware {
 

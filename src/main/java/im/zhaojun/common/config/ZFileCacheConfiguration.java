@@ -16,6 +16,7 @@ import java.util.Collections;
 
 /**
  * 缓存配置类, 用于根据配置决定使用 redis 缓存还是 caffeine (内存).
+ * @author zhaojun
  */
 @Configuration
 public class ZFileCacheConfiguration {

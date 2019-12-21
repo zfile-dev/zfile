@@ -4,7 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnumSerializerConvert;
+import lombok.Data;
+import lombok.ToString;
 
+/**
+ * 系统设置传输类
+ * @author zhaojun
+ */
+@ToString
+@Data
 public class SystemConfigDTO {
 
     @JsonIgnore
@@ -27,76 +35,4 @@ public class SystemConfigDTO {
     private String password;
 
     private String domain;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getSiteName() {
-        return siteName;
-    }
-
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
-
-    public Boolean getInfoEnable() {
-        return infoEnable;
-    }
-
-    public void setInfoEnable(Boolean infoEnable) {
-        this.infoEnable = infoEnable;
-    }
-
-    public Boolean getSearchEnable() {
-        return searchEnable;
-    }
-
-    public void setSearchEnable(Boolean searchEnable) {
-        this.searchEnable = searchEnable;
-    }
-
-    public Boolean getSearchIgnoreCase() {
-        return searchIgnoreCase;
-    }
-
-    public void setSearchIgnoreCase(Boolean searchIgnoreCase) {
-        this.searchIgnoreCase = searchIgnoreCase;
-    }
-
-    public StorageTypeEnum getStorageStrategy() {
-        return storageStrategy;
-    }
-
-    public void setStorageStrategy(StorageTypeEnum storageStrategy) {
-        this.storageStrategy = storageStrategy;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
 }

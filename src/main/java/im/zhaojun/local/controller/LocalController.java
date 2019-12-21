@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+/**
+ * @author zhaojun
+ */
 @Controller
 public class LocalController {
 
@@ -27,7 +30,7 @@ public class LocalController {
 
     @GetMapping("/file/**")
     @ResponseBody
-    public ResponseEntity<FileSystemResource> downAttachment(final HttpServletRequest request) throws IOException {
+    public ResponseEntity<FileSystemResource> downAttachment(final HttpServletRequest request) {
         String path = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String ) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
@@ -37,7 +40,7 @@ public class LocalController {
         return export(new File(StringUtils.concatPath(localServiceImpl.getFilePath(), URLUtil.decode(filePath))));
     }
 
-    private ResponseEntity<FileSystemResource> export(File file) throws IOException {
+    private ResponseEntity<FileSystemResource> export(File file) {
 
         MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
 

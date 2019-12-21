@@ -2,6 +2,7 @@ package im.zhaojun.common.exception;
 
 /**
  * 对象存储初始化异常
+ * @author zhaojun
  */
 public class InitializeException extends RuntimeException {
 

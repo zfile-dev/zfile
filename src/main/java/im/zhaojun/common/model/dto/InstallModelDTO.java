@@ -4,6 +4,9 @@ import im.zhaojun.common.model.enums.StorageTypeEnum;
 
 import java.util.Map;
 
+/**
+ * @author zhaojun
+ */
 public class InstallModelDTO {
     private String siteName;
     private StorageTypeEnum storageStrategy;

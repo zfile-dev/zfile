@@ -18,7 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 
 /**
- * 自定义Security配置类
+ * 自定义 Security 配置类
+ * @author zhaojun
  */
 @EnableWebSecurity
 public class MySecurityConfig extends WebSecurityConfigurerAdapter {
@@ -115,7 +116,7 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
-        return new MD5PasswordEncoder();
+        return new Md5PasswordEncoder();
     }
 
 }

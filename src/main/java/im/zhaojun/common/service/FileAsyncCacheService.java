@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
+/**
+ * @author zhaojun
+ */
 @Service
 public class FileAsyncCacheService {
 
