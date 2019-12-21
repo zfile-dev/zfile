@@ -2,6 +2,7 @@ package im.zhaojun.ftp.service;
 
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.extra.ftp.Ftp;
+import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
@@ -12,6 +13,8 @@ import im.zhaojun.common.util.StringUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public class FtpServiceImpl implements FileService {
 
     private static final Logger log = LoggerFactory.getLogger(FtpServiceImpl.class);
@@ -62,6 +66,7 @@ public class FtpServiceImpl implements FileService {
     }
 
     @Override
+    @Cacheable
     public List<FileItemDTO> fileList(String path) {
         FTPFile[] ftpFiles = ftp.lsFiles(path);
 
@@ -83,6 +88,7 @@ public class FtpServiceImpl implements FileService {
     }
 
     @Override
+    @Cacheable
     public String getDownloadUrl(String path) {
         return URLUtil.complateUrl(domain, path);
     }

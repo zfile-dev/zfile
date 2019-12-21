@@ -8,7 +8,6 @@ import im.zhaojun.common.util.StringUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayDeque;
@@ -18,10 +17,8 @@ import java.util.List;
 @CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public interface FileService {
 
-    @Cacheable(condition = "#root.targetClass.simpleName != 'LocalServiceImpl'")
     List<FileItemDTO> fileList(String path) throws Exception;
 
-    @Cacheable
     String getDownloadUrl(String path) throws Exception;
 
     @PostConstruct

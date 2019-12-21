@@ -7,6 +7,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.storage.model.FileListing;
 import com.qiniu.util.Auth;
+import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
@@ -17,6 +18,8 @@ import im.zhaojun.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public class QiniuServiceImpl implements FileService {
 
     private static final Logger log = LoggerFactory.getLogger(QiniuServiceImpl.class);
@@ -78,6 +82,7 @@ public class QiniuServiceImpl implements FileService {
     }
 
     @Override
+    @Cacheable
     public List<FileItemDTO> fileList(String path) throws Exception {
         path = StringUtils.removeFirstSeparator(path);
         List<FileItemDTO> fileItemList = new ArrayList<>();
@@ -119,6 +124,7 @@ public class QiniuServiceImpl implements FileService {
     }
 
     @Override
+    @Cacheable
     public String getDownloadUrl(String path) {
         String url = URLUtil.complateUrl(domain, path);
         if (isPrivate) {

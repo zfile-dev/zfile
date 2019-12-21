@@ -4,6 +4,7 @@ import cn.hutool.core.util.URLUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.*;
+import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
@@ -14,6 +15,8 @@ import im.zhaojun.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public class AliyunServiceImpl implements FileService {
 
     private static final Logger log = LoggerFactory.getLogger(AliyunServiceImpl.class);
@@ -77,6 +81,7 @@ public class AliyunServiceImpl implements FileService {
     }
 
     @Override
+    @Cacheable
     public List<FileItemDTO> fileList(String path) {
         path = StringUtils.removeFirstSeparator(path);
 
@@ -107,6 +112,7 @@ public class AliyunServiceImpl implements FileService {
     }
 
     @Override
+    @Cacheable
     public String getDownloadUrl(String path) {
         path = StringUtils.removeFirstSeparator(path);
 
