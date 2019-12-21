@@ -35,7 +35,7 @@ public class FileComparator implements Comparator<FileItemDTO> {
             switch (sortBy) {
                 case "time": result = o1.getTime().compareTo(o2.getTime()); break;
                 case "size": result = o1.getSize().compareTo(o2.getSize()); break;
-                default: result = o1.getName().compareToIgnoreCase(o2.getName());
+                default: result = o1.getName().compareToIgnoreCase(o2.getName()); break;
             }
             return "asc".equals(order) ? result : -result;
         }

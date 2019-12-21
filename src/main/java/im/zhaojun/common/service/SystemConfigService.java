@@ -8,7 +8,6 @@ import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.SystemConfigRepository;
 import im.zhaojun.common.util.StringUtils;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -109,9 +108,9 @@ public class SystemConfigService {
         usernameConfig.setValue(username);
         systemConfigRepository.save(usernameConfig);
 
-        password = SecureUtil.md5(password);
+        String encryptionPassword = SecureUtil.md5(password);
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfigConstant.PASSWORD);
-        systemConfig.setValue(password);
+        systemConfig.setValue(encryptionPassword);
 
         systemConfigRepository.save(systemConfig);
     }

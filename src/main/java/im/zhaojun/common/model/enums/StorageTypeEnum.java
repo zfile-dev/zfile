@@ -20,6 +20,9 @@ public enum StorageTypeEnum {
     TENCENT("tencent", "腾讯云 COS"),
     MINIO("minio", "MINIO");
 
+    private String key;
+    private String description;
+
     private static Map<String, StorageTypeEnum> enumMap = new HashMap<>();
 
     static {
@@ -32,9 +35,6 @@ public enum StorageTypeEnum {
         this.key = key;
         this.description = description;
     }
-
-    private String key;
-    private String description;
 
     public String getKey() {
         return key;

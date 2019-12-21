@@ -59,13 +59,12 @@ public class FileController {
         FileService fileService = systemConfigService.getCurrentFileService();
         List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + URLUtil.decode(path) + "/"));
         for (FileItemDTO fileItemDTO : fileItemList) {
-            if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())) {
-                if (!HttpUtil.getTextContent(fileItemDTO.getUrl()).equals(password)) {
-                    if (password != null && !"".equals(password)) {
-                        return ResultBean.error("密码错误.");
-                    }
-                    return ResultBean.error("此文件夹需要密码.", ResultBean.REQUIRED_PASSWORD);
+            if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())
+                && !HttpUtil.getTextContent(fileItemDTO.getUrl()).equals(password)) {
+                if (password != null && !"".equals(password)) {
+                    return ResultBean.error("密码错误.");
                 }
+                return ResultBean.error("此文件夹需要密码.", ResultBean.REQUIRED_PASSWORD);
             }
         }
 

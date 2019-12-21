@@ -2,7 +2,13 @@ package im.zhaojun.huawei.service;
 
 import cn.hutool.core.util.URLUtil;
 import com.obs.services.ObsClient;
-import com.obs.services.model.*;
+import com.obs.services.model.HttpMethodEnum;
+import com.obs.services.model.ListObjectsRequest;
+import com.obs.services.model.ObjectListing;
+import com.obs.services.model.ObjectMetadata;
+import com.obs.services.model.ObsObject;
+import com.obs.services.model.TemporarySignatureRequest;
+import com.obs.services.model.TemporarySignatureResponse;
 import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.dto.FileItemDTO;
@@ -117,10 +123,10 @@ public class HuaweiServiceImpl implements FileService {
     @Override
     @Cacheable
     public String getDownloadUrl(String path) throws Exception {
-        path = StringUtils.removeFirstSeparator(path);
+        String clearPath = StringUtils.removeFirstSeparator(path);
         TemporarySignatureRequest req = new TemporarySignatureRequest(HttpMethodEnum.GET, timeout);
         req.setBucketName(bucketName);
-        req.setObjectKey(path);
+        req.setObjectKey(clearPath);
         TemporarySignatureResponse res = obsClient.createTemporarySignature(req);
         URL url = new URL(res.getSignedUrl());
         return URLUtil.complateUrl(domain, url.getFile());
