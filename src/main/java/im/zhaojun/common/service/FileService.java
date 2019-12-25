@@ -104,4 +104,14 @@ public interface FileService {
      * @return  初始化成功与否
      */
     boolean getIsInitialized();
+
+    default boolean testConnection() {
+        boolean flag = true;
+        try {
+            fileList("/");
+        } catch (Exception e) {
+            flag = false;
+        }
+        return flag;
+    }
 }

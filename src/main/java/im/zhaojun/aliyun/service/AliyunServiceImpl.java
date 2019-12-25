@@ -81,7 +81,7 @@ public class AliyunServiceImpl implements FileService {
             AccessControlList bucketAcl = ossClient.getBucketAcl(bucketName);
             CannedAccessControlList cannedAcl = bucketAcl.getCannedACL();
             isPrivate = "Private".equals(cannedAcl.name());
-            isInitialized = true;
+            isInitialized = testConnection();
         } catch (Exception e) {
             log.debug(StorageTypeEnum.ALIYUN.getDescription() + "初始化异常, 已跳过");
         }

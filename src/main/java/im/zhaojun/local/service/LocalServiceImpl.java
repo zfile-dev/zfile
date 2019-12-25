@@ -47,7 +47,7 @@ public class LocalServiceImpl implements FileService {
             Map<String, StorageConfig> stringStorageConfigMap =
                     storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.LOCAL);
             filePath = stringStorageConfigMap.get(FILE_PATH_KEY).getValue();
-            isInitialized = true;
+            isInitialized = testConnection();
         } catch (Exception e) {
             log.debug(StorageTypeEnum.LOCAL.getDescription() + "初始化异常, 已跳过");
         }

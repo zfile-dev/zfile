@@ -79,7 +79,7 @@ public class TencentServiceImpl implements FileService {
             Region region = new Region(regionName);
             ClientConfig clientConfig = new ClientConfig(region);
             cosClient = new COSClient(cred, clientConfig);
-            isInitialized = true;
+            isInitialized = testConnection();
         } catch (Exception e) {
             log.debug(StorageTypeEnum.TENCENT.getDescription() + "初始化异常, 已跳过");
         }

@@ -78,7 +78,7 @@ public class QiniuServiceImpl implements FileService {
             domain = stringStorageConfigMap.get(DOMAIN_KEY).getValue();
 
             isPrivate = bucketManager.getBucketInfo(bucketName).getPrivate() == 1;
-            isInitialized = true;
+            isInitialized = testConnection();
         } catch (Exception e) {
             log.debug(StorageTypeEnum.QINIU.getDescription() + "初始化异常, 已跳过");
         }

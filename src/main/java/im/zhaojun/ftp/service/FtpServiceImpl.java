@@ -62,7 +62,7 @@ public class FtpServiceImpl implements FileService {
            domain = stringStorageConfigMap.get(DOMAIN_KEY).getValue();
 
            ftp = new Ftp(host, Integer.parseInt(port), username, password);
-           isInitialized = true;
+           isInitialized = testConnection();
        } catch (Exception e) {
            log.debug(StorageTypeEnum.FTP.getDescription() + "初始化异常, 已跳过");
        }

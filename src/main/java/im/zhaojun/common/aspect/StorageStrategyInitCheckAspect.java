@@ -1,7 +1,7 @@
 package im.zhaojun.common.aspect;
 
 import im.zhaojun.common.exception.StorageStrategyUninitializedException;
-import im.zhaojun.common.model.enums.StorageTypeEnum;
+import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.SystemConfigService;
 import im.zhaojun.common.util.SpringContextHolder;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,10 +18,9 @@ public class StorageStrategyInitCheckAspect {
     @Before("@annotation(im.zhaojun.common.annotation.CheckStorageStrategyInit)")
     public void logStart() {
         SystemConfigService systemConfigService = SpringContextHolder.getBean(SystemConfigService.class);
-        StorageTypeEnum currentStorageStrategy = systemConfigService.getCurrentStorageStrategy();
-
-        if (currentStorageStrategy == null) {
-            throw new StorageStrategyUninitializedException("存储策略未初始化");
+        FileService currentFileService = systemConfigService.getCurrentFileService();
+        if (currentFileService == null || !currentFileService.getIsInitialized()) {
+            throw new StorageStrategyUninitializedException("存储策略异常, 请联系管理员!");
         }
     }
 

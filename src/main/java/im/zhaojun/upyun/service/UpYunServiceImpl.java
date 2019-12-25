@@ -65,7 +65,7 @@ public class UpYunServiceImpl implements FileService {
             domain = stringStorageConfigMap.get(DOMAIN_KEY).getValue();
             basePath = stringStorageConfigMap.get(BASE_PATH).getValue();
             upYun = new UpYun(bucketName, username, password);
-            isInitialized = true;
+            isInitialized = testConnection();
         } catch (Exception e) {
             log.debug(StorageTypeEnum.UPYUN.getDescription() + "初始化异常, 已跳过");
         }

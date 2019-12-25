@@ -68,13 +68,13 @@ public class MinIOServiceImpl implements FileService {
             minioClient = new MinioClient(endPoint, accessKey, secretKey);
             basePath = stringStorageConfigMap.get(BASE_PATH).getValue();
             basePath = basePath == null ? "" : basePath;
-            isInitialized = true;
+            isInitialized = testConnection();
         } catch (Exception e) {
             log.debug(StorageTypeEnum.MINIO.getDescription() + "初始化异常, 已跳过");
         }
     }
 
-    @Cacheable
+    // @Cacheable
     @Override
     public List<FileItemDTO> fileList(String path) throws Exception {
         path = StringUtils.removeFirstSeparator(path);

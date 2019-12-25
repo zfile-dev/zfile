@@ -75,7 +75,7 @@ public class HuaweiServiceImpl implements FileService {
             bucketName = stringStorageConfigMap.get(BUCKET_NAME_KEY).getValue();
             domain = stringStorageConfigMap.get(DOMAIN_KEY).getValue();
             obsClient = new ObsClient(accessKey, secretKey, endPoint);
-            isInitialized = true;
+            isInitialized = testConnection();
         } catch (Exception e) {
             log.debug(StorageTypeEnum.HUAWEI.getDescription() + "初始化异常, 已跳过");
         }
