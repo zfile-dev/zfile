@@ -29,7 +29,7 @@ public class FileAsyncCacheService {
             return;
         }
 
-        FileService fileService = StorageTypeFactory.getStorageTypeService(storageStrategy);
+        AbstractFileService fileService = StorageTypeFactory.getStorageTypeService(storageStrategy);
         log.info("缓存 {} 所有文件开始", storageStrategy.getDescription());
         long startTime = System.currentTimeMillis();
         try {

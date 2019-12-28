@@ -10,7 +10,7 @@ import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.model.dto.SiteConfigDTO;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
-import im.zhaojun.common.service.FileService;
+import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
 import im.zhaojun.common.service.SystemService;
@@ -56,7 +56,7 @@ public class FileController {
                            @RequestParam(defaultValue = "asc") String order,
                            @RequestParam(required = false) String password,
                            @RequestParam(defaultValue = "1") Integer page) throws Exception {
-        FileService fileService = systemConfigService.getCurrentFileService();
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
         List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + URLUtil.decode(path) + "/"));
         for (FileItemDTO fileItemDTO : fileItemList) {
             if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())
@@ -112,7 +112,7 @@ public class FileController {
     @CheckStorageStrategyInit
     @GetMapping("/clearCache")
     public ResultBean clearCache() {
-        FileService fileService = systemConfigService.getCurrentFileService();
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
         if (fileService != null) {
             fileService.clearCache();
         }
@@ -128,7 +128,7 @@ public class FileController {
     @CheckStorageStrategyInit
     @GetMapping("/search")
     public ResultBean search(@RequestParam(value = "name", defaultValue = "/") String name) throws Exception {
-        FileService fileService = systemConfigService.getCurrentFileService();
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
         SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
         if (!systemConfigDTO.getSearchEnable()) {
             throw new SearchDisableException("搜索功能未开启");

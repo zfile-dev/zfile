@@ -1,7 +1,7 @@
 package im.zhaojun.common.config;
 
 import im.zhaojun.common.model.enums.StorageTypeEnum;
-import im.zhaojun.common.service.FileService;
+import im.zhaojun.common.service.AbstractFileService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -15,7 +15,7 @@ import java.util.Map;
 @Component
 public class StorageTypeFactory implements ApplicationContextAware {
 
-    private static Map<String, FileService> storageTypeEnumFileServiceMap;
+    private static Map<String, AbstractFileService> storageTypeEnumFileServiceMap;
 
     private static ApplicationContext applicationContext;
 
@@ -27,15 +27,15 @@ public class StorageTypeFactory implements ApplicationContextAware {
         applicationContext = act;
 
         // 获取 Spring 容器中所有 FileService 类型的类
-        storageTypeEnumFileServiceMap = act.getBeansOfType(FileService.class);
+        storageTypeEnumFileServiceMap = act.getBeansOfType(AbstractFileService.class);
     }
 
     /**
      * 获取指定存储类型 Service
      */
-    public static FileService getStorageTypeService(StorageTypeEnum type) {
-        FileService result = null;
-        for (FileService fileService : storageTypeEnumFileServiceMap.values()) {
+    public static AbstractFileService getStorageTypeService(StorageTypeEnum type) {
+        AbstractFileService result = null;
+        for (AbstractFileService fileService : storageTypeEnumFileServiceMap.values()) {
             if (fileService.getStorageTypeEnum() == type) {
                 result = fileService;
                 break;

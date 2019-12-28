@@ -25,7 +25,7 @@ public class SystemService {
     public synchronized SiteConfigDTO getConfig(String path) throws Exception {
 
         SiteConfigDTO siteConfigDTO = new SiteConfigDTO();
-        FileService fileService = systemConfigService.getCurrentFileService();
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
 
         List<FileItemDTO> fileItemList = fileService.fileList(path);
         for (FileItemDTO fileItemDTO : fileItemList) {

@@ -6,7 +6,7 @@ import im.zhaojun.common.model.dto.InstallModelDTO;
 import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
-import im.zhaojun.common.service.FileService;
+import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
 import org.springframework.stereotype.Controller;
@@ -90,7 +90,7 @@ public class InstallController {
 
         StorageTypeEnum currentStorageStrategy = systemConfigService.getCurrentStorageStrategy();
         if (Objects.equals(storageStrategy, currentStorageStrategy)) {
-            FileService fileService = systemConfigService.getCurrentFileService();
+            AbstractFileService fileService = systemConfigService.getCurrentFileService();
             fileService.clearCache();
             fileService.init();
         }

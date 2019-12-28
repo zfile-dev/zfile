@@ -115,7 +115,7 @@ public class SystemConfigService {
         systemConfigRepository.save(systemConfig);
     }
 
-    public FileService getCurrentFileService() {
+    public AbstractFileService getCurrentFileService() {
         StorageTypeEnum storageStrategy = getCurrentStorageStrategy();
         return StorageTypeFactory.getStorageTypeService(storageStrategy);
     }
