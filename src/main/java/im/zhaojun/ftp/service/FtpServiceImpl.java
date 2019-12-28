@@ -54,7 +54,7 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
            ftp = new Ftp(host, Integer.parseInt(port), username, password);
            isInitialized = testConnection();
        } catch (Exception e) {
-           log.debug(StorageTypeEnum.FTP.getDescription() + "初始化异常, 已跳过");
+           log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
        }
     }
 

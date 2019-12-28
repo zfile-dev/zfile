@@ -47,7 +47,7 @@ public class LocalServiceImpl extends AbstractFileService implements FileService
             filePath = stringStorageConfigMap.get(StorageConfigConstant.FILE_PATH_KEY).getValue();
             isInitialized = testConnection();
         } catch (Exception e) {
-            log.debug(StorageTypeEnum.LOCAL.getDescription() + "初始化异常, 已跳过");
+            log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
         }
     }
 

@@ -1,15 +1,18 @@
 package im.zhaojun.common.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import im.zhaojun.common.model.S3Model;
+import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 
 import javax.annotation.Resource;
 import java.net.URL;
@@ -21,6 +24,7 @@ import java.util.List;
  * @author zhaojun
  * @date 2019/12/26 22:26
  */
+@CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public abstract class AbstractS3FileService extends AbstractFileService {
 
     @Value("${zfile.cache.timeout}")
@@ -29,23 +33,38 @@ public abstract class AbstractS3FileService extends AbstractFileService {
     @Resource
     protected StorageConfigService storageConfigService;
 
+    protected String path;
+
     protected String basePath;
+
+    protected String bucketName;
+
+    protected String domain;
 
     protected AmazonS3 s3Client;
 
-    protected S3Model s3Model;
+    @Override
+    @Cacheable
+    public List<FileItemDTO> fileList(String path) {
+        this.path = path;
+        return s3FileList(path);
+    }
+
+    @Override
+    @Cacheable
+    public String getDownloadUrl(String path) {
+        this.path = path;
+        return s3ObjectUrl(path);
+    }
 
     /**
      * 获取 S3 指定目录下的对象列表
-     * @param s3Client  S3 客户端连接
-     * @param s3Model   S3 对象
+     * @param path      路径
      * @return  指定目录下的对象列表
-     * @throws Exception   获取过程中出现的异常
      */
-    public List<FileItemDTO> s3FileList(AmazonS3 s3Client, S3Model s3Model) throws Exception {
-        String path = StringUtils.removeFirstSeparator(s3Model.getPath());
-        String fullPath = StringUtils.removeFirstSeparator(s3Model.getFullPath());
-        String bucketName = s3Model.getBucketName();
+    public List<FileItemDTO> s3FileList(String path) {
+        path = StringUtils.removeFirstSeparator(path);
+        String fullPath = StringUtils.removeFirstSeparator(getFullPath());
         List<FileItemDTO> fileItemList = new ArrayList<>();
         ObjectListing objectListing = s3Client.listObjects(new ListObjectsRequest(bucketName, fullPath, "", "/", 1000));
 
@@ -76,14 +95,10 @@ public abstract class AbstractS3FileService extends AbstractFileService {
 
     /**
      * 获取对象的访问链接, 如果指定了域名, 则替换为自定义域名.
-     * @param s3Client  S3 客户端连接
-     * @param s3Model   S3 对象
      * @return  S3 对象访问地址
      */
-    public String s3ObjectUrl(AmazonS3 s3Client, S3Model s3Model) {
-        String fullPath = StringUtils.removeFirstSeparator(s3Model.getFullPath());
-        String bucketName = s3Model.getBucketName();
-        String domain = s3Model.getDomain();
+    public String s3ObjectUrl(String path) {
+        String fullPath = StringUtils.removeFirstSeparator(StringUtils.removeDuplicateSeparator(basePath + "/" + path));
 
         Date expirationDate = new Date(System.currentTimeMillis() + timeout * 1000);
         URL url = s3Client.generatePresignedUrl(bucketName, fullPath, expirationDate);
@@ -93,5 +108,15 @@ public abstract class AbstractS3FileService extends AbstractFileService {
             defaultUrl = URLUtil.complateUrl(domain, url.getFile());
         }
         return defaultUrl;
+    }
+
+    /**
+     * 获取 basePath + path 的全路径地址.
+     * @return basePath + path 的全路径地址.
+     */
+    public String getFullPath() {
+        String basePath = ObjectUtil.defaultIfNull(this.basePath, "");
+        String path = ObjectUtil.defaultIfNull(this.path, "");
+        return StringUtils.removeDuplicateSeparator(basePath + "/" + path);
     }
 }

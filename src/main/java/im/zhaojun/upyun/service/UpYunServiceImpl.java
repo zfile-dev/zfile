@@ -57,7 +57,7 @@ public class UpYunServiceImpl extends AbstractFileService implements FileService
             upYun = new UpYun(bucketName, username, password);
             isInitialized = testConnection();
         } catch (Exception e) {
-            log.debug(StorageTypeEnum.UPYUN.getDescription() + "初始化异常, 已跳过");
+            log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
         }
     }
 
