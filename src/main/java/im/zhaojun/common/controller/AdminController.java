@@ -4,8 +4,8 @@ import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
+import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileAsyncCacheService;
-import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public class AdminController {
      */
     @GetMapping("/clear-cache")
     public ResultBean clearCache() {
-        FileService fileService = systemConfigService.getCurrentFileService();
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
         fileService.clearCache();
         return ResultBean.success();
     }
@@ -104,7 +104,7 @@ public class AdminController {
         if (storageStrategy == null) {
             log.info("尚未配置存储策略.");
         } else {
-            FileService fileService = systemConfigService.getCurrentFileService();
+            AbstractFileService fileService = systemConfigService.getCurrentFileService();
             fileService.init();
             log.info("当前启用存储类型: {}", storageStrategy.getDescription());
 
