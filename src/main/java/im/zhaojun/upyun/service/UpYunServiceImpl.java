@@ -4,9 +4,11 @@ import cn.hutool.core.util.URLUtil;
 import com.UpYun;
 import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.StorageConfig;
+import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
+import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
@@ -27,7 +29,7 @@ import java.util.Map;
  */
 @Service
 @CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
-public class UpYunServiceImpl implements FileService {
+public class UpYunServiceImpl extends AbstractFileService implements FileService {
 
     private static final Logger log = LoggerFactory.getLogger(UpYunServiceImpl.class);
 
@@ -36,21 +38,9 @@ public class UpYunServiceImpl implements FileService {
     @Resource
     private StorageConfigService storageConfigService;
 
-    private static final String BUCKET_NAME_KEY = "bucket-name";
-
-    private static final String USERNAME_KEY = "username";
-
-    private static final String PASSWORD_KEY = "password";
-
-    private static final String DOMAIN_KEY = "domain";
-
-    private static final String BASE_PATH = "base-path";
-
     private String domain;
 
     private UpYun upYun;
-
-    private boolean isInitialized;
 
     private String basePath;
 
@@ -59,11 +49,11 @@ public class UpYunServiceImpl implements FileService {
         try {
             Map<String, StorageConfig> stringStorageConfigMap =
                     storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.UPYUN);
-            String bucketName = stringStorageConfigMap.get(BUCKET_NAME_KEY).getValue();
-            String username = stringStorageConfigMap.get(USERNAME_KEY).getValue();
-            String password = stringStorageConfigMap.get(PASSWORD_KEY).getValue();
-            domain = stringStorageConfigMap.get(DOMAIN_KEY).getValue();
-            basePath = stringStorageConfigMap.get(BASE_PATH).getValue();
+            String bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
+            String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
+            String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
+            domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
+            basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
             upYun = new UpYun(bucketName, username, password);
             isInitialized = testConnection();
         } catch (Exception e) {
@@ -71,8 +61,8 @@ public class UpYunServiceImpl implements FileService {
         }
     }
 
-    @Cacheable
     @Override
+    @Cacheable
     public List<FileItemDTO> fileList(String path) throws Exception {
         ArrayList<FileItemDTO> fileItemList = new ArrayList<>();
         String nextMark = null;
@@ -106,8 +96,8 @@ public class UpYunServiceImpl implements FileService {
 
     }
 
-    @Cacheable
     @Override
+    @Cacheable
     public String getDownloadUrl(String path) {
         return URLUtil.complateUrl(domain, path);
     }
@@ -115,12 +105,6 @@ public class UpYunServiceImpl implements FileService {
     @Override
     public StorageTypeEnum getStorageTypeEnum() {
         return StorageTypeEnum.UPYUN;
-    }
-
-
-    @Override
-    public boolean getIsInitialized() {
-        return isInitialized;
     }
 
 }

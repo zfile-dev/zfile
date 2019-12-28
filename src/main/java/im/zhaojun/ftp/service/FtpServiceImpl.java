@@ -4,9 +4,11 @@ import cn.hutool.core.util.URLUtil;
 import cn.hutool.extra.ftp.Ftp;
 import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.StorageConfig;
+import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
+import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
@@ -27,39 +29,27 @@ import java.util.Map;
  */
 @Service
 @CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
-public class FtpServiceImpl implements FileService {
+public class FtpServiceImpl extends AbstractFileService implements FileService {
 
     private static final Logger log = LoggerFactory.getLogger(FtpServiceImpl.class);
 
     @Resource
     private StorageConfigService storageConfigService;
 
-    private static final String HOST_KEY = "host";
-
-    private static final String PORT_KEY = "port";
-
-    private static final String USERNAME_KEY = "username";
-
-    private static final String PASSWORD_KEY = "password";
-
-    private static final String DOMAIN_KEY = "domain";
-
     private Ftp ftp;
 
     private String domain;
-
-    private boolean isInitialized;
 
     @Override
     public void init() {
        try {
            Map<String, StorageConfig> stringStorageConfigMap =
                    storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.FTP);
-           String host = stringStorageConfigMap.get(HOST_KEY).getValue();
-           String port = stringStorageConfigMap.get(PORT_KEY).getValue();
-           String username = stringStorageConfigMap.get(USERNAME_KEY).getValue();
-           String password = stringStorageConfigMap.get(PASSWORD_KEY).getValue();
-           domain = stringStorageConfigMap.get(DOMAIN_KEY).getValue();
+           String host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
+           String port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
+           String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
+           String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
+           domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
 
            ftp = new Ftp(host, Integer.parseInt(port), username, password);
            isInitialized = testConnection();
@@ -99,11 +89,5 @@ public class FtpServiceImpl implements FileService {
     @Override
     public StorageTypeEnum getStorageTypeEnum() {
         return StorageTypeEnum.FTP;
-    }
-
-
-    @Override
-    public boolean getIsInitialized() {
-        return isInitialized;
     }
 }

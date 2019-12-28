@@ -2,11 +2,13 @@ package im.zhaojun.local.service;
 
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.SystemConfig;
+import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.constant.SystemConfigConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.SystemConfigRepository;
+import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
@@ -25,11 +27,9 @@ import java.util.Map;
  * @author zhaojun
  */
 @Service
-public class LocalServiceImpl implements FileService {
+public class LocalServiceImpl extends AbstractFileService implements FileService {
 
     private static final Logger log = LoggerFactory.getLogger(LocalServiceImpl.class);
-
-    private static final String FILE_PATH_KEY = "filePath";
 
     @Resource
     private StorageConfigService storageConfigService;
@@ -39,14 +39,12 @@ public class LocalServiceImpl implements FileService {
 
     private String filePath;
 
-    private boolean isInitialized;
-
     @Override
     public void init() {
         try {
             Map<String, StorageConfig> stringStorageConfigMap =
                     storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.LOCAL);
-            filePath = stringStorageConfigMap.get(FILE_PATH_KEY).getValue();
+            filePath = stringStorageConfigMap.get(StorageConfigConstant.FILE_PATH_KEY).getValue();
             isInitialized = testConnection();
         } catch (Exception e) {
             log.debug(StorageTypeEnum.LOCAL.getDescription() + "初始化异常, 已跳过");
@@ -98,12 +96,6 @@ public class LocalServiceImpl implements FileService {
     @Override
     public StorageTypeEnum getStorageTypeEnum() {
         return StorageTypeEnum.LOCAL;
-    }
-
-
-    @Override
-    public boolean getIsInitialized() {
-        return isInitialized;
     }
 
 }
