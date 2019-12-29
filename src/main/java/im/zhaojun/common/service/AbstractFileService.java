@@ -1,34 +1,55 @@
 package im.zhaojun.common.service;
 
-import im.zhaojun.common.config.ZFileCacheConfiguration;
+import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.anno.CacheRefresh;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
+import com.alicp.jetcache.anno.CreateCache;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.util.StringUtils;
 import org.springframework.aop.framework.AopContext;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zhaojun
  * @date 2019/12/28 19:27
  */
-@CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public abstract class AbstractFileService implements FileService {
 
+    @Value("${zfile.cache.timeout}")
+    protected Long timeout;
+
     protected boolean isInitialized;
+
+    @CreateCache(name = "zfile-cache:")
+    private Cache<String, Object> userCache;
+
+    @Override
+    @Cached(name = "zfile-cache:", key = "#path", cacheType = CacheType.LOCAL, condition = "mvel{bean('systemConfigService').enableCache}")
+    @CacheRefresh(refresh = 30, timeUnit = TimeUnit.MINUTES)
+    public abstract List<FileItemDTO> fileList(String path) throws Exception;
+
+
+    /**
+     * 清理当前存储引擎的缓存
+     */
+    public void clearCache() {
+
+    }
 
     /**
      * 初始化方法, 启动时自动调用实现类的此方法进行初始化.
      */
     @PostConstruct
     public abstract void init();
-
 
     protected boolean testConnection() {
         boolean flag = true;
@@ -54,12 +75,6 @@ public abstract class AbstractFileService implements FileService {
      * @return  存储引擎类型枚举
      */
     public abstract StorageTypeEnum getStorageTypeEnum();
-
-    /**
-     * 清除缓存.
-     */
-    @CacheEvict(allEntries = true)
-    public void clearCache() {}
 
     /**
      * 搜索文件

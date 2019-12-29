@@ -35,4 +35,6 @@ public class SystemConfigDTO {
     private String password;
 
     private String domain;
+
+    private Boolean enableCache;
 }

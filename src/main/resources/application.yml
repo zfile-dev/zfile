@@ -45,9 +45,6 @@ spring:
   resources:
     chain:
       gzipped: true
-  redis:
-    host: 127.0.0.1
-    password: 12345
 zfile:
   cache:
     timeout: 300
@@ -55,3 +52,26 @@ zfile:
     header: header.md
     footer: footer.md
     password: password.txt
+
+jetcache:
+  statIntervalMinutes: 1
+  areaInCacheName: false
+  local:
+    default:
+      type: caffeine
+      keyConvertor: fastjson
+      defaultExpireInMillis: 6000000
+  remote:
+    default:
+      type: redis
+      keyConvertor: fastjson
+      valueEncoder: kryo
+      valueDecoder: kryo
+      defaultExpireInMillis: 3600000
+      poolConfig:
+        minIdle: 5
+        maxIdle: 20
+        maxTotal: 50
+      host: 127.0.0.1
+      port: 6379
+      password: 12345

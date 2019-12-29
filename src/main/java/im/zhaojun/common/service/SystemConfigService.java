@@ -54,6 +54,9 @@ public class SystemConfigService {
                 case SystemConfigConstant.DOMAIN:
                     systemConfigDTO.setDomain(systemConfig.getValue());
                     break;
+                case SystemConfigConstant.ENABLE_CACHE:
+                    systemConfigDTO.setEnableCache("true".equals(systemConfig.getValue()));
+                    break;
                 default:break;
             }
         }
@@ -83,6 +86,10 @@ public class SystemConfigService {
         SystemConfig searchIgnoreCaseSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.SEARCH_IGNORE_CASE);
         searchIgnoreCaseSystemConfig.setValue(systemConfigDTO.getSearchIgnoreCase() ? "true" : "false");
         systemConfigList.add(searchIgnoreCaseSystemConfig);
+
+        SystemConfig enableCacheSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.ENABLE_CACHE);
+        enableCacheSystemConfig.setValue(systemConfigDTO.getEnableCache() ? "true" : "false");
+        systemConfigList.add(enableCacheSystemConfig);
 
         SystemConfig storageStrategySystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.STORAGE_STRATEGY);
         storageStrategySystemConfig.setValue(systemConfigDTO.getStorageStrategy().getKey());
@@ -123,6 +130,11 @@ public class SystemConfigService {
     public StorageTypeEnum getCurrentStorageStrategy() {
         SystemConfigDTO systemConfigDTO = getSystemConfig();
         return systemConfigDTO.getStorageStrategy();
+    }
+
+    public boolean getEnableCache() {
+        SystemConfigDTO systemConfigDTO = getSystemConfig();
+        return systemConfigDTO.getEnableCache();
     }
 
 }

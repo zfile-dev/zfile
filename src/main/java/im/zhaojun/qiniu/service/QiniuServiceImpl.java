@@ -24,9 +24,6 @@ public class QiniuServiceImpl extends AbstractS3FileService implements FileServi
 
     private static final Logger log = LoggerFactory.getLogger(QiniuServiceImpl.class);
 
-    @Value("${zfile.cache.timeout}")
-    private Long timeout;
-
     @Override
     public void init() {
         try {

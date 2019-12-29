@@ -6,13 +6,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.util.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 
 import javax.annotation.Resource;
 import java.net.URL;
@@ -24,12 +20,7 @@ import java.util.List;
  * @author zhaojun
  * @date 2019/12/26 22:26
  */
-@CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public abstract class AbstractS3FileService extends AbstractFileService {
-
-    @Value("${zfile.cache.timeout}")
-    private Long timeout;
-
     @Resource
     protected StorageConfigService storageConfigService;
 
@@ -44,14 +35,12 @@ public abstract class AbstractS3FileService extends AbstractFileService {
     protected AmazonS3 s3Client;
 
     @Override
-    @Cacheable
     public List<FileItemDTO> fileList(String path) {
         this.path = path;
         return s3FileList(path);
     }
 
     @Override
-    @Cacheable
     public String getDownloadUrl(String path) {
         this.path = path;
         return s3ObjectUrl(path);

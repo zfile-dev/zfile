@@ -134,6 +134,12 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alicp.jetcache</groupId>
+            <artifactId>jetcache-starter-redis</artifactId>
+            <version>2.5.14</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>

@@ -2,7 +2,6 @@ package im.zhaojun.ftp.service;
 
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.extra.ftp.Ftp;
-import im.zhaojun.common.config.ZFileCacheConfiguration;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
@@ -15,7 +14,6 @@ import im.zhaojun.common.util.StringUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,6 @@ import java.util.Map;
  * @author zhaojun
  */
 @Service
-@CacheConfig(cacheNames = ZFileCacheConfiguration.CACHE_NAME, keyGenerator = "keyGenerator")
 public class FtpServiceImpl extends AbstractFileService implements FileService {
 
     private static final Logger log = LoggerFactory.getLogger(FtpServiceImpl.class);

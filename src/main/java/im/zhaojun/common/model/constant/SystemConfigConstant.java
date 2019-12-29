@@ -13,6 +13,8 @@ public class SystemConfigConstant {
 
     public static final String SEARCH_IGNORE_CASE = "searchIgnoreCase";
 
+    public static final String ENABLE_CACHE = "enableCache";
+
     public static final String STORAGE_STRATEGY = "storageStrategy";
 
     public static final String USERNAME = "username";
