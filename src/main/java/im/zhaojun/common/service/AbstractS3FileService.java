@@ -96,7 +96,7 @@ public abstract class AbstractS3FileService extends AbstractFileService {
         if (StringUtils.isNotNullOrEmpty(domain)) {
             defaultUrl = URLUtil.complateUrl(domain, url.getFile());
         }
-        return defaultUrl;
+        return URLUtil.decode(defaultUrl);
     }
 
     /**
