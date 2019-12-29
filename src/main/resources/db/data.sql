@@ -6,6 +6,7 @@ INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (5, 'storageStrategy', '�
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (6, 'username', '管理员账号');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (7, 'password', '管理员密码');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (8, 'domain', '站点域名');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (9, 'enableCache', '是否开启缓存');
 
 
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (1, 'bucket-name', '云存储服务名称', 'upyun');
@@ -46,3 +47,6 @@ INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (35, 'base-path',
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (36, 'base-path', '基路径', 'tencent');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (37, 'endPoint', '区域', 'qiniu');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (38, 'base-path', '基路径', 'qiniu');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (39, 'base-path', '基路径', 'aliyun');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (40, 'base-path', '基路径', 'huawei');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (41, 'ftp', '基路径', 'ftp');
