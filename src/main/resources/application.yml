@@ -11,6 +11,8 @@ server:
     context-path: ''
   tomcat:
     max-threads: 20
+  compression:
+    enabled: true
 
 spring:
   datasource:
