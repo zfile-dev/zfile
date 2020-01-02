@@ -1,8 +1,7 @@
 logging:
   level:
     im:
-      zhaojun:
-        common: debug
+      zhaojun: info
   path: ${user.home}/.zfile/logs
 
 server:
