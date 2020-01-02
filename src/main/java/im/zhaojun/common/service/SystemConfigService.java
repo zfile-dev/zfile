@@ -2,6 +2,7 @@ package im.zhaojun.common.service;
 
 import cn.hutool.crypto.SecureUtil;
 import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.SystemConfig;
@@ -28,7 +29,7 @@ public class SystemConfigService {
 
     public static final String SYSTEM_CONFIG_CACHE_KEY = "1";
 
-    @CreateCache(name = SYSTEM_CONFIG_CACHE_PREFIX)
+    @CreateCache(name = SYSTEM_CONFIG_CACHE_PREFIX, cacheType = CacheType.LOCAL)
     private Cache<String, Object> configCache;
 
     @Resource
