@@ -12,7 +12,7 @@
 
     <groupId>im.zhaojun</groupId>
     <artifactId>zfile</artifactId>
-    <version>0.2.1</version>
+    <version>0.3</version>
     <name>zfile</name>
     <description>一个在线的文件浏览系统</description>
 

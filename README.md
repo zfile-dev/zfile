@@ -1,6 +1,5 @@
 # Z-File
 
-[![Build Status](https://travis-ci.org/zhaojun1998/Shiro-Action.svg?branch=master)](https://travis-ci.org/zhaojun1998/Shiro-Action)
 ![https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square](https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a)](https://www.codacy.com/manual/zhaojun1998/zfile?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zhaojun1998/zfile&amp;utm_campaign=Badge_Grade)
 ![https://img.shields.io/badge/springboot-2.0.6-orange.svg?style=flat-square](https://img.shields.io/badge/springboot-2.0.6-yellow.svg?longCache=true&style=popout-square)
@@ -22,6 +21,7 @@
 * 支持在线浏览文本文件, 视频, 图片, 音乐.
 * 文件/目录二维码
 * 缓存动态开启, 缓存自动刷新
+* 全局搜索
 
 ## 快速开始
 
@@ -34,19 +34,19 @@ yum instal -y java # 适用于 Centos 7.x
 下载项目:
 
 ```bash
-wget https://github.com/zhaojun1998/zfile/releases/download/0.2.1/zfile-0.2.1.jar
+wget https://github.com/zhaojun1998/zfile/releases/download/0.3/zfile-0.3.jar
 ```
 
 启动项目:
 
 ```bash
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.1.jar
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.3.jar
 
 ## 高级启动
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.1.jar --server.port=18777
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.3.jar --server.port=18777
 
 ## 后台运行
-nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.1.jar &
+nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.3.jar &
 ```
 
 > 系统使用的是内置配置文件, 默认配置请参考: [application.yml](https://github.com/zhaojun1998/zfile/blob/master/src/main/resources/application.yml)
@@ -73,18 +73,13 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.1.jar &
 管理后台: http://127.0.0.1:8080/#/admin
 
 
-
 ## 运行环境
 
 * JDK: `1.8`
-* 缓存: `caffeine/redis`
+* 缓存: `caffeine`
 * 数据库: `h2/mysql`
 
 ## 常见问题
-
-### 缓存
-
-缓存默认支持 `caffeine` 和 `redis`, 前者为内存缓存, 无需安装, 但后者相对性能更好.
 
 ### 数据库
 
@@ -104,7 +99,6 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.2.1.jar &
 
 ## TODO
 
-- 全局搜索功能
 - 文本预览更换更好用的编辑器
 - 后台支持上传、编辑、删除等操作
 - API 支持
