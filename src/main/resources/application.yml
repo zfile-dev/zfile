@@ -13,9 +13,6 @@ server:
     max-threads: 20
 
 spring:
-  cache:
-    type: caffeine
-#    type: redis
   datasource:
     # 初始化数据导入
     data: classpath*:db/data.sql
@@ -61,18 +58,4 @@ jetcache:
     default:
       type: caffeine
       keyConvertor: fastjson
-      defaultExpireInMillis: 6000000
-  remote:
-    default:
-      type: redis
-      keyConvertor: fastjson
-      valueEncoder: kryo
-      valueDecoder: kryo
       defaultExpireInMillis: 3600000
-      poolConfig:
-        minIdle: 5
-        maxIdle: 20
-        maxTotal: 50
-      host: 127.0.0.1
-      port: 6379
-      password: 12345

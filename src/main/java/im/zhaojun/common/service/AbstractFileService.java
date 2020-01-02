@@ -9,6 +9,7 @@ import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @author zhaojun
  * @date 2019/12/28 19:27
  */
+@Slf4j
 public abstract class AbstractFileService implements FileService {
 
     @Value("${zfile.cache.timeout}")
@@ -32,8 +34,16 @@ public abstract class AbstractFileService implements FileService {
     @CreateCache(name = "zfile-cache:")
     private Cache<String, Object> userCache;
 
+    /***
+     * 获取指定路径下的文件及文件夹, 默认缓存 60 分钟，每隔 30 分钟刷新一次.
+     * @param path 文件路径
+     * @return     文件及文件夹列表
+     * @throws Exception  获取文件列表中出现的异常
+     */
     @Override
-    @Cached(name = "zfile-cache:", key = "#path", cacheType = CacheType.LOCAL, condition = "mvel{bean('systemConfigService').enableCache}")
+    @Cached(name = "zfile-cache:",
+            key =  "args[0]",
+            cacheType = CacheType.LOCAL, condition = "mvel{bean('systemConfigService').enableCache}")
     @CacheRefresh(refresh = 30, timeUnit = TimeUnit.MINUTES)
     public abstract List<FileItemDTO> fileList(String path) throws Exception;
 
@@ -42,7 +52,6 @@ public abstract class AbstractFileService implements FileService {
      * 清理当前存储引擎的缓存
      */
     public void clearCache() {
-
     }
 
     /**
