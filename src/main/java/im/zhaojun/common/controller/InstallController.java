@@ -48,7 +48,7 @@ public class InstallController {
 
     @PostMapping("/install")
     @ResponseBody
-    public ResultBean install(InstallModelDTO installModelDTO) {
+    public ResultBean install(InstallModelDTO installModelDTO) throws Exception {
         SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
 
         if (systemConfigDTO.getStorageStrategy() != null) {

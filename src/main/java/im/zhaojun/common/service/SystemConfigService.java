@@ -87,6 +87,9 @@ public class SystemConfigService {
         searchIgnoreCaseSystemConfig.setValue(systemConfigDTO.getSearchIgnoreCase() ? "true" : "false");
         systemConfigList.add(searchIgnoreCaseSystemConfig);
 
+        boolean oldEnableCache = getEnableCache();
+        Boolean curEnableCache = systemConfigDTO.getEnableCache();
+
         SystemConfig enableCacheSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.ENABLE_CACHE);
         enableCacheSystemConfig.setValue(systemConfigDTO.getEnableCache() ? "true" : "false");
         systemConfigList.add(enableCacheSystemConfig);
@@ -108,6 +111,11 @@ public class SystemConfigService {
         }
 
         systemConfigRepository.saveAll(systemConfigList);
+
+        if (!oldEnableCache && curEnableCache) {
+            log.debug("检测到开启了缓存, 开启预热缓存");
+            fileAsyncCacheService.cacheGlobalFile();
+        }
     }
 
     public void updateUsernameAndPwd(String username, String password) {

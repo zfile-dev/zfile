@@ -19,9 +19,13 @@ public class StorageStrategyInitCheckAspect {
     public void logStart() {
         SystemConfigService systemConfigService = SpringContextHolder.getBean(SystemConfigService.class);
         AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
-        if (currentFileService == null || !currentFileService.getIsInitialized()) {
+        if (currentFileService == null) {
+            throw new StorageStrategyUninitializedException("存储策略尚未初始化, 请联系管理员!");
+        }
+        if (!currentFileService.getIsInitialized()) {
             throw new StorageStrategyUninitializedException("存储策略异常, 请联系管理员!");
         }
+
     }
 
 }

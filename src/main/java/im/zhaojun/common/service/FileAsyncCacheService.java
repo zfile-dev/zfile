@@ -2,8 +2,7 @@ package im.zhaojun.common.service;
 
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +11,11 @@ import javax.annotation.Resource;
 /**
  * @author zhaojun
  */
+@Slf4j
 @Service
 public class FileAsyncCacheService {
 
-    private static final Logger log = LoggerFactory.getLogger(FileAsyncCacheService.class);
+    private boolean cacheFinish;
 
     @Resource
     private SystemConfigService systemConfigService;
@@ -42,5 +42,14 @@ public class FileAsyncCacheService {
         }
         long endTime = System.currentTimeMillis();
         log.info("缓存 {} 所有文件结束, 用时: {} 秒", storageStrategy.getDescription(), ( (endTime - startTime) / 1000 ));
+        cacheFinish = true;
+    }
+
+    public boolean isCacheFinish() {
+        return cacheFinish;
+    }
+
+    public void setCacheFinish(boolean cacheFinish) {
+        this.cacheFinish = cacheFinish;
     }
 }

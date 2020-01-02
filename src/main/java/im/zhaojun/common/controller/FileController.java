@@ -11,6 +11,7 @@ import im.zhaojun.common.model.dto.SiteConfigDTO;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.AbstractFileService;
+import im.zhaojun.common.service.FileAsyncCacheService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
 import im.zhaojun.common.service.SystemService;
@@ -43,6 +44,9 @@ public class FileController {
 
     @Resource
     private StorageConfigService storageConfigService;
+
+    @Resource
+    private FileAsyncCacheService fileAsyncCacheService;
 
     /**
      * 滚动加载每页条数.
@@ -132,6 +136,9 @@ public class FileController {
         SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
         if (!systemConfigDTO.getSearchEnable()) {
             throw new SearchDisableException("搜索功能未开启");
+        }
+        if (!fileAsyncCacheService.isCacheFinish()) {
+            throw new SearchDisableException("搜索功能缓存预热中, 请稍后再试");
         }
         return ResultBean.success(fileService.search(URLUtil.decode(name)));
     }

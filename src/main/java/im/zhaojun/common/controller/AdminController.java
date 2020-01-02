@@ -59,7 +59,7 @@ public class AdminController {
      * 更新系统配置
      */
     @PostMapping("/config")
-    public ResultBean updateConfig(SystemConfigDTO systemConfigDTO) {
+    public ResultBean updateConfig(SystemConfigDTO systemConfigDTO) throws Exception {
         StorageTypeEnum currentStorageStrategy = systemConfigService.getCurrentStorageStrategy();
 
         systemConfigDTO.setId(1);
@@ -82,7 +82,7 @@ public class AdminController {
     /**
      * 清理当前启用的存储引擎的缓存
      */
-    @GetMapping("/clear-cache")
+    @PostMapping("/clear-cache")
     public ResultBean clearCache() {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         fileService.clearCache();
