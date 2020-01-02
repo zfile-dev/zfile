@@ -1,6 +1,8 @@
 package im.zhaojun.common.service;
 
 import cn.hutool.crypto.SecureUtil;
+import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.anno.CreateCache;
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.SystemConfig;
 import im.zhaojun.common.model.constant.SystemConfigConstant;
@@ -8,6 +10,7 @@ import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.SystemConfigRepository;
 import im.zhaojun.common.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -17,13 +20,29 @@ import java.util.List;
 /**
  * @author zhaojun
  */
+@Slf4j
 @Service
 public class SystemConfigService {
+
+    public static final String SYSTEM_CONFIG_CACHE_PREFIX = "zfile-config-cache:";
+
+    public static final String SYSTEM_CONFIG_CACHE_KEY = "1";
+
+    @CreateCache(name = SYSTEM_CONFIG_CACHE_PREFIX)
+    private Cache<String, Object> configCache;
 
     @Resource
     private SystemConfigRepository systemConfigRepository;
 
+    @Resource
+    private FileAsyncCacheService fileAsyncCacheService;
+
     public SystemConfigDTO getSystemConfig() {
+        Object cache = configCache.get(SYSTEM_CONFIG_CACHE_KEY);
+        if (configCache.get(SYSTEM_CONFIG_CACHE_KEY) != null) {
+            return (SystemConfigDTO) cache;
+        }
+
         SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
         List<SystemConfig> systemConfigList = systemConfigRepository.findAll();
 
@@ -61,10 +80,12 @@ public class SystemConfigService {
             }
         }
 
+        configCache.put(SYSTEM_CONFIG_CACHE_KEY, systemConfigDTO);
         return systemConfigDTO;
     }
 
-    public void updateSystemConfig(SystemConfigDTO systemConfigDTO) {
+    public void updateSystemConfig(SystemConfigDTO systemConfigDTO) throws Exception {
+
         List<SystemConfig> systemConfigList = new ArrayList<>();
 
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfigConstant.SITE_NAME);
@@ -110,6 +131,8 @@ public class SystemConfigService {
             systemConfigList.add(passwordSystemConfig);
         }
 
+        configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
+
         systemConfigRepository.saveAll(systemConfigList);
 
         if (!oldEnableCache && curEnableCache) {
@@ -126,6 +149,8 @@ public class SystemConfigService {
         String encryptionPassword = SecureUtil.md5(password);
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfigConstant.PASSWORD);
         systemConfig.setValue(encryptionPassword);
+
+        configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
 
         systemConfigRepository.save(systemConfig);
     }
