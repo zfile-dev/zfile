@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -45,7 +46,11 @@ public class LocalServiceImpl extends AbstractFileService implements FileService
             Map<String, StorageConfig> stringStorageConfigMap =
                     storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.LOCAL);
             filePath = stringStorageConfigMap.get(StorageConfigConstant.FILE_PATH_KEY).getValue();
-            isInitialized = testConnection();
+            if (Objects.isNull(filePath)) {
+                isInitialized = false;
+            } else {
+                isInitialized = testConnection();
+            }
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
         }

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -33,12 +34,16 @@ public class MinIOServiceImpl extends AbstractS3FileService implements FileServi
             bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
             basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
-            BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-            s3Client = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "minio")).build();
+            if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
+                isInitialized = false;
+            } else {
+                BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+                s3Client = AmazonS3ClientBuilder.standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "minio")).build();
 
-            isInitialized = testConnection();
+                isInitialized = testConnection();
+            }
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
         }

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -29,17 +30,21 @@ public class TencentServiceImpl extends AbstractS3FileService implements FileSer
             Map<String, StorageConfig> stringStorageConfigMap = storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.TENCENT);
             String secretId = stringStorageConfigMap.get(StorageConfigConstant.SECRET_ID_KEY).getValue();
             String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
-            String regionName = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
+            String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
             bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
             domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
             basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
-            BasicAWSCredentials credentials = new BasicAWSCredentials(secretId, secretKey);
-            s3Client = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(regionName, "cos")).build();
+            if (Objects.isNull(secretId) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
+                isInitialized = false;
+            } else {
+                BasicAWSCredentials credentials = new BasicAWSCredentials(secretId, secretKey);
+                s3Client = AmazonS3ClientBuilder.standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "cos")).build();
 
-            isInitialized = testConnection();
+                isInitialized = testConnection();
+            }
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
         }

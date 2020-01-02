@@ -14,13 +14,13 @@ import im.zhaojun.common.util.StringUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -39,24 +39,28 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
 
     @Override
     public void init() {
-       try {
-           Map<String, StorageConfig> stringStorageConfigMap =
-                   storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.FTP);
-           String host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
-           String port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
-           String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
-           String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
-           domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
+        try {
+            Map<String, StorageConfig> stringStorageConfigMap =
+                    storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.FTP);
+            String host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
+            String port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
+            String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
+            String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
+            domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
 
-           ftp = new Ftp(host, Integer.parseInt(port), username, password);
-           isInitialized = testConnection();
-       } catch (Exception e) {
-           log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
-       }
+            if (Objects.isNull(host) || Objects.isNull(port) || Objects.isNull(username) || Objects.isNull(password)) {
+                isInitialized = true;
+            } else {
+                ftp = new Ftp(host, Integer.parseInt(port), username, password);
+                isInitialized = testConnection();
+            }
+
+        } catch (Exception e) {
+            log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
+        }
     }
 
     @Override
-    @Cacheable
     public List<FileItemDTO> fileList(String path) {
         FTPFile[] ftpFiles = ftp.lsFiles(path);
 
@@ -78,7 +82,6 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
     }
 
     @Override
-    @Cacheable
     public String getDownloadUrl(String path) {
         return URLUtil.complateUrl(domain, path);
     }

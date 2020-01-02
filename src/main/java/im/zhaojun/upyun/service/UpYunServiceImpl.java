@@ -1,5 +1,6 @@
 package im.zhaojun.upyun.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import com.UpYun;
 import im.zhaojun.common.model.StorageConfig;
@@ -13,7 +14,6 @@ import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -51,15 +52,20 @@ public class UpYunServiceImpl extends AbstractFileService implements FileService
             String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
             domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
             basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
-            upYun = new UpYun(bucketName, username, password);
-            isInitialized = testConnection();
+            basePath = ObjectUtil.defaultIfNull(basePath, "");
+
+            if (Objects.isNull(bucketName) || Objects.isNull(username) || Objects.isNull(password)) {
+                isInitialized = false;
+            } else {
+                upYun = new UpYun(bucketName, username, password);
+                isInitialized = testConnection();
+            }
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
         }
     }
 
     @Override
-    @Cacheable
     public List<FileItemDTO> fileList(String path) throws Exception {
         ArrayList<FileItemDTO> fileItemList = new ArrayList<>();
         String nextMark = null;
@@ -94,7 +100,6 @@ public class UpYunServiceImpl extends AbstractFileService implements FileService
     }
 
     @Override
-    @Cacheable
     public String getDownloadUrl(String path) {
         return URLUtil.complateUrl(domain, path);
     }

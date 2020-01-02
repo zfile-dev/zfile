@@ -11,10 +11,10 @@ import im.zhaojun.common.service.AbstractS3FileService;
 import im.zhaojun.common.service.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -36,12 +36,16 @@ public class QiniuServiceImpl extends AbstractS3FileService implements FileServi
             domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
             basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
-            BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-            s3Client = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "kodo")).build();
+            if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
+                isInitialized = false;
+            } else {
+                BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+                s3Client = AmazonS3ClientBuilder.standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "kodo")).build();
 
-            isInitialized = testConnection();
+                isInitialized = testConnection();
+            }
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
         }

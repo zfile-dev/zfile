@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -35,12 +36,18 @@ public class AliyunServiceImpl extends AbstractS3FileService implements FileServ
             super.domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
             super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
-            BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-            super.s3Client = AmazonS3ClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "oss")).build();
+            if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
+                isInitialized = false;
+            } else {
+                BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-            isInitialized = testConnection();
+                super.s3Client = AmazonS3ClientBuilder.standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                        .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "oss")).build();
+                isInitialized = testConnection();
+            }
+
+
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
         }
