@@ -1,10 +1,8 @@
 package im.zhaojun.common.service;
 
-import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
-import com.alicp.jetcache.anno.CreateCache;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
@@ -14,6 +12,7 @@ import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +30,8 @@ public abstract class AbstractFileService implements FileService {
 
     protected boolean isInitialized;
 
-    @CreateCache(name = "zfile-cache:")
-    private Cache<String, Object> userCache;
+    @Resource
+    private SystemConfigService systemConfigService;
 
     /***
      * 获取指定路径下的文件及文件夹, 默认缓存 60 分钟，每隔 30 分钟刷新一次.
@@ -65,7 +64,7 @@ public abstract class AbstractFileService implements FileService {
         try {
             fileList("/");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.debug(getStorageTypeEnum().getDescription() + "初始化异常", e);
             flag = false;
         }
         return flag;
@@ -111,6 +110,12 @@ public abstract class AbstractFileService implements FileService {
      */
     public List<FileItemDTO> selectAllFileList() throws Exception {
         List<FileItemDTO> result = new ArrayList<>();
+
+        boolean enableCache = systemConfigService.getEnableCache();
+        if (!enableCache) {
+            log.debug("未开启缓存, 不支持查询所有文件.");
+            return null;
+        }
 
         String path = "/";
 
