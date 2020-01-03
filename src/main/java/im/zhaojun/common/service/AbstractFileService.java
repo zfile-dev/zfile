@@ -164,6 +164,7 @@ public abstract class AbstractFileService implements FileService {
                 return null;
             }).collect(Collectors.toSet());
             collect.remove(null);
+            collect.add("/");
             return collect;
         } else {
             return Collections.emptySet();
