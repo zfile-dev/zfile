@@ -34,19 +34,19 @@ yum instal -y java # 适用于 Centos 7.x
 下载项目:
 
 ```bash
-wget https://github.com/zhaojun1998/zfile/releases/download/0.3.1/zfile-0.3.1.jar
+wget https://github.com/zhaojun1998/zfile/releases/download/0.4/zfile-0.4.jar
 ```
 
 启动项目:
 
 ```bash
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.3.1.jar
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.4.jar
 
 ## 高级启动
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.3.1.jar --server.port=18777
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.4.jar --server.port=18777
 
 ## 后台运行
-nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.3.1.jar &
+nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.4.jar &
 ```
 
 > 系统使用的是内置配置文件, 默认配置请参考: [application.yml](https://github.com/zhaojun1998/zfile/blob/master/src/main/resources/application.yml)
