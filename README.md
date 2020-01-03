@@ -28,7 +28,7 @@
 安装 JDK 1.8 : 
 
 ```bash
-yum instal -y java # 适用于 Centos 7.x
+yum install -y java # 适用于 Centos 7.x
 ```
 
 下载项目:
