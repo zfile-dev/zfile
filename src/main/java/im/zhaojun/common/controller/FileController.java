@@ -86,7 +86,7 @@ public class FileController {
         int start = (page - 1) * PAGE_SIZE;
         int end = page * PAGE_SIZE;
         end = Math.min(end, total);
-        List<FileItemDTO> fileSubItem = fileItemList.subList(start, end);
+        List<FileItemDTO> fileSubItem = new ArrayList<>(fileItemList.subList(start, end));
         return ResultBean.successData(fileSubItem);
     }
 
@@ -115,7 +115,7 @@ public class FileController {
 
     @CheckStorageStrategyInit
     @GetMapping("/clearCache")
-    public ResultBean clearCache() {
+    public ResultBean clearCache() throws Exception {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         if (fileService != null) {
             fileService.clearCache();

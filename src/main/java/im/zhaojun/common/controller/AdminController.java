@@ -1,6 +1,7 @@
 package im.zhaojun.common.controller;
 
 import im.zhaojun.common.model.StorageConfig;
+import im.zhaojun.common.model.dto.CacheConfigDTO;
 import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 后台管理
@@ -49,15 +51,6 @@ public class AdminController {
     /**
      * 更新系统配置
      */
-    @PostMapping("/update-pwd")
-    public ResultBean updatePwd(String username, String password) {
-        systemConfigService.updateUsernameAndPwd(username, password);
-        return ResultBean.success();
-    }
-
-    /**
-     * 更新系统配置
-     */
     @PostMapping("/config")
     public ResultBean updateConfig(SystemConfigDTO systemConfigDTO) throws Exception {
         StorageTypeEnum currentStorageStrategy = systemConfigService.getCurrentStorageStrategy();
@@ -72,20 +65,58 @@ public class AdminController {
         return ResultBean.success();
     }
 
+    /**
+     * 修改管理员登陆密码
+     */
+    @PostMapping("/update-pwd")
+    public ResultBean updatePwd(String username, String password) {
+        systemConfigService.updateUsernameAndPwd(username, password);
+        return ResultBean.success();
+    }
 
+    /**
+     * 获取指定存储引擎的设置
+     * @param storageType   存储引擎
+     * @return              所有设置
+     */
     @GetMapping("/strategy-form")
     public ResultBean getFormByStorageType(StorageTypeEnum storageType) {
         List<StorageConfig> storageConfigList = storageConfigService.selectStorageConfigByType(storageType);
         return ResultBean.success(storageConfigList);
     }
 
-    /**
-     * 清理当前启用的存储引擎的缓存
-     */
-    @PostMapping("/clear-cache")
-    public ResultBean clearCache() {
+    @GetMapping("/cache/config")
+    public ResultBean cacheConfig() throws Exception {
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
+        Set<String> cacheKeys = fileService.getCacheKeys();
+
+        CacheConfigDTO cacheConfigDTO = new CacheConfigDTO();
+        cacheConfigDTO.setEnableCache(systemConfigService.getEnableCache());
+        cacheConfigDTO.setCacheFinish(fileAsyncCacheService.isCacheFinish());
+        cacheConfigDTO.setCacheKeys(cacheKeys);
+
+        return ResultBean.success(cacheConfigDTO);
+    }
+
+    @PostMapping("/cache/refresh")
+    public ResultBean refreshCache(String key) throws Exception {
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
+        fileService.refreshCache(key);
+        return ResultBean.success();
+    }
+
+    @PostMapping("/cache/clear")
+    public ResultBean clearCache(String key) throws Exception {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         fileService.clearCache();
+        return ResultBean.success();
+    }
+
+    @PostMapping("/cache/all")
+    public ResultBean cacheAll() throws Exception {
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
+        fileService.clearCache();
+        fileAsyncCacheService.cacheGlobalFile();
         return ResultBean.success();
     }
 
@@ -112,4 +143,5 @@ public class AdminController {
             fileAsyncCacheService.cacheGlobalFile();
         }
     }
+
 }

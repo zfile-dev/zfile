@@ -79,7 +79,7 @@ public class InstallController {
 
     @PostMapping("/storage-strategy")
     @ResponseBody
-    public ResultBean save(@RequestParam Map<String, String> storageStrategyConfig, StorageTypeEnum storageStrategy) {
+    public ResultBean save(@RequestParam Map<String, String> storageStrategyConfig, StorageTypeEnum storageStrategy) throws Exception {
         List<StorageConfig> storageConfigList = storageConfigService.selectStorageConfigByType(storageStrategy);
         for (StorageConfig storageConfig : storageConfigList) {
             String key = storageConfig.getKey();

@@ -22,7 +22,7 @@ public class StorageStrategyInitCheckAspect {
         if (currentFileService == null) {
             throw new StorageStrategyUninitializedException("存储策略尚未初始化, 请联系管理员!");
         }
-        if (!currentFileService.getIsInitialized()) {
+        if (currentFileService.getIsUnInitialized()) {
             throw new StorageStrategyUninitializedException("存储策略异常, 请联系管理员!");
         }
 

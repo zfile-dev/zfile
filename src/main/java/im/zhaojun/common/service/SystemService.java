@@ -7,6 +7,7 @@ import im.zhaojun.common.util.HttpUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ public class SystemService {
         SiteConfigDTO siteConfigDTO = new SiteConfigDTO();
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
 
-        List<FileItemDTO> fileItemList = fileService.fileList(path);
+        List<FileItemDTO> fileItemList = new ArrayList<>(fileService.fileList(path));
         for (FileItemDTO fileItemDTO : fileItemList) {
             if (ZFileConstant.FOOTER_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
                 siteConfigDTO.setFooter(HttpUtil.getTextContent(fileItemDTO.getUrl()));
