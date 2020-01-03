@@ -140,6 +140,11 @@ public class SystemConfigService {
             log.debug("检测到开启了缓存, 开启预热缓存");
             fileAsyncCacheService.cacheGlobalFile();
         }
+
+        if (oldEnableCache && !curEnableCache) {
+            log.debug("检测到关闭了缓存, 正在清理缓存数据");
+            getCurrentFileService().clearCache();
+        }
     }
 
     public void updateUsernameAndPwd(String username, String password) {
