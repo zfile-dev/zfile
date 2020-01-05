@@ -136,14 +136,17 @@ public class SystemConfigService {
 
         systemConfigRepository.saveAll(systemConfigList);
 
+        AbstractFileService currentFileService = getCurrentFileService();
+
         if (!oldEnableCache && curEnableCache) {
             log.debug("检测到开启了缓存, 开启预热缓存");
+            currentFileService.openCacheAutoRefresh();
             fileAsyncCacheService.cacheGlobalFile();
         }
 
         if (oldEnableCache && !curEnableCache) {
-            log.debug("检测到关闭了缓存, 正在清理缓存数据");
-            getCurrentFileService().clearCache();
+            log.debug("检测到关闭了缓存, 正在清理缓存数据及关闭自动刷新");
+            currentFileService.clearCache();
         }
     }
 

@@ -1,6 +1,7 @@
 package im.zhaojun.common.service;
 
 import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.RefreshPolicy;
 import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -65,6 +66,7 @@ public abstract class AbstractFileService implements FileService {
     public void clearCache() throws Exception {
         Set<String> cacheKeys = getCacheKeys();
         cache.removeAll(cacheKeys);
+        closeCacheAutoRefresh();
         fileAsyncCacheService.setCacheFinish(false);
     }
 
@@ -178,6 +180,15 @@ public abstract class AbstractFileService implements FileService {
         cache.remove(key);
         FileService currentFileService = (FileService) AopContext.currentProxy();
         currentFileService.fileList(key);
+    }
+
+    public void closeCacheAutoRefresh() {
+        cache.config().setRefreshPolicy(null);
+    }
+
+    public void openCacheAutoRefresh() {
+        RefreshPolicy refreshPolicy = RefreshPolicy.newPolicy(1, TimeUnit.MINUTES);
+        cache.config().setRefreshPolicy(refreshPolicy);
     }
 
 }
