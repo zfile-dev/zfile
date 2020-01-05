@@ -187,7 +187,7 @@ public abstract class AbstractFileService implements FileService {
     }
 
     public void openCacheAutoRefresh() {
-        RefreshPolicy refreshPolicy = RefreshPolicy.newPolicy(1, TimeUnit.MINUTES);
+        RefreshPolicy refreshPolicy = RefreshPolicy.newPolicy(30, TimeUnit.MINUTES);
         cache.config().setRefreshPolicy(refreshPolicy);
     }
 
