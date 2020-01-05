@@ -9,7 +9,7 @@
 
 前端基于 [h5ai](https://larsjung.de/h5ai/) 的原有功能使用 Vue 重新开发了一遍. 后端采用 SpringBoot, 数据库采用内嵌数据库.
 
-预览地址: [http://zfile.jun6.net](http://zfile.jun6.net)
+预览地址: [https://zfile.jun6.net](https://zfile.jun6.net)
 
 ## 系统特色
 
@@ -18,7 +18,7 @@
 * 个性化配置
 * 自定义目录的 header 和 footer 说明文件
 * 文件夹密码
-* 支持在线浏览文本文件, 视频, 图片, 音乐.
+* 支持在线浏览文本文件, 视频, 图片, 音乐. (支持 FLV 和 HLS)
 * 文件/目录二维码
 * 缓存动态开启, 缓存自动刷新
 * 全局搜索
@@ -34,19 +34,19 @@ yum install -y java # 适用于 Centos 7.x
 下载项目:
 
 ```bash
-wget https://github.com/zhaojun1998/zfile/releases/download/0.4/zfile-0.4.jar
+wget https://github.com/zhaojun1998/zfile/releases/download/0.5/zfile-0.5.jar
 ```
 
 启动项目:
 
 ```bash
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.4.jar
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.5.jar
 
 ## 高级启动
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.4.jar --server.port=18777
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.5.jar --server.port=18777
 
 ## 后台运行
-nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.4.jar &
+nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.5.jar &
 ```
 
 > 系统使用的是内置配置文件, 默认配置请参考: [application.yml](https://github.com/zhaojun1998/zfile/blob/master/src/main/resources/application.yml)
