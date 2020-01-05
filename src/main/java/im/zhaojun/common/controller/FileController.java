@@ -95,10 +95,30 @@ public class FileController {
      * @param url   文件路径
      * @return       文件内容
      */
-    @CheckStorageStrategyInit
     @GetMapping("/content")
     public ResultBean getContent(String url) {
         return ResultBean.successData(HttpUtil.getTextContent(url));
+    }
+
+
+    /**
+     * 获取文件类容, 仅限用于, txt, md, ini 等普通文本文件.
+     * @param url   文件路径
+     * @return       文件内容
+     */
+    @GetMapping("/content/origin")
+    public String getContentOrigin(String url) {
+        return HttpUtil.getTextContent(url);
+    }
+
+    /**
+     * 检测文件是否存在
+     * @param url   文件路径
+     * @return      是否存在
+     */
+    @GetMapping("/content/exist")
+    public boolean checkFileExist(String url) {
+        return HttpUtil.checkUrlExist(url);
     }
 
     /**
