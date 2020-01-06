@@ -48,7 +48,7 @@ public class AudioHelper {
         AudioInfoDTO audioInfoDTO = new AudioInfoDTO();
         audioInfoDTO.setTitle("未知歌曲");
         audioInfoDTO.setArtist("未知");
-        audioInfoDTO.setCover("/shikwasa/audio.png");
+        audioInfoDTO.setCover("http://c.jun6.net/audio.png");
 
         Mp3File mp3File = null;
         try {
