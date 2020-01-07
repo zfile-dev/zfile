@@ -32,7 +32,7 @@ public class LocalController {
     public ResponseEntity<FileSystemResource> downAttachment(final HttpServletRequest request) {
         String path = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String bestMatchPattern = (String ) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         AntPathMatcher apm = new AntPathMatcher();
         String filePath = apm.extractPathWithinPattern(bestMatchPattern, path);
 
@@ -40,6 +40,11 @@ public class LocalController {
     }
 
     private ResponseEntity<FileSystemResource> export(File file) {
+
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
 
         MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
 
