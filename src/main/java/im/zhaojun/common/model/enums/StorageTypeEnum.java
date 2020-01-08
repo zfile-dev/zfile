@@ -53,7 +53,7 @@ public enum StorageTypeEnum {
     }
 
     public static StorageTypeEnum getEnum(String value) {
-        return enumMap.get(value);
+        return enumMap.get(value.toLowerCase());
     }
 
 }
