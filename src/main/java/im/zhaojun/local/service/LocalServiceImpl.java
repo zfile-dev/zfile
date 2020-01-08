@@ -1,5 +1,6 @@
 package im.zhaojun.local.service;
 
+import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.SystemConfig;
 import im.zhaojun.common.model.constant.StorageConfigConstant;
@@ -87,7 +88,7 @@ public class LocalServiceImpl extends AbstractFileService implements FileService
     @Override
     public String getDownloadUrl(String path) {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
-        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + path);
+        return URLUtil.encode(StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + path));
     }
 
     public String getFilePath() {
