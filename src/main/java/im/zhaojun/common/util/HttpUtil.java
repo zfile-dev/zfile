@@ -1,11 +1,13 @@
 package im.zhaojun.common.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
  * @author zhaojun
  */
+@Slf4j
 public class HttpUtil {
 
     public static String getTextContent(String url) {
@@ -19,8 +21,7 @@ public class HttpUtil {
         try {
             restTemplate.headForHeaders(url);
             return true;
-        } catch (RestClientException e) {
-            e.printStackTrace();
+        } catch (RestClientException ignored) {
         }
         return false;
     }
