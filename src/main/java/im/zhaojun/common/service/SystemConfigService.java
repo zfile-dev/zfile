@@ -1,5 +1,6 @@
 package im.zhaojun.common.service;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.crypto.SecureUtil;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
@@ -10,11 +11,11 @@ import im.zhaojun.common.model.constant.SystemConfigConstant;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.SystemConfigRepository;
-import im.zhaojun.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,8 @@ public class SystemConfigService {
     @Resource
     private FileAsyncCacheService fileAsyncCacheService;
 
+    private Class<SystemConfigDTO> systemConfigDTOClass = SystemConfigDTO.class;
+
     public SystemConfigDTO getSystemConfig() {
         Object cache = configCache.get(SYSTEM_CONFIG_CACHE_KEY);
         if (configCache.get(SYSTEM_CONFIG_CACHE_KEY) != null) {
@@ -48,36 +51,20 @@ public class SystemConfigService {
         List<SystemConfig> systemConfigList = systemConfigRepository.findAll();
 
         for (SystemConfig systemConfig : systemConfigList) {
-            switch (systemConfig.getKey()) {
-                case SystemConfigConstant.SITE_NAME:
-                    systemConfigDTO.setSiteName(systemConfig.getValue());
-                    break;
-                case SystemConfigConstant.INFO_ENABLE:
-                    systemConfigDTO.setInfoEnable("true".equals(systemConfig.getValue()));
-                    break;
-                case SystemConfigConstant.SEARCH_ENABLE:
-                    systemConfigDTO.setSearchEnable("true".equals(systemConfig.getValue()));
-                    break;
-                case SystemConfigConstant.SEARCH_IGNORE_CASE:
-                    systemConfigDTO.setSearchIgnoreCase("true".equals(systemConfig.getValue()));
-                    break;
-                case SystemConfigConstant.STORAGE_STRATEGY:
-                    String value = systemConfig.getValue();
-                    systemConfigDTO.setStorageStrategy(StorageTypeEnum.getEnum(value));
-                    break;
-                case SystemConfigConstant.USERNAME:
-                    systemConfigDTO.setUsername(systemConfig.getValue());
-                    break;
-                case SystemConfigConstant.PASSWORD:
-                    systemConfigDTO.setPassword(systemConfig.getValue());
-                    break;
-                case SystemConfigConstant.DOMAIN:
-                    systemConfigDTO.setDomain(systemConfig.getValue());
-                    break;
-                case SystemConfigConstant.ENABLE_CACHE:
-                    systemConfigDTO.setEnableCache("true".equals(systemConfig.getValue()));
-                    break;
-                default:break;
+            String key = systemConfig.getKey();
+
+            try {
+                Field field = systemConfigDTOClass.getDeclaredField(key);
+                if (field != null) {
+                    field.setAccessible(true);
+                    String strVal = systemConfig.getValue();
+                    Object convertVal = Convert.convert(field.getType(), strVal);
+                    field.set(systemConfigDTO, convertVal);
+                }
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("通过反射, 将字段 {" + key + "}注入 SystemConfigDTO 时出现异常:", e);
+                }
             }
         }
 
@@ -86,51 +73,24 @@ public class SystemConfigService {
     }
 
     public void updateSystemConfig(SystemConfigDTO systemConfigDTO) throws Exception {
-
         List<SystemConfig> systemConfigList = new ArrayList<>();
 
-        SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfigConstant.SITE_NAME);
-        systemConfig.setValue(systemConfigDTO.getSiteName());
-        systemConfigList.add(systemConfig);
-
-        SystemConfig domainConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
-        domainConfig.setValue(systemConfigDTO.getDomain());
-        systemConfigList.add(domainConfig);
-
-        SystemConfig infoEnableSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.INFO_ENABLE);
-        infoEnableSystemConfig.setValue(systemConfigDTO.getInfoEnable() ? "true" : "false");
-        systemConfigList.add(infoEnableSystemConfig);
-
-        SystemConfig searchEnableSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.SEARCH_ENABLE);
-        searchEnableSystemConfig.setValue(systemConfigDTO.getSearchEnable() ? "true" : "false");
-        systemConfigList.add(searchEnableSystemConfig);
-
-        SystemConfig searchIgnoreCaseSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.SEARCH_IGNORE_CASE);
-        searchIgnoreCaseSystemConfig.setValue(systemConfigDTO.getSearchIgnoreCase() ? "true" : "false");
-        systemConfigList.add(searchIgnoreCaseSystemConfig);
+        Field[] fields = systemConfigDTOClass.getDeclaredFields();
+        for (Field field : fields) {
+            String key = field.getName();
+            SystemConfig systemConfig = systemConfigRepository.findByKey(key);
+            if (systemConfig != null) {
+                field.setAccessible(true);
+                Object val = field.get(systemConfigDTO);
+                if (val != null) {
+                    systemConfig.setValue(val.toString());
+                    systemConfigList.add(systemConfig);
+                }
+            }
+        }
 
         boolean oldEnableCache = getEnableCache();
         Boolean curEnableCache = systemConfigDTO.getEnableCache();
-
-        SystemConfig enableCacheSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.ENABLE_CACHE);
-        enableCacheSystemConfig.setValue(systemConfigDTO.getEnableCache() ? "true" : "false");
-        systemConfigList.add(enableCacheSystemConfig);
-
-        SystemConfig storageStrategySystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.STORAGE_STRATEGY);
-        storageStrategySystemConfig.setValue(systemConfigDTO.getStorageStrategy().getKey());
-        systemConfigList.add(storageStrategySystemConfig);
-
-        if (StringUtils.isNotNullOrEmpty(systemConfigDTO.getUsername())) {
-            SystemConfig usernameSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.USERNAME);
-            usernameSystemConfig.setValue(systemConfigDTO.getUsername());
-            systemConfigList.add(usernameSystemConfig);
-        }
-
-        if (StringUtils.isNotNullOrEmpty(systemConfigDTO.getPassword())) {
-            SystemConfig passwordSystemConfig = systemConfigRepository.findByKey(SystemConfigConstant.PASSWORD);
-            passwordSystemConfig.setValue(systemConfigDTO.getPassword());
-            systemConfigList.add(passwordSystemConfig);
-        }
 
         configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
 
