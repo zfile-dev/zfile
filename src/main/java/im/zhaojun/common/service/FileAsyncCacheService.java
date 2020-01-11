@@ -43,20 +43,20 @@ public class FileAsyncCacheService {
         StorageTypeEnum storageStrategy = systemConfigService.getCurrentStorageStrategy();
 
         if (storageStrategy == null) {
-            log.info("尚未配置存储策略. 跳过启动缓存.");
+            log.debug("尚未配置存储策略. 跳过启动缓存.");
             return;
         }
 
         boolean enableCache = systemConfigService.getEnableCache();
         if (!enableCache) {
-            log.info("当前启用存储策略 {}, 尚未开启缓存, 跳过缓存.", storageStrategy);
+            log.debug("存储策略 {} 未启用缓存, 跳过缓存.", storageStrategy.getDescription());
             return;
         }
 
         AbstractFileService fileService = StorageTypeFactory.getStorageTypeService(storageStrategy);
 
         if (fileService.getIsUnInitialized()) {
-            log.info("存储策略 {} 未初始化成功, 跳过启动缓存.", storageStrategy.getDescription());
+            log.debug("存储策略 {} 未初始化成功, 跳过缓存.", storageStrategy.getDescription());
             return;
         }
 
