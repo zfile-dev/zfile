@@ -1,6 +1,7 @@
 package im.zhaojun.common.service;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
@@ -13,6 +14,7 @@ import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.SystemConfigRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
@@ -91,7 +93,7 @@ public class SystemConfigService {
         }
 
         boolean oldEnableCache = getEnableCache();
-        Boolean curEnableCache = systemConfigDTO.getEnableCache();
+        boolean curEnableCache = ObjectUtil.defaultIfNull(systemConfigDTO.getEnableCache(), false);
 
         configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
 
@@ -149,7 +151,7 @@ public class SystemConfigService {
 
     public boolean getEnableCache() {
         SystemConfigDTO systemConfigDTO = getSystemConfig();
-        return systemConfigDTO.getEnableCache();
+        return ObjectUtil.defaultIfNull(systemConfigDTO.getEnableCache(), false);
     }
 
 }
