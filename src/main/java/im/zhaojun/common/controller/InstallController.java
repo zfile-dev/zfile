@@ -6,26 +6,22 @@ import im.zhaojun.common.model.dto.InstallModelDTO;
 import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
-import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileAsyncCacheService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 系统安装初始化
  * @author zhaojun
  */
-@Controller
+@RestController
 public class InstallController {
 
     @Resource
@@ -41,7 +37,6 @@ public class InstallController {
     private FileAsyncCacheService fileAsyncCacheService;
 
     @GetMapping("/is-installed")
-    @ResponseBody
     public ResultBean isInstall() {
         if (systemConfigService.getCurrentStorageStrategy() == null) {
             return ResultBean.success();
@@ -51,7 +46,6 @@ public class InstallController {
 
 
     @PostMapping("/install")
-    @ResponseBody
     public ResultBean install(InstallModelDTO installModelDTO) throws Exception {
         SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
 
@@ -81,28 +75,13 @@ public class InstallController {
         return ResultBean.success();
     }
 
-    @PostMapping("/storage-strategy")
-    @ResponseBody
-    public ResultBean save(@RequestParam Map<String, String> storageStrategyConfig, StorageTypeEnum storageStrategy) throws Exception {
-        List<StorageConfig> storageConfigList = storageConfigService.selectStorageConfigByType(storageStrategy);
-        for (StorageConfig storageConfig : storageConfigList) {
-            String key = storageConfig.getKey();
-            String value = storageStrategyConfig.get(key);
-            storageConfig.setValue(value);
-        }
-        storageConfigService.updateStorageConfig(storageConfigList);
 
-        StorageTypeEnum currentStorageStrategy = systemConfigService.getCurrentStorageStrategy();
-        if (Objects.equals(storageStrategy, currentStorageStrategy)) {
-            AbstractFileService fileService = systemConfigService.getCurrentFileService();
-            fileService.clearCache();
-
-            if (systemConfigService.getEnableCache()) {
-                fileAsyncCacheService.cacheGlobalFile();
-            }
-            fileService.init();
-        }
-
-        return ResultBean.success();
+    @GetMapping("/form")
+    public ResultBean getFormByStorageType(String storageType) {
+        StorageTypeEnum storageTypeEnum = StorageTypeEnum.getEnum(storageType);
+        List<StorageConfig> storageConfigList = storageConfigService.selectStorageConfigByType(storageTypeEnum);
+        storageConfigList.forEach(storageConfig -> storageConfig.setValue(null));
+        return ResultBean.success(storageConfigList);
     }
+
 }

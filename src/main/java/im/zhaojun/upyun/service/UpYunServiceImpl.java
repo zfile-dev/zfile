@@ -55,6 +55,7 @@ public class UpYunServiceImpl extends AbstractFileService implements FileService
             basePath = ObjectUtil.defaultIfNull(basePath, "");
 
             if (Objects.isNull(bucketName) || Objects.isNull(username) || Objects.isNull(password)) {
+                log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
                 isInitialized = false;
             } else {
                 upYun = new UpYun(bucketName, username, password);

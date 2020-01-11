@@ -72,6 +72,7 @@ public class SystemConfigService {
         return systemConfigDTO;
     }
 
+
     public void updateSystemConfig(SystemConfigDTO systemConfigDTO) throws Exception {
         List<SystemConfig> systemConfigList = new ArrayList<>();
 
@@ -106,9 +107,10 @@ public class SystemConfigService {
 
         if (oldEnableCache && !curEnableCache) {
             log.debug("检测到关闭了缓存, 正在清理缓存数据及关闭自动刷新");
-            currentFileService.clearCache();
+            currentFileService.clearFileCache();
         }
     }
+
 
     public void updateUsernameAndPwd(String username, String password) {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.USERNAME);
@@ -124,15 +126,26 @@ public class SystemConfigService {
         systemConfigRepository.save(systemConfig);
     }
 
+
+    public void updateCacheEnableConfig(Boolean isEnable) {
+        SystemConfig enableConfig = systemConfigRepository.findByKey(SystemConfigConstant.ENABLE_CACHE);
+        enableConfig.setValue(isEnable.toString());
+        systemConfigRepository.save(enableConfig);
+        configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
+    }
+
+
     public AbstractFileService getCurrentFileService() {
         StorageTypeEnum storageStrategy = getCurrentStorageStrategy();
         return StorageTypeFactory.getStorageTypeService(storageStrategy);
     }
 
+
     public StorageTypeEnum getCurrentStorageStrategy() {
         SystemConfigDTO systemConfigDTO = getSystemConfig();
         return systemConfigDTO.getStorageStrategy();
     }
+
 
     public boolean getEnableCache() {
         SystemConfigDTO systemConfigDTO = getSystemConfig();

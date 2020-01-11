@@ -13,4 +13,6 @@ public class CacheConfigDTO {
     private boolean enableCache;
     private boolean cacheFinish;
     private Set<String> cacheKeys;
+    private Integer cacheDirectoryCount;
+    private Integer cacheFileCount;
 }

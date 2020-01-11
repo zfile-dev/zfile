@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @date 2019/12/28 19:27
  */
 @Slf4j
-public abstract class AbstractFileService implements FileService {
+public abstract class AbstractFileService extends FileCacheService implements FileService {
 
     public static final String SYSTEM_CONFIG_CACHE_PREFIX = "zfile-cache:";
 
@@ -61,9 +61,9 @@ public abstract class AbstractFileService implements FileService {
     public abstract List<FileItemDTO> fileList(String path) throws Exception;
 
     /**
-     * 清理当前存储引擎的缓存
+     * 清理当前存储策略的缓存
      */
-    public void clearCache() throws Exception {
+    public void clearFileCache() throws Exception {
         Set<String> cacheKeys = getCacheKeys();
         cache.removeAll(cacheKeys);
         closeCacheAutoRefresh();
@@ -96,8 +96,8 @@ public abstract class AbstractFileService implements FileService {
     }
 
     /**
-     * 获取存储引擎类型
-     * @return              存储引擎类型枚举
+     * 获取存储策略类型
+     * @return              存储策略类型枚举
      */
     public abstract StorageTypeEnum getStorageTypeEnum();
 

@@ -21,6 +21,7 @@ import java.util.List;
  * @date 2019/12/26 22:26
  */
 public abstract class AbstractS3FileService extends AbstractFileService {
+
     @Resource
     protected StorageConfigService storageConfigService;
 

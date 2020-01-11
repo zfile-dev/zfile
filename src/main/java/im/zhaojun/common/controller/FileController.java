@@ -3,13 +3,11 @@ package im.zhaojun.common.controller;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.annotation.CheckStorageStrategyInit;
 import im.zhaojun.common.exception.SearchDisableException;
-import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.constant.ZFileConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.model.dto.SiteConfigDTO;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
-import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileAsyncCacheService;
 import im.zhaojun.common.service.StorageConfigService;
@@ -90,6 +88,7 @@ public class FileController {
         return ResultBean.successData(fileSubItem);
     }
 
+
     /**
      * 获取文件类容, 仅限用于, txt, md, ini 等普通文本文件.
      * @param url   文件路径
@@ -111,6 +110,7 @@ public class FileController {
         return HttpUtil.getTextContent(url);
     }
 
+
     /**
      * 检测文件是否存在
      * @param url   文件路径
@@ -120,6 +120,7 @@ public class FileController {
     public boolean checkFileExist(String url) {
         return HttpUtil.checkUrlExist(url);
     }
+
 
     /**
      * 获取系统配置信息和当前页的标题, 文件头, 文件尾信息
@@ -133,21 +134,13 @@ public class FileController {
         return ResultBean.successData(config);
     }
 
-    @CheckStorageStrategyInit
-    @GetMapping("/clearCache")
-    public ResultBean clearCache() throws Exception {
-        AbstractFileService fileService = systemConfigService.getCurrentFileService();
-        if (fileService != null) {
-            fileService.clearCache();
-        }
-        return ResultBean.success();
-    }
 
     @CheckStorageStrategyInit
     @GetMapping("/audioInfo")
     public ResultBean getAudioInfo(String url) throws Exception {
         return ResultBean.success(AudioHelper.getAudioInfo(url));
     }
+
 
     @CheckStorageStrategyInit
     @GetMapping("/search")
@@ -163,13 +156,6 @@ public class FileController {
         return ResultBean.success(fileService.search(URLUtil.decode(name)));
     }
 
-    @GetMapping("/form")
-    public ResultBean getFormByStorageType(String storageType) {
-        StorageTypeEnum storageTypeEnum = StorageTypeEnum.getEnum(storageType);
-        List<StorageConfig> storageConfigList = storageConfigService.selectStorageConfigByType(storageTypeEnum);
-        storageConfigList.forEach(storageConfig -> storageConfig.setValue(null));
-        return ResultBean.success(storageConfigList);
-    }
 
     /**
      * 过滤文件列表, 不显示密码, 头部和尾部文件.

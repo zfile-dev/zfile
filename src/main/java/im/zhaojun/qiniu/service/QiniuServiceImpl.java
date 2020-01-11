@@ -37,6 +37,7 @@ public class QiniuServiceImpl extends AbstractS3FileService implements FileServi
             basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
             if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
+                log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
                 isInitialized = false;
             } else {
                 BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);

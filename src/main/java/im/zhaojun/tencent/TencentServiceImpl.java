@@ -36,6 +36,7 @@ public class TencentServiceImpl extends AbstractS3FileService implements FileSer
             basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
             if (Objects.isNull(secretId) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
+                log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
                 isInitialized = false;
             } else {
                 BasicAWSCredentials credentials = new BasicAWSCredentials(secretId, secretKey);
