@@ -65,7 +65,7 @@
             <version>4.5.11</version>
         </dependency>
 
-        <!-- 存储引擎相关 API, 对象存储、FTP、 Rest API-->
+        <!-- 存储策略相关 API, 对象存储、FTP、 Rest API-->
         <dependency>
             <groupId>com.upyun</groupId>
             <artifactId>java-sdk</artifactId>
@@ -104,6 +104,20 @@
             <groupId>com.alicp.jetcache</groupId>
             <artifactId>jetcache-starter-redis</artifactId>
             <version>2.5.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alicp.jetcache</groupId>
+                    <artifactId>jetcache-redis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>redis.clients</groupId>
+                    <artifactId>jedis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.esotericsoftware</groupId>
+                    <artifactId>kryo</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
