@@ -59,4 +59,3 @@ jetcache:
     default:
       type: caffeine
       keyConvertor: fastjson
-      defaultExpireInMillis: 3600000
