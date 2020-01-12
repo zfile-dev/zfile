@@ -60,6 +60,7 @@ public class AdminController {
         systemConfigService.updateSystemConfig(systemConfigDTO);
 
         if (!Objects.equals(currentStorageStrategy, systemConfigDTO.getStorageStrategy())) {
+            log.info("已将存储策略由 {} 切换为 {}", currentStorageStrategy, systemConfigDTO.getStorageStrategy());
             refreshStorageStrategy();
         }
 
@@ -136,9 +137,8 @@ public class AdminController {
         } else {
             AbstractFileService fileService = systemConfigService.getCurrentFileService();
             fileService.init();
-            log.info("当前启用存储类型: {}", storageStrategy.getDescription());
+            log.info("切换至存储类型: {}", storageStrategy.getDescription());
 
-            // if 判断是否开启搜索.
             fileAsyncCacheService.cacheGlobalFile();
         }
     }

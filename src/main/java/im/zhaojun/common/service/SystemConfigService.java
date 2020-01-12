@@ -14,7 +14,6 @@ import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.SystemConfigRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
@@ -40,6 +39,9 @@ public class SystemConfigService {
 
     @Resource
     private FileAsyncCacheService fileAsyncCacheService;
+
+    @Resource
+    private FileCacheService fileCacheService;
 
     private Class<SystemConfigDTO> systemConfigDTOClass = SystemConfigDTO.class;
 
@@ -103,13 +105,12 @@ public class SystemConfigService {
 
         if (!oldEnableCache && curEnableCache) {
             log.debug("检测到开启了缓存, 开启预热缓存");
-            currentFileService.openCacheAutoRefresh();
-            fileAsyncCacheService.cacheGlobalFile();
+            fileCacheService.enableCache();
         }
 
         if (oldEnableCache && !curEnableCache) {
             log.debug("检测到关闭了缓存, 正在清理缓存数据及关闭自动刷新");
-            currentFileService.clearFileCache();
+            fileCacheService.disableCache();
         }
     }
 
