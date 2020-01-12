@@ -1,9 +1,3 @@
-logging:
-  level:
-    im:
-      zhaojun: info
-  path: ${user.home}/.zfile/logs
-
 server:
   port: 8080
   servlet:
@@ -40,10 +34,12 @@ spring:
     properties:
       hibernate:
         format_sql: false
-    show-sql: true
+    show-sql: false
   resources:
     chain:
       gzipped: true
+  profiles:
+    active: prod
 zfile:
   cache:
     timeout: 300
