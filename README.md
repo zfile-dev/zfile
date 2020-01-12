@@ -34,19 +34,19 @@ yum install -y java # 适用于 Centos 7.x
 下载项目:
 
 ```bash
-wget https://github.com/zhaojun1998/zfile/releases/download/0.5/zfile-0.5.jar
+wget https://github.com/zhaojun1998/zfile/releases/download/0.6/zfile-0.6.jar
 ```
 
 启动项目:
 
 ```bash
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.5.jar
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.6.jar
 
 ## 高级启动
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.5.jar --server.port=18777
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.6.jar --server.port=18777
 
 ## 后台运行
-nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.5.jar &
+nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.6.jar &
 ```
 
 > 系统使用的是内置配置文件, 默认配置请参考: [application.yml](https://github.com/zhaojun1998/zfile/blob/master/src/main/resources/application.yml)
@@ -56,13 +56,6 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.5.jar &
 > 所有参数都可在命令行启动时, 以类似 `--server.port=18777` 的方式强制执行, 此方式的优先级最高.
 
 > *指定 `-Djava.security.egd=file:/dev/./urandom` 是为了防止在 Linux 环境中, 生成首次登陆生成 sessionId 取系统随机数过慢的问题.*
-
-重要参数:
-- `server.port` 为指定端口, 默认为 `8080`
-- `logging.path` 为日志文件存放路径, 默认为 `${user.home}/.zfile/logs`
-- `spring.datasource` 下配置了 `h2` 和 `mysql` 两种数据库的支持,  默认采用 `h2`.
-- `spring.cache.type` 为指定缓存方式, 默认为 `caffeine`, 即内存缓存, 无需安装, 支持切换为 `redis`, 但需配置 `spring.redis.host` 和 `spring.redis.password` 参数后才可使用.
-
 
 访问地址:
 
@@ -85,11 +78,9 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.5.jar &
 
 缓存默认支持 `h2` 和 `mysql`, 前者为嵌入式数据库, 无需安装, 但后者相对性能更好.
 
-
 ### 默认路径
 
 默认 H2 数据库文件地址: `~/.zfile/db/`, `~` 表示用户目录, windows 为 `C:/Users/用户名/`, linux 为 `/home/用户名/`, root 用户为 `/root/`
-
 
 ### 头尾文件和加密文件
 
