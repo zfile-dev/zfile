@@ -20,6 +20,9 @@ public class FileComparator implements Comparator<FileItemDTO> {
     private String sortBy;
     private String order;
 
+    public FileComparator() {
+    }
+
     public FileComparator(String sortBy, String order) {
         this.sortBy = sortBy;
         this.order = order;
@@ -27,6 +30,14 @@ public class FileComparator implements Comparator<FileItemDTO> {
 
     @Override
     public int compare(FileItemDTO o1, FileItemDTO o2) {
+        if (sortBy == null) {
+            sortBy = "name";
+        }
+
+        if (order == null) {
+            order = "asc";
+        }
+
         FileTypeEnum o1Type = o1.getType();
         FileTypeEnum o2Type = o2.getType();
 
