@@ -70,55 +70,8 @@ public class FileController {
             }
         }
 
-        // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
-        fileItemList.sort(new FileComparator(sortBy, order));
-        filterFileList(fileItemList);
-
-        int total = fileItemList.size();
-        int totalPage = (total + PAGE_SIZE - 1) / PAGE_SIZE;
-
-        if (page > totalPage) {
-            return ResultBean.successData(new ArrayList<>());
-        }
-
-        int start = (page - 1) * PAGE_SIZE;
-        int end = page * PAGE_SIZE;
-        end = Math.min(end, total);
-        List<FileItemDTO> fileSubItem = new ArrayList<>(fileItemList.subList(start, end));
-        return ResultBean.successData(fileSubItem);
-    }
-
-
-    /**
-     * 获取文件类容, 仅限用于, txt, md, ini 等普通文本文件.
-     * @param url   文件路径
-     * @return       文件内容
-     */
-    @GetMapping("/content")
-    public ResultBean getContent(String url) {
-        return ResultBean.successData(HttpUtil.getTextContent(url));
-    }
-
-
-    /**
-     * 获取文件类容, 仅限用于, txt, md, ini 等普通文本文件.
-     * @param url   文件路径
-     * @return       文件内容
-     */
-    @GetMapping("/content/origin")
-    public String getContentOrigin(String url) {
-        return HttpUtil.getTextContent(url);
-    }
-
-
-    /**
-     * 检测文件是否存在
-     * @param url   文件路径
-     * @return      是否存在
-     */
-    @GetMapping("/content/exist")
-    public boolean checkFileExist(String url) {
-        return HttpUtil.checkUrlExist(url);
+        List<FileItemDTO> sortedPagingData = getSortedPagingData(fileItemList, page);
+        return ResultBean.successData(sortedPagingData);
     }
 
 
@@ -136,15 +89,11 @@ public class FileController {
 
 
     @CheckStorageStrategyInit
-    @GetMapping("/audioInfo")
-    public ResultBean getAudioInfo(String url) throws Exception {
-        return ResultBean.success(AudioHelper.getAudioInfo(url));
-    }
-
-
-    @CheckStorageStrategyInit
     @GetMapping("/search")
-    public ResultBean search(@RequestParam(value = "name", defaultValue = "/") String name) throws Exception {
+    public ResultBean search(@RequestParam(value = "name", defaultValue = "/") String name,
+                             @RequestParam(defaultValue = "name") String sortBy,
+                             @RequestParam(defaultValue = "asc") String order,
+                             @RequestParam(defaultValue = "1") Integer page) throws Exception {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
         if (!systemConfigDTO.getSearchEnable()) {
@@ -153,7 +102,9 @@ public class FileController {
         if (!fileAsyncCacheService.isCacheFinish()) {
             throw new SearchDisableException("搜索功能缓存预热中, 请稍后再试");
         }
-        return ResultBean.success(fileService.search(URLUtil.decode(name)));
+        List<FileItemDTO> fileItemList = fileService.search(URLUtil.decode(name));
+        List<FileItemDTO> sortedPagingData = getSortedPagingData(fileItemList, page);
+        return ResultBean.successData(sortedPagingData);
     }
 
 
@@ -170,4 +121,22 @@ public class FileController {
                 || ZFileConstant.HEADER_FILE_NAME.equals(fileItem.getName()));
     }
 
+
+    private List<FileItemDTO> getSortedPagingData(List<FileItemDTO> fileItemList, Integer page) {
+        // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
+        fileItemList.sort(new FileComparator());
+        filterFileList(fileItemList);
+
+        int total = fileItemList.size();
+        int totalPage = (total + PAGE_SIZE - 1) / PAGE_SIZE;
+
+        if (page > totalPage) {
+            return new ArrayList<>();
+        }
+
+        int start = (page - 1) * PAGE_SIZE;
+        int end = page * PAGE_SIZE;
+        end = Math.min(end, total);
+        return new ArrayList<>(fileItemList.subList(start, end));
+    }
 }
