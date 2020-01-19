@@ -23,6 +23,12 @@ public class StorageConfigService {
         return storageConfigRepository.findByTypeOrderById(storageTypeEnum);
     }
 
+
+    public StorageConfig selectByTypeAndKey(StorageTypeEnum storageType, String key) {
+        return storageConfigRepository.findByTypeAndKey(storageType, key);
+    }
+
+
     public Map<String, StorageConfig> selectStorageConfigMapByKey(StorageTypeEnum storageTypeEnum) {
         Map<String, StorageConfig> map = new HashMap<>(24);
         for (StorageConfig storageConfig : selectStorageConfigByType(storageTypeEnum)) {
@@ -30,6 +36,7 @@ public class StorageConfigService {
         }
         return map;
     }
+
 
     public void updateStorageConfig(List<StorageConfig> storageConfigList) {
         storageConfigRepository.saveAll(storageConfigList);

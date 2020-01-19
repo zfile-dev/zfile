@@ -20,4 +20,12 @@ public interface StorageConfigRepository extends JpaRepository<StorageConfig, In
      */
     List<StorageConfig> findByTypeOrderById(StorageTypeEnum type);
 
+    /**
+     * 根据存储类型找到某个 KEY 的值
+     * @param type  存储类型
+     * @param key   KEY
+     * @return      KEY 对应的对象
+     */
+    StorageConfig findByTypeAndKey(StorageTypeEnum type, String key);
+
 }

@@ -30,4 +30,8 @@ public class StorageConfigConstant {
 
     public static final String FILE_PATH_KEY = "filePath";
 
+    public static final String ACCESS_TOKEN_KEY = "accessToken";
+
+    public static final String REFRESH_TOKEN_KEY = "refreshToken";
+
 }

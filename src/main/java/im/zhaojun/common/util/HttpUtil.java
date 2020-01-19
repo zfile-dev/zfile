@@ -11,13 +11,13 @@ import org.springframework.web.client.RestTemplate;
 public class HttpUtil {
 
     public static String getTextContent(String url) {
-        RestTemplate restTemplate = SpringContextHolder.getBean(RestTemplate.class);
+        RestTemplate restTemplate = SpringContextHolder.getBean("restTemplate");
         String result = restTemplate.getForObject(url, String.class);
         return result == null ? "" : result;
     }
 
     public static boolean checkUrlExist(String url) {
-        RestTemplate restTemplate = SpringContextHolder.getBean(RestTemplate.class);
+        RestTemplate restTemplate = SpringContextHolder.getBean("restTemplate");
         try {
             restTemplate.headForHeaders(url);
             return true;

@@ -1,24 +1,28 @@
 package im.zhaojun.common.model.enums;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author zhaojun
  */
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum StorageTypeEnum {
 
     /**
      * 当前系统支持的所有存储策略
      */
-    UPYUN("upyun", "又拍云 USS"),
-    QINIU("qiniu", "七牛云 KODO"),
-    HUAWEI("huawei", "华为云 OBS"),
     ALIYUN("aliyun", "阿里云 OSS"),
     FTP("ftp", "FTP"),
+    HUAWEI("huawei", "华为云 OBS"),
     LOCAL("local", "本地存储"),
+    MINIO("minio", "MINIO"),
+    ONE_DRIVE("onedrive", "OneDrive"),
+    QINIU("qiniu", "七牛云 KODO"),
     TENCENT("tencent", "腾讯云 COS"),
-    MINIO("minio", "MINIO");
+    UPYUN("upyun", "又拍云 USS");
 
     private String key;
     private String description;
