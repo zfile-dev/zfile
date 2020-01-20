@@ -47,6 +47,11 @@ zfile:
     header: header.md
     footer: footer.md
     password: password.txt
+  onedirve:
+    clientId: 09939809-c617-43c8-a220-a93c1513c5d4
+    clientSecret: _l:zI-_yrW75lV8M61K@z.I2K@B/On6Q
+    redirectUri: http://localhost:8080/onedirve/callback
+    scope: offline_access User.Read Files.ReadWrite.All
 
 jetcache:
   statIntervalMinutes: 0

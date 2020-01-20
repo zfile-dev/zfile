@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CallBack Result</title>
+</head>
+<body>
+
+    <h1>accessToken</h1>
+    <div>
+        <input type="text" th:value="${accessToken}">
+    </div>
+
+    <h1>refreshToken</h1>
+    <div>
+        <input type="text" th:value="${refreshToken}">
+    </div>
+
+</body>
+<style>
+    input {
+        height: 30px;
+        width: 100%;
+    }
+</style>
+</html>
