@@ -7,22 +7,30 @@
 -->
 <configuration scan="false" scanPeriod="60 seconds" debug="false">
 
-    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
-    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
-    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
     <!-- 定义日志的根目录 -->
-    <property name="LOG_HOME" value="${user.home}/.zfile/logs" />
+    <property name="LOG_HOME" value="${user.home}/.zfile/logs"/>
     <!-- 定义日志文件名称 -->
     <property name="appName" value="zfile"/>
 
     <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
+        <springProfile name="prod">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+        </springProfile>
+
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
+            <pattern>%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p})
+                %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan}
+                %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}
+            </pattern>
         </layout>
     </appender>
 
@@ -56,7 +64,9 @@
         </rollingPolicy>
         <!-- 日志输出格式： -->
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
+            <pattern>%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t]
+                %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}
+            </pattern>
         </layout>
     </appender>
 
@@ -65,24 +75,31 @@
 		name：表示匹配的logger类型前缀，也就是包的前半部分
 		level：要记录的日志级别，包括 TRACE < DEBUG < INFO < WARN < ERROR
 		additivity：作用在于children-logger是否使用 rootLogger配置的appender进行输出，
-		false：表示只用当前logger的appender-ref，true：
-		表示当前logger的appender-ref和rootLogger的appender-ref都有效
+		false：表示只用当前logger的appender-ref，
+		true： 表示当前logger的appender-ref和rootLogger的appender-ref都有效
     -->
 
     <!-- jetCache logger -->
-    <logger name="com.alicp" level="debug"/>
+    <logger name="com.alicp" additivity="false" level="debug"/>
 
     <!-- hibernate logger -->
-    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.SQL" additivity="false" level="debug"/>
 
+    <springProfile name="dev">
+        <logger name="im.zhaojun" additivity="true" level="debug"/>
+    </springProfile>
+
+    <springProfile name="prod">
+        <logger name="im.zhaojun" additivity="true" level="debug"/>
+    </springProfile>
 
     <!--
         root与logger是父子关系，没有特别定义则默认为root，任何一个类只会和一个logger对应，
         要么是定义的logger，要么是root，判断的关键在于找到这个logger，然后判断这个logger的appender和level。
     -->
     <root level="info">
-        <appender-ref ref="stdout" />
-        <appender-ref ref="appLogAppender" />
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="appLogAppender"/>
     </root>
 
 </configuration>
