@@ -10,10 +10,8 @@ import im.zhaojun.common.model.dto.SiteConfigDTO;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileAsyncCacheService;
-import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
 import im.zhaojun.common.service.SystemService;
-import im.zhaojun.common.util.AudioHelper;
 import im.zhaojun.common.util.FileComparator;
 import im.zhaojun.common.util.HttpUtil;
 import im.zhaojun.common.util.StringUtils;
@@ -39,9 +37,6 @@ public class FileController {
 
     @Resource
     private SystemConfigService systemConfigService;
-
-    @Resource
-    private StorageConfigService storageConfigService;
 
     @Resource
     private FileAsyncCacheService fileAsyncCacheService;

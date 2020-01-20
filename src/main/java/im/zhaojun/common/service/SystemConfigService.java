@@ -38,9 +38,6 @@ public class SystemConfigService {
     private SystemConfigRepository systemConfigRepository;
 
     @Resource
-    private FileAsyncCacheService fileAsyncCacheService;
-
-    @Resource
     private FileCacheService fileCacheService;
 
     private Class<SystemConfigDTO> systemConfigDTOClass = SystemConfigDTO.class;
@@ -100,8 +97,6 @@ public class SystemConfigService {
         configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
 
         systemConfigRepository.saveAll(systemConfigList);
-
-        AbstractFileService currentFileService = getCurrentFileService();
 
         if (!oldEnableCache && curEnableCache) {
             log.debug("检测到开启了缓存, 开启预热缓存");

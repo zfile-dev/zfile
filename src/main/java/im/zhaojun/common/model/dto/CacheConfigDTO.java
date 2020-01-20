@@ -10,8 +10,8 @@ import java.util.Set;
  */
 @Data
 public class CacheConfigDTO {
-    private boolean enableCache;
-    private boolean cacheFinish;
+    private Boolean enableCache;
+    private Boolean cacheFinish;
     private Set<String> cacheKeys;
     private Integer cacheDirectoryCount;
     private Integer cacheFileCount;

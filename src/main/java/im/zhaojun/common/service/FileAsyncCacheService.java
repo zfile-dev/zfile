@@ -73,8 +73,6 @@ public class FileAsyncCacheService {
         log.info("缓存 {} 所有文件开始", storageStrategy.getDescription());
         long startTime = System.currentTimeMillis();
         try {
-            String path = "/";
-
             FileService currentFileService = systemConfigService.getCurrentFileService();
             List<FileItemDTO> rootFileItems = currentFileService.fileList("/");
             ArrayDeque<FileItemDTO> queue = new ArrayDeque<>(rootFileItems);

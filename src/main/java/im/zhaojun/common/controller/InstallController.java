@@ -6,7 +6,6 @@ import im.zhaojun.common.model.dto.InstallModelDTO;
 import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
-import im.zhaojun.common.service.FileAsyncCacheService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,9 +31,6 @@ public class InstallController {
 
     @Resource
     private AdminController adminController;
-
-    @Resource
-    private FileAsyncCacheService fileAsyncCacheService;
 
     @GetMapping("/is-installed")
     public ResultBean isInstall() {
