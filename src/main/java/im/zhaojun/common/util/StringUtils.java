@@ -50,7 +50,7 @@ public class StringUtils {
             path = DELIMITER + path;
         }
 
-        if (domain.charAt(domain.length() - 1) == DELIMITER) {
+        if (domain != null && domain.charAt(domain.length() - 1) == DELIMITER) {
             domain = domain.substring(0, domain.length() - 2);
         }
 

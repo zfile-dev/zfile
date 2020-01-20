@@ -1,6 +1,7 @@
 package im.zhaojun.local.controller;
 
 import cn.hutool.core.util.URLUtil;
+import im.zhaojun.common.exception.NotExistFileException;
 import im.zhaojun.common.util.StringUtils;
 import im.zhaojun.local.service.LocalServiceImpl;
 import org.springframework.core.io.FileSystemResource;
@@ -42,7 +43,7 @@ public class LocalController {
     private ResponseEntity<FileSystemResource> export(File file) {
 
         if (!file.exists()) {
-            return ResponseEntity.notFound().build();
+            throw new NotExistFileException();
         }
 
 
