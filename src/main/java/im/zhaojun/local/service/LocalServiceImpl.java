@@ -54,7 +54,7 @@ public class LocalServiceImpl extends AbstractFileService implements FileService
                 isInitialized = testConnection();
             }
         } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
+            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
         }
     }
 

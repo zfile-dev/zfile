@@ -12,8 +12,7 @@ import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -27,9 +26,8 @@ import java.util.Objects;
  * @author zhaojun
  */
 @Service
+@Slf4j
 public class UpYunServiceImpl extends AbstractFileService implements FileService {
-
-    private static final Logger log = LoggerFactory.getLogger(UpYunServiceImpl.class);
 
     private static final String END_MARK = "g2gCZAAEbmV4dGQAA2VvZg";
 
@@ -62,7 +60,7 @@ public class UpYunServiceImpl extends AbstractFileService implements FileService
                 isInitialized = testConnection();
             }
         } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
+            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
         }
     }
 

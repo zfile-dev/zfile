@@ -46,7 +46,7 @@ public class MinIOServiceImpl extends AbstractS3FileService implements FileServi
                 isInitialized = testConnection();
             }
         } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
+            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
         }
     }
 

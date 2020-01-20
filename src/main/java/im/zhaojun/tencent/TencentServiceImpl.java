@@ -47,7 +47,7 @@ public class TencentServiceImpl extends AbstractS3FileService implements FileSer
                 isInitialized = testConnection();
             }
         } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + "初始化异常, 已跳过");
+            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
         }
     }
 

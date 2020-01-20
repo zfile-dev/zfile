@@ -81,7 +81,7 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
         try {
             fileList("/");
         } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + "初始化异常", e);
+            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常", e);
             flag = false;
         }
         return flag;
@@ -93,6 +93,14 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
      */
     public boolean getIsUnInitialized() {
         return !isInitialized;
+    }
+
+    /**
+     * 获取是否初始化成功
+     * @return              初始化成功与否
+     */
+    public boolean getIsInitialized() {
+        return isInitialized;
     }
 
     /**
