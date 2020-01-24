@@ -1,7 +1,9 @@
 package im.zhaojun.common.controller;
 
+import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.dto.ResultBean;
+import im.zhaojun.common.model.dto.StorageStrategyDTO;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.AbstractFileService;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -88,6 +91,18 @@ public class AdminController {
         return ResultBean.success(storageConfigList);
     }
 
+    @GetMapping("/support-strategy")
+    public ResultBean supportStrategy() {
+        List<StorageStrategyDTO> result = new ArrayList<>();
+        StorageTypeEnum[] values = StorageTypeEnum.values();
+        for (StorageTypeEnum value : values) {
+            AbstractFileService storageTypeService = StorageTypeFactory.getStorageTypeService(value);
+            result.add(new StorageStrategyDTO(value.getKey(),
+                                    value.getDescription(),
+                                    storageTypeService.getIsInitialized()));
+        }
+        return ResultBean.successData(result);
+    }
 
     /**
      * 保存存储策略
@@ -98,6 +113,7 @@ public class AdminController {
      */
     @PostMapping("/storage-strategy")
     public ResultBean save(@RequestParam Map<String, String> storageStrategyConfig, StorageTypeEnum storageStrategy) throws Exception {
+        // 保存设置.
         List<StorageConfig> storageConfigList = storageConfigService.selectStorageConfigByType(storageStrategy);
         for (StorageConfig storageConfig : storageConfigList) {
             String key = storageConfig.getKey();
@@ -106,6 +122,11 @@ public class AdminController {
         }
         storageConfigService.updateStorageConfig(storageConfigList);
 
+        // 获取当前修改的存储策略 Service, 尝试调用初始化.
+        AbstractFileService updateStorageStrategyService = StorageTypeFactory.getStorageTypeService(storageStrategy);
+        updateStorageStrategyService.init();
+
+        // 如果修改的为当前启用的缓存, 则重新进行缓存.
         StorageTypeEnum currentStorageStrategy = systemConfigService.getCurrentStorageStrategy();
         if (Objects.equals(storageStrategy, currentStorageStrategy)) {
             if (log.isDebugEnabled()) {
@@ -114,11 +135,15 @@ public class AdminController {
 
             AbstractFileService fileService = systemConfigService.getCurrentFileService();
             fileService.clearFileCache();
-            fileService.init();
             fileAsyncCacheService.cacheGlobalFile();
         }
 
-        return ResultBean.success();
+        // 返回是否初始化成功.
+        if (updateStorageStrategyService.getIsInitialized()) {
+            return ResultBean.success();
+        } else {
+            return ResultBean.error("保存成功, 但尝试初始化异常, 请检查设置.");
+        }
     }
 
     /**
