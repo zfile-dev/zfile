@@ -58,7 +58,6 @@ public class AdminController {
     @PostMapping("/config")
     public ResultBean updateConfig(SystemConfigDTO systemConfigDTO) throws Exception {
         AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
-        currentFileService.clearFileCache();
         systemConfigDTO.setId(1);
         systemConfigService.updateSystemConfig(systemConfigDTO);
 
