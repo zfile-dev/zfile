@@ -47,8 +47,6 @@ public class AliyunServiceImpl extends AbstractS3FileService implements FileServ
                         .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "oss")).build();
                 isInitialized = testConnection();
             }
-
-
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
         }

@@ -31,12 +31,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class AbstractFileService extends FileCacheService implements FileService {
 
-    public static final String SYSTEM_CONFIG_CACHE_PREFIX = "zfile-cache:";
+    private static final String SYSTEM_CONFIG_CACHE_PREFIX = "zfile-cache:";
 
     @Value("${zfile.cache.timeout}")
     protected Long timeout;
 
-    protected boolean isInitialized;
+    protected boolean isInitialized = false;
 
     @Resource
     private SystemConfigService systemConfigService;
@@ -62,11 +62,16 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
 
     /**
      * 清理当前存储策略的缓存
+     * 1. 删除全部缓存
+     * 2. 关闭自动刷新
+     * 3. 重置缓存个数
+     * 4. 标记为当前处于未完成缓存状态
      */
     public void clearFileCache() throws Exception {
         Set<String> cacheKeys = getCacheKeys();
         cache.removeAll(cacheKeys);
         closeCacheAutoRefresh();
+        fileAsyncCacheService.resetCacheCount();
         fileAsyncCacheService.setCacheFinish(false);
     }
 
