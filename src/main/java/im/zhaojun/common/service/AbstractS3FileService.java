@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -74,6 +75,9 @@ public abstract class AbstractS3FileService extends AbstractFileService {
 
         for (String commonPrefix : objectListing.getCommonPrefixes()) {
             FileItemDTO fileItemDTO = new FileItemDTO();
+            if (Objects.equals(commonPrefix, "/")) {
+                continue;
+            }
             fileItemDTO.setName(commonPrefix.substring(fullPath.length(), commonPrefix.length() - 1));
             fileItemDTO.setType(FileTypeEnum.FOLDER);
             fileItemDTO.setPath(path);
