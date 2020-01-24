@@ -54,11 +54,12 @@ public class AdminController {
      */
     @PostMapping("/config")
     public ResultBean updateConfig(SystemConfigDTO systemConfigDTO) throws Exception {
-        StorageTypeEnum currentStorageStrategy = systemConfigService.getCurrentStorageStrategy();
-
+        AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
+        currentFileService.clearFileCache();
         systemConfigDTO.setId(1);
         systemConfigService.updateSystemConfig(systemConfigDTO);
 
+        StorageTypeEnum currentStorageStrategy = currentFileService.getStorageTypeEnum();
         if (!Objects.equals(currentStorageStrategy, systemConfigDTO.getStorageStrategy())) {
             log.info("已将存储策略由 {} 切换为 {}", currentStorageStrategy, systemConfigDTO.getStorageStrategy());
             refreshStorageStrategy();

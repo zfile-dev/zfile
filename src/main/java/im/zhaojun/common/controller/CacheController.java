@@ -68,7 +68,6 @@ public class CacheController {
     public ResultBean clearCache(String key) throws Exception {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         fileService.clearFileCache();
-        fileAsyncCacheService.resetCacheCount();
         return ResultBean.success();
     }
 
