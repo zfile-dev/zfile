@@ -22,6 +22,26 @@
             "type": "java.lang.String",
             "defaultValue": "password.txt",
             "description": "密码文件 文件名."
+        },
+        {
+            "name": "zfile.onedirve.clientId",
+            "type": "java.lang.String",
+            "description": "OneDrive ClientId."
+        },
+        {
+            "name": "zfile.onedirve.clientSecret",
+            "type": "java.lang.String",
+            "description": "OneDrive ClientSecret."
+        },
+        {
+            "name": "zfile.onedirve.redirectUri",
+            "type": "java.lang.String",
+            "description": "OneDrive 认证重定向地址."
+        },
+        {
+            "name": "zfile.onedirve.scope",
+            "type": "java.lang.String",
+            "description": "OneDrive 认证权限."
         }
     ]
 }
