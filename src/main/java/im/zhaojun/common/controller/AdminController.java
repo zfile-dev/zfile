@@ -148,7 +148,7 @@ public class AdminController {
     /**
      * 更新存储策略
      */
-    public void refreshStorageStrategy() {
+    public void refreshStorageStrategy() throws Exception {
         StorageTypeEnum storageStrategy = systemConfigService.getCurrentStorageStrategy();
         refreshStorageStrategy(storageStrategy);
     }
@@ -156,14 +156,14 @@ public class AdminController {
     /**
      * 更新存储策略
      */
-    public void refreshStorageStrategy(StorageTypeEnum storageStrategy) {
+    public void refreshStorageStrategy(StorageTypeEnum storageStrategy) throws Exception {
         if (storageStrategy == null) {
             log.info("尚未配置存储策略.");
         } else {
             AbstractFileService fileService = systemConfigService.getCurrentFileService();
             fileService.init();
+            fileService.clearFileCache();
             log.info("切换至存储类型: {}", storageStrategy.getDescription());
-
             fileAsyncCacheService.cacheGlobalFile();
         }
     }
