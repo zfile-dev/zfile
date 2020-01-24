@@ -144,10 +144,15 @@ public class SystemConfigService {
         return systemConfigDTO.getStorageStrategy();
     }
 
-
     public boolean getEnableCache() {
         SystemConfigDTO systemConfigDTO = getSystemConfig();
         return ObjectUtil.defaultIfNull(systemConfigDTO.getEnableCache(), false);
     }
+
+    public boolean getSearchIgnoreCase() {
+        SystemConfigDTO systemConfigDTO = getSystemConfig();
+        return ObjectUtil.defaultIfNull(systemConfigDTO.getSearchIgnoreCase(), false);
+    }
+
 
 }

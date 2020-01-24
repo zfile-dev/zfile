@@ -1,5 +1,6 @@
 package im.zhaojun.common.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.RefreshPolicy;
 import com.alicp.jetcache.anno.CacheRefresh;
@@ -123,9 +124,20 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
     public List<FileItemDTO> search(String name) throws Exception {
         List<FileItemDTO> result = new ArrayList<>();
 
+        boolean searchIgnoreCase = systemConfigService.getSearchIgnoreCase();
+
         List<FileItemDTO> fileItemList = selectAllFileList();
         for (FileItemDTO fileItemDTO : fileItemList) {
-            if (fileItemDTO.getName().contains(name)) {
+
+            boolean testResult;
+
+            if (searchIgnoreCase) {
+                testResult = StrUtil.containsIgnoreCase(fileItemDTO.getName(), name);
+            } else {
+                testResult = fileItemDTO.getName().contains(name);
+            }
+
+            if (testResult) {
                 result.add(fileItemDTO);
             }
         }
@@ -137,7 +149,7 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
      * 查询所有文件, 仅去缓存中查询.
      * @return              所有文件
      */
-    public List<FileItemDTO> selectAllFileList() throws Exception {
+    public List<FileItemDTO> selectAllFileList() {
         List<FileItemDTO> result = new ArrayList<>();
         boolean enableCache = systemConfigService.getEnableCache();
         if (!enableCache) {
