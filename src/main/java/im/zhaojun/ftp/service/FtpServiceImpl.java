@@ -49,7 +49,7 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
             domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
 
             if (Objects.isNull(host) || Objects.isNull(port) || Objects.isNull(username) || Objects.isNull(password)) {
-                isInitialized = true;
+                isInitialized = false;
             } else {
                 ftp = new Ftp(host, Integer.parseInt(port), username, password);
                 isInitialized = testConnection();
