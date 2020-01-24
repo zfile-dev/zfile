@@ -34,19 +34,19 @@ yum install -y java # 适用于 Centos 7.x
 下载项目:
 
 ```bash
-wget https://github.com/zhaojun1998/zfile/releases/download/0.6/zfile-0.6.jar
+wget https://github.com/zhaojun1998/zfile/releases/download/0.7/zfile-0.7.jar
 ```
 
 启动项目:
 
 ```bash
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.6.jar
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.7.jar
 
 ## 高级启动
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.6.jar --server.port=18777
+java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.7.jar --server.port=18777
 
 ## 后台运行
-nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.6.jar &
+nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.7.jar &
 ```
 
 > 系统使用的是内置配置文件, 默认配置请参考: [application.yml](https://github.com/zhaojun1998/zfile/blob/master/src/main/resources/application.yml)
@@ -65,6 +65,14 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.6.jar &
 
 管理后台: http://127.0.0.1:8080/#/admin
 
+
+## OneDrive 使用教程.
+
+访问地址进行授权, 获取 accessToken 和 refreshToken: https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=09939809-c617-43c8-a220-a93c1513c5d4&response_type=code&redirect_uri=https://zfile.jun6.net/onedirve/callback&scope=offline_access%20User.Read%20Files.ReadWrite.All
+
+然后分别填写至访问令牌和刷新令牌即可:
+
+![http://cdn.jun6.net/2020-01-24_18-57-06.png](http://cdn.jun6.net/2020-01-24_18-57-06.png)
 
 ## 运行环境
 
