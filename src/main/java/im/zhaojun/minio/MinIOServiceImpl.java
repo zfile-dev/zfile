@@ -40,6 +40,7 @@ public class MinIOServiceImpl extends AbstractS3FileService implements FileServi
             } else {
                 BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
                 s3Client = AmazonS3ClientBuilder.standard()
+                        .withPathStyleAccessEnabled(true)
                         .withCredentials(new AWSStaticCredentialsProvider(credentials))
                         .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "minio")).build();
 
