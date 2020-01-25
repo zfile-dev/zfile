@@ -1,5 +1,6 @@
 package im.zhaojun.common.service;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -15,6 +16,7 @@ public class FileCacheService {
     private SystemConfigService systemConfigService;
 
     @Resource
+    @Lazy
     private FileAsyncCacheService fileAsyncCacheService;
 
     public void enableCache() {
