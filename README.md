@@ -108,5 +108,6 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.7.jar &
 
 如果本项目对你有帮助，请作者喝杯咖啡吧。
 
-<img src="http://cdn.jun6.net/alipay.png" style="width:150px; height: 234px"></img>
-<img src="http://cdn.jun6.net/wechat.png" style="width:222px; height: 300px"></img>
+
+<img src="http://cdn.jun6.net/alipay.png" width="150" height="234">
+<img src="http://cdn.jun6.net/wechat.png" width="222" height="300">
