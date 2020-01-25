@@ -102,3 +102,11 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.7.jar &
 - 后台支持上传、编辑、删除等操作
 - API 支持
 - 更方便的部署方式
+
+
+## 支持作者
+
+如果本项目对你有帮助，请作者喝杯咖啡吧。
+
+![http://cdn.jun6.net/alipay.png](http://cdn.jun6.net/alipay.png)
+![http://cdn.jun6.net/wechat.png](http://cdn.jun6.net/wechat.png)
