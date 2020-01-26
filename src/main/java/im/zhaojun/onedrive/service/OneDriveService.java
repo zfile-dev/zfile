@@ -28,13 +28,13 @@ import java.util.List;
 @Service
 public class OneDriveService {
 
-    public static final String DRIVER_INFO_URL = "https://graph.microsoft.com/v1.0/drive";
+    private static final String DRIVER_INFO_URL = "https://graph.microsoft.com/v1.0/drive";
 
-    public static final String DRIVER_ROOT_URL = "https://graph.microsoft.com/v1.0/drive/root/children";
+    private static final String DRIVER_ROOT_URL = "https://graph.microsoft.com/v1.0/drive/root/children";
 
-    public static final String DRIVER_ITEMS_URL = "https://graph.microsoft.com/v1.0/drive/root:{path}:/children";
+    private static final String DRIVER_ITEMS_URL = "https://graph.microsoft.com/v1.0/drive/root:{path}:/children";
 
-    public static final String AUTHENTICATE_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+    private static final String AUTHENTICATE_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
 
     @Value("${zfile.onedirve.clientId}")
     private String clientId;
@@ -91,32 +91,49 @@ public class OneDriveService {
     }
 
     public List<FileItemDTO> list(String path) {
-        ResponseEntity<String> responseEntity = oneDriveRestTemplate.getForEntity("/".equalsIgnoreCase(path) ? DRIVER_ROOT_URL : DRIVER_ITEMS_URL, String.class, path);
-        String body = responseEntity.getBody();
-
-        JSONObject root = JSON.parseObject(body);
-
-        JSONArray fileList = root.getJSONArray("value");
         List<FileItemDTO> result = new ArrayList<>();
+        String nextLink = null;
 
-        for (int i = 0; i < fileList.size(); i++) {
+        do {
 
-            FileItemDTO fileItemDTO = new FileItemDTO();
-            JSONObject fileItem = fileList.getJSONObject(i);
-            fileItemDTO.setName(fileItem.getString("name"));
-            fileItemDTO.setSize(fileItem.getLong("size"));
-            fileItemDTO.setTime(fileItem.getDate("lastModifiedDateTime"));
+            String requestUrl;
 
-            if (fileItem.containsKey("file")) {
-                fileItemDTO.setUrl(fileItem.getString("@microsoft.graph.downloadUrl"));
-                fileItemDTO.setType(FileTypeEnum.FILE);
+            if (nextLink != null) {
+                requestUrl = nextLink;
+            }else if ("/".equalsIgnoreCase(path)) {
+                requestUrl = DRIVER_ROOT_URL;
             } else {
-                fileItemDTO.setType(FileTypeEnum.FOLDER);
+                requestUrl = DRIVER_ITEMS_URL;
             }
 
-            fileItemDTO.setPath(path);
-            result.add(fileItemDTO);
-        }
+            ResponseEntity<String> responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, path);
+            String body = responseEntity.getBody();
+
+            JSONObject root = JSON.parseObject(body);
+
+            nextLink = root.getString("@odata.nextLink");
+
+            JSONArray fileList = root.getJSONArray("value");
+
+            for (int i = 0; i < fileList.size(); i++) {
+
+                FileItemDTO fileItemDTO = new FileItemDTO();
+                JSONObject fileItem = fileList.getJSONObject(i);
+                fileItemDTO.setName(fileItem.getString("name"));
+                fileItemDTO.setSize(fileItem.getLong("size"));
+                fileItemDTO.setTime(fileItem.getDate("lastModifiedDateTime"));
+
+                if (fileItem.containsKey("file")) {
+                    fileItemDTO.setUrl(fileItem.getString("@microsoft.graph.downloadUrl"));
+                    fileItemDTO.setType(FileTypeEnum.FILE);
+                } else {
+                    fileItemDTO.setType(FileTypeEnum.FOLDER);
+                }
+
+                fileItemDTO.setPath(path);
+                result.add(fileItemDTO);
+            }
+        } while (nextLink != null);
 
         return result;
     }
