@@ -12,6 +12,7 @@ import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.repository.StorageConfigRepository;
+import im.zhaojun.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -105,6 +106,7 @@ public class OneDriveService {
             } else {
                 requestUrl = DRIVER_ITEMS_URL;
             }
+            path = StringUtils.removeLastSeparator(path);
 
             ResponseEntity<String> responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, path);
             String body = responseEntity.getBody();
