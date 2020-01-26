@@ -54,7 +54,7 @@ public class FileController {
                            @RequestParam(required = false) String password,
                            @RequestParam(defaultValue = "1") Integer page) throws Exception {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
-        List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + URLUtil.decode(path) + "/"));
+        List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + path + "/"));
         for (FileItemDTO fileItemDTO : fileItemList) {
             if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())
                 && !HttpUtil.getTextContent(fileItemDTO.getUrl()).equals(password)) {
@@ -77,7 +77,7 @@ public class FileController {
     @CheckStorageStrategyInit
     @GetMapping("/config")
     public ResultBean getConfig(String path) throws Exception {
-        SiteConfigDTO config = systemService.getConfig(URLUtil.decode(StringUtils.removeDuplicateSeparator("/" + path + "/")));
+        SiteConfigDTO config = systemService.getConfig(StringUtils.removeDuplicateSeparator("/" + path + "/"));
         config.setSystemConfigDTO(systemConfigService.getSystemConfig());
         return ResultBean.successData(config);
     }
