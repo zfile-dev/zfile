@@ -29,11 +29,11 @@ import java.util.List;
 @Service
 public class OneDriveService {
 
-    private static final String DRIVER_INFO_URL = "https://graph.microsoft.com/v1.0/drive";
+    private static final String DRIVER_INFO_URL = "https://graph.microsoft.com/v1.0/me/drives";
 
-    private static final String DRIVER_ROOT_URL = "https://graph.microsoft.com/v1.0/drive/root/children";
+    private static final String DRIVER_ROOT_URL = "https://graph.microsoft.com/v1.0/me/drive/root/children";
 
-    private static final String DRIVER_ITEMS_URL = "https://graph.microsoft.com/v1.0/drive/root:{path}:/children";
+    private static final String DRIVER_ITEMS_URL = "https://graph.microsoft.com/v1.0/me/drive/root:{path}:/children";
 
     private static final String AUTHENTICATE_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
 
