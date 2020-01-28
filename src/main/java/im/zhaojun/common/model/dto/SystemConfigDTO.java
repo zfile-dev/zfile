@@ -37,4 +37,11 @@ public class SystemConfigDTO {
     private String domain;
 
     private Boolean enableCache;
+
+    private Boolean searchContainEncryptedFile;
+
+    private String customJs;
+
+    private String customCss;
+
 }

@@ -7,7 +7,9 @@ INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (6, 'username', '管理�
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (7, 'password', '管理员密码');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (8, 'domain', '站点域名');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (9, 'enableCache', '是否开启缓存');
-
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (10, 'searchContainEncryptedFile', '搜索包含加密文件');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (11, 'customCss', '自定义 CSS');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (12, 'customJs', '自定义 JS (可用于统计代码)');
 
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (1, 'bucket-name', '云存储服务名称', 'upyun');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (2, 'username', '操作员名称', 'upyun');
