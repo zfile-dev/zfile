@@ -1,6 +1,7 @@
 package im.zhaojun.local.service;
 
 import cn.hutool.core.util.URLUtil;
+import im.zhaojun.common.exception.NotExistFileException;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.SystemConfig;
 import im.zhaojun.common.model.constant.StorageConfigConstant;
@@ -105,4 +106,26 @@ public class LocalServiceImpl extends AbstractFileService implements FileService
         return StorageTypeEnum.LOCAL;
     }
 
+    @Override
+    public FileItemDTO getFileItem(String path) {
+        String fullPath = StringUtils.concatPath(filePath, path);
+
+        File file = new File(fullPath);
+
+        if (!file.exists()) {
+            throw new NotExistFileException();
+        }
+
+        FileItemDTO fileItemDTO = new FileItemDTO();
+        fileItemDTO.setType(file.isDirectory() ? FileTypeEnum.FOLDER : FileTypeEnum.FILE);
+        fileItemDTO.setTime(new Date(file.lastModified()));
+        fileItemDTO.setSize(file.length());
+        fileItemDTO.setName(file.getName());
+        fileItemDTO.setPath(filePath);
+        if (file.isFile()) {
+            fileItemDTO.setUrl(getDownloadUrl(path));
+        }
+
+        return fileItemDTO;
+    }
 }

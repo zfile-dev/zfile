@@ -90,4 +90,12 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
     public StorageTypeEnum getStorageTypeEnum() {
         return StorageTypeEnum.FTP;
     }
+
+    @Override
+    public FileItemDTO getFileItem(String path) {
+        FileItemDTO fileItemDTO = new FileItemDTO();
+        fileItemDTO.setUrl(getDownloadUrl(path));
+        return fileItemDTO;
+    }
+
 }

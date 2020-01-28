@@ -133,4 +133,17 @@ public class FileController {
         end = Math.min(end, total);
         return new ArrayList<>(fileItemList.subList(start, end));
     }
+
+
+    /**
+     * 获取指定路径下的文件信息内容
+     * @param path      文件全路径
+     * @return          该文件的名称, 路径, 大小, 下载地址等信息.
+     */
+    @CheckStorageStrategyInit
+    @GetMapping("/directlink")
+    public ResultBean directlink(String path) {
+        AbstractFileService fileService = systemConfigService.getCurrentFileService();
+        return ResultBean.successData(fileService.getFileItem(path));
+    }
 }

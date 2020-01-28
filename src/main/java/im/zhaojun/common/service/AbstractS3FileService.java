@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import im.zhaojun.common.exception.NotExistFileException;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.util.StringUtils;
@@ -112,5 +113,15 @@ public abstract class AbstractS3FileService extends AbstractFileService {
         String basePath = ObjectUtil.defaultIfNull(this.basePath, "");
         String path = ObjectUtil.defaultIfNull(this.path, "");
         return StringUtils.removeDuplicateSeparator(basePath + "/" + path);
+    }
+
+    @Override
+    public FileItemDTO getFileItem(String path) {
+        List<FileItemDTO> list = fileList(path);
+
+        if (list == null || list.size() == 0) {
+            throw new NotExistFileException();
+        }
+        return list.get(0);
     }
 }

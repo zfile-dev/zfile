@@ -3,6 +3,7 @@ package im.zhaojun.upyun.service;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import com.UpYun;
+import im.zhaojun.common.exception.NotExistFileException;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
@@ -108,4 +109,23 @@ public class UpYunServiceImpl extends AbstractFileService implements FileService
         return StorageTypeEnum.UPYUN;
     }
 
+    @Override
+    public FileItemDTO getFileItem(String path) {
+        List<FileItemDTO> list;
+        try {
+            int end = path.lastIndexOf("/");
+            list = fileList(path.substring(0, end));
+        } catch (Exception e) {
+            throw new NotExistFileException();
+        }
+
+        for (FileItemDTO fileItemDTO : list) {
+            String fullPath = StringUtils.concatUrl(fileItemDTO.getPath(), fileItemDTO.getName());
+            if (Objects.equals(fullPath, path)) {
+                return fileItemDTO;
+            }
+        }
+
+        throw new NotExistFileException();
+    }
 }

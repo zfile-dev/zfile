@@ -238,4 +238,6 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
         cache.config().setRefreshPolicy(refreshPolicy);
     }
 
+    public abstract FileItemDTO getFileItem(String path);
+
 }

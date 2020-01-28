@@ -1,6 +1,7 @@
 package im.zhaojun.onedrive.service;
 
 import im.zhaojun.common.config.GlobalScheduleTask;
+import im.zhaojun.common.exception.NotExistFileException;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
@@ -72,5 +73,15 @@ public class OneDriveServiceImpl extends AbstractFileService implements FileServ
     @Override
     public StorageTypeEnum getStorageTypeEnum() {
         return StorageTypeEnum.ONE_DRIVE;
+    }
+
+    @Override
+    public FileItemDTO getFileItem(String path) {
+        List<FileItemDTO> list = fileList(path);
+
+        if (list == null || list.size() == 0) {
+            throw new NotExistFileException();
+        }
+        return list.get(0);
     }
 }

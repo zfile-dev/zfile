@@ -46,9 +46,9 @@ public class GlobleExceptionHandler {
      * 不存在的文件异常
      */
     @ExceptionHandler({NotExistFileException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String notExistFile(Exception ex) {
-        return "error/404";
+    @ResponseBody
+    public ResultBean notExistFile(Exception ex) {
+        return ResultBean.error("文件不存在");
     }
 
     /**
