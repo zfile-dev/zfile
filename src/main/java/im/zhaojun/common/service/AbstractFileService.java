@@ -7,7 +7,9 @@ import com.alicp.jetcache.anno.CacheRefresh;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.alicp.jetcache.anno.CreateCache;
+import im.zhaojun.common.model.constant.ZFileConstant;
 import im.zhaojun.common.model.dto.FileItemDTO;
+import im.zhaojun.common.model.dto.SystemConfigDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.util.StringUtils;
@@ -21,6 +23,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -119,9 +122,8 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
      * 搜索文件
      * @param name          文件名
      * @return              包含该文件名的所有文件或文件夹
-     * @throws Exception    搜索过程出现的异常
      */
-    public List<FileItemDTO> search(String name) throws Exception {
+    public List<FileItemDTO> search(String name) {
         List<FileItemDTO> result = new ArrayList<>();
 
         boolean searchIgnoreCase = systemConfigService.getSearchIgnoreCase();
@@ -168,7 +170,7 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
             if (fileItemDTO.getType() == FileTypeEnum.FOLDER) {
                 String filePath = StringUtils.removeDuplicateSeparator("/" + fileItemDTO.getPath() + "/" + fileItemDTO.getName() + "/");
                 List<FileItemDTO> cacheList = cache.get(filePath);
-                if (cacheList != null) {
+                if (cacheList != null && isNotEncryptedFolder(cacheList)) {
                     queue.addAll(cacheList);
                 }
             }
@@ -178,11 +180,31 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
     }
 
     /**
+     * 不是加密文件夹
+     * @param list      文件夹中的内容
+     * @return          返回此文件夹是否加密.
+     */
+    private boolean isNotEncryptedFolder(List<FileItemDTO> list) {
+        // 如果开启了 "搜索包含加密文件" 选项, 则直接返回 true.
+        SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
+        if (systemConfig.getSearchContainEncryptedFile()) {
+            return true;
+        }
+
+        // 遍历文件判断是否包含
+        for (FileItemDTO fileItemDTO : list) {
+            if (Objects.equals(ZFileConstant.PASSWORD_FILE_NAME, fileItemDTO.getName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 获取所有缓存的 Key, 仅当开启缓存, 且缓存完成时, 可获取.
      * @return              所有缓存的 Key
-     * @throws Exception    可能出现的异常
      */
-    public Set<String> getCacheKeys() throws Exception {
+    public Set<String> getCacheKeys() {
         if (systemConfigService.getEnableCache() && fileAsyncCacheService.isCacheFinish()) {
             Set<String> collect = selectAllFileList().stream().map(fileItemDTO -> {
                 if (fileItemDTO.getType() == FileTypeEnum.FOLDER) {
