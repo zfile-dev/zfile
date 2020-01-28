@@ -112,7 +112,6 @@ public class FileController {
         }
 
         fileItemList.removeIf(fileItem -> ZFileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())
-                || ZFileConstant.FOOTER_FILE_NAME.equals(fileItem.getName())
                 || ZFileConstant.HEADER_FILE_NAME.equals(fileItem.getName()));
     }
 

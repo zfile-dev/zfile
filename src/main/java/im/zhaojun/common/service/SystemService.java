@@ -30,9 +30,7 @@ public class SystemService {
 
         List<FileItemDTO> fileItemList = new ArrayList<>(fileService.fileList(path));
         for (FileItemDTO fileItemDTO : fileItemList) {
-            if (ZFileConstant.FOOTER_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
-                siteConfigDTO.setFooter(HttpUtil.getTextContent(fileItemDTO.getUrl()));
-            } else if (ZFileConstant.HEADER_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
+            if (ZFileConstant.HEADER_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
                 siteConfigDTO.setHeader(HttpUtil.getTextContent(fileItemDTO.getUrl()));
             }
         }

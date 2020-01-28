@@ -12,12 +12,6 @@
             "description": "头部文件 文件名."
         },
         {
-            "name": "zfile.constant.footer",
-            "type": "java.lang.String",
-            "defaultValue": "footer.md",
-            "description": "尾部文件 文件名."
-        },
-        {
             "name": "zfile.constant.password",
             "type": "java.lang.String",
             "defaultValue": "password.txt",

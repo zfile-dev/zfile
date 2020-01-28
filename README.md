@@ -16,7 +16,7 @@
 * 内存缓存 (免安装)
 * 内存数据库 (免安装)
 * 个性化配置
-* 自定义目录的 header 和 footer 说明文件
+* 自定义目录的 header 说明文件
 * 文件夹密码
 * 支持在线浏览文本文件, 视频, 图片, 音乐. (支持 FLV 和 HLS)
 * 文件/目录二维码
@@ -93,7 +93,6 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.7.1.jar &
 ### 头尾文件和加密文件
 
 - 目录头部显示文件名为 `header.md`
-- 目录底部显示文件名为 `footer.md`
 - 目录需要密码访问, 添加文件 `password.txt` (无法拦截此文件被下载, 但可以改名文件)
 
 ## TODO

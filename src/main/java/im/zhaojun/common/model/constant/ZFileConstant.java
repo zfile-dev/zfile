@@ -20,11 +20,6 @@ public class ZFileConstant {
     public static String HEADER_FILE_NAME = "header.md";
 
     /**
-     * 页面尾部文件
-     */
-    public static String FOOTER_FILE_NAME = "footer.md";
-
-    /**
      * 密码文件
      */
     public static String PASSWORD_FILE_NAME = "password.txt";
@@ -32,11 +27,6 @@ public class ZFileConstant {
     @Autowired(required = false)
     public void setHeaderFileName(@Value("${zfile.constant.header}") String headerFileName) {
         ZFileConstant.HEADER_FILE_NAME = headerFileName;
-    }
-
-    @Autowired(required = false)
-    public void setFooterFileName(@Value("${zfile.constant.footer}") String footerFileName) {
-        ZFileConstant.FOOTER_FILE_NAME = footerFileName;
     }
 
     @Autowired(required = false)
