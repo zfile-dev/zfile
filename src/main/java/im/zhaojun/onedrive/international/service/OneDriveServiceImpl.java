@@ -1,4 +1,4 @@
-package im.zhaojun.onedrive.service;
+package im.zhaojun.onedrive.international.service;
 
 import im.zhaojun.common.config.GlobalScheduleTask;
 import im.zhaojun.common.exception.NotExistFileException;
@@ -25,12 +25,6 @@ import java.util.Map;
 @Slf4j
 public class OneDriveServiceImpl extends AbstractFileService implements FileService {
 
-    public static final String SYSTEM_ONEDRIVE_CACHE_PREFIX = "zfile-onedrive-cache:";
-
-    public static final String SYSTEM_ONEDRIVE_CACHE_ASSESS_TOKEN_KEY = "accessToken";
-
-    public static final String SYSTEM_ONEDRIVE_CACHE_REFRESH_TOKEN_KEY = "refreshToken";
-
     @Resource
     private GlobalScheduleTask globalScheduleTask;
 
@@ -44,7 +38,7 @@ public class OneDriveServiceImpl extends AbstractFileService implements FileServ
     public void init() {
         try {
             Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.ONE_DRIVE);
+                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
             String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
             String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
 
@@ -52,7 +46,7 @@ public class OneDriveServiceImpl extends AbstractFileService implements FileServ
                 log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
                 isInitialized = false;
             } else {
-                globalScheduleTask.refreshOneDriveToken();
+                globalScheduleTask.refreshOneDriveToken(getStorageTypeEnum());
                 isInitialized = testConnection();
             }
         } catch (Exception e) {
@@ -77,11 +71,13 @@ public class OneDriveServiceImpl extends AbstractFileService implements FileServ
 
     @Override
     public FileItemDTO getFileItem(String path) {
-        List<FileItemDTO> list = fileList(path);
+        FileItemDTO fileItemDTO ;
 
-        if (list == null || list.size() == 0) {
+        try {
+            fileItemDTO = oneDriveService.getItem(path);
+        } catch (Exception e) {
             throw new NotExistFileException();
         }
-        return list.get(0);
+        return fileItemDTO;
     }
 }

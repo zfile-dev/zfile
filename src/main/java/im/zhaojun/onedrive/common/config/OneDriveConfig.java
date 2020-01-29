@@ -1,11 +1,14 @@
-package im.zhaojun.onedrive.config;
+package im.zhaojun.onedrive.common.config;
 
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.StorageConfigService;
+import im.zhaojun.onedrive.china.service.OneDriveChinaService;
+import im.zhaojun.onedrive.international.service.OneDriveService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,13 +25,32 @@ public class OneDriveConfig {
     @Resource
     private StorageConfigService storageConfigService;
 
+    @Resource
+    @Lazy
+    private OneDriveService oneDriveService;
+
+    @Resource
+    @Lazy
+    private OneDriveChinaService oneDriveChinaService;
+
     @Bean
     public RestTemplate oneDriveRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
 
         ClientHttpRequestInterceptor interceptor = (httpRequest, bytes, clientHttpRequestExecution) -> {
+            String host = httpRequest.getURI().getHost();
+            StorageTypeEnum type;
+            if (oneDriveChinaService.getGraphEndPoint().contains(host)) {
+                type = StorageTypeEnum.ONE_DRIVE_CHINA;
+            } else if  (oneDriveService.getGraphEndPoint().contains(host)) {
+                type = StorageTypeEnum.ONE_DRIVE;
+            } else {
+                return clientHttpRequestExecution.execute(httpRequest, bytes);
+            }
+
             StorageConfig accessTokenConfig =
-                    storageConfigService.selectByTypeAndKey(StorageTypeEnum.ONE_DRIVE, StorageConfigConstant.ACCESS_TOKEN_KEY);
+                    storageConfigService.selectByTypeAndKey(type, StorageConfigConstant.ACCESS_TOKEN_KEY);
+
             String tokenValue = String.format("%s %s", "Bearer", accessTokenConfig.getValue());
             httpRequest.getHeaders().add("Authorization", tokenValue);
             return clientHttpRequestExecution.execute(httpRequest, bytes);
@@ -36,6 +58,5 @@ public class OneDriveConfig {
         restTemplate.setInterceptors(Collections.singletonList(interceptor));
         return restTemplate;
     }
-
 
 }

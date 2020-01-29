@@ -51,6 +51,11 @@ zfile:
     clientSecret: _l:zI-_yrW75lV8M61K@z.I2K@B/On6Q
     redirectUri: https://zfile.jun6.net/onedirve/callback
     scope: offline_access User.Read Files.ReadWrite.All
+  onedirve-china:
+    clientId: 4a72d927-1907-488d-9eb2-1b465c53c1c5
+    clientSecret: Y9CEA=82da5n-y_]KAWAgLH3?R9xf7Uw
+    redirectUri: https://zfile.jun6.net/onedirve/china-callback
+    scope: offline_access User.Read Files.ReadWrite.All
 
 jetcache:
   statIntervalMinutes: 0

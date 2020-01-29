@@ -22,7 +22,9 @@ public enum StorageTypeEnum {
     ONE_DRIVE("onedrive", "OneDrive"),
     QINIU("qiniu", "七牛云 KODO"),
     TENCENT("tencent", "腾讯云 COS"),
-    UPYUN("upyun", "又拍云 USS");
+    UPYUN("upyun", "又拍云 USS"),
+    ONE_DRIVE_CHINA("onedrive-china", "OneDrive 世纪互联");
+
 
     private String key;
     private String description;

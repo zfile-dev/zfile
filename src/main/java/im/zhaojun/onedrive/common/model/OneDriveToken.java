@@ -1,4 +1,4 @@
-package im.zhaojun.onedrive.service;
+package im.zhaojun.onedrive.common.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
