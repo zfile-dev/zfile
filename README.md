@@ -35,7 +35,7 @@ yum install -y java-1.8.0-openjdk unzip
 
 # Debian/Ubuntu系统
 apt update
-apt install -y default-jdk unzip
+apt install -y openjdk-8-jre-headless unzip
 ```
 
 下载项目:
