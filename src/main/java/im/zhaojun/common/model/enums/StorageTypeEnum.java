@@ -20,10 +20,10 @@ public enum StorageTypeEnum {
     LOCAL("local", "本地存储"),
     MINIO("minio", "MINIO"),
     ONE_DRIVE("onedrive", "OneDrive"),
+    ONE_DRIVE_CHINA("onedrive-china", "OneDrive 世纪互联"),
     QINIU("qiniu", "七牛云 KODO"),
     TENCENT("tencent", "腾讯云 COS"),
-    UPYUN("upyun", "又拍云 USS"),
-    ONE_DRIVE_CHINA("onedrive-china", "OneDrive 世纪互联");
+    UPYUN("upyun", "又拍云 USS");
 
 
     private String key;
