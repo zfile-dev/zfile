@@ -1,7 +1,7 @@
 package im.zhaojun.common.service;
 
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
@@ -92,7 +92,7 @@ public class SystemConfigService {
         }
 
         boolean oldEnableCache = getEnableCache();
-        boolean curEnableCache = ObjectUtil.defaultIfNull(systemConfigDTO.getEnableCache(), false);
+        boolean curEnableCache = BooleanUtil.isTrue(systemConfigDTO.getEnableCache());
 
         configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
 
@@ -146,12 +146,12 @@ public class SystemConfigService {
 
     public boolean getEnableCache() {
         SystemConfigDTO systemConfigDTO = getSystemConfig();
-        return ObjectUtil.defaultIfNull(systemConfigDTO.getEnableCache(), false);
+        return BooleanUtil.isTrue(systemConfigDTO.getEnableCache());
     }
 
     public boolean getSearchIgnoreCase() {
         SystemConfigDTO systemConfigDTO = getSystemConfig();
-        return ObjectUtil.defaultIfNull(systemConfigDTO.getSearchIgnoreCase(), false);
+        return BooleanUtil.isTrue(systemConfigDTO.getSearchIgnoreCase());
     }
 
 

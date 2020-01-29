@@ -1,5 +1,6 @@
 package im.zhaojun.common.controller;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.annotation.CheckStorageStrategyInit;
 import im.zhaojun.common.exception.SearchDisableException;
@@ -88,10 +89,10 @@ public class FileController {
     public ResultBean search(@RequestParam(value = "name", defaultValue = "/") String name,
                              @RequestParam(defaultValue = "name") String sortBy,
                              @RequestParam(defaultValue = "asc") String order,
-                             @RequestParam(defaultValue = "1") Integer page) throws Exception {
+                             @RequestParam(defaultValue = "1") Integer page) {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
-        if (!systemConfigDTO.getSearchEnable()) {
+        if (BooleanUtil.isFalse(systemConfigDTO.getSearchEnable())) {
             throw new SearchDisableException("搜索功能未开启");
         }
         if (!fileAsyncCacheService.isCacheFinish()) {

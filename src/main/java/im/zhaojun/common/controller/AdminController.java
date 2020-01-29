@@ -63,7 +63,9 @@ public class AdminController {
 
         StorageTypeEnum currentStorageStrategy = currentFileService.getStorageTypeEnum();
         if (!Objects.equals(currentStorageStrategy, systemConfigDTO.getStorageStrategy())) {
-            log.info("已将存储策略由 {} 切换为 {}", currentStorageStrategy, systemConfigDTO.getStorageStrategy());
+            log.info("已将存储策略由 {} 切换为 {}",
+                    currentStorageStrategy.getDescription(),
+                    systemConfigDTO.getStorageStrategy().getDescription());
             refreshStorageStrategy();
         }
 

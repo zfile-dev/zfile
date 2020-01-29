@@ -1,5 +1,6 @@
 package im.zhaojun.common.service;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.RefreshPolicy;
@@ -187,7 +188,7 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
     private boolean isNotEncryptedFolder(List<FileItemDTO> list) {
         // 如果开启了 "搜索包含加密文件" 选项, 则直接返回 true.
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
-        if (systemConfig.getSearchContainEncryptedFile()) {
+        if (BooleanUtil.isFalse(systemConfig.getSearchContainEncryptedFile())) {
             return true;
         }
 
