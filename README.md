@@ -17,45 +17,73 @@
 * 内存数据库 (免安装)
 * 个性化配置
 * 自定义目录的 header 说明文件
+* 自定义 JS, CSS
 * 文件夹密码
 * 支持在线浏览文本文件, 视频, 图片, 音乐. (支持 FLV 和 HLS)
 * 文件/目录二维码
 * 缓存动态开启, 缓存自动刷新
 * 全局搜索
+* 支持 阿里云 OSS, FTP, 华为云 OBS, 本地存储, MINIO, OneDrive 国际/家庭/个人版, OneDrive 世纪互联版, 七牛云 KODO, 腾讯云 COS, 又拍云 USS.
 
 ## 快速开始
 
-安装 JDK 1.8 : 
+安装依赖环境:
 
 ```bash
-yum install -y java # 适用于 Centos 7.x
+# CentOS系统
+yum install -y java-1.8.0-openjdk unzip
+
+# Debian/Ubuntu系统
+apt update
+apt install -y default-jdk unzip
 ```
 
 下载项目:
 
 ```bash
-wget https://github.com/zhaojun1998/zfile/releases/download/0.8/zfile-0.8.jar
+wget -P ~ https://c.jun6.net/ZFILE/zfile-0.9.war
+cd ~
+mkdir zfile && unzip zfile-0.9.war -d zfile && rm -rf zfile-0.9.war
+chmod +x ~/zfile/bin/*.sh
+```
+
+程序的目录结构为:
+```
+├── zfile
+    ├── META-INF
+    ├── WEB-INF
+    └── bin
+        ├── start.sh    # 启动脚本
+        └── stop.sh     # 停止脚本
+        ├── restart.sh  # 重启脚本
 ```
 
 启动项目:
 
 ```bash
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.8.jar
-
-## 高级启动
-java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.8.jar --server.port=18777
-
-## 后台运行
-nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.8.jar &
+ ~/zfile/bin/start.sh
 ```
 
-> 系统使用的是内置配置文件, 默认配置请参考: [application.yml](https://github.com/zhaojun1998/zfile/blob/master/src/main/resources/application.yml)
+停止项目:
 
-> **可下载此文件放置与 jar 包同目录, 此时会以外部配置文件为准, 推荐适用此方式！.**
+```bash
+ ~/zfile/bin/stop.sh
+```
 
-> 所有参数都可在命令行启动时, 以类似 `--server.port=18777` 的方式强制执行, 此方式的优先级最高.
+重启项目:
 
-> *指定 `-Djava.security.egd=file:/dev/./urandom` 是为了防止在 Linux 环境中, 生成首次登陆生成 sessionId 取系统随机数过慢的问题.*
+```bash
+ ~/zfile/bin/restart.sh
+```
+
+
+修改配置文件:
+
+```bash
+vim ~/zfile/WEB-INF/classes/application.yml
+```
+
+> 默认启动端口为 8080, 如需请配置文件请编辑上述文件, 修改后重启程序生效.
 
 访问地址:
 
@@ -68,7 +96,18 @@ nohup java -Djava.security.egd=file:/dev/./urandom -jar zfile-0.8.jar &
 
 ## OneDrive 使用教程.
 
-访问地址进行授权, 获取 accessToken 和 refreshToken: https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=09939809-c617-43c8-a220-a93c1513c5d4&response_type=code&redirect_uri=https://zfile.jun6.net/onedirve/callback&scope=offline_access%20User.Read%20Files.ReadWrite.All
+访问地址进行授权, 获取 accessToken 和 refreshToken:
+
+
+国际/家庭/个人版:
+
+https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=09939809-c617-43c8-a220-a93c1513c5d4&response_type=code&redirect_uri=https://zfile.jun6.net/onedirve/callback&scope=offline_access%20User.Read%20Files.ReadWrite.All
+
+
+世纪互联版:
+
+https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1907-488d-9eb2-1b465c53c1c5&response_type=code&redirect_uri=https://zfile.jun6.net/onedirve/china-callback&scope=offline_access%20User.Read%20Files.ReadWrite.All
+
 
 然后分别填写至访问令牌和刷新令牌即可:
 

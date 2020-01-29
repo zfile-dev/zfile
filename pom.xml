@@ -12,8 +12,9 @@
 
     <groupId>im.zhaojun</groupId>
     <artifactId>zfile</artifactId>
-    <version>0.8</version>
+    <version>0.9</version>
     <name>zfile</name>
+    <packaging>war</packaging>
     <description>一个在线的文件浏览系统</description>
 
     <properties>
@@ -131,6 +132,26 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.uyoqu.framework</groupId>
+                <artifactId>maven-plugin-starter</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>bin</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jvms>
+                        <jvm>-server</jvm>
+                        <jvm>-Xmx512m</jvm>
+                        <jvm>-Djava.security.egd=file:/dev/./urandom</jvm>
+                    </jvms>
+                </configuration>
             </plugin>
         </plugins>
     </build>
