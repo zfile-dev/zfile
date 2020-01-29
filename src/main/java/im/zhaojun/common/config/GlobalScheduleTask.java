@@ -80,9 +80,9 @@ public class GlobalScheduleTask {
 
         OneDriveToken refreshToken;
         if (Objects.equals(storageType, StorageTypeEnum.ONE_DRIVE_CHINA)) {
-            refreshToken = oneDriveChinaService.getRefreshToken();
+            refreshToken = oneDriveChinaService.getRefreshToken(storageType);
         } else {
-            refreshToken = oneDriveService.getRefreshToken();
+            refreshToken = oneDriveService.getRefreshToken(storageType);
         }
 
 

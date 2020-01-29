@@ -43,9 +43,9 @@ public abstract class AbstractOneDriveService {
     @Resource
     private StorageConfigRepository storageConfigRepository;
 
-    public OneDriveToken getRefreshToken() {
+    public OneDriveToken getRefreshToken(StorageTypeEnum storageType) {
         StorageConfig refreshStorageConfig =
-                storageConfigRepository.findByTypeAndKey(StorageTypeEnum.ONE_DRIVE, StorageConfigConstant.REFRESH_TOKEN_KEY);
+                storageConfigRepository.findByTypeAndKey(storageType, StorageConfigConstant.REFRESH_TOKEN_KEY);
 
         String param = "client_id=" + getClientId() +
                 "&redirect_uri=" + getRedirectUri() +
