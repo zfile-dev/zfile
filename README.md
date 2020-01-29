@@ -147,5 +147,5 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 如果本项目对你有帮助，请作者喝杯咖啡吧。
 
 
-<img src="http://cdn.jun6.net/alipay.png" width="150" height="234">
+<img src="http://cdn.jun6.net/alipay.png" width="200" height="312">
 <img src="http://cdn.jun6.net/wechat.png" width="222" height="300">
