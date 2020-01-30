@@ -27,7 +27,8 @@ public class QiniuServiceImpl extends AbstractS3FileService implements FileServi
     @Override
     public void init() {
         try {
-            Map<String, StorageConfig> stringStorageConfigMap = storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.QINIU);
+            Map<String, StorageConfig> stringStorageConfigMap =
+                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
             String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
             String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
             String endPoint =  stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();

@@ -41,7 +41,7 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
     public void init() {
         try {
             Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.FTP);
+                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
             String host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
             String port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
             String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();

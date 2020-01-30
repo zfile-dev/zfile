@@ -27,7 +27,8 @@ public class TencentServiceImpl extends AbstractS3FileService implements FileSer
     @Override
     public void init() {
         try {
-            Map<String, StorageConfig> stringStorageConfigMap = storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.TENCENT);
+            Map<String, StorageConfig> stringStorageConfigMap =
+                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
             String secretId = stringStorageConfigMap.get(StorageConfigConstant.SECRET_ID_KEY).getValue();
             String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
             String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();

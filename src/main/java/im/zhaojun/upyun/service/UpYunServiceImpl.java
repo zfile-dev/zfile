@@ -45,7 +45,7 @@ public class UpYunServiceImpl extends AbstractFileService implements FileService
     public void init() {
         try {
             Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.UPYUN);
+                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
             String bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
             String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
             String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();

@@ -46,7 +46,7 @@ public class LocalServiceImpl extends AbstractFileService implements FileService
     public void init() {
         try {
             Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.LOCAL);
+                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
             filePath = stringStorageConfigMap.get(StorageConfigConstant.FILE_PATH_KEY).getValue();
             if (Objects.isNull(filePath)) {
                 log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
