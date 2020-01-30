@@ -6,7 +6,6 @@ import java.util.Set;
 
 /**
  * @author zhaojun
- * @date 2020/1/3 12:39
  */
 @Data
 public class CacheConfigDTO {

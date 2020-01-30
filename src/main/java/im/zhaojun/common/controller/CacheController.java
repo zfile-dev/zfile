@@ -16,7 +16,6 @@ import java.util.Set;
 
 /**
  * @author zhaojun
- * @date 2020/1/11 14:03
  */
 @RestController
 @RequestMapping("/admin/cache")

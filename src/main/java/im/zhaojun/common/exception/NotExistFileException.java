@@ -2,7 +2,6 @@ package im.zhaojun.common.exception;
 
 /**
  * @author zhaojun
- * @date 2020/1/20 22:15
  */
 public class NotExistFileException extends RuntimeException {
 

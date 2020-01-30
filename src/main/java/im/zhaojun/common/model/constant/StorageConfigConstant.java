@@ -2,7 +2,6 @@ package im.zhaojun.common.model.constant;
 
 /**
  * @author zhaojun
- * @date 2019/12/28 18:47
  */
 public class StorageConfigConstant {
 

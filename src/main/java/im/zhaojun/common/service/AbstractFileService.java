@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 /**
  * @author zhaojun
- * @date 2019/12/28 19:27
  */
 @Slf4j
 public abstract class AbstractFileService extends FileCacheService implements FileService {

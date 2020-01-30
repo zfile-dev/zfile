@@ -27,14 +27,15 @@ public class AliyunServiceImpl extends AbstractS3FileService implements FileServ
     @Override
     public void init() {
         try {
-            Map<String, StorageConfig> stringStorageConfigMap = storageConfigService.selectStorageConfigMapByKey(StorageTypeEnum.ALIYUN);
+            Map<String, StorageConfig> stringStorageConfigMap =
+                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
             String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
             String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
             String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
 
-            super.bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
             super.domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
             super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
+            super.bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
 
             if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
                 log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());

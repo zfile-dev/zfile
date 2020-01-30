@@ -17,7 +17,6 @@ import java.util.Collections;
 
 /**
  * @author zhaojun
- * @date 2020/1/18 17:13
  */
 @Configuration
 public class OneDriveConfig {

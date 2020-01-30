@@ -5,7 +5,6 @@ import lombok.Data;
 
 /**
  * @author zhaojun
- * @date 2020/1/18 17:28
  */
 @Data
 public class OneDriveToken {
