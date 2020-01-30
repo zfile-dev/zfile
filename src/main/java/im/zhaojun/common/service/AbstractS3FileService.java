@@ -1,5 +1,6 @@
 package im.zhaojun.common.service;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import com.amazonaws.services.s3.AmazonS3;
@@ -20,7 +21,6 @@ import java.util.Objects;
 
 /**
  * @author zhaojun
- * @date 2019/12/26 22:26
  */
 public abstract class AbstractS3FileService extends AbstractFileService {
 
@@ -36,6 +36,8 @@ public abstract class AbstractS3FileService extends AbstractFileService {
     protected String domain;
 
     protected AmazonS3 s3Client;
+
+    protected boolean isPrivate;
 
     @Override
     public List<FileItemDTO> fileList(String path) {
@@ -94,6 +96,11 @@ public abstract class AbstractS3FileService extends AbstractFileService {
      */
     public String s3ObjectUrl(String path) {
         String fullPath = StringUtils.removeFirstSeparator(StringUtils.removeDuplicateSeparator(basePath + "/" + path));
+
+        // 如果不是私有空间, 且指定了加速域名, 则直接返回下载地址.
+        if (BooleanUtil.isFalse(isPrivate) && StringUtils.isNotNullOrEmpty(domain)) {
+            return StringUtils.concatPath(domain, fullPath);
+        }
 
         Date expirationDate = new Date(System.currentTimeMillis() + timeout * 1000);
         URL url = s3Client.generatePresignedUrl(bucketName, fullPath, expirationDate);
