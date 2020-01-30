@@ -8,6 +8,12 @@ server:
     enabled: true
 
 spring:
+  h2:
+    console:
+      settings:
+        web-allow-others: true
+      path: /h2-console
+      enabled: false
   datasource:
     # 初始化数据导入
     data: classpath*:db/data.sql
@@ -39,7 +45,7 @@ spring:
     chain:
       gzipped: true
   profiles:
-    active: prod
+    active: dev
 zfile:
   cache:
     timeout: 300
