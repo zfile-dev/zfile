@@ -38,12 +38,14 @@ apt update
 apt install -y openjdk-8-jre-headless unzip
 ```
 
+> 如为更新程序, 则请先执行 `rm -rf ~/zfile` 清理旧程序. 首次安装请忽略此选项.
+
 下载项目:
 
 ```bash
-wget -P ~ https://c.jun6.net/ZFILE/zfile-0.9.war
+wget -P ~ https://c.jun6.net/ZFILE/zfile-1.0.war
 cd ~
-mkdir zfile && unzip zfile-0.9.war -d zfile && rm -rf zfile-0.9.war
+mkdir zfile && unzip zfile-1.0.war -d zfile && rm -rf zfile-1.0.war
 chmod +x ~/zfile/bin/*.sh
 ```
 
@@ -146,11 +148,12 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 
 ## TODO
 
-- 文本预览更换更好用的编辑器
-- 后台支持上传、编辑、删除等操作
-- API 支持
-- 更方便的部署方式
-
+- [x] API 支持 [点击查看文档](https://github.com/zhaojun1998/zfile/blob/master/API.md)
+- [x] 更方便的部署方式
+- [ ] 文本预览更换更好用的编辑器
+- [ ] 后台支持上传、编辑、删除等操作
+- [ ] WebDav 支持
+- [ ] Docker 支持
 
 ## 支持作者
 
