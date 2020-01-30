@@ -66,26 +66,7 @@ chmod +x ~/zfile/bin/*.sh
  ~/zfile/bin/start.sh
 ```
 
-停止项目:
-
-```bash
- ~/zfile/bin/stop.sh
-```
-
-重启项目:
-
-```bash
- ~/zfile/bin/restart.sh
-```
-
-
-修改配置文件:
-
-```bash
-vim ~/zfile/WEB-INF/classes/application.yml
-```
-
-> 默认启动端口为 8080, 如需请配置文件请编辑上述文件, 修改后重启程序生效.
+篇幅有限, 更详细的安装教程请参考: [安装文档](http://zhaojun.im/zfile-install)
 
 访问地址:
 
@@ -121,15 +102,12 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 * 缓存: `caffeine`
 * 数据库: `h2/mysql`
 
-
 ## 预览
 
 ![前台首页](http://cdn.jun6.net/2020/01/29/a252a5cec7134.png)
 ![后台设置](http://cdn.jun6.net/2020/01/29/d5c85221bcffc.png)
 ![存储策略](http://cdn.jun6.net/2020/01/29/4b79bfba4e003.png)
 ![缓存管理](http://cdn.jun6.net/2020/01/29/60b0538e50f9f.png)
-
-
 
 ## 常见问题
 
