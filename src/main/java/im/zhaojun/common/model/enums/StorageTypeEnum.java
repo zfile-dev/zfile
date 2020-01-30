@@ -19,6 +19,7 @@ public enum StorageTypeEnum {
     HUAWEI("huawei", "华为云 OBS"),
     LOCAL("local", "本地存储"),
     MINIO("minio", "MINIO"),
+    S3("s3", "S3通用协议"),
     ONE_DRIVE("onedrive", "OneDrive"),
     ONE_DRIVE_CHINA("onedrive-china", "OneDrive 世纪互联"),
     QINIU("qiniu", "七牛云 KODO"),
