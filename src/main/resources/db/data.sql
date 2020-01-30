@@ -56,3 +56,11 @@ INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (42, 'accessToken
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (43, 'refreshToken', '刷新令牌', 'onedrive');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (44, 'accessToken', '访问令牌', 'onedrive-china');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (45, 'refreshToken', '刷新令牌', 'onedrive-china');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (46, 'accessKey', 'AccessKey', 's3');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (47, 'secretKey', 'SecretKey', 's3');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (48, 'endPoint', '服务地址(EndPoint)', 's3');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (49, 'bucket-name', '存储空间名称', 's3');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (50, 'base-path', '基路径', 's3');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (51, 'domain', '加速域名', 's3');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (52, 'pathStyle', '域名风格', 's3');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (53, 'isPrivate', '是否是私有空间', 's3');
