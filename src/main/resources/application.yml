@@ -45,7 +45,7 @@ spring:
     chain:
       gzipped: true
   profiles:
-    active: dev
+    active: prod
 zfile:
   cache:
     timeout: 300
