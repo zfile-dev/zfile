@@ -29,8 +29,6 @@ public abstract class AbstractS3FileService extends AbstractFileService {
 
     protected String path;
 
-    protected String basePath;
-
     protected String bucketName;
 
     protected String domain;
@@ -58,7 +56,7 @@ public abstract class AbstractS3FileService extends AbstractFileService {
      */
     public List<FileItemDTO> s3FileList(String path) {
         path = StringUtils.removeFirstSeparator(path);
-        String fullPath = StringUtils.removeFirstSeparator(getFullPath());
+        String fullPath = StringUtils.removeFirstSeparator(StringUtils.getFullPath(basePath, path));
         List<FileItemDTO> fileItemList = new ArrayList<>();
         ObjectListing objectListing = s3Client.listObjects(new ListObjectsRequest(bucketName, fullPath, "", "/", 1000));
 
@@ -110,16 +108,6 @@ public abstract class AbstractS3FileService extends AbstractFileService {
             defaultUrl = URLUtil.complateUrl(domain, url.getFile());
         }
         return URLUtil.decode(defaultUrl);
-    }
-
-    /**
-     * 获取 basePath + path 的全路径地址.
-     * @return basePath + path 的全路径地址.
-     */
-    public String getFullPath() {
-        String basePath = ObjectUtil.defaultIfNull(this.basePath, "");
-        String path = ObjectUtil.defaultIfNull(this.path, "");
-        return StringUtils.removeDuplicateSeparator(basePath + "/" + path);
     }
 
     @Override

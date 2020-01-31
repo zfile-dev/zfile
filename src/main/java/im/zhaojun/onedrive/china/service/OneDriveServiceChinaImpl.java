@@ -40,6 +40,7 @@ public class OneDriveServiceChinaImpl extends AbstractFileService implements Fil
                     storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
             String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
             String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
+            super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
             if (StringUtils.isEmpty(accessToken) || StringUtils.isEmpty(refreshToken)) {
                 log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
@@ -55,7 +56,7 @@ public class OneDriveServiceChinaImpl extends AbstractFileService implements Fil
 
     @Override
     public List<FileItemDTO> fileList(String path) {
-        return oneDriveChinaService.list(path);
+        return oneDriveChinaService.list(basePath, path);
     }
 
     @Override

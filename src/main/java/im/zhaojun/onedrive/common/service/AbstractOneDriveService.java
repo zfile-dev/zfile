@@ -83,7 +83,10 @@ public abstract class AbstractOneDriveService {
         return oneDriveRestTemplate.getForObject(DRIVER_INFO_URL, String.class);
     }
 
-    public List<FileItemDTO> list(String path) {
+    public List<FileItemDTO> list(String basePath, String path) {
+        path = StringUtils.removeFirstSeparator(path);
+        String fullPath = StringUtils.getFullPath(basePath, path);
+
         List<FileItemDTO> result = new ArrayList<>();
         String nextLink = null;
 
@@ -93,14 +96,14 @@ public abstract class AbstractOneDriveService {
 
             if (nextLink != null) {
                 requestUrl = nextLink;
-            }else if ("/".equalsIgnoreCase(path)) {
+            }else if ("/".equalsIgnoreCase(fullPath) || "".equalsIgnoreCase(fullPath)) {
                 requestUrl = DRIVER_ROOT_URL;
             } else {
                 requestUrl = DRIVER_ITEMS_URL;
             }
-            path = StringUtils.removeLastSeparator(path);
+            fullPath = StringUtils.removeLastSeparator(fullPath);
 
-            ResponseEntity<String> responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, getGraphEndPoint(), path);
+            ResponseEntity<String> responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, getGraphEndPoint(), fullPath);
             String body = responseEntity.getBody();
 
             JSONObject root = JSON.parseObject(body);

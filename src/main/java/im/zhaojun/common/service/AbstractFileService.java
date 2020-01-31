@@ -42,6 +42,8 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
 
     protected boolean isInitialized = false;
 
+    protected String basePath;
+
     @Resource
     private SystemConfigService systemConfigService;
 

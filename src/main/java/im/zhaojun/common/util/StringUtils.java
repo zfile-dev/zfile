@@ -1,5 +1,7 @@
 package im.zhaojun.common.util;
 
+import cn.hutool.core.util.ObjectUtil;
+
 /**
  * @author zhaojun
  */
@@ -87,5 +89,15 @@ public class StringUtils {
 
     public static boolean isNotNullOrEmpty(String s) {
         return !isNullOrEmpty(s);
+    }
+
+    /**
+     * 获取 basePath + path 的全路径地址.
+     * @return basePath + path 的全路径地址.
+     */
+    public static String getFullPath(String basePath, String path) {
+        basePath = ObjectUtil.defaultIfNull(basePath, "");
+        path = ObjectUtil.defaultIfNull(path, "");
+        return StringUtils.removeDuplicateSeparator(basePath + "/" + path);
     }
 }
