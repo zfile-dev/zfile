@@ -42,9 +42,9 @@ public class GlobalScheduleTask {
     private SystemConfigService systemConfigService;
 
     /**
-     * 项目启动 30 秒后, 每半小时执行一次刷新 OneDrive Token 的定时任务.
+     * 项目启动 30 秒后, 每 15 分支执行一次刷新 OneDrive Token 的定时任务.
      */
-    @Scheduled(fixedRate = 1000 * 60 * 30, initialDelay = 1000 * 30)
+    @Scheduled(fixedRate = 1000 * 60 * 15, initialDelay = 1000 * 30)
     public void autoRefreshOneDriveToken() {
 
         AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
