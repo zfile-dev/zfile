@@ -1,5 +1,6 @@
 package im.zhaojun.onedrive.common.service;
 
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +97,7 @@ public abstract class AbstractOneDriveService {
             String requestUrl;
 
             if (nextLink != null) {
-                requestUrl = nextLink;
+                requestUrl = URLUtil.decode(nextLink);
             }else if ("/".equalsIgnoreCase(fullPath) || "".equalsIgnoreCase(fullPath)) {
                 requestUrl = DRIVER_ROOT_URL;
             } else {
