@@ -27,7 +27,7 @@ public class StorageConfig {
 
     private String title;
 
-    @Column(length = 2048)
+    @Column(length = 4000)
     private String value;
 
     public Integer getId() {
