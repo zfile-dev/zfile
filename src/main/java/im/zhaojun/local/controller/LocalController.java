@@ -6,6 +6,7 @@ import im.zhaojun.common.util.StringUtils;
 import im.zhaojun.local.service.LocalServiceImpl;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,7 +31,7 @@ public class LocalController {
 
     @GetMapping("/file/**")
     @ResponseBody
-    public ResponseEntity<FileSystemResource> downAttachment(final HttpServletRequest request) {
+    public ResponseEntity<Object> downAttachment(final HttpServletRequest request) {
         String path = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
@@ -40,10 +41,10 @@ public class LocalController {
         return export(new File(StringUtils.concatPath(localServiceImpl.getFilePath(), URLUtil.decode(filePath))));
     }
 
-    private ResponseEntity<FileSystemResource> export(File file) {
+    private ResponseEntity<Object> export(File file) {
 
         if (!file.exists()) {
-            throw new NotExistFileException();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("404 FILE NOT FOUND");
         }
 
 
