@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -118,11 +120,14 @@ public class FileController {
 
 
     private List<FileItemDTO> getSortedPagingData(List<FileItemDTO> fileItemList, Integer page) {
-        // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
-        fileItemList.sort(new FileComparator());
-        filterFileList(fileItemList);
+        ArrayList<FileItemDTO> copy = new ArrayList<>(Arrays.asList(new FileItemDTO[fileItemList.size()]));
+        Collections.copy(copy, fileItemList);
 
-        int total = fileItemList.size();
+        // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
+        copy.sort(new FileComparator());
+        filterFileList(copy);
+
+        int total = copy.size();
         int totalPage = (total + PAGE_SIZE - 1) / PAGE_SIZE;
 
         if (page > totalPage) {
@@ -132,7 +137,7 @@ public class FileController {
         int start = (page - 1) * PAGE_SIZE;
         int end = page * PAGE_SIZE;
         end = Math.min(end, total);
-        return new ArrayList<>(fileItemList.subList(start, end));
+        return new ArrayList<>(copy.subList(start, end));
     }
 
 
