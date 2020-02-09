@@ -43,9 +43,9 @@ apt install -y openjdk-8-jre-headless unzip
 下载项目:
 
 ```bash
-wget -P ~ https://c.jun6.net/ZFILE/zfile-1.3.war
+wget -P ~ https://c.jun6.net/ZFILE/zfile-1.4.war
 cd ~
-mkdir zfile && unzip zfile-1.3.war -d zfile && rm -rf zfile-1.3.war
+mkdir zfile && unzip zfile-1.4.war -d zfile && rm -rf zfile-1.4.war
 chmod +x ~/zfile/bin/*.sh
 ```
 
