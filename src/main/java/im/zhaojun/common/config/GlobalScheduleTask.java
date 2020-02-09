@@ -1,15 +1,10 @@
 package im.zhaojun.common.config;
 
-import im.zhaojun.common.model.StorageConfig;
-import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
-import im.zhaojun.onedrive.china.service.OneDriveChinaService;
-import im.zhaojun.onedrive.china.service.OneDriveServiceChinaImpl;
-import im.zhaojun.onedrive.common.model.OneDriveToken;
-import im.zhaojun.onedrive.international.service.OneDriveService;
+import im.zhaojun.onedrive.china.service.OneDriveChinaServiceImpl;
 import im.zhaojun.onedrive.international.service.OneDriveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -33,10 +27,10 @@ public class GlobalScheduleTask {
     private StorageConfigService storageConfigService;
 
     @Resource
-    private OneDriveService oneDriveService;
+    private OneDriveServiceImpl oneDriveServiceImpl;
 
     @Resource
-    private OneDriveChinaService oneDriveChinaService;
+    private OneDriveChinaServiceImpl oneDriveChinaServiceImpl;
 
     @Resource
     private SystemConfigService systemConfigService;
@@ -50,7 +44,7 @@ public class GlobalScheduleTask {
         AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
 
         if (!(currentFileService instanceof OneDriveServiceImpl
-            || currentFileService instanceof OneDriveServiceChinaImpl)) {
+            || currentFileService instanceof OneDriveChinaServiceImpl)) {
             log.debug("当前启用存储类型, 不是 OneDrive, 跳过自动刷新 AccessToken");
             return;
         }
@@ -77,27 +71,11 @@ public class GlobalScheduleTask {
      * 调用刷新 OneDrive Token
      */
     public void refreshOneDriveToken(StorageTypeEnum storageType) {
-
-        OneDriveToken refreshToken;
         if (Objects.equals(storageType, StorageTypeEnum.ONE_DRIVE_CHINA)) {
-            refreshToken = oneDriveChinaService.getRefreshToken(storageType);
+            oneDriveChinaServiceImpl.refreshOneDriveToken();
         } else {
-            refreshToken = oneDriveService.getRefreshToken(storageType);
+            oneDriveServiceImpl.refreshOneDriveToken();
         }
-
-
-        if (refreshToken.getAccessToken() == null || refreshToken.getRefreshToken() == null) {
-            return;
-        }
-
-        StorageConfig accessTokenConfig =
-                storageConfigService.selectByTypeAndKey(storageType, StorageConfigConstant.ACCESS_TOKEN_KEY);
-        StorageConfig refreshTokenConfig =
-                storageConfigService.selectByTypeAndKey(storageType, StorageConfigConstant.REFRESH_TOKEN_KEY);
-        accessTokenConfig.setValue(refreshToken.getAccessToken());
-        refreshTokenConfig.setValue(refreshToken.getRefreshToken());
-
-        storageConfigService.updateStorageConfig(Arrays.asList(accessTokenConfig, refreshTokenConfig));
         log.info("刷新 {} key 时间: {}", storageType.getDescription(), LocalDateTime.now());
     }
 }

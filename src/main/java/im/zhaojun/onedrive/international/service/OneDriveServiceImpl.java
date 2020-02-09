@@ -1,20 +1,18 @@
 package im.zhaojun.onedrive.international.service;
 
 import im.zhaojun.common.config.GlobalScheduleTask;
-import im.zhaojun.common.exception.NotExistFileException;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.constant.StorageConfigConstant;
-import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
-import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
+import im.zhaojun.onedrive.common.service.AbstractOneDriveService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,7 +20,7 @@ import java.util.Map;
  */
 @Service
 @Slf4j
-public class OneDriveServiceImpl extends AbstractFileService implements FileService {
+public class OneDriveServiceImpl extends AbstractOneDriveService implements FileService {
 
     @Resource
     private GlobalScheduleTask globalScheduleTask;
@@ -30,8 +28,17 @@ public class OneDriveServiceImpl extends AbstractFileService implements FileServ
     @Resource
     private StorageConfigService storageConfigService;
 
-    @Resource
-    private OneDriveService oneDriveService;
+    @Value("${zfile.onedirve.clientId}")
+    protected String clientId;
+
+    @Value("${zfile.onedirve.redirectUri}")
+    protected String redirectUri;
+
+    @Value("${zfile.onedirve.clientSecret}")
+    protected String clientSecret;
+
+    @Value("${zfile.onedirve.scope}")
+    protected String scope;
 
     @Override
     public void init() {
@@ -46,17 +53,12 @@ public class OneDriveServiceImpl extends AbstractFileService implements FileServ
                 log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
                 isInitialized = false;
             } else {
-                globalScheduleTask.refreshOneDriveToken(getStorageTypeEnum());
+                refreshOneDriveToken();
                 isInitialized = testConnection();
             }
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
         }
-    }
-
-    @Override
-    public List<FileItemDTO> fileList(String path) {
-        return oneDriveService.list(basePath, path);
     }
 
     @Override
@@ -70,14 +72,32 @@ public class OneDriveServiceImpl extends AbstractFileService implements FileServ
     }
 
     @Override
-    public FileItemDTO getFileItem(String path) {
-        FileItemDTO fileItemDTO ;
+    public String getGraphEndPoint() {
+        return "graph.microsoft.com";
+    }
 
-        try {
-            fileItemDTO = oneDriveService.getItem(path);
-        } catch (Exception e) {
-            throw new NotExistFileException();
-        }
-        return fileItemDTO;
+    @Override
+    public String getAuthenticateEndPoint() {
+        return "login.microsoftonline.com";
+    }
+
+    @Override
+    public String getClientId() {
+        return clientId;
+    }
+
+    @Override
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    @Override
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    @Override
+    public String getScope() {
+        return scope;
     }
 }
