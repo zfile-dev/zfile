@@ -1,7 +1,6 @@
 package im.zhaojun.common.service;
 
 import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -112,11 +111,21 @@ public abstract class AbstractS3FileService extends AbstractFileService {
 
     @Override
     public FileItemDTO getFileItem(String path) {
-        List<FileItemDTO> list = fileList(path);
-
-        if (list == null || list.size() == 0) {
+        List<FileItemDTO> list;
+        try {
+            int end = path.lastIndexOf("/");
+            list = fileList(path.substring(0, end + 1));
+        } catch (Exception e) {
             throw new NotExistFileException();
         }
-        return list.get(0);
+
+        for (FileItemDTO fileItemDTO : list) {
+            String fullPath = StringUtils.concatUrl(fileItemDTO.getPath(), fileItemDTO.getName());
+            if (Objects.equals(fullPath, path)) {
+                return fileItemDTO;
+            }
+        }
+
+        throw new NotExistFileException();
     }
 }
