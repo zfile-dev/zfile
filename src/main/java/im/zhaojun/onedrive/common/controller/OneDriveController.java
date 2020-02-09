@@ -1,8 +1,8 @@
 package im.zhaojun.onedrive.common.controller;
 
-import im.zhaojun.onedrive.china.service.OneDriveChinaService;
+import im.zhaojun.onedrive.china.service.OneDriveChinaServiceImpl;
 import im.zhaojun.onedrive.common.model.OneDriveToken;
-import im.zhaojun.onedrive.international.service.OneDriveService;
+import im.zhaojun.onedrive.international.service.OneDriveServiceImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,14 +18,14 @@ import javax.annotation.Resource;
 public class OneDriveController {
 
     @Resource
-    private OneDriveService oneDriveService;
+    private OneDriveServiceImpl oneDriveServiceImpl;
 
     @Resource
-    private OneDriveChinaService oneDriveChinaService;
+    private OneDriveChinaServiceImpl oneDriveChinaServiceImpl;
 
     @GetMapping("/callback")
     public String onedriveCallback(String code, Model model) {
-        OneDriveToken oneDriveToken = oneDriveService.getToken(code);
+        OneDriveToken oneDriveToken = oneDriveServiceImpl.getToken(code);
         model.addAttribute("accessToken", oneDriveToken.getAccessToken());
         model.addAttribute("refreshToken", oneDriveToken.getRefreshToken());
         return "callback";
@@ -34,7 +34,7 @@ public class OneDriveController {
 
     @GetMapping("/china-callback")
     public String onedriveChinaCallback(String code, Model model) {
-        OneDriveToken oneDriveToken = oneDriveChinaService.getToken(code);
+        OneDriveToken oneDriveToken = oneDriveChinaServiceImpl.getToken(code);
         model.addAttribute("accessToken", oneDriveToken.getAccessToken());
         model.addAttribute("refreshToken", oneDriveToken.getRefreshToken());
         return "callback";

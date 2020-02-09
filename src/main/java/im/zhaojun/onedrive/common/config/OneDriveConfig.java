@@ -4,8 +4,8 @@ import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.constant.StorageConfigConstant;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.StorageConfigService;
-import im.zhaojun.onedrive.china.service.OneDriveChinaService;
-import im.zhaojun.onedrive.international.service.OneDriveService;
+import im.zhaojun.onedrive.china.service.OneDriveChinaServiceImpl;
+import im.zhaojun.onedrive.international.service.OneDriveServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -26,11 +26,11 @@ public class OneDriveConfig {
 
     @Resource
     @Lazy
-    private OneDriveService oneDriveService;
+    private OneDriveServiceImpl oneDriveServiceImpl;
 
     @Resource
     @Lazy
-    private OneDriveChinaService oneDriveChinaService;
+    private OneDriveChinaServiceImpl oneDriveChinaServiceImpl;
 
     @Bean
     public RestTemplate oneDriveRestTemplate() {
@@ -39,9 +39,9 @@ public class OneDriveConfig {
         ClientHttpRequestInterceptor interceptor = (httpRequest, bytes, clientHttpRequestExecution) -> {
             String host = httpRequest.getURI().getHost();
             StorageTypeEnum type;
-            if (oneDriveChinaService.getGraphEndPoint().contains(host)) {
+            if (oneDriveChinaServiceImpl.getGraphEndPoint().contains(host)) {
                 type = StorageTypeEnum.ONE_DRIVE_CHINA;
-            } else if  (oneDriveService.getGraphEndPoint().contains(host)) {
+            } else if  (oneDriveServiceImpl.getGraphEndPoint().contains(host)) {
                 type = StorageTypeEnum.ONE_DRIVE;
             } else {
                 return clientHttpRequestExecution.execute(httpRequest, bytes);
