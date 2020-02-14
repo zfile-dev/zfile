@@ -37,16 +37,15 @@ public class FileComparator implements Comparator<FileItemDTO> {
         if (order == null) {
             order = "asc";
         }
-
         FileTypeEnum o1Type = o1.getType();
         FileTypeEnum o2Type = o2.getType();
-
+        NaturalOrderComparator naturalOrderComparator = new NaturalOrderComparator();
         if (o1Type.equals(o2Type)) {
             int result;
             switch (sortBy) {
                 case "time": result = o1.getTime().compareTo(o2.getTime()); break;
                 case "size": result = o1.getSize().compareTo(o2.getSize()); break;
-                default: result = o1.getName().compareToIgnoreCase(o2.getName()); break;
+                default: result = naturalOrderComparator.compare(o1.getName(), o2.getName()); break;
             }
             return "asc".equals(order) ? result : -result;
         }
