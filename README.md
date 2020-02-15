@@ -10,6 +10,7 @@
 前端基于 [h5ai](https://larsjung.de/h5ai/) 的原有功能使用 Vue 重新开发了一遍. 后端采用 SpringBoot, 数据库采用内嵌数据库.
 
 预览地址: [https://zfile.jun6.net](https://zfile.jun6.net)
+文档地址: [http://docs.zhaojun.im/zfile](http://docs.zhaojun.im/zfile)
 
 ## 系统特色
 
