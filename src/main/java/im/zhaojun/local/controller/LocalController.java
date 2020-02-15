@@ -1,7 +1,6 @@
 package im.zhaojun.local.controller;
 
 import cn.hutool.core.util.URLUtil;
-import im.zhaojun.common.exception.NotExistFileException;
 import im.zhaojun.common.util.StringUtils;
 import im.zhaojun.local.service.LocalServiceImpl;
 import org.springframework.core.io.FileSystemResource;

@@ -23,7 +23,7 @@ package im.zhaojun.common.util;
  3. This notice may not be removed or altered from any source distribution.
  */
 
-import java.util.*;
+import java.util.Comparator;
 
 public class NaturalOrderComparator implements Comparator<String> {
 

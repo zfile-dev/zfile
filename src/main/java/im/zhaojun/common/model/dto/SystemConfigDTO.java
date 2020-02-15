@@ -44,4 +44,15 @@ public class SystemConfigDTO {
 
     private String customCss;
 
+    private String tableSize;
+
+    private Boolean showOperator;
+
+    private Boolean showDocument;
+
+    private String announcement;
+
+    private Boolean showAnnouncement;
+
+    private String layout;
 }

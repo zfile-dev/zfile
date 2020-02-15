@@ -74,7 +74,7 @@ public class FileController {
 
 
     /**
-     * 获取系统配置信息和当前页的标题, 文件头, 文件尾信息
+     * 获取系统配置信息和当前页的标题, 页面文档信息
      * @param path          路径
      */
     @CheckStorageStrategyInit
@@ -107,7 +107,7 @@ public class FileController {
 
 
     /**
-     * 过滤文件列表, 不显示密码, 头部和尾部文件.
+     * 过滤文件列表, 不显示密码, 文档文件.
      */
     private void filterFileList(List<FileItemDTO> fileItemList) {
         if (fileItemList == null) {
@@ -115,7 +115,7 @@ public class FileController {
         }
 
         fileItemList.removeIf(fileItem -> ZFileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())
-                || ZFileConstant.HEADER_FILE_NAME.equals(fileItem.getName()));
+                || ZFileConstant.README_FILE_NAME.equals(fileItem.getName()));
     }
 
 

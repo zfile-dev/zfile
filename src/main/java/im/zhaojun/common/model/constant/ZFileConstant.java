@@ -15,9 +15,9 @@ public class ZFileConstant {
     public static final String AUDIO_TMP_PATH = "/.zfile/tmp/audio/";
 
     /**
-     * 页面头部文件
+     * 页面文档文件
      */
-    public static String HEADER_FILE_NAME = "header.md";
+    public static String README_FILE_NAME = "readme.md";
 
     /**
      * 密码文件
@@ -25,8 +25,8 @@ public class ZFileConstant {
     public static String PASSWORD_FILE_NAME = "password.txt";
 
     @Autowired(required = false)
-    public void setHeaderFileName(@Value("${zfile.constant.header}") String headerFileName) {
-        ZFileConstant.HEADER_FILE_NAME = headerFileName;
+    public void setHeaderFileName(@Value("${zfile.constant.readme}") String headerFileName) {
+        ZFileConstant.README_FILE_NAME = headerFileName;
     }
 
     @Autowired(required = false)

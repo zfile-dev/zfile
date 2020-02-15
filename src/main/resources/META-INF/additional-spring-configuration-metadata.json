@@ -6,10 +6,10 @@
             "description": "目录缓存过期时间 和 下载地址过期时间. 单位为秒."
         },
         {
-            "name": "zfile.constant.header",
+            "name": "zfile.constant.readme",
             "type": "java.lang.String",
-            "defaultValue": "header.md",
-            "description": "头部文件 文件名."
+            "defaultValue": "readme.md",
+            "description": "文档文件 文件名."
         },
         {
             "name": "zfile.constant.password",

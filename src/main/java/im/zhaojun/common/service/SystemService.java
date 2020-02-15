@@ -20,7 +20,7 @@ public class SystemService {
     private SystemConfigService systemConfigService;
 
     /**
-     * 构建指定路径下标题, 页头, 页尾
+     * 构建指定路径下标题, 页面文档信息
      * @param path          路径
      */
     public synchronized SiteConfigDTO getConfig(String path) throws Exception {
@@ -30,8 +30,8 @@ public class SystemService {
 
         List<FileItemDTO> fileItemList = new ArrayList<>(fileService.fileList(path));
         for (FileItemDTO fileItemDTO : fileItemList) {
-            if (ZFileConstant.HEADER_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
-                siteConfigDTO.setHeader(HttpUtil.getTextContent(fileItemDTO.getUrl()));
+            if (ZFileConstant.README_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
+                siteConfigDTO.setReadme(HttpUtil.getTextContent(fileItemDTO.getUrl()));
             }
         }
         return siteConfigDTO;

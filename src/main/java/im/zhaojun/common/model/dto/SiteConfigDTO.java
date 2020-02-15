@@ -15,7 +15,7 @@ public class SiteConfigDTO implements Serializable {
 
     private static final long serialVersionUID = 8811196207046121740L;
 
-    private String header;
+    private String readme;
 
     @JsonProperty("viewConfig")
     private SystemConfigDTO systemConfigDTO;

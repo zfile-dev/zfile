@@ -10,6 +10,12 @@ INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (9, 'enableCache', '是�
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (10, 'searchContainEncryptedFile', '搜索包含加密文件');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (11, 'customCss', '自定义 CSS');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (12, 'customJs', '自定义 JS (可用于统计代码)');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (13, 'tableSize', '表格大小');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (14, 'showOperator', '是否显示操作按钮');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (15, 'showDocument', '是否显示文档');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (16, 'announcement', '网站公告');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (17, 'showAnnouncement', '是否显示网站公告');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (18, 'layout', '页面布局');
 
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (1, 'bucket-name', '云存储服务名称', 'upyun');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (2, 'username', '操作员名称', 'upyun');

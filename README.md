@@ -16,7 +16,7 @@
 * 内存缓存 (免安装)
 * 内存数据库 (免安装)
 * 个性化配置
-* 自定义目录的 header 说明文件
+* 自定义目录的 readme 说明文件
 * 自定义 JS, CSS
 * 文件夹密码
 * 支持在线浏览文本文件, 视频, 图片, 音乐. (支持 FLV 和 HLS)
@@ -119,9 +119,9 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 
 默认 H2 数据库文件地址: `~/.zfile/db/`, `~` 表示用户目录, windows 为 `C:/Users/用户名/`, linux 为 `/home/用户名/`, root 用户为 `/root/`
 
-### 头尾文件和加密文件
+### 文档文件和加密文件
 
-- 目录头部显示文件名为 `header.md`
+- 目录文档显示文件名为 `readme.md`
 - 目录需要密码访问, 添加文件 `password.txt` (无法拦截此文件被下载, 但可以改名文件)
 
 ## 开发计划
@@ -139,6 +139,7 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 - [ ] 布局优化 - 自定义操作按钮 (现为右键实现)
 - [ ] 后台优化 - 设置按照其功能进行分离
 - [ ] 架构调整 - 支持多存储策略
+- [ ] 体验优化 - 一键安装脚本
 
 ## 支持作者
 

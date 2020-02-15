@@ -145,7 +145,7 @@
     "msg": "操作成功",
     "code": 0,
     "data": {
-        "header": null,     # 头部文件名称
+        "readme": null,     # 文档文件名称
         "viewConfig": {
             "siteName": "站点名称",     # 站点名称
             "infoEnable": false,        # 是否开启右侧信息框
