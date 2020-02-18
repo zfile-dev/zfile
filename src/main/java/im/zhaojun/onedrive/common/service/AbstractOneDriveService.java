@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -100,6 +102,7 @@ public abstract class AbstractOneDriveService extends AbstractFileService {
             String requestUrl;
 
             if (nextLink != null) {
+                nextLink = nextLink.replace("+", "%2B");
                 requestUrl = URLUtil.decode(nextLink);
             }else if ("/".equalsIgnoreCase(fullPath) || "".equalsIgnoreCase(fullPath)) {
                 requestUrl = DRIVER_ROOT_URL;
