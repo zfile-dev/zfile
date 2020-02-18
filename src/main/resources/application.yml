@@ -17,6 +17,8 @@ spring:
   datasource:
     # 初始化数据导入
     data: classpath*:db/data.sql
+    sql-script-encoding: utf-8
+
     initialization-mode: always
     continue-on-error: true
 
@@ -27,7 +29,7 @@ spring:
     password: 123456
 
     # MySQL 配置
-#    driver-class-name: com.mysql.jdbc.Driver
+  #    driver-class-name: com.mysql.jdbc.Driver
 #    url: jdbc:mysql://127.0.0.1:3306/zfile?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
 #    username: root
 #    password: 123456
@@ -46,6 +48,10 @@ spring:
       gzipped: true
   profiles:
     active: prod
+
+  boot:
+    admin:
+      context-path: /act
 zfile:
   cache:
     timeout: 300
@@ -70,3 +76,6 @@ jetcache:
     default:
       type: caffeine
       keyConvertor: fastjson
+
+
+
