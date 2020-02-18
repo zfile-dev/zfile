@@ -37,7 +37,7 @@ public class LocalController {
         AntPathMatcher apm = new AntPathMatcher();
         String filePath = apm.extractPathWithinPattern(bestMatchPattern, path);
 
-        return export(new File(StringUtils.concatPath(localServiceImpl.getFilePath(), URLUtil.decode(filePath))));
+        return export(new File(StringUtils.concatPath(localServiceImpl.getFilePath(), filePath)));
     }
 
     private ResponseEntity<Object> export(File file) {

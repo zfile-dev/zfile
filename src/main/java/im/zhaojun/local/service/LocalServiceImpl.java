@@ -90,7 +90,7 @@ public class LocalServiceImpl extends AbstractFileService implements FileService
     @Override
     public String getDownloadUrl(String path) {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
-        return URLUtil.encode(StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + path));
+        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + path);
     }
 
     public String getFilePath() {
