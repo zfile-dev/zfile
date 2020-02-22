@@ -67,7 +67,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>4.5.11</version>
+            <version>5.1.3</version>
         </dependency>
 
         <!-- 存储策略相关 API, 对象存储、FTP、 Rest API-->
@@ -147,9 +147,8 @@
                 </executions>
                 <configuration>
                     <jvms>
-                        <jvm>-server</jvm>
-                        <jvm>-Xmx300m -Xmx100m</jvm>
                         <jvm>-Djava.security.egd=file:/dev/./urandom</jvm>
+                        <jvm>-Dfile.encoding=utf-8</jvm>
                     </jvms>
                 </configuration>
             </plugin>
