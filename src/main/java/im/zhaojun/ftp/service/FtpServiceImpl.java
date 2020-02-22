@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,17 +38,25 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
 
     private String domain;
 
+    private String host;
+
+    private String port;
+
+    private String username;
+
+    private String password;
+
     @Override
     public void init() {
         try {
             Map<String, StorageConfig> stringStorageConfigMap =
                     storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
-            String host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
-            String port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
-            String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
-            String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
+            host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
+            port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
+            username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
+            password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
             domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
-
+            super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();;
             if (Objects.isNull(host) || Objects.isNull(port) || Objects.isNull(username) || Objects.isNull(password)) {
                 isInitialized = false;
             } else {
@@ -61,8 +70,9 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
     }
 
     @Override
-    public List<FileItemDTO> fileList(String path) {
-        FTPFile[] ftpFiles = ftp.lsFiles(path);
+    public synchronized List<FileItemDTO> fileList(String path) throws IOException {
+        String fullPath = StringUtils.getFullPath(basePath, path);
+        FTPFile[] ftpFiles = ftp.lsFiles(fullPath);
 
         List<FileItemDTO> fileItemList = new ArrayList<>();
 
@@ -83,7 +93,17 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
 
     @Override
     public String getDownloadUrl(String path) {
-        return URLUtil.complateUrl(domain, path);
+        String fullPath = StringUtils.getFullPath(basePath, path);
+        if (StringUtils.isNullOrEmpty(domain)) {
+            return "ftp://"
+                    + URLUtil.encodeQuery(username)
+                    + ":"
+                    + URLUtil.encodeQuery(password)
+                    + "@"
+                    + host + ":" + port + fullPath;
+        }
+
+        return URLUtil.complateUrl(domain, fullPath);
     }
 
     @Override

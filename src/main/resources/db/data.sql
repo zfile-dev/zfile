@@ -40,7 +40,7 @@ INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (20, 'host', '域
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (21, 'port', '端口', 'ftp');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (22, 'username', '用户名', 'ftp');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (23, 'password', '密码', 'ftp');
-INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (24, 'domain', '域名', 'ftp');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (24, 'domain', '加速域名', 'ftp');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (25, 'secretId', 'SecretId', 'tencent');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (26, 'secretKey', 'SecretKey', 'tencent');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (27, 'bucket-name', '云存储服务名称', 'tencent');
