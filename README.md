@@ -129,6 +129,9 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 
 - [x] API 支持 [点击查看文档](https://github.com/zhaojun1998/zfile/blob/master/API.md)
 - [x] 更方便的部署方式
+- [x] 布局优化 - 自定义操作按钮 (现为右键实现)
+- [x] 后台优化 - 设置按照其功能进行分离
+- [x] 体验优化 - 支持前后端分离部署
 - [ ] 新功能 - 后台支持上传、编辑、删除等操作
 - [ ] 新功能 - WebDav 支持
 - [ ] 新功能 - Docker 支持
@@ -136,9 +139,6 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 - [ ] 体验优化 - 文本预览更换 vscode 同款编辑器 monaco editor
 - [ ] 体验优化 - 忽略文件列表 (正则表达式)
 - [ ] 体验优化 - 自定义支持预览的文件后缀 (正则表达式)
-- [ ] 布局优化 - 底部增加固定栏, 用于填写备案信息, 友情链接等信息.
-- [ ] 布局优化 - 自定义操作按钮 (现为右键实现)
-- [ ] 后台优化 - 设置按照其功能进行分离
 - [ ] 架构调整 - 支持多存储策略
 - [ ] 体验优化 - 一键安装脚本
 
