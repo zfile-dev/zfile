@@ -1,7 +1,10 @@
 package im.zhaojun.common.controller;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ZipUtil;
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.StorageConfig;
+import im.zhaojun.common.model.SystemMonitorInfo;
 import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.model.dto.StorageStrategyDTO;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
@@ -10,8 +13,10 @@ import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileAsyncCacheService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.service.SystemConfigService;
+import im.zhaojun.common.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +24,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,6 +100,9 @@ public class AdminController {
         return ResultBean.success(storageConfigList);
     }
 
+    /**
+     * 返回支持的存储引擎.
+     */
     @GetMapping("/support-strategy")
     public ResultBean supportStrategy() {
         List<StorageStrategyDTO> result = new ArrayList<>();
@@ -168,6 +179,25 @@ public class AdminController {
             log.info("切换至存储类型: {}", storageStrategy.getDescription());
             fileAsyncCacheService.cacheGlobalFile();
         }
+    }
+
+    /**
+     * 系统日志下载
+     */
+    @GetMapping("/log")
+    public ResponseEntity<Object> downloadLog(HttpServletResponse response) {
+        String userHome = System.getProperty("user.home");
+        File fileZip = ZipUtil.zip(userHome + "/.zfile/logs");
+        String currentDate = DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss");
+        return FileUtil.export(fileZip, "ZFile 诊断日志 - " + currentDate + ".zip");
+    }
+
+    /**
+     * 获取系统监控信息
+     */
+    @GetMapping("monitor")
+    public ResultBean monitor() {
+        return ResultBean.success(new SystemMonitorInfo());
     }
 
 }
