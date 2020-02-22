@@ -28,16 +28,16 @@ public class OneDriveServiceImpl extends AbstractOneDriveService implements File
     @Resource
     private StorageConfigService storageConfigService;
 
-    @Value("${zfile.onedirve.clientId}")
+    @Value("${zfile.onedrive.clientId}")
     protected String clientId;
 
-    @Value("${zfile.onedirve.redirectUri}")
+    @Value("${zfile.onedrive.redirectUri}")
     protected String redirectUri;
 
-    @Value("${zfile.onedirve.clientSecret}")
+    @Value("${zfile.onedrive.clientSecret}")
     protected String clientSecret;
 
-    @Value("${zfile.onedirve.scope}")
+    @Value("${zfile.onedrive.scope}")
     protected String scope;
 
     @Override

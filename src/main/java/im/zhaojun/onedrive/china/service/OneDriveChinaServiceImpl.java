@@ -28,16 +28,16 @@ public class OneDriveChinaServiceImpl extends AbstractOneDriveService implements
     @Resource
     private StorageConfigService storageConfigService;
 
-    @Value("${zfile.onedirve-china.clientId}")
+    @Value("${zfile.onedrive-china.clientId}")
     private String clientId;
 
-    @Value("${zfile.onedirve-china.redirectUri}")
+    @Value("${zfile.onedrive-china.redirectUri}")
     private String redirectUri;
 
-    @Value("${zfile.onedirve-china.clientSecret}")
+    @Value("${zfile.onedrive-china.clientSecret}")
     private String clientSecret;
 
-    @Value("${zfile.onedirve-china.scope}")
+    @Value("${zfile.onedrive-china.scope}")
     private String scope;
 
     @Override
