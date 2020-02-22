@@ -1,6 +1,5 @@
 package im.zhaojun.local.service;
 
-import cn.hutool.core.util.URLUtil;
 import im.zhaojun.common.exception.NotExistFileException;
 import im.zhaojun.common.model.StorageConfig;
 import im.zhaojun.common.model.SystemConfig;
