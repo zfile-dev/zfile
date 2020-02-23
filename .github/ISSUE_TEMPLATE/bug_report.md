@@ -4,6 +4,7 @@ about: 事情不像预期的那样工作吗？
 title: ''
 labels: 'bug'
 assignees: ''
+---
 
 <!--
   你好！感谢你正在考虑为 ZFile 提交一个 bug。请花一点点时间尽量详细地回答以下基础问题。
