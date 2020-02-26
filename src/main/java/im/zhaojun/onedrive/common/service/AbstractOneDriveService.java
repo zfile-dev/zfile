@@ -16,7 +16,9 @@ import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
 import im.zhaojun.onedrive.common.model.OneDriveToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -28,6 +30,7 @@ import java.util.List;
  * @author Zhao Jun
  * 2020/1/29 11:54
  */
+@Slf4j
 public abstract class AbstractOneDriveService extends AbstractFileService {
 
     protected static final String DRIVER_INFO_URL = "https://{graphEndPoint}/v1.0/me/drives";
@@ -109,7 +112,15 @@ public abstract class AbstractOneDriveService extends AbstractFileService {
             }
             fullPath = StringUtils.removeLastSeparator(fullPath);
 
-            ResponseEntity<String> responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, getGraphEndPoint(), fullPath);
+            ResponseEntity<String> responseEntity;
+            try {
+                responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, getGraphEndPoint(), fullPath);
+            } catch (HttpClientErrorException e) {
+                log.debug("调用 OneDrive 时出现了网络异常: {} , 已尝试重新刷新 token 后再试.", e.getMessage());
+                refreshOneDriveToken();
+                responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, getGraphEndPoint(), fullPath);
+            }
+
             String body = responseEntity.getBody();
 
             JSONObject root = JSON.parseObject(body);
