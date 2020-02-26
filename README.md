@@ -10,6 +10,7 @@
 前端基于 [h5ai](https://larsjung.de/h5ai/) 的原有功能使用 Vue 重新开发了一遍. 后端采用 SpringBoot, 数据库采用内嵌数据库.
 
 预览地址: [https://zfile.jun6.net](https://zfile.jun6.net)
+
 文档地址: [http://docs.zhaojun.im/zfile](http://docs.zhaojun.im/zfile)
 
 ## 系统特色
@@ -100,7 +101,6 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 ## 运行环境
 
 * JDK: `1.8`
-* 缓存: `caffeine`
 * 数据库: `h2/mysql`
 
 ## 预览
@@ -132,11 +132,11 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 - [x] 布局优化 - 自定义操作按钮 (现为右键实现)
 - [x] 后台优化 - 设置按照其功能进行分离
 - [x] 体验优化 - 支持前后端分离部署
+- [x] 体验优化 - 文本预览更换 vscode 同款编辑器 monaco editor
 - [ ] 新功能 - 后台支持上传、编辑、删除等操作
 - [ ] 新功能 - WebDav 支持
 - [ ] 新功能 - Docker 支持
 - [ ] 新功能 - 离线下载 (aria2)
-- [ ] 体验优化 - 文本预览更换 vscode 同款编辑器 monaco editor
 - [ ] 体验优化 - 忽略文件列表 (正则表达式)
 - [ ] 体验优化 - 自定义支持预览的文件后缀 (正则表达式)
 - [ ] 架构调整 - 支持多存储策略
