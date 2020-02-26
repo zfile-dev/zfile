@@ -72,3 +72,8 @@ INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (52, 'pathStyle',
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (53, 'isPrivate', '是否是私有空间', 's3');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (54, 'base-path', '基路径', 'onedrive');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (55, 'base-path', '基路径', 'onedrive-china');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (56, 'bucket-name', '云存储服务名称', 'ufile');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (57, 'username', '操作员名称', 'ufile');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (58, 'password', '操作员密码', 'ufile');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (59, 'domain', '加速域名', 'ufile');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (60, 'base-path', '基路径', 'ufile');

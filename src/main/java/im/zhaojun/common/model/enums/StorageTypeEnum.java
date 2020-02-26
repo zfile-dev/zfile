@@ -14,18 +14,18 @@ public enum StorageTypeEnum {
     /**
      * 当前系统支持的所有存储策略
      */
-    ALIYUN("aliyun", "阿里云 OSS"),
-    FTP("ftp", "FTP"),
-    HUAWEI("huawei", "华为云 OBS"),
     LOCAL("local", "本地存储"),
+    ALIYUN("aliyun", "阿里云 OSS"),
+    TENCENT("tencent", "腾讯云 COS"),
+    UPYUN("upyun", "又拍云 USS"),
+    FTP("ftp", "FTP"),
+    UFILE("ufile", "UFile"),
+    HUAWEI("huawei", "华为云 OBS"),
     MINIO("minio", "MINIO"),
     S3("s3", "S3通用协议"),
     ONE_DRIVE("onedrive", "OneDrive"),
     ONE_DRIVE_CHINA("onedrive-china", "OneDrive 世纪互联"),
-    QINIU("qiniu", "七牛云 KODO"),
-    TENCENT("tencent", "腾讯云 COS"),
-    UPYUN("upyun", "又拍云 USS");
-
+    QINIU("qiniu", "七牛云 KODO");
 
     private String key;
     private String description;
