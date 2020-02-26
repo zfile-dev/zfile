@@ -3,9 +3,7 @@ package im.zhaojun.common.service;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.crypto.SecureUtil;
-import com.alicp.jetcache.Cache;
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.CreateCache;
+import im.zhaojun.common.cache.ZFileCache;
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.SystemConfig;
 import im.zhaojun.common.model.constant.SystemConfigConstant;
@@ -31,8 +29,8 @@ public class SystemConfigService {
 
     public static final String SYSTEM_CONFIG_CACHE_KEY = "1";
 
-    @CreateCache(name = SYSTEM_CONFIG_CACHE_PREFIX, cacheType = CacheType.LOCAL)
-    private Cache<String, Object> configCache;
+    @Resource
+    private ZFileCache zFileCache;
 
     @Resource
     private SystemConfigRepository systemConfigRepository;
@@ -43,9 +41,9 @@ public class SystemConfigService {
     private Class<SystemConfigDTO> systemConfigDTOClass = SystemConfigDTO.class;
 
     public SystemConfigDTO getSystemConfig() {
-        Object cache = configCache.get(SYSTEM_CONFIG_CACHE_KEY);
-        if (configCache.get(SYSTEM_CONFIG_CACHE_KEY) != null) {
-            return (SystemConfigDTO) cache;
+        SystemConfigDTO cacheConfig = zFileCache.getConfig();
+        if (cacheConfig != null) {
+            return cacheConfig;
         }
 
         SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
@@ -69,7 +67,7 @@ public class SystemConfigService {
             }
         }
 
-        configCache.put(SYSTEM_CONFIG_CACHE_KEY, systemConfigDTO);
+        zFileCache.updateConfig(systemConfigDTO);
         return systemConfigDTO;
     }
 
@@ -94,7 +92,7 @@ public class SystemConfigService {
         boolean oldEnableCache = getEnableCache();
         boolean curEnableCache = BooleanUtil.isTrue(systemConfigDTO.getEnableCache());
 
-        configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
+        zFileCache.removeConfig();
 
         systemConfigRepository.saveAll(systemConfigList);
 
@@ -119,7 +117,7 @@ public class SystemConfigService {
         SystemConfig systemConfig = systemConfigRepository.findByKey(SystemConfigConstant.PASSWORD);
         systemConfig.setValue(encryptionPassword);
 
-        configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
+        zFileCache.removeConfig();
 
         systemConfigRepository.save(systemConfig);
     }
@@ -129,7 +127,7 @@ public class SystemConfigService {
         SystemConfig enableConfig = systemConfigRepository.findByKey(SystemConfigConstant.ENABLE_CACHE);
         enableConfig.setValue(isEnable.toString());
         systemConfigRepository.save(enableConfig);
-        configCache.remove(SYSTEM_CONFIG_CACHE_KEY);
+        zFileCache.removeConfig();
     }
 
 

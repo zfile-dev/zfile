@@ -1,9 +1,5 @@
 package im.zhaojun.common.service;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.alicp.jetcache.Cache;
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.CreateCache;
 import im.zhaojun.common.config.StorageTypeFactory;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.enums.FileTypeEnum;
@@ -26,13 +22,6 @@ public class FileAsyncCacheService {
 
     public static final String CACHE_PROCESS_PREFIX = "zfile-process-cache:";
 
-    public static final String CACHE_FILE_COUNT_KEY = "file-count";
-
-    public static final String CACHE_DIRECTORY_COUNT_KEY = "directory-count";
-
-    @CreateCache(name = "SYSTEM_CONFIG_CACHE_PREFIX", cacheType = CacheType.LOCAL)
-    private Cache<String, Integer> cache;
-    
     private boolean cacheFinish;
 
     @Resource
@@ -60,15 +49,7 @@ public class FileAsyncCacheService {
             return;
         }
 
-        Integer cacheDirectoryCount = cache.get(CACHE_DIRECTORY_COUNT_KEY);
-        if (cacheDirectoryCount == null) {
-            cacheDirectoryCount = 0;
-        }
-
-        Integer cacheFileCount = cache.get(CACHE_FILE_COUNT_KEY);
-        if (cacheFileCount == null) {
-            cacheFileCount = 0;
-        }
+        Integer cacheDirectoryCount = 0;
 
         log.info("缓存 {} 所有文件开始", storageStrategy.getDescription());
         long startTime = System.currentTimeMillis();
@@ -80,19 +61,6 @@ public class FileAsyncCacheService {
             while (!queue.isEmpty()) {
                 FileItemDTO fileItemDTO = queue.pop();
 
-                if (FileTypeEnum.FOLDER.equals(fileItemDTO.getType())) {
-                    cacheDirectoryCount++;
-                }
-                if (FileTypeEnum.FILE.equals(fileItemDTO.getType())) {
-                    cacheFileCount++;
-                }
-
-                log.debug("已缓存 {} 个文件夹", cacheDirectoryCount);
-                cache.put(CACHE_DIRECTORY_COUNT_KEY, cacheDirectoryCount);
-
-                log.debug("已缓存 {} 个文件", cacheFileCount);
-                cache.put(CACHE_FILE_COUNT_KEY, cacheFileCount);
-
                 if (fileItemDTO.getType() == FileTypeEnum.FOLDER) {
                     String filePath = StringUtils.removeDuplicateSeparator("/" + fileItemDTO.getPath() + "/" + fileItemDTO.getName() + "/");
 
@@ -100,35 +68,15 @@ public class FileAsyncCacheService {
                     queue.addAll(fileItems);
                 }
             }
-            cache.put(CACHE_DIRECTORY_COUNT_KEY, cacheDirectoryCount);
-            cache.put(CACHE_FILE_COUNT_KEY, cacheFileCount);
         } catch (Exception e) {
             log.error("缓存所有文件失败", e);
             e.printStackTrace();
         }
         long endTime = System.currentTimeMillis();
-        log.info("缓存 {} 所有文件结束, 用时: {} 秒, 文件夹共 {} 个, 文件共 {} 个",
-                storageStrategy.getDescription(),
-                ( (endTime - startTime) / 1000 ), cacheDirectoryCount, cacheFileCount);
+        log.info("缓存 {} 所有文件结束, 用时: {} 秒", storageStrategy.getDescription(), ((endTime - startTime) / 1000));
         cacheFinish = true;
     }
 
-
-    /**
-     * 清理缓存的文件/文件夹数量统计
-     */
-    public void resetCacheCount() {
-        cache.remove(CACHE_DIRECTORY_COUNT_KEY);
-        cache.remove(CACHE_FILE_COUNT_KEY);
-    }
-
-    public Integer getCacheDirectoryCount() {
-        return ObjectUtil.defaultIfNull(cache.get(CACHE_DIRECTORY_COUNT_KEY), 0);
-    }
-
-    public Integer getCacheFileCount() {
-        return ObjectUtil.defaultIfNull(cache.get(CACHE_FILE_COUNT_KEY), 0);
-    }
 
     public boolean isCacheFinish() {
         return cacheFinish;
@@ -137,4 +85,5 @@ public class FileAsyncCacheService {
     public void setCacheFinish(boolean cacheFinish) {
         this.cacheFinish = cacheFinish;
     }
+
 }

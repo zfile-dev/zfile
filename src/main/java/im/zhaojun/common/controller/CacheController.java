@@ -1,5 +1,6 @@
 package im.zhaojun.common.controller;
 
+import im.zhaojun.common.cache.ZFileCache;
 import im.zhaojun.common.model.dto.CacheConfigDTO;
 import im.zhaojun.common.model.dto.ResultBean;
 import im.zhaojun.common.service.AbstractFileService;
@@ -30,6 +31,9 @@ public class CacheController {
     @Resource
     private FileCacheService fileCacheService;
 
+    @Resource
+    private ZFileCache zFileCache;
+
     @PostMapping("/enable")
     public ResultBean enableCache() throws Exception {
         fileCacheService.enableCache();
@@ -43,16 +47,14 @@ public class CacheController {
     }
 
     @GetMapping("/config")
-    public ResultBean cacheConfig() throws Exception {
+    public ResultBean cacheConfig() {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
-        Set<String> cacheKeys = fileService.getCacheKeys();
-
         CacheConfigDTO cacheConfigDTO = new CacheConfigDTO();
         cacheConfigDTO.setEnableCache(systemConfigService.getEnableCache());
         cacheConfigDTO.setCacheFinish(fileAsyncCacheService.isCacheFinish());
-        cacheConfigDTO.setCacheKeys(cacheKeys);
-        cacheConfigDTO.setCacheDirectoryCount(fileAsyncCacheService.getCacheDirectoryCount());
-        cacheConfigDTO.setCacheFileCount(fileAsyncCacheService.getCacheFileCount());
+        cacheConfigDTO.setCacheKeys(zFileCache.keySet());
+        cacheConfigDTO.setCacheDirectoryCount(zFileCache.getCacheDirectorCount());
+        cacheConfigDTO.setCacheFileCount(zFileCache.getCacheFileCount());
         return ResultBean.success(cacheConfigDTO);
     }
 

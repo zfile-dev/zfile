@@ -29,10 +29,8 @@ public class FileCacheService {
 
     public void disableCache() throws Exception {
         systemConfigService.updateCacheEnableConfig(false);
-
         AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
         currentFileService.clearFileCache();
-        fileAsyncCacheService.resetCacheCount();
     }
 
 }

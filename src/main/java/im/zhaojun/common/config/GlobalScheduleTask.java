@@ -1,5 +1,6 @@
 package im.zhaojun.common.config;
 
+import im.zhaojun.common.cache.ZFileCache;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.StorageConfigService;
@@ -24,6 +25,9 @@ import java.util.Objects;
 public class GlobalScheduleTask {
 
     @Resource
+    private ZFileCache zFileCache;
+
+    @Resource
     private StorageConfigService storageConfigService;
 
     @Resource
@@ -38,7 +42,7 @@ public class GlobalScheduleTask {
     /**
      * 项目启动 30 秒后, 每 15 分钟执行一次刷新 OneDrive Token 的定时任务.
      */
-    @Scheduled(fixedRate = 1000 * 60 * 15, initialDelay = 1000 * 30)
+    @Scheduled(fixedRate = 1000 * 60 * 10, initialDelay = 1000 * 30)
     public void autoRefreshOneDriveToken() {
 
         AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
@@ -54,16 +58,12 @@ public class GlobalScheduleTask {
             return;
         }
 
-        try {
-            refreshOneDriveToken(StorageTypeEnum.ONE_DRIVE);
-        } catch (Exception e) {
-            log.debug("刷新 OneDrive Token 失败.", e);
-        }
+        StorageTypeEnum currentStorageTypeEnum = currentFileService.getStorageTypeEnum();
 
         try {
-            refreshOneDriveToken(StorageTypeEnum.ONE_DRIVE_CHINA);
+            refreshOneDriveToken(currentStorageTypeEnum);
         } catch (Exception e) {
-            log.debug("刷新 OneDrive 世纪互联 Token 失败.", e);
+            log.debug("刷新 " + currentStorageTypeEnum.getDescription() + " Token 失败.", e);
         }
     }
 
@@ -78,4 +78,5 @@ public class GlobalScheduleTask {
         }
         log.info("刷新 {} key 时间: {}", storageType.getDescription(), LocalDateTime.now());
     }
+
 }
