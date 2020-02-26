@@ -49,12 +49,13 @@ spring:
   profiles:
     active: prod
 
-  boot:
-    admin:
-      context-path: /act
 zfile:
   cache:
-    timeout: 300
+    auto-refresh:
+        enable: true   # 是否开启自动刷新缓存.
+        delay: 1800    # 启动项目后多久开始自动刷新缓存, 推荐与 interval 一致, 因为项目启动时会缓存所有文件.
+        interval: 1800 # 任务间隔时间, 也就是每多长时间会自动刷新缓存一次.
+    timeout: 1800
   constant:
     readme: readme.md
     password: password.txt
@@ -68,14 +69,3 @@ zfile:
     clientSecret: Y9CEA=82da5n-y_]KAWAgLH3?R9xf7Uw
     redirectUri: https://zfile.jun6.net/onedrive/china-callback
     scope: offline_access User.Read Files.ReadWrite.All
-
-jetcache:
-  statIntervalMinutes: 0
-  areaInCacheName: false
-  local:
-    default:
-      type: caffeine
-      keyConvertor: fastjson
-
-
-
