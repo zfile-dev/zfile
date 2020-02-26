@@ -11,13 +11,13 @@ import im.zhaojun.common.service.AbstractFileService;
 import im.zhaojun.common.service.FileService;
 import im.zhaojun.common.service.StorageConfigService;
 import im.zhaojun.common.util.StringUtils;
-import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,19 +60,29 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
             if (Objects.isNull(host) || Objects.isNull(port) || Objects.isNull(username) || Objects.isNull(password)) {
                 isInitialized = false;
             } else {
-                ftp = new Ftp(host, Integer.parseInt(port), username, password);
+                ftp = new Ftp(host, Integer.parseInt(port), username, password, StandardCharsets.UTF_8);
+                ftp.getClient().configure(new FTPClientConfig(FTPClientConfig.SYST_UNIX));
+                ftp.getClient().type(FTP.BINARY_FILE_TYPE);
                 isInitialized = testConnection();
             }
-
         } catch (Exception e) {
             log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
         }
     }
 
     @Override
-    public synchronized List<FileItemDTO> fileList(String path) throws IOException {
+    public List<FileItemDTO> fileList(String path) {
+        ftp.reconnectIfTimeout();
         String fullPath = StringUtils.getFullPath(basePath, path);
-        FTPFile[] ftpFiles = ftp.lsFiles(fullPath);
+        ftp.cd(fullPath);
+        FTPFile[] ftpFiles = new FTPFile[]{};
+        try {
+            ftp.getClient().changeWorkingDirectory("/");
+            ftpFiles = ftp.getClient().listFiles(fullPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // ignore
+        }
 
         List<FileItemDTO> fileItemList = new ArrayList<>();
 
@@ -118,4 +128,33 @@ public class FtpServiceImpl extends AbstractFileService implements FileService {
         return fileItemDTO;
     }
 
+    @Override
+    protected boolean testConnection() {
+        // FTPClient ftpClient = ftp.getClient();
+        // try {
+        //     ftpClient.connect(host, Integer.parseInt(port));
+        //     return ftpClient.login(username, password);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        //     return false;
+        // }
+        return true;
+    }
+
+    private void ifDisConnectionReConnection() {
+        FTPClient ftpClient = ftp.getClient();
+        try {
+            // 验证FTP服务器是否登录成功
+            int replyCode = ftpClient.getReplyCode();
+
+            // ftpClient.reinitialize();
+            if (!FTPReply.isPositiveCompletion(replyCode)) {
+                System.out.println("断开了连接, 已尝试重新连接.");
+                ftpClient.connect(host, Integer.parseInt(port));
+                ftpClient.login(username, password);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
