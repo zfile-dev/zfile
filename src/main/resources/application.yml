@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
   servlet:
     context-path: ''
   tomcat:
@@ -47,14 +47,14 @@ spring:
     chain:
       gzipped: true
   profiles:
-    active: prod
+    active: dev
 
 zfile:
   cache:
     auto-refresh:
         enable: true   # 是否开启自动刷新缓存.
-        delay: 1800    # 启动项目后多久开始自动刷新缓存, 推荐与 interval 一致, 因为项目启动时会缓存所有文件.
-        interval: 1800 # 任务间隔时间, 也就是每多长时间会自动刷新缓存一次.
+        delay: 60000    # 启动项目后多久开始自动刷新缓存, 推荐与 interval 一致, 因为项目启动时会缓存所有文件. 单位为秒.
+        interval: 60000 # 任务间隔时间, 也就是每多长时间会自动刷新缓存一次. 单位为秒.
     timeout: 1800
   constant:
     readme: readme.md
