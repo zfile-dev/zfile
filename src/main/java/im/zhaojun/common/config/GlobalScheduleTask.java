@@ -45,26 +45,33 @@ public class GlobalScheduleTask {
     @Scheduled(fixedRate = 1000 * 60 * 10, initialDelay = 1000 * 30)
     public void autoRefreshOneDriveToken() {
 
-        AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
-
-        if (!(currentFileService instanceof OneDriveServiceImpl
-            || currentFileService instanceof OneDriveChinaServiceImpl)) {
-            log.debug("当前启用存储类型, 不是 OneDrive, 跳过自动刷新 AccessToken");
-            return;
-        }
-
-        if (currentFileService.getIsUnInitialized()) {
-            log.debug("当前启用 OneDrive 未初始化成功, 跳过自动刷新 AccessToken");
-            return;
-        }
-
-        StorageTypeEnum currentStorageTypeEnum = currentFileService.getStorageTypeEnum();
-
         try {
-            refreshOneDriveToken(currentStorageTypeEnum);
-        } catch (Exception e) {
-            log.debug("刷新 " + currentStorageTypeEnum.getDescription() + " Token 失败.", e);
+            log.debug("尝试调用 OneDrive 自动刷新 AccessToken 定时任务");
+
+            AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
+
+            if (!(currentFileService instanceof OneDriveServiceImpl
+                    || currentFileService instanceof OneDriveChinaServiceImpl)) {
+                log.debug("当前启用存储类型, 不是 OneDrive, 跳过自动刷新 AccessToken");
+                return;
+            }
+
+            if (currentFileService.getIsUnInitialized()) {
+                log.debug("当前启用 OneDrive 未初始化成功, 跳过自动刷新 AccessToken");
+                return;
+            }
+
+            StorageTypeEnum currentStorageTypeEnum = currentFileService.getStorageTypeEnum();
+
+            try {
+                refreshOneDriveToken(currentStorageTypeEnum);
+            } catch (Exception e) {
+                log.debug("刷新 " + currentStorageTypeEnum.getDescription() + " Token 失败.", e);
+            }
+        } catch (Throwable e) {
+            log.debug("尝试调用 OneDrive 自动刷新 AccessToken 定时任务出现未知异常", e);
         }
+
     }
 
     /**

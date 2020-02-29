@@ -5,7 +5,10 @@ import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.dto.SiteConfigDTO;
 import im.zhaojun.common.model.enums.StorageTypeEnum;
 import im.zhaojun.common.util.HttpUtil;
+import im.zhaojun.common.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.Objects;
 /**
  * @author zhaojun
  */
+@Slf4j
 @Service
 public class SystemService {
 
@@ -40,7 +44,20 @@ public class SystemService {
 
         for (FileItemDTO fileItemDTO : fileItemList) {
             if (ZFileConstant.README_FILE_NAME.equalsIgnoreCase(fileItemDTO.getName())) {
-                siteConfigDTO.setReadme(HttpUtil.getTextContent(fileItemDTO.getUrl()));
+                String textContent = null;
+                try {
+                    textContent = HttpUtil.getTextContent(fileItemDTO.getUrl());
+                } catch (HttpClientErrorException httpClientErrorException) {
+                    log.debug("尝试重新获取文档区缓存中链接后仍失败", httpClientErrorException);
+                    try {
+                        String fullPath = StringUtils.removeDuplicateSeparator(fileItemDTO.getPath() + "/" + fileItemDTO.getName());
+                        FileItemDTO fileItem = fileService.getFileItem(fullPath);
+                        textContent = HttpUtil.getTextContent(fileItem.getUrl());
+                    } catch (Exception e) {
+                        log.debug("尝试重新获取文档区链接后仍失败, 已置为空", e);
+                    }
+                }
+                siteConfigDTO.setReadme(textContent);
             }
         }
         return siteConfigDTO;
