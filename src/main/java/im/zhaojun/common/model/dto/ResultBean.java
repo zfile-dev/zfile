@@ -15,11 +15,15 @@ public class ResultBean implements Serializable {
 
     public static final int REQUIRED_PASSWORD = -2;
 
+    public static final int INVALID_PASSWORD = -3;
+
     private String msg = "操作成功";
 
     private int code = SUCCESS;
 
     private Object data;
+
+    private int total;
 
     private ResultBean() {
         super();
@@ -40,6 +44,10 @@ public class ResultBean implements Serializable {
     }
 
     public static ResultBean successData(Object data) {
+        return success("操作成功", data);
+    }
+
+    public static ResultBean successPage(Object data, Long total) {
         return success("操作成功", data);
     }
 
