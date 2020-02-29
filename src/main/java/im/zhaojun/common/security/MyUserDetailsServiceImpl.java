@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.annotation.Resource;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -24,6 +25,9 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
+        if (!Objects.equals(systemConfig.getUsername(), username)) {
+            throw new UsernameNotFoundException("用户名不存在");
+        }
         return new User(systemConfig.getUsername(), systemConfig.getPassword(), Collections.emptyList());
     }
 }
