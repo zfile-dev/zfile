@@ -40,15 +40,15 @@ apt update
 apt install -y openjdk-8-jre-headless unzip
 ```
 
-> 如为更新程序, 则请先执行 `rm -rf ~/zfile` 清理旧程序. 首次安装请忽略此选项.
+> 如为更新程序, 则请先执行 `~/zfile/bin/stop.sh && rm -rf ~/zfile` 清理旧程序. 首次安装请忽略此选项.
 
 下载项目:
 
 ```bash
-wget -P ~ https://c.jun6.net/ZFILE/zfile-release.war
 cd ~
+wget https://c.jun6.net/ZFILE/zfile-release.war
 mkdir zfile && unzip zfile-release.war -d zfile && rm -rf zfile-release.war
-chmod +x ~/zfile/bin/*.sh
+chmod +x zfile/bin/*.sh
 ```
 
 程序的目录结构为:
