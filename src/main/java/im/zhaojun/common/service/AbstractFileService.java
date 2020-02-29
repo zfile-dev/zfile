@@ -52,13 +52,10 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
     /**
      * 清理当前存储策略的缓存
      * 1. 删除全部缓存
-     * 2. 关闭自动刷新
-     * 3. 重置缓存个数
-     * 4. 标记为当前处于未完成缓存状态
+     * 2. 标记为当前处于未完成缓存状态
      */
     public void clearFileCache() {
         zFileCache.clear();
-        closeCacheAutoRefresh();
         fileAsyncCacheService.setCacheFinish(false);
     }
 
@@ -139,15 +136,6 @@ public abstract class AbstractFileService extends FileCacheService implements Fi
         zFileCache.remove(key);
         FileService currentFileService = (FileService) AopContext.currentProxy();
         currentFileService.fileList(key);
-    }
-
-    public void closeCacheAutoRefresh() {
-        // cache.config().setRefreshPolicy(null);
-    }
-
-    public void openCacheAutoRefresh() {
-        // RefreshPolicy refreshPolicy = RefreshPolicy.newPolicy(30, TimeUnit.MINUTES);
-        // cache.config().setRefreshPolicy(refreshPolicy);
     }
 
     public abstract FileItemDTO getFileItem(String path);

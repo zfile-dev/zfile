@@ -35,13 +35,13 @@ public class CacheController {
     private ZFileCache zFileCache;
 
     @PostMapping("/enable")
-    public ResultBean enableCache() throws Exception {
+    public ResultBean enableCache() {
         fileCacheService.enableCache();
         return ResultBean.success();
     }
 
     @PostMapping("/disable")
-    public ResultBean disableCache() throws Exception {
+    public ResultBean disableCache() {
         fileCacheService.disableCache();
         return ResultBean.success();
     }
@@ -53,11 +53,12 @@ public class CacheController {
         cacheConfigDTO.setEnableCache(systemConfigService.getEnableCache());
         cacheConfigDTO.setCacheFinish(fileAsyncCacheService.isCacheFinish());
         cacheConfigDTO.setCacheKeys(zFileCache.keySet());
-        cacheConfigDTO.setCacheDirectoryCount(zFileCache.getCacheDirectorCount());
-        cacheConfigDTO.setCacheFileCount(zFileCache.getCacheFileCount());
+        cacheConfigDTO.setCacheDirectoryCount(zFileCache.cacheCount());
+        cacheConfigDTO.setLastCacheAutoRefreshDate(zFileCache.getLastCacheAutoRefreshDate());
         return ResultBean.success(cacheConfigDTO);
     }
 
+    /*
     @PostMapping("/refresh")
     public ResultBean refreshCache(String key) throws Exception {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
@@ -66,14 +67,15 @@ public class CacheController {
     }
 
     @PostMapping("/clear")
-    public ResultBean clearCache(String key) throws Exception {
+    public ResultBean clearCache(String key) {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         fileService.clearFileCache();
         return ResultBean.success();
     }
+     */
 
     @PostMapping("/all")
-    public ResultBean cacheAll() throws Exception {
+    public ResultBean cacheAll()  {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         fileService.clearFileCache();
         fileAsyncCacheService.cacheGlobalFile();

@@ -17,20 +17,13 @@ import im.zhaojun.common.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 后台管理
@@ -51,6 +44,8 @@ public class AdminController {
     @Resource
     private FileAsyncCacheService fileAsyncCacheService;
 
+    private ScheduledExecutorService scheduledExecutorService;
+
     /**
      * 获取系统配置
      */
@@ -65,17 +60,19 @@ public class AdminController {
      */
     @PostMapping("/config")
     public ResultBean updateConfig(SystemConfigDTO systemConfigDTO) throws Exception {
-        AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
-        systemConfigDTO.setId(1);
-        systemConfigService.updateSystemConfig(systemConfigDTO);
-
-        StorageTypeEnum currentStorageStrategy = currentFileService.getStorageTypeEnum();
+        StorageTypeEnum currentStorageStrategy = systemConfigService.getCurrentStorageStrategy();
         if (!Objects.equals(currentStorageStrategy, systemConfigDTO.getStorageStrategy())) {
+            if (systemConfigService.getEnableCache()) {
+                return ResultBean.error("不支持缓存开启状态下, 切换存储策略, 请先手动关闭缓存");
+            }
             log.info("已将存储策略由 {} 切换为 {}",
                     currentStorageStrategy.getDescription(),
                     systemConfigDTO.getStorageStrategy().getDescription());
             refreshStorageStrategy();
         }
+
+        systemConfigDTO.setId(1);
+        systemConfigService.updateSystemConfig(systemConfigDTO);
 
         return ResultBean.success();
     }
@@ -161,7 +158,7 @@ public class AdminController {
     /**
      * 更新存储策略
      */
-    public void refreshStorageStrategy() throws Exception {
+    public void refreshStorageStrategy() {
         StorageTypeEnum storageStrategy = systemConfigService.getCurrentStorageStrategy();
         refreshStorageStrategy(storageStrategy);
     }
@@ -169,7 +166,7 @@ public class AdminController {
     /**
      * 更新存储策略
      */
-    public void refreshStorageStrategy(StorageTypeEnum storageStrategy) throws Exception {
+    private void refreshStorageStrategy(StorageTypeEnum storageStrategy) {
         if (storageStrategy == null) {
             log.info("尚未配置存储策略.");
         } else {

@@ -3,13 +3,11 @@ package im.zhaojun.common.cache;
 import cn.hutool.core.util.StrUtil;
 import im.zhaojun.common.model.dto.FileItemDTO;
 import im.zhaojun.common.model.dto.SystemConfigDTO;
-import im.zhaojun.common.model.enums.FileTypeEnum;
+import im.zhaojun.common.service.SystemConfigService;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import javax.annotation.Resource;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -21,22 +19,14 @@ public class ZFileCache {
 
     private ConcurrentMap<String, List<FileItemDTO>> fileCache = new ConcurrentHashMap<>();
 
-    private ConcurrentMap<String, Integer> fileCountCache = new ConcurrentHashMap<>();
-
     private SystemConfigDTO systemConfigCache;
 
-    public static final String CACHE_FILE_COUNT_KEY = "file-count";
+    public Date lastCacheAutoRefreshDate;
 
-    public static final String CACHE_DIRECTORY_COUNT_KEY = "directory-count";
+    @Resource
+    private SystemConfigService systemConfigService;
 
     public synchronized void put(String key, List<FileItemDTO> value) {
-        for (FileItemDTO fileItemDTO : value) {
-            if (FileTypeEnum.FILE.equals(fileItemDTO.getType())) {
-                incrCacheFileCount();
-            } else {
-                incrCacheDirectoryCount();
-            }
-        }
         fileCache.put(key, value);
     }
 
@@ -46,10 +36,9 @@ public class ZFileCache {
 
     public void clear() {
         fileCache.clear();
-        fileCountCache.clear();
     }
 
-    public long cacheCount() {
+    public int cacheCount() {
         return fileCache.size();
     }
 
@@ -83,24 +72,6 @@ public class ZFileCache {
         fileCache.remove(key);
     }
 
-    private void incrCacheFileCount() {
-        Integer originValue = fileCountCache.getOrDefault(CACHE_FILE_COUNT_KEY, 0);
-        fileCountCache.put(CACHE_FILE_COUNT_KEY, originValue + 1);
-    }
-
-    private void incrCacheDirectoryCount() {
-        Integer originValue = fileCountCache.getOrDefault(CACHE_DIRECTORY_COUNT_KEY, 0);
-        fileCountCache.put(CACHE_DIRECTORY_COUNT_KEY, originValue + 1);
-    }
-
-    public int getCacheFileCount() {
-        return fileCountCache.getOrDefault(CACHE_FILE_COUNT_KEY, 0);
-    }
-
-    public int getCacheDirectorCount() {
-        return fileCountCache.getOrDefault(CACHE_DIRECTORY_COUNT_KEY, 0);
-    }
-
     public void updateConfig(SystemConfigDTO systemConfigCache) {
         this.systemConfigCache = systemConfigCache;
     }
@@ -111,5 +82,13 @@ public class ZFileCache {
 
     public void removeConfig() {
         this.systemConfigCache = null;
+    }
+
+    public Date getLastCacheAutoRefreshDate() {
+        return lastCacheAutoRefreshDate;
+    }
+
+    public void setLastCacheAutoRefreshDate(Date lastCacheAutoRefreshDate) {
+        this.lastCacheAutoRefreshDate = lastCacheAutoRefreshDate;
     }
 }

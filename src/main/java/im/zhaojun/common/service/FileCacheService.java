@@ -1,5 +1,6 @@
 package im.zhaojun.common.service;
 
+import im.zhaojun.common.cache.ZFileCache;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -18,19 +19,19 @@ public class FileCacheService {
     @Lazy
     private FileAsyncCacheService fileAsyncCacheService;
 
+    @Resource
+    private ZFileCache zFileCache;
+
     public void enableCache() {
         systemConfigService.updateCacheEnableConfig(true);
-
-        AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
-        currentFileService.openCacheAutoRefresh();
         fileAsyncCacheService.cacheGlobalFile();
     }
 
-
-    public void disableCache() throws Exception {
+    public void disableCache() {
         systemConfigService.updateCacheEnableConfig(false);
-        AbstractFileService currentFileService = systemConfigService.getCurrentFileService();
-        currentFileService.clearFileCache();
+        zFileCache.clear();
+        fileAsyncCacheService.setCacheFinish(false);
+        fileAsyncCacheService.stopScheduled();
     }
 
 }
