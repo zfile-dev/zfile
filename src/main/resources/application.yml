@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
   servlet:
     context-path: ''
   tomcat:
@@ -30,9 +30,9 @@ spring:
 
     # MySQL 配置
   #    driver-class-name: com.mysql.jdbc.Driver
-#    url: jdbc:mysql://127.0.0.1:3306/zfile?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
-#    username: root
-#    password: 123456
+  #    url: jdbc:mysql://127.0.0.1:3306/zfile?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+  #    username: root
+  #    password: 123456
   jackson:
     date-format: yyyy-MM-dd HH:mm
     time-zone: GMT+8
@@ -47,14 +47,14 @@ spring:
     chain:
       gzipped: true
   profiles:
-    active: dev
+    active: prod
 
 zfile:
   cache:
     auto-refresh:
-        enable: true   # 是否开启自动刷新缓存.
-        delay: 60000    # 启动项目后多久开始自动刷新缓存, 推荐与 interval 一致, 因为项目启动时会缓存所有文件. 单位为秒.
-        interval: 60000 # 任务间隔时间, 也就是每多长时间会自动刷新缓存一次. 单位为秒.
+      enable: true   # 是否开启自动刷新缓存.
+      delay: 1800    # 启动项目后多久开始自动刷新缓存, 推荐与 interval 一致, 因为项目启动时会缓存所有文件.
+      interval: 1800 # 任务间隔时间, 也就是每多长时间会自动刷新缓存一次.
     timeout: 1800
   constant:
     readme: readme.md
