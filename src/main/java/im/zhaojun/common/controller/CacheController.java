@@ -58,7 +58,7 @@ public class CacheController {
         return ResultBean.success(cacheConfigDTO);
     }
 
-    /*
+
     @PostMapping("/refresh")
     public ResultBean refreshCache(String key) throws Exception {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
@@ -66,13 +66,14 @@ public class CacheController {
         return ResultBean.success();
     }
 
+    /*
     @PostMapping("/clear")
     public ResultBean clearCache(String key) {
         AbstractFileService fileService = systemConfigService.getCurrentFileService();
         fileService.clearFileCache();
         return ResultBean.success();
     }
-     */
+
 
     @PostMapping("/all")
     public ResultBean cacheAll()  {
@@ -81,4 +82,5 @@ public class CacheController {
         fileAsyncCacheService.cacheGlobalFile();
         return ResultBean.success();
     }
+    */
 }
