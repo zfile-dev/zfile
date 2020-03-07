@@ -1,5 +1,6 @@
 package im.zhaojun.aliyun.service;
 
+import cn.hutool.core.convert.Convert;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -36,6 +37,7 @@ public class AliyunServiceImpl extends AbstractS3FileService implements FileServ
             super.domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
             super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
             super.bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
+            super.isPrivate = Convert.toBool(stringStorageConfigMap.get(StorageConfigConstant.IS_PRIVATE).getValue(), true);
 
             if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
                 log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
