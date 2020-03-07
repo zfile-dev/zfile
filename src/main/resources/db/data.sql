@@ -77,3 +77,10 @@ INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (57, 'username', 
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (58, 'password', '操作员密码', 'ufile');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (59, 'domain', '加速域名', 'ufile');
 INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (60, 'base-path', '基路径', 'ufile');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (61, 'isPrivate', '是否是私有空间', 'tencent');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (62, 'isPrivate', '是否是私有空间', 'aliyun');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (63, 'isPrivate', '是否是私有空间', 'huawei');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (64, 'isPrivate', '是否是私有空间', 'minio');
+INSERT INTO STORAGE_CONFIG (`ID`, `k`, `TITLE`, `TYPE`) VALUES (65, 'isPrivate', '是否是私有空间', 'qiniu');
+
+
