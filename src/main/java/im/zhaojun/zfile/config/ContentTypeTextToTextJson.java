@@ -7,7 +7,6 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collections;
 
 /**
