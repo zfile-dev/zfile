@@ -1,12 +1,11 @@
 package im.zhaojun.zfile.service.impl;
 
-import im.zhaojun.zfile.config.GlobalScheduleTask;
-import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
+import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
-import im.zhaojun.zfile.service.base.BaseFileService;
 import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.service.base.AbstractOneDriveServiceBase;
+import im.zhaojun.zfile.service.base.BaseFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,6 @@ import java.util.Map;
 @Service
 @Slf4j
 public class OneDriveChinaServiceImpl extends AbstractOneDriveServiceBase implements BaseFileService {
-
-    @Resource
-    private GlobalScheduleTask globalScheduleTask;
 
     @Resource
     private StorageConfigService storageConfigService;

@@ -1,10 +1,8 @@
 package im.zhaojun.zfile.config;
 
-import im.zhaojun.zfile.cache.ZFileCache;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
-import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
+import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
 import im.zhaojun.zfile.service.impl.OneDriveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +21,6 @@ import java.util.Objects;
 @EnableScheduling
 @Slf4j
 public class GlobalScheduleTask {
-
-    @Resource
-    private ZFileCache zFileCache;
-
-    @Resource
-    private StorageConfigService storageConfigService;
 
     @Resource
     private OneDriveServiceImpl oneDriveServiceImpl;

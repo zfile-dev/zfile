@@ -3,7 +3,6 @@ package im.zhaojun.zfile.util;
 import cn.hutool.core.net.NetUtil;
 import im.zhaojun.zfile.exception.InitializeException;
 import im.zhaojun.zfile.service.support.FileAsyncCacheService;
-import im.zhaojun.zfile.service.SystemConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
@@ -12,7 +11,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.LinkedHashSet;
 
 /**
  * 项目启动监听器, 当项目启动时, 遍历当前对象存储的所有内容, 添加到缓存中.
@@ -27,9 +26,6 @@ public class StartupListener implements ApplicationListener<ApplicationStartedEv
 
     @Resource
     private Environment environment;
-
-    @Resource
-    private SystemConfigService systemConfigService;
 
     @Override
     public void onApplicationEvent(@NonNull ApplicationStartedEvent event) {

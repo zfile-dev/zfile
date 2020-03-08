@@ -1,11 +1,11 @@
 package im.zhaojun.zfile.service.support;
 
 import im.zhaojun.zfile.cache.ZFileCache;
-import im.zhaojun.zfile.service.SystemConfigService;
 import im.zhaojun.zfile.config.StorageTypeFactory;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
+import im.zhaojun.zfile.service.SystemConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.service.base.BaseFileService;
 import im.zhaojun.zfile.util.StringUtils;
@@ -15,7 +15,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -70,8 +75,6 @@ public class FileAsyncCacheService {
             log.debug("存储策略 {} 未初始化成功, 跳过缓存.", storageStrategy.getDescription());
             return;
         }
-
-        Integer cacheDirectoryCount = 0;
 
         log.info("缓存 {} 所有文件开始", storageStrategy.getDescription());
         long startTime = System.currentTimeMillis();

@@ -3,10 +3,10 @@ package im.zhaojun.zfile.controller;
 import im.zhaojun.zfile.cache.ZFileCache;
 import im.zhaojun.zfile.model.dto.CacheConfigDTO;
 import im.zhaojun.zfile.model.dto.ResultBean;
+import im.zhaojun.zfile.service.SystemConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.service.support.FileAsyncCacheService;
 import im.zhaojun.zfile.service.support.FileCacheService;
-import im.zhaojun.zfile.service.SystemConfigService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +47,6 @@ public class CacheController {
 
     @GetMapping("/config")
     public ResultBean cacheConfig() {
-        AbstractBaseFileService fileService = systemConfigService.getCurrentFileService();
         CacheConfigDTO cacheConfigDTO = new CacheConfigDTO();
         cacheConfigDTO.setEnableCache(systemConfigService.getEnableCache());
         cacheConfigDTO.setCacheFinish(fileAsyncCacheService.isCacheFinish());

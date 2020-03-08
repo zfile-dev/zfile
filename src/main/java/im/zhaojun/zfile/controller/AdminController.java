@@ -3,27 +3,30 @@ package im.zhaojun.zfile.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ZipUtil;
 import im.zhaojun.zfile.config.StorageTypeFactory;
-import im.zhaojun.zfile.model.entity.StorageConfig;
-import im.zhaojun.zfile.model.support.SystemMonitorInfo;
 import im.zhaojun.zfile.model.dto.ResultBean;
 import im.zhaojun.zfile.model.dto.StorageStrategyDTO;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
-import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import im.zhaojun.zfile.service.support.FileAsyncCacheService;
+import im.zhaojun.zfile.model.support.SystemMonitorInfo;
 import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
+import im.zhaojun.zfile.service.base.AbstractBaseFileService;
+import im.zhaojun.zfile.service.support.FileAsyncCacheService;
 import im.zhaojun.zfile.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 后台管理
@@ -43,8 +46,6 @@ public class AdminController {
 
     @Resource
     private FileAsyncCacheService fileAsyncCacheService;
-
-    private ScheduledExecutorService scheduledExecutorService;
 
     /**
      * 获取系统配置

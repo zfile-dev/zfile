@@ -11,7 +11,6 @@ import im.zhaojun.zfile.model.entity.SystemConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.repository.SystemConfigRepository;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import im.zhaojun.zfile.service.support.FileCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +31,6 @@ public class SystemConfigService {
 
     @Resource
     private SystemConfigRepository systemConfigRepository;
-
-    @Resource
-    private FileCacheService fileCacheService;
 
     private Class<SystemConfigDTO> systemConfigClazz = SystemConfigDTO.class;
 

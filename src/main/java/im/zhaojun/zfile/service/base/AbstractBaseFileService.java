@@ -2,13 +2,12 @@ package im.zhaojun.zfile.service.base;
 
 import cn.hutool.core.util.BooleanUtil;
 import im.zhaojun.zfile.cache.ZFileCache;
-import im.zhaojun.zfile.service.support.FileAsyncCacheService;
-import im.zhaojun.zfile.service.support.FileCacheService;
-import im.zhaojun.zfile.service.SystemConfigService;
-import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
+import im.zhaojun.zfile.service.SystemConfigService;
+import im.zhaojun.zfile.service.support.FileAsyncCacheService;
+import im.zhaojun.zfile.service.support.FileCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,15 +15,12 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author zhaojun
  */
 @Slf4j
 public abstract class AbstractBaseFileService extends FileCacheService implements BaseFileService {
-
-    private static final String SYSTEM_CONFIG_CACHE_PREFIX = "zfile-cache:";
 
     @Value("${zfile.cache.timeout}")
     protected Long timeout;
@@ -106,29 +102,11 @@ public abstract class AbstractBaseFileService extends FileCacheService implement
      * @return              包含该文件名的所有文件或文件夹
      */
     public List<FileItemDTO> search(String name) {
-        boolean searchIgnoreCase = systemConfigService.getSearchIgnoreCase();
-        return zFileCache.find(name, searchIgnoreCase);
-    }
-
-    /**
-     * 不是加密文件夹
-     * @param list      文件夹中的内容
-     * @return          返回此文件夹是否加密.
-     */
-    private boolean isNotEncryptedFolder(List<FileItemDTO> list) {
-        // 如果开启了 "搜索包含加密文件" 选项, 则直接返回 true.
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
-        if (BooleanUtil.isFalse(systemConfig.getSearchContainEncryptedFile())) {
-            return true;
-        }
 
-        // 遍历文件判断是否包含
-        for (FileItemDTO fileItemDTO : list) {
-            if (Objects.equals(ZFileConstant.PASSWORD_FILE_NAME, fileItemDTO.getName())) {
-                return false;
-            }
-        }
-        return true;
+        boolean searchIgnoreCase = BooleanUtil.isTrue(systemConfig.getSearchIgnoreCase());
+        boolean searchContainEncryptedFile = BooleanUtil.isTrue(systemConfig.getSearchContainEncryptedFile());
+        return zFileCache.find(name, searchIgnoreCase, searchContainEncryptedFile);
     }
 
     /**

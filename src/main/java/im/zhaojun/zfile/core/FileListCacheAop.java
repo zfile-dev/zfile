@@ -27,11 +27,7 @@ public class FileListCacheAop {
     @Resource
     private SystemConfigService systemConfigService;
 
-    @Pointcut("execution(public * im.zhaojun.zfile.service.base.AbstractBaseFileService.fileList(..))")
-    public void pointcut() {
-    }
-
-    @Around(value = "pointcut()")
+    @Around(value = "execution(public * im.zhaojun.zfile.service.base.AbstractBaseFileService.fileList(..))")
     public Object around(ProceedingJoinPoint point) throws Throwable {
         List<FileItemDTO> result;
 

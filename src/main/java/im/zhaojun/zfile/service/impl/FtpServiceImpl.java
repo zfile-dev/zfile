@@ -2,16 +2,20 @@ package im.zhaojun.zfile.service.impl;
 
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.extra.ftp.Ftp;
-import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
+import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
+import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.service.base.BaseFileService;
-import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.util.StringUtils;
-import org.apache.commons.net.ftp.*;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPClientConfig;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -126,21 +130,5 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
         FileItemDTO fileItemDTO = new FileItemDTO();
         fileItemDTO.setUrl(getDownloadUrl(path));
         return fileItemDTO;
-    }
-
-    private void ifDisConnectionReConnection() {
-        FTPClient ftpClient = ftp.getClient();
-        try {
-            // 验证FTP服务器是否登录成功
-            int replyCode = ftpClient.getReplyCode();
-
-            if (!FTPReply.isPositiveCompletion(replyCode)) {
-                System.out.println("断开了连接, 已尝试重新连接.");
-                ftpClient.connect(host, Integer.parseInt(port));
-                ftpClient.login(username, password);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

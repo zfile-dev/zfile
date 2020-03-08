@@ -1,12 +1,11 @@
 package im.zhaojun.zfile.cache;
 
 import cn.hutool.core.util.StrUtil;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
-import im.zhaojun.zfile.service.SystemConfigService;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,9 +21,6 @@ public class ZFileCache {
     private SystemConfigDTO systemConfigCache;
 
     public Date lastCacheAutoRefreshDate;
-
-    @Resource
-    private SystemConfigService systemConfigService;
 
     public synchronized void put(String key, List<FileItemDTO> value) {
         fileCache.put(key, value);
@@ -42,11 +38,17 @@ public class ZFileCache {
         return fileCache.size();
     }
 
-    public List<FileItemDTO> find(String key, boolean ignoreCase) {
+    public List<FileItemDTO> find(String key, boolean ignoreCase, boolean searchContainEncryptedFile) {
         List<FileItemDTO> result = new ArrayList<>();
 
         Collection<List<FileItemDTO>> values = fileCache.values();
         for (List<FileItemDTO> fileItemList : values) {
+
+            // 如果开启了 "搜索包含加密文件" 选项, 则直接返回 true.
+            if (!searchContainEncryptedFile && isEncryptedFolder(fileItemList)) {
+                continue;
+            }
+
             for (FileItemDTO fileItemDTO : fileItemList) {
                 boolean testResult;
 
@@ -90,5 +92,21 @@ public class ZFileCache {
 
     public void setLastCacheAutoRefreshDate(Date lastCacheAutoRefreshDate) {
         this.lastCacheAutoRefreshDate = lastCacheAutoRefreshDate;
+    }
+
+
+    /**
+     * 不是加密文件夹
+     * @param list      文件夹中的内容
+     * @return          返回此文件夹是否加密.
+     */
+    private boolean isEncryptedFolder(List<FileItemDTO> list) {
+        // 遍历文件判断是否包含
+        for (FileItemDTO fileItemDTO : list) {
+            if (Objects.equals(ZFileConstant.PASSWORD_FILE_NAME, fileItemDTO.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -23,8 +23,6 @@ public class ResultBean implements Serializable {
 
     private Object data;
 
-    private int total;
-
     private ResultBean() {
         super();
     }
