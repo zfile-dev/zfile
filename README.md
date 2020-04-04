@@ -35,9 +35,15 @@
 # CentOS系统
 yum install -y java-1.8.0-openjdk unzip
 
-# Debian/Ubuntu系统
+# Debian 9 / Ubuntu 14+
 apt update
 apt install -y openjdk-8-jre-headless unzip
+
+# Debian 10 (Buster) 系统
+apt update && apt install -y apt-transport-https software-properties-common ca-certificates dirmngr gnupg
+wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add -
+add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
+apt update && apt install -y adoptopenjdk-8-hotspot-jre
 ```
 
 > 如为更新程序, 则请先执行 `~/zfile/bin/stop.sh && rm -rf ~/zfile` 清理旧程序. 首次安装请忽略此选项.
