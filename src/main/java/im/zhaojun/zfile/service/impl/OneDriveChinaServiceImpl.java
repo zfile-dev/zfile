@@ -96,4 +96,5 @@ public class OneDriveChinaServiceImpl extends AbstractOneDriveServiceBase implem
     public String getScope() {
         return scope;
     }
+
 }

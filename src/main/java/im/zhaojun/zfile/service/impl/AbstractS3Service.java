@@ -21,9 +21,9 @@ import java.util.Objects;
  * @author zhaojun
  */
 @Service
-public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFileService {
+public abstract class AbstractS3Service extends AbstractS3BaseFileService implements BaseFileService {
 
-    private static final Logger log = LoggerFactory.getLogger(S3ServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractS3Service.class);
 
     @Override
     public void init() {

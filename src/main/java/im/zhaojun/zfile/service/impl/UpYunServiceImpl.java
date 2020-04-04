@@ -128,4 +128,16 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
 
         throw new NotExistFileException();
     }
+
+    @Override
+    public List<StorageConfig> storageStrategyList() {
+        return new ArrayList<StorageConfig>() {{
+            add(new StorageConfig("bucket-name", "云存储服务名称"));
+            add(new StorageConfig("username", "操作员名称"));
+            add(new StorageConfig("password", "操作员密码"));
+            add(new StorageConfig("domain", "加速域名"));
+            add(new StorageConfig("base-path", "基路径"));
+        }};
+    }
+
 }

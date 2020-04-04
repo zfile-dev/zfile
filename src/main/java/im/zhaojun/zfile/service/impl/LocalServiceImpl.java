@@ -127,4 +127,11 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
 
         return fileItemDTO;
     }
+
+    @Override
+    public List<StorageConfig> storageStrategyList() {
+        return new ArrayList<StorageConfig>() {{
+            add(new StorageConfig("filePath", "文件路径"));
+        }};
+    }
 }

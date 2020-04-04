@@ -5,6 +5,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import im.zhaojun.zfile.model.dto.StorageStrategyDTO;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
@@ -14,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -60,4 +63,15 @@ public class AliyunServiceImpl extends AbstractS3BaseFileService implements Base
         return StorageTypeEnum.ALIYUN;
     }
 
+    @Override
+    public List<StorageConfig> storageStrategyList() {
+        return new ArrayList<StorageConfig>() {{
+            add(new StorageConfig("accessKey", "AccessKey"));
+            add(new StorageConfig("secretKey", "SecretKey"));
+            add(new StorageConfig("bucket-name", "Bucket 名称"));
+            add(new StorageConfig("domain", "Bucket 域名 / CDN 加速域名"));
+            add(new StorageConfig("endPoint", "区域"));
+            add(new StorageConfig("base-path", "基路径"));
+        }};
+    }
 }

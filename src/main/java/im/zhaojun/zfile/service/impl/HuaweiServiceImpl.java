@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -59,5 +61,19 @@ public class HuaweiServiceImpl extends AbstractS3BaseFileService implements Base
     public StorageTypeEnum getStorageTypeEnum() {
         return StorageTypeEnum.HUAWEI;
     }
+
+    @Override
+    public List<StorageConfig> storageStrategyList() {
+        return new ArrayList<StorageConfig>() {{
+            add(new StorageConfig("accessKey", "AccessKey"));
+            add(new StorageConfig("secretKey", "SecretKey"));
+            add(new StorageConfig("bucket-name", "云存储服务名称"));
+            add(new StorageConfig("domain", "加速域名"));
+            add(new StorageConfig("endPoint", "区域"));
+            add(new StorageConfig("base-path", "基路径"));
+            add(new StorageConfig("isPrivate", "是否是私有空间"));
+        }};
+    }
+
 
 }

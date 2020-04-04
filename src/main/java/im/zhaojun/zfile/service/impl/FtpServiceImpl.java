@@ -129,4 +129,16 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
         fileItemDTO.setUrl(getDownloadUrl(path));
         return fileItemDTO;
     }
+
+    @Override
+    public List<StorageConfig> storageStrategyList() {
+        return new ArrayList<StorageConfig>() {{
+            add(new StorageConfig("host", "域名或IP"));
+            add(new StorageConfig("port", "端口"));
+            add(new StorageConfig("username", "用户名"));
+            add(new StorageConfig("password", "密码"));
+            add(new StorageConfig("domain", "加速域名"));
+            add(new StorageConfig("base-path", "基路径"));
+        }};
+    }
 }
