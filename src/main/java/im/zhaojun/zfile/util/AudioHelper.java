@@ -35,6 +35,12 @@ public class AudioHelper {
             url = url.replace(query, URLUtil.encode(query));
         }
 
+        // 如果音乐文件大小超出 5M, 则不解析此音乐
+        if (im.zhaojun.zfile.util.HttpUtil.getRemoteFileSize(url)
+                > (1024 * 1024 * ZFileConstant.AUDIO_MAX_FILE_SIZE_MB)) {
+            return AudioInfoDTO.buildDefaultAudioInfoDTO();
+        }
+
         File file = new File(ZFileConstant.USER_HOME + ZFileConstant.AUDIO_TMP_PATH + UUID.fastUUID());
         FileUtil.mkParentDirs(file);
         HttpUtil.downloadFile(url, file);
@@ -45,10 +51,7 @@ public class AudioHelper {
     }
 
     private static AudioInfoDTO parseAudioInfo(File file) throws IOException, UnsupportedTagException {
-        AudioInfoDTO audioInfoDTO = new AudioInfoDTO();
-        audioInfoDTO.setTitle("未知歌曲");
-        audioInfoDTO.setArtist("未知");
-        audioInfoDTO.setCover("http://c.jun6.net/audio.png");
+        AudioInfoDTO audioInfoDTO = AudioInfoDTO.buildDefaultAudioInfoDTO();
 
         Mp3File mp3File = null;
         try {

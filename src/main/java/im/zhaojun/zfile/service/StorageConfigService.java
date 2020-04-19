@@ -23,6 +23,9 @@ public class StorageConfigService {
         return storageConfigRepository.findByTypeOrderById(storageTypeEnum);
     }
 
+    public List<StorageConfig> selectStorageConfigByDriveId(Integer driveId) {
+        return storageConfigRepository.findByDriveIdOrderById(driveId);
+    }
 
     public StorageConfig selectByTypeAndKey(StorageTypeEnum storageType, String key) {
         return storageConfigRepository.findByTypeAndKey(storageType, key);
@@ -38,8 +41,19 @@ public class StorageConfigService {
     }
 
 
+    public Map<String, StorageConfig> selectStorageConfigMapByDriveId(Integer driveId) {
+        Map<String, StorageConfig> map = new HashMap<>(24);
+        for (StorageConfig storageConfig : selectStorageConfigByDriveId(driveId)) {
+            map.put(storageConfig.getKey(), storageConfig);
+        }
+        return map;
+    }
+
+
     public void updateStorageConfig(List<StorageConfig> storageConfigList) {
         storageConfigRepository.saveAll(storageConfigList);
     }
+
+
 
 }

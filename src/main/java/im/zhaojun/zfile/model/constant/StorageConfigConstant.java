@@ -5,7 +5,7 @@ package im.zhaojun.zfile.model.constant;
  */
 public class StorageConfigConstant {
 
-    public static final String BUCKET_NAME_KEY = "bucket-name";
+    public static final String BUCKET_NAME_KEY = "bucketName";
 
     public static final String SECRET_ID_KEY = "secretId";
 
@@ -15,7 +15,7 @@ public class StorageConfigConstant {
 
     public static final String ENDPOINT_KEY = "endPoint";
 
-    public static final String BASE_PATH = "base-path";
+    public static final String BASE_PATH = "basePath";
 
     public static final String DOMAIN_KEY = "domain";
 

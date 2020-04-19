@@ -9,21 +9,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 公共 Controller
  * @author zhaojun
  */
 @RestController
 @RequestMapping("/common")
 public class CommonController {
 
+
+    /**
+     * 返回系统支持的所有存储策略
+     *
+     * @return 存储策略
+     */
     @GetMapping("/support-strategy")
     public ResultBean supportStrategy() {
         return ResultBean.successData(StorageTypeEnum.values());
     }
 
+
     /**
-     * 获取文件内容, 仅限用于, txt, md, ini 等普通文本文件.
-     * @param url       文件路径
-     * @return          文件内容
+     * 获取文件内容, 仅限用于 txt, md, ini 等普通文本文件.
+     *
+     * @param   url
+     *          文件路径
+     *
+     * @return  文件内容
      */
     @GetMapping("/content")
     public ResultBean getContent(String url) {
@@ -32,34 +43,16 @@ public class CommonController {
 
 
     /**
-     * 获取文件内容, 仅限用于, txt, md, ini 等普通文本文件.
-     * @param url       文件路径
-     * @return          文件内容
-     */
-    @GetMapping("/content/origin")
-    public String getContentOrigin(String url) {
-        return HttpUtil.getTextContent(url);
-    }
-
-
-    /**
-     * 检测文件是否存在
-     * @param url       文件路径
-     * @return          是否存在
-     */
-    @GetMapping("/content/exist")
-    public boolean checkFileExist(String url) {
-        return HttpUtil.checkUrlExist(url);
-    }
-
-
-    /**
      * 获取音频文件信息
-     * @param url       文件 URL
-     * @return          音频信息, 标题封面等信息
+     *
+     * @param   url
+     *          文件 URL
+     *
+     * @return 音频信息, 标题封面等信息
      */
     @GetMapping("/audio-info")
     public ResultBean getAudioInfo(String url) throws Exception {
         return ResultBean.success(AudioHelper.getAudioInfo(url));
     }
+
 }

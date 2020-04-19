@@ -71,6 +71,16 @@
             "name": "zfile.onedrive-china.scope",
             "type": "java.lang.String",
             "description": "OneDrive China 认证权限."
+        },
+        {
+            "name": "zfile.preview.audio.maxFileSizeMb",
+            "type": "java.lang.Long",
+            "description": "允许在线解析封面, 专辑, 歌手信息的音频文件大小, 单位为 KB."
+        },
+        {
+            "name": "zfile.preview.text.maxFileSizeKb",
+            "type": "java.lang.Long",
+            "description": "允许在线读取文本文件的文件大小, 单位为 KB."
         }
     ]
 }

@@ -30,4 +30,5 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
         }
         return new User(systemConfig.getUsername(), systemConfig.getPassword(), Collections.emptyList());
     }
+
 }

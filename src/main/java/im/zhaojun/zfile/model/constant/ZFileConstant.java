@@ -28,6 +28,17 @@ public class ZFileConstant {
      */
     public static String PASSWORD_FILE_NAME = "password.txt";
 
+    /**
+     * 最大支持文件大小为 ? MB 的音乐文件解析封面, 歌手等信息.
+     */
+    public static Long AUDIO_MAX_FILE_SIZE_MB = 1L;
+
+    /**
+     * 最大支持文本文件大小为 ? KB 的文件内容.
+     */
+    public static Long TEXT_MAX_FILE_SIZE_KB = 100L;
+
+
     @Autowired(required = false)
     public void setHeaderFileName(@Value("${zfile.constant.readme}") String headerFileName) {
         ZFileConstant.README_FILE_NAME = headerFileName;
@@ -37,5 +48,16 @@ public class ZFileConstant {
     public void setPasswordFileName(@Value("${zfile.constant.password}") String passwordFileName) {
         ZFileConstant.PASSWORD_FILE_NAME = passwordFileName;
     }
+
+    @Autowired(required = false)
+    public void setAudioMaxFileSizeMb(@Value("${zfile.preview.audio.maxFileSizeMb}") Long maxFileSizeMb) {
+        ZFileConstant.AUDIO_MAX_FILE_SIZE_MB = maxFileSizeMb;
+    }
+
+    @Autowired(required = false)
+    public void setTextMaxFileSizeMb(@Value("${zfile.preview.text.maxFileSizeKb}") Long maxFileSizeKb) {
+        ZFileConstant.TEXT_MAX_FILE_SIZE_KB = maxFileSizeKb;
+    }
+
 
 }

@@ -63,6 +63,15 @@ public class GlobleExceptionHandler {
         // }
     }
 
+    @ExceptionHandler({PreviewException.class})
+    @ResponseBody
+    @ResponseStatus
+    public ResultBean previewException(PreviewException ex) {
+        return ResultBean.error(ex.getMessage());
+    }
+
+
+
     @ExceptionHandler
     @ResponseBody
     @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR)

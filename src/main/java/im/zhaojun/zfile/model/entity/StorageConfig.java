@@ -30,6 +30,13 @@ public class StorageConfig {
     @Column(length = 4000)
     private String value;
 
+    private Integer driveId;
+
+    public StorageConfig(String key, String title) {
+        this.key = key;
+        this.title = title;
+    }
+
     public Integer getId() {
         return id;
     }

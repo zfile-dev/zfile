@@ -16,6 +16,8 @@ import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -29,6 +31,7 @@ import java.util.Objects;
  * @author zhaojun
  */
 @Service
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileService {
 
     private static final Logger log = LoggerFactory.getLogger(FtpServiceImpl.class);
@@ -49,10 +52,11 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
     private String password;
 
     @Override
-    public void init() {
+    public void init(Integer driveId) {
         try {
+            this.driveId = driveId;
             Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
+                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
             host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
             port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
             username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
@@ -131,14 +135,14 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
     }
 
     @Override
-    public List<StorageConfig> storageStrategyList() {
+    public List<StorageConfig> storageStrategyConfigList() {
         return new ArrayList<StorageConfig>() {{
             add(new StorageConfig("host", "域名或IP"));
             add(new StorageConfig("port", "端口"));
             add(new StorageConfig("username", "用户名"));
             add(new StorageConfig("password", "密码"));
             add(new StorageConfig("domain", "加速域名"));
-            add(new StorageConfig("base-path", "基路径"));
+            add(new StorageConfig("basePath", "基路径"));
         }};
     }
 }

@@ -51,14 +51,19 @@ spring:
 
 zfile:
   cache:
-    auto-refresh:
-      enable: true   # 是否开启自动刷新缓存.
-      delay: 1800    # 启动项目后多久开始自动刷新缓存, 推荐与 interval 一致, 因为项目启动时会缓存所有文件.
-      interval: 1800 # 任务间隔时间, 也就是每多长时间会自动刷新缓存一次.
+#    auto-refresh:    # 新版本尚未实现此功能
+#      enable: true   # 是否开启自动刷新缓存.
+#      delay: 1800    # 启动项目后多久开始自动刷新缓存, 推荐与 interval 一致, 因为项目启动时会缓存所有文件.
+#      interval: 1800 # 任务间隔时间, 也就是每多长时间会自动刷新缓存一次.
     timeout: 1800
   constant:
     readme: readme.md
     password: password.txt
+  preview:
+      audio:
+          maxFileSizeMb: 5
+      text:
+          maxFileSizeKb: 512
   onedrive:
     clientId: 09939809-c617-43c8-a220-a93c1513c5d4
     clientSecret: _l:zI-_yrW75lV8M61K@z.I2K@B/On6Q

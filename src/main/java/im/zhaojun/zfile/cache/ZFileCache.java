@@ -1,85 +1,136 @@
 package im.zhaojun.zfile.cache;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.CacheObj;
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.StrUtil;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.model.entity.DriveConfig;
+import im.zhaojun.zfile.repository.DriverConfigRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @author zhaojun
  * ZFile 缓存类
+ *
+ * @author zhaojun
  */
 @Component
 public class ZFileCache {
 
+    @Value("${zfile.cache.timeout}")
+    private long timeout;
+
+
     /**
      * 缓存 map 对象.
+     *
+     * ConcurrentMap<Integer, ConcurrentHashMap<String, List<FileItemDTO>>>
+     * ConcurrentMap<driveId, ConcurrentHashMap<key, value>>
+     *
+     * driveId: 驱动器 ID
      * key: 文件夹路径
      * value: 文件夹中内容
      */
-    private ConcurrentMap<String, List<FileItemDTO>> cache = new ConcurrentHashMap<>();
+    private ConcurrentMap<Integer, TimedCache<String, List<FileItemDTO>>> drivesCache = new ConcurrentHashMap<>();
 
     /**
      * 系统设置缓存
      */
     private SystemConfigDTO systemConfigCache;
 
-    /**
-     * 缓存最后自动刷新时间
-     */
-    public Date lastCacheAutoRefreshDate;
+    @Resource
+    private DriverConfigRepository driverConfigRepository;
+
 
     /**
      * 写入缓存
-     * @param key       文件夹路径
-     * @param value     文件夹中内容
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @param   key
+     *          文件夹路径
+     *
+     * @param   value
+     *          文件夹中列表
      */
-    public synchronized void put(String key, List<FileItemDTO> value) {
-        cache.put(key, value);
+    public synchronized void put(Integer driveId, String key, List<FileItemDTO> value) {
+        getCacheByDriveId(driveId).put(key, value);
     }
 
-    /**
-     * 根据文件夹路径取的环境
-     * @param key       文件夹路径
-     * @return          文件夹中内容
-     */
-    public List<FileItemDTO> get(String key) {
-        return cache.get(key);
-    }
 
     /**
-     * 清空缓存.
+     * 获取指定驱动器, 某个文件夹的名称
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @param   key
+     *          文件夹路径
+     *
+     * @return  驱动器中文件夹的内容
      */
-    public void clear() {
-        cache.clear();
+    public List<FileItemDTO> get(Integer driveId, String key) {
+        return getCacheByDriveId(driveId).get(key, false);
     }
 
+
     /**
-     * 获取已缓存文件夹数量
+     * 清空指定驱动器的缓存.
+     *
+     * @param   driveId
+     *          驱动器 ID
+     */
+    public void clear(Integer driveId) {
+        getCacheByDriveId(driveId).clear();
+    }
+
+
+    /**
+     * 获取指定驱动器中已缓存文件夹数量
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
      * @return  已缓存文件夹数量
      */
-    public int cacheCount() {
-        return cache.size();
+    public int cacheCount(Integer driveId) {
+        return getCacheByDriveId(driveId).size();
     }
 
+
     /**
-     * 搜索缓存中内容
-     * @param key                           搜索键, 可匹配文件夹名称和文件名称.
-     * @param ignoreCase                    是否忽略大小写, true 为忽略, false 为不忽略.
-     * @param searchContainEncryptedFile    搜索是否包含加密文件. true 为不包含, false 为包含, 用于控制当文件夹被密码保护时, 是否出现在搜索结果中.
-     * @return                              搜索结果, 包含文件夹和文件.
+     * 指定驱动器, 根据文件及文件名查找相关的文件
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @param   key
+     *          搜索键, 可匹配文件夹名称和文件名称.
+     *
+     * @return  搜索结果, 包含文件夹和文件.
      */
-    public List<FileItemDTO> find(String key, boolean ignoreCase, boolean searchContainEncryptedFile) {
+    public List<FileItemDTO> find(Integer driveId, String key) {
         List<FileItemDTO> result = new ArrayList<>();
 
-        Collection<List<FileItemDTO>> values = cache.values();
-        for (List<FileItemDTO> fileItemList : values) {
+        DriveConfig driveConfig = driverConfigRepository.getOne(driveId);
+        boolean searchContainEncryptedFile = driveConfig.getSearchContainEncryptedFile();
+        boolean ignoreCase = driveConfig.getSearchIgnoreCase();
 
+        for (List<FileItemDTO> fileItemList : getCacheByDriveId(driveId)) {
             // 过滤加密文件
             if (!searchContainEncryptedFile && isEncryptedFolder(fileItemList)) {
                 continue;
@@ -103,37 +154,57 @@ public class ZFileCache {
         return result;
     }
 
-    /**
-     * 获取所有缓存 key (文件夹名称)
-     * @return      所有缓存 key
-     */
-    public Set<String> keySet() {
-        return cache.keySet();
-    }
 
     /**
-     * 从缓存中删除一个条目
-     * @param key   文件夹名称
+     * 获取所有缓存 key (文件夹名称)
+     *
+     * @return      所有缓存 key
      */
-    public void remove(String key) {
-        cache.remove(key);
+    public Set<String> keySet(Integer driveId) {
+        Iterator<CacheObj<String, List<FileItemDTO>>> cacheObjIterator = getCacheByDriveId(driveId).cacheObjIterator();
+        Set<String> keys = new HashSet<>();
+        while (cacheObjIterator.hasNext()) {
+            keys.add(cacheObjIterator.next().getKey());
+        }
+        return keys;
     }
+
+
+    /**
+     * 从缓存中删除指定存储器的某个路径的缓存
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @param   key
+     *          文件夹路径
+     */
+    public void remove(Integer driveId, String key) {
+        getCacheByDriveId(driveId).remove(key);
+    }
+
+
 
     /**
      * 更新缓存中的系统设置
-     * @param systemConfigCache 系统设置
+     *
+     * @param   systemConfigCache
+     *          系统设置
      */
     public void updateConfig(SystemConfigDTO systemConfigCache) {
         this.systemConfigCache = systemConfigCache;
     }
 
+
     /**
-     * 从获取中获取系统设置
+     * 从缓存中获取系统设置
+     *
      * @return  系统设置
      */
     public SystemConfigDTO getConfig() {
         return this.systemConfigCache;
     }
+
 
     /**
      * 清空系统设置缓存
@@ -142,27 +213,14 @@ public class ZFileCache {
         this.systemConfigCache = null;
     }
 
-    /**
-     * 获取缓存最后刷新时间
-     * @return  缓存最后刷新时间
-     */
-    public Date getLastCacheAutoRefreshDate() {
-        return lastCacheAutoRefreshDate;
-    }
 
     /**
-     * 更新缓存最后刷新时间
-     * @param lastCacheAutoRefreshDate  缓存最后刷新时间
-     */
-    public void setLastCacheAutoRefreshDate(Date lastCacheAutoRefreshDate) {
-        this.lastCacheAutoRefreshDate = lastCacheAutoRefreshDate;
-    }
-
-
-    /**
-     * 判断是否为加密文件夹
-     * @param list      文件夹中的内容
-     * @return          返回此文件夹是否加密.
+     * 判断此文件夹是否为加密文件夹 (包含)
+     *
+     * @param   list
+     *          文件夹中的内容
+     *
+     * @return  返回此文件夹是否是加密的 ().
      */
     private boolean isEncryptedFolder(List<FileItemDTO> list) {
         // 遍历文件判断是否包含
@@ -173,4 +231,24 @@ public class ZFileCache {
         }
         return false;
     }
+
+
+    /**
+     * 获取指定驱动器对应的缓存
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @return  驱动器对应的缓存
+     */
+    private synchronized TimedCache<String, List<FileItemDTO>> getCacheByDriveId(Integer driveId) {
+        TimedCache<String, List<FileItemDTO>> driveCache = drivesCache.get(driveId);
+        if (driveCache == null) {
+            driveCache = CacheUtil.newTimedCache(timeout * 1000);
+            drivesCache.put(driveId, driveCache);
+        }
+
+        return driveCache;
+    }
+
 }

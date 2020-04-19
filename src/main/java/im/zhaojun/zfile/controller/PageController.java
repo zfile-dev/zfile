@@ -4,11 +4,12 @@ import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
-import im.zhaojun.zfile.service.SystemConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
+import im.zhaojun.zfile.context.DriveContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.annotation.Resource;
@@ -17,16 +18,22 @@ import java.util.Objects;
 
 /**
  * @author Zhao Jun
- * 2020/2/9 11:17
  */
 @Controller
 public class PageController {
 
     @Resource
-    private SystemConfigService systemConfigService;
+    private DriveContext driveContext;
 
-    @GetMapping("/directlink/**")
-    public String directlink(final HttpServletRequest request) {
+    /**
+     * 获取指定驱动器, 某个文件的直链, 然后重定向过去.
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @return  重定向至文件直链
+     */
+    @GetMapping("/directlink/{driveId}/**")
+    public String directlink(@PathVariable("driveId") Integer driveId, final HttpServletRequest request) {
         String path = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
@@ -37,7 +44,7 @@ public class PageController {
             filePath = "/" + filePath;
         }
 
-        AbstractBaseFileService fileService = systemConfigService.getCurrentFileService();
+        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
         FileItemDTO fileItem = fileService.getFileItem(filePath);
 
         String url = fileItem.getUrl();

@@ -1,8 +1,5 @@
 package im.zhaojun.zfile.model.support;
 
-import im.zhaojun.zfile.model.support.Jvm;
-import im.zhaojun.zfile.model.support.Mem;
-import im.zhaojun.zfile.model.support.Sys;
 import lombok.Data;
 
 import java.io.Serializable;

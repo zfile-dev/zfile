@@ -1,17 +1,16 @@
 package im.zhaojun.zfile.service;
 
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.crypto.SecureUtil;
 import im.zhaojun.zfile.cache.ZFileCache;
-import im.zhaojun.zfile.config.StorageTypeFactory;
 import im.zhaojun.zfile.model.constant.SystemConfigConstant;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
+import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.entity.SystemConfig;
-import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.repository.SystemConfigRepository;
-import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -32,8 +31,17 @@ public class SystemConfigService {
     @Resource
     private SystemConfigRepository systemConfigRepository;
 
+    @Resource
+    private DriveConfigService driveConfigService;
+
     private Class<SystemConfigDTO> systemConfigClazz = SystemConfigDTO.class;
 
+
+    /**
+     * 获取系统设置, 如果缓存中有, 则去缓存取, 没有则查询数据库并写入到缓存中.
+     *
+     * @return  系统设置
+     */
     public SystemConfigDTO getSystemConfig() {
         SystemConfigDTO cacheConfig = zFileCache.getConfig();
         if (cacheConfig != null) {
@@ -48,12 +56,10 @@ public class SystemConfigService {
 
             try {
                 Field field = systemConfigClazz.getDeclaredField(key);
-                if (field != null) {
-                    field.setAccessible(true);
-                    String strVal = systemConfig.getValue();
-                    Object convertVal = Convert.convert(field.getType(), strVal);
-                    field.set(systemConfigDTO, convertVal);
-                }
+                field.setAccessible(true);
+                String strVal = systemConfig.getValue();
+                Object convertVal = Convert.convert(field.getType(), strVal);
+                field.set(systemConfigDTO, convertVal);
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 if (log.isDebugEnabled()) {
                     log.debug("通过反射, 将字段 {" + key + "}注入 SystemConfigDTO 时出现异常:", e);
@@ -66,7 +72,14 @@ public class SystemConfigService {
     }
 
 
-    public void updateSystemConfig(SystemConfigDTO systemConfigDTO) throws Exception {
+    /**
+     * 更新系统设置, 并清空缓存中的内容.
+     *
+     * @param   systemConfigDTO
+     *          系统
+     *
+     */
+    public void updateSystemConfig(SystemConfigDTO systemConfigDTO) {
         List<SystemConfig> systemConfigList = new ArrayList<>();
 
         Field[] fields = systemConfigClazz.getDeclaredFields();
@@ -75,7 +88,16 @@ public class SystemConfigService {
             SystemConfig systemConfig = systemConfigRepository.findByKey(key);
             if (systemConfig != null) {
                 field.setAccessible(true);
-                Object val = field.get(systemConfigDTO);
+                Object val = null;
+
+                try {
+                    val = field.get(systemConfigDTO);
+                } catch (IllegalAccessException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("通过反射, 从 SystemConfigDTO 获取字段 {" + key + "}  时出现异常:", e);
+                    }
+                }
+
                 if (val != null) {
                     systemConfig.setValue(val.toString());
                     systemConfigList.add(systemConfig);
@@ -88,6 +110,34 @@ public class SystemConfigService {
     }
 
 
+    /**
+     * 根据驱动器 ID, 获取对于前台页面的系统设置.
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @return  前台系统设置
+     */
+    public SystemFrontConfigDTO getSystemFrontConfig(Integer driveId) {
+        SystemConfigDTO systemConfig = getSystemConfig();
+        SystemFrontConfigDTO systemFrontConfigDTO = new SystemFrontConfigDTO();
+        BeanUtils.copyProperties(systemConfig, systemFrontConfigDTO);
+
+        DriveConfig driveConfig = driveConfigService.findById(driveId);
+        systemFrontConfigDTO.setSearchEnable(driveConfig.getSearchEnable());
+        return systemFrontConfigDTO;
+    }
+
+
+    /**
+     * 更新后台账号密码
+     *
+     * @param   username
+     *          用户名
+     *
+     * @param   password
+     *          密码
+     */
     public void updateUsernameAndPwd(String username, String password) {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.USERNAME);
         usernameConfig.setValue(username);
@@ -103,34 +153,14 @@ public class SystemConfigService {
     }
 
 
-    public void updateCacheEnableConfig(Boolean isEnable) {
-        SystemConfig enableConfig = systemConfigRepository.findByKey(SystemConfigConstant.ENABLE_CACHE);
-        enableConfig.setValue(isEnable.toString());
-        systemConfigRepository.save(enableConfig);
-        zFileCache.removeConfig();
-    }
-
-
-    public AbstractBaseFileService getCurrentFileService() {
-        StorageTypeEnum storageStrategy = getCurrentStorageStrategy();
-        return StorageTypeFactory.getStorageTypeService(storageStrategy);
-    }
-
-
-    public StorageTypeEnum getCurrentStorageStrategy() {
+    /**
+     * 获取管理员名称
+     *
+     * @return  管理员名称
+     */
+    public String getAdminUsername() {
         SystemConfigDTO systemConfigDTO = getSystemConfig();
-        return systemConfigDTO.getStorageStrategy();
+        return systemConfigDTO.getUsername();
     }
-
-    public boolean getEnableCache() {
-        SystemConfigDTO systemConfigDTO = getSystemConfig();
-        return BooleanUtil.isTrue(systemConfigDTO.getEnableCache());
-    }
-
-    public boolean getSearchIgnoreCase() {
-        SystemConfigDTO systemConfigDTO = getSystemConfig();
-        return BooleanUtil.isTrue(systemConfigDTO.getSearchIgnoreCase());
-    }
-
 
 }

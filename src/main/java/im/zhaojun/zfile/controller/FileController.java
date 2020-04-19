@@ -1,31 +1,31 @@
 package im.zhaojun.zfile.controller;
 
-import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.URLUtil;
-import im.zhaojun.zfile.model.annotation.CheckStorageStrategyInit;
-import im.zhaojun.zfile.exception.SearchDisableException;
-import im.zhaojun.zfile.model.support.FilePageModel;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.ResultBean;
-import im.zhaojun.zfile.model.dto.SiteConfigDTO;
-import im.zhaojun.zfile.model.dto.SystemConfigDTO;
-import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import im.zhaojun.zfile.service.support.FileAsyncCacheService;
+import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
+import im.zhaojun.zfile.model.support.FilePageModel;
+import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
-import im.zhaojun.zfile.service.SystemService;
+import im.zhaojun.zfile.service.base.AbstractBaseFileService;
+import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.util.FileComparator;
 import im.zhaojun.zfile.util.HttpUtil;
 import im.zhaojun.zfile.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 前台文件管理
@@ -37,33 +37,60 @@ import java.util.*;
 public class FileController {
 
     @Resource
-    private SystemService systemService;
-
-    @Resource
     private SystemConfigService systemConfigService;
 
     @Resource
-    private FileAsyncCacheService fileAsyncCacheService;
+    private DriveContext driveContext;
+
+    @Resource
+    private DriveConfigService driveConfigService;
 
     /**
      * 滚动加载每页条数.
      */
     private static final Integer PAGE_SIZE = 30;
 
-    @CheckStorageStrategyInit
-    @GetMapping("/list")
-    public ResultBean list(@RequestParam(defaultValue = "/") String path,
-                           @RequestParam(defaultValue = "name") String sortBy,
-                           @RequestParam(defaultValue = "asc") String order,
+
+    /**
+     * 获取所有驱动器
+     *
+     * @return  所有驱动器
+     */
+    @GetMapping("/drive/list")
+    public ResultBean drives() {
+        return ResultBean.success(driveConfigService.list());
+    }
+
+    /**
+     * 获取某个驱动器下, 指定路径的数据, 每页固定 {@link #PAGE_SIZE} 条数据.
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @param   path
+     *          路径
+     *
+     * @param   password
+     *          文件夹密码, 某些文件夹需要密码才能访问, 当不需要密码时, 此参数可以为空
+     *
+     * @param   page
+     *          页数
+     *
+     * @return  当前路径下所有文件及文件夹
+     */
+    @GetMapping("/list/{driveId}")
+    public ResultBean list(@PathVariable(name = "driveId") Integer driveId,
+                           @RequestParam(defaultValue = "/") String path,
                            @RequestParam(required = false) String password,
                            @RequestParam(defaultValue = "1") Integer page) throws Exception {
-        AbstractBaseFileService fileService = systemConfigService.getCurrentFileService();
+        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
         List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + path + "/"));
+
         for (FileItemDTO fileItemDTO : fileItemList) {
             if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())) {
                 String expectedPasswordContent;
                 try {
-                    expectedPasswordContent = HttpUtil.getTextContent(fileItemDTO.getUrl() + '1');
+                    expectedPasswordContent = HttpUtil.getTextContent(fileItemDTO.getUrl());
                 } catch (HttpClientErrorException httpClientErrorException) {
                     log.debug("尝试重新获取密码文件缓存中链接后仍失败", httpClientErrorException);
                     try {
@@ -86,45 +113,50 @@ public class FileController {
                 return ResultBean.error("此文件夹需要密码.", ResultBean.REQUIRED_PASSWORD);
             }
         }
-
         return ResultBean.successData(getSortedPagingData(fileItemList, page));
     }
-
 
     /**
      * 获取系统配置信息和当前页的标题, 页面文档信息
-     * @param path          路径
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @return  返回指定存储器的系统配置信息
      */
-    @CheckStorageStrategyInit
-    @GetMapping("/config")
-    public ResultBean getConfig(String path) throws Exception {
-        SiteConfigDTO config = systemService.getConfig(StringUtils.removeDuplicateSeparator("/" + path + "/"));
-        config.setSystemConfigDTO(systemConfigService.getSystemConfig());
-        return ResultBean.successData(config);
+    @GetMapping("/config/{driveId}")
+    public ResultBean getConfig(@PathVariable(name = "driveId") Integer driveId, String path) {
+        SystemFrontConfigDTO systemConfig = systemConfigService.getSystemFrontConfig(driveId);
+
+        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
+        String fullPath = StringUtils.removeDuplicateSeparator(path + "/" + ZFileConstant.README_FILE_NAME);
+        try {
+            FileItemDTO fileItem = fileService.getFileItem(fullPath);
+            String readme = HttpUtil.getTextContent(fileItem.getUrl());
+            systemConfig.setReadme(readme);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        return ResultBean.successData(systemConfig);
     }
 
 
-    @CheckStorageStrategyInit
-    @GetMapping("/search")
+    @GetMapping("/search/{driveId}")
     public ResultBean search(@RequestParam(value = "name", defaultValue = "/") String name,
                              @RequestParam(defaultValue = "name") String sortBy,
                              @RequestParam(defaultValue = "asc") String order,
-                             @RequestParam(defaultValue = "1") Integer page) {
-        AbstractBaseFileService fileService = systemConfigService.getCurrentFileService();
-        SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
-        if (BooleanUtil.isFalse(systemConfigDTO.getSearchEnable())) {
-            throw new SearchDisableException("搜索功能未开启");
-        }
-        if (!fileAsyncCacheService.isCacheFinish()) {
-            throw new SearchDisableException("搜索功能缓存预热中, 请稍后再试");
-        }
-        List<FileItemDTO> fileItemList = fileService.search(URLUtil.decode(name));
-        return ResultBean.successData(getSortedPagingData(fileItemList, page));
+                             @RequestParam(defaultValue = "1") Integer page,
+                             @PathVariable("driveId") Integer driveId) {
+        return ResultBean.error("暂不支持搜索功能");
     }
 
 
     /**
-     * 过滤文件列表, 不显示密码, 文档文件.
+     * 过滤文件列表, 去除密码, 文档文件.
+     *
+     * @param   fileItemList
+     *          文件列表
      */
     private void filterFileList(List<FileItemDTO> fileItemList) {
         if (fileItemList == null) {
@@ -136,6 +168,17 @@ public class FileController {
     }
 
 
+    /**
+     * 对传入的文件列表, 按照文件名进行排序, 然后取相应页数的文件
+     *
+     * @param   fileItemList
+     *          文件列表
+     *
+     * @param   page
+     *          要取的页数
+     *
+     * @return  排序及分页后的那段数据
+     */
     private FilePageModel getSortedPagingData(List<FileItemDTO> fileItemList, Integer page) {
         ArrayList<FileItemDTO> copy = new ArrayList<>(Arrays.asList(new FileItemDTO[fileItemList.size()]));
         Collections.copy(copy, fileItemList);
@@ -148,25 +191,30 @@ public class FileController {
         int totalPage = (total + PAGE_SIZE - 1) / PAGE_SIZE;
 
         if (page > totalPage) {
-            return new FilePageModel(total, totalPage, Collections.emptyList());
+            return new FilePageModel(totalPage, Collections.emptyList());
         }
 
         int start = (page - 1) * PAGE_SIZE;
         int end = page * PAGE_SIZE;
         end = Math.min(end, total);
-        return new FilePageModel(total, totalPage, copy.subList(start, end));
+        return new FilePageModel(totalPage, copy.subList(start, end));
     }
 
 
     /**
      * 获取指定路径下的文件信息内容
-     * @param path      文件全路径
-     * @return          该文件的名称, 路径, 大小, 下载地址等信息.
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @param   path
+     *          文件全路径
+     *
+     * @return  该文件的名称, 路径, 大小, 下载地址等信息.
      */
-    @CheckStorageStrategyInit
-    @GetMapping("/directlink")
-    public ResultBean directlink(String path) {
-        AbstractBaseFileService fileService = systemConfigService.getCurrentFileService();
+    @GetMapping("/directlink/{driveId}")
+    public ResultBean directlink(@PathVariable(name = "driveId") Integer driveId, String path) {
+        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
         return ResultBean.successData(fileService.getFileItem(path));
     }
 }

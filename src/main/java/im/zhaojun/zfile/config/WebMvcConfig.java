@@ -22,10 +22,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Bean
     public ServletWebServerFactory webServerFactory() {
         TomcatServletWebServerFactory webServerFactory = new TomcatServletWebServerFactory();
+
+        // 添加对 URL 中特殊符号的支持.
         webServerFactory.addConnectorCustomizers(connector -> {
             connector.setAttribute("relaxedPathChars", "<>[\\]^`{|}");
             connector.setAttribute("relaxedQueryChars", "<>[\\]^`{|}");
         });
         return webServerFactory;
     }
+
 }

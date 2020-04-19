@@ -1,7 +1,7 @@
 package im.zhaojun.zfile.controller;
 
-import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
 import im.zhaojun.zfile.model.support.OneDriveToken;
+import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
 import im.zhaojun.zfile.service.impl.OneDriveServiceImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +24,7 @@ public class OneDriveController {
     private OneDriveChinaServiceImpl oneDriveChinaServiceImpl;
 
     @GetMapping("/callback")
-    public String onedriveCallback(String code, Model model) {
+    public String oneDriveCallback(String code, Model model) {
         OneDriveToken oneDriveToken = oneDriveServiceImpl.getToken(code);
         model.addAttribute("accessToken", oneDriveToken.getAccessToken());
         model.addAttribute("refreshToken", oneDriveToken.getRefreshToken());
@@ -33,7 +33,7 @@ public class OneDriveController {
 
 
     @GetMapping("/china-callback")
-    public String onedriveChinaCallback(String code, Model model) {
+    public String oneDriveChinaCallback(String code, Model model) {
         OneDriveToken oneDriveToken = oneDriveChinaServiceImpl.getToken(code);
         model.addAttribute("accessToken", oneDriveToken.getAccessToken());
         model.addAttribute("refreshToken", oneDriveToken.getRefreshToken());

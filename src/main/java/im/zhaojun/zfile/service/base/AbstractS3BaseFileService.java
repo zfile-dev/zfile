@@ -6,10 +6,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
+import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.util.StringUtils;
 
 import javax.annotation.Resource;

@@ -7,16 +7,17 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import im.zhaojun.zfile.model.constant.ZFileConstant;
-import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
+import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
+import im.zhaojun.zfile.model.support.OneDriveToken;
 import im.zhaojun.zfile.repository.StorageConfigRepository;
 import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.util.StringUtils;
-import im.zhaojun.zfile.model.support.OneDriveToken;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -28,7 +29,6 @@ import java.util.List;
 
 /**
  * @author Zhao Jun
- * 2020/1/29 11:54
  */
 @Slf4j
 public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileService {
@@ -46,6 +46,7 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
     private static final String ONE_DRIVE_FILE_FLAG = "file";
 
     @Resource
+    @Lazy
     private RestTemplate oneDriveRestTemplate;
 
     @Resource
@@ -54,6 +55,11 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
     @Resource
     private StorageConfigService storageConfigService;
 
+    /**
+     * 根据 RefreshToken 刷新 AccessToken, 返回刷新后的 Token.
+     *
+     * @return  刷新后的 Token
+     */
     public OneDriveToken getRefreshToken() {
         StorageConfig refreshStorageConfig =
                 storageConfigRepository.findByTypeAndKey(this.getStorageTypeEnum(), StorageConfigConstant.REFRESH_TOKEN_KEY);
@@ -72,6 +78,14 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
         return JSONObject.parseObject(response.body(), OneDriveToken.class);
     }
 
+    /**
+     * OAuth2 协议中, 根据 code 换取 access_token 和 refresh_token.
+     *
+     * @param   code
+     *          代码
+     *
+     * @return  获取的 Token 信息.
+     */
     public OneDriveToken getToken(String code) {
         String param = "client_id=" + getClientId() +
                 "&redirect_uri=" + getRedirectUri() +
@@ -86,10 +100,6 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
         post.body(param, "application/x-www-form-urlencoded");
         HttpResponse response = post.execute();
         return JSONObject.parseObject(response.body(), OneDriveToken.class);
-    }
-
-    public String getUserInfo() {
-        return oneDriveRestTemplate.getForObject(DRIVER_INFO_URL, String.class);
     }
 
     @Override
@@ -211,4 +221,14 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
 
         storageConfigService.updateStorageConfig(Arrays.asList(accessTokenConfig, refreshTokenConfig));
     }
+
+    @Override
+    public List<StorageConfig> storageStrategyConfigList() {
+        return new ArrayList<StorageConfig>() {{
+            add(new StorageConfig("accessToken", "访问令牌"));
+            add(new StorageConfig("refreshToken", "刷新令牌"));
+            add(new StorageConfig("basePath", "基路径"));
+        }};
+    }
+
 }

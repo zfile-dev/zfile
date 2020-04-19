@@ -1,53 +1,27 @@
 package im.zhaojun.zfile.model.dto;
 
+import lombok.Data;
+
 /**
  * @author zhaojun
  */
+@Data
 public class AudioInfoDTO {
+
     private String title;
+
     private String artist;
+
     private String cover;
+
     private String src;
 
-    public String getTitle() {
-        return title;
+    public static AudioInfoDTO buildDefaultAudioInfoDTO() {
+        AudioInfoDTO audioInfoDTO = new AudioInfoDTO();
+        audioInfoDTO.setTitle("未知歌曲");
+        audioInfoDTO.setArtist("未知");
+        audioInfoDTO.setCover("http://c.jun6.net/audio.png");
+        return audioInfoDTO;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getArtist() {
-        return artist;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
-    public String getCover() {
-        return cover;
-    }
-
-    public void setCover(String cover) {
-        this.cover = cover;
-    }
-
-    public String getSrc() {
-        return src;
-    }
-
-    public void setSrc(String src) {
-        this.src = src;
-    }
-
-    @Override
-    public String toString() {
-        return "AudioInfoDTO{" +
-                "title='" + title + '\'' +
-                ", artist='" + artist + '\'' +
-                ", cover='" + cover + '\'' +
-                ", src='" + src + '\'' +
-                '}';
-    }
 }

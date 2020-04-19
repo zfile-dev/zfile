@@ -12,4 +12,5 @@ public class StorageTypeEnumDeSerializerConvert implements Converter<String, Sto
     public StorageTypeEnum convert(@NonNull String s) {
         return StorageTypeEnum.getEnum(s);
     }
+
 }

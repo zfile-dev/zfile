@@ -1,20 +1,22 @@
 package im.zhaojun.zfile.service.impl;
 
 import im.zhaojun.zfile.exception.NotExistFileException;
-import im.zhaojun.zfile.model.entity.StorageConfig;
-import im.zhaojun.zfile.model.entity.SystemConfig;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.constant.SystemConfigConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
+import im.zhaojun.zfile.model.entity.StorageConfig;
+import im.zhaojun.zfile.model.entity.SystemConfig;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.repository.SystemConfigRepository;
+import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.service.base.BaseFileService;
-import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -29,6 +31,7 @@ import java.util.Objects;
  * @author zhaojun
  */
 @Service
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LocalServiceImpl extends AbstractBaseFileService implements BaseFileService {
 
     private static final Logger log = LoggerFactory.getLogger(LocalServiceImpl.class);
@@ -42,10 +45,11 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
     private String filePath;
 
     @Override
-    public void init() {
+    public void init(Integer driveId) {
         try {
+            this.driveId = driveId;
             Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
+                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
             filePath = stringStorageConfigMap.get(StorageConfigConstant.FILE_PATH_KEY).getValue();
             if (Objects.isNull(filePath)) {
                 log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
@@ -89,7 +93,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
     @Override
     public String getDownloadUrl(String path) {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
-        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + path);
+        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + driveId + "/" + path);
     }
 
     public String getFilePath() {
@@ -129,7 +133,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
     }
 
     @Override
-    public List<StorageConfig> storageStrategyList() {
+    public List<StorageConfig> storageStrategyConfigList() {
         return new ArrayList<StorageConfig>() {{
             add(new StorageConfig("filePath", "文件路径"));
         }};

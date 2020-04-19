@@ -1,8 +1,6 @@
 package im.zhaojun.zfile.util;
 
 import cn.hutool.core.net.NetUtil;
-import im.zhaojun.zfile.exception.InitializeException;
-import im.zhaojun.zfile.service.support.FileAsyncCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
@@ -22,15 +20,11 @@ import java.util.LinkedHashSet;
 public class StartupListener implements ApplicationListener<ApplicationStartedEvent> {
 
     @Resource
-    private FileAsyncCacheService fileAsyncCacheService;
-
-    @Resource
     private Environment environment;
 
     @Override
     public void onApplicationEvent(@NonNull ApplicationStartedEvent event) {
         printStartInfo();
-        cacheAllFile();
     }
 
 
@@ -49,11 +43,11 @@ public class StartupListener implements ApplicationListener<ApplicationStartedEv
         log.info("ZFile Admin started at    " + indexAdminAddr);
     }
 
-    private void cacheAllFile() {
-        try {
-            fileAsyncCacheService.cacheGlobalFile();
-        } catch (Exception e) {
-            throw new InitializeException("初始化缓存异常.", e);
-        }
-    }
+    // private void cacheAllFile() {
+    //     try {
+    //         fileAsyncCacheService.cacheGlobalFile();
+    //     } catch (Exception e) {
+    //         throw new InitializeException("初始化缓存异常.", e);
+    //     }
+    // }
 }

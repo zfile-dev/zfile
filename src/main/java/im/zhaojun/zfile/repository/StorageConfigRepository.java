@@ -15,16 +15,56 @@ public interface StorageConfigRepository extends JpaRepository<StorageConfig, In
 
     /**
      * 根据存储类型找对应的配置信息
-     * @param type  存储类型
-     * @return      此类型所有的配置信息
+     *
+     * @param   type
+     *          存储类型
+     *
+     * @return  此类型所有的配置信息
      */
     List<StorageConfig> findByTypeOrderById(StorageTypeEnum type);
 
+
+    /**
+     * 根据存储类型找对应的配置信息
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @return  此驱动器所有的配置信息
+     */
+    List<StorageConfig> findByDriveIdOrderById(Integer driveId);
+
+
+    /**
+     * 根据驱动器找到对应的配置信息
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @return  此驱动器所有的配置信息
+     */
+    List<StorageConfig> findByDriveId(Integer driveId);
+
+
+    /**
+     * 删除指定驱动器对应的配置信息
+     *
+     * @param   driveId
+     *          驱动器 ID
+     */
+    void deleteByDriveId(Integer driveId);
+
+
     /**
      * 根据存储类型找到某个 KEY 的值
-     * @param type  存储类型
-     * @param key   KEY
-     * @return      KEY 对应的对象
+     *
+     * @param   type
+     *          存储类型
+     *
+     * @param   key
+     *          KEY 值
+     *
+     * @return  KEY 对应的对象
      */
     StorageConfig findByTypeAndKey(StorageTypeEnum type, String key);
 

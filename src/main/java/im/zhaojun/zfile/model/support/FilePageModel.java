@@ -13,8 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class FilePageModel {
 
-    private int total;
-
     private int totalPage;
 
     private List<FileItemDTO> fileList;

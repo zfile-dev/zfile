@@ -8,6 +8,8 @@ import im.zhaojun.zfile.service.base.AbstractOneDriveServiceBase;
 import im.zhaojun.zfile.service.base.BaseFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +21,7 @@ import java.util.Map;
  */
 @Service
 @Slf4j
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements BaseFileService {
 
     @Resource
@@ -37,10 +40,11 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements 
     protected String scope;
 
     @Override
-    public void init() {
+    public void init(Integer driveId) {
         try {
+            this.driveId = driveId;
             Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByKey(getStorageTypeEnum());
+                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
             String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
             String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
             super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();

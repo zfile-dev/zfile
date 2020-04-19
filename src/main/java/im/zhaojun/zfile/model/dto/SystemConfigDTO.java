@@ -9,6 +9,7 @@ import lombok.ToString;
 
 /**
  * 系统设置传输类
+ *
  * @author zhaojun
  */
 @ToString
@@ -20,25 +21,15 @@ public class SystemConfigDTO {
 
     private String siteName;
 
-    private Boolean infoEnable;
-
-    private Boolean searchEnable;
-
-    private Boolean searchIgnoreCase;
+    private String username;
 
     @JsonSerialize(using = StorageTypeEnumSerializerConvert.class)
     private StorageTypeEnum storageStrategy;
-
-    private String username;
 
     @JsonIgnore
     private String password;
 
     private String domain;
-
-    private Boolean enableCache;
-
-    private Boolean searchContainEncryptedFile;
 
     private String customJs;
 
