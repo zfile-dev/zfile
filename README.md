@@ -124,7 +124,11 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 
 ### 默认路径
 
-默认 H2 数据库文件地址: `~/.zfile/db/`, `~` 表示用户目录, windows 为 `C:/Users/用户名/`, linux 为 `/home/用户名/`, root 用户为 `/root/`
+默认 H2 数据库文件地址: `~/.zfile/db/`, `~` 表示用户目录
+
+windows 为 `C:/Users/用户名/`
+
+linux 为 `/home/用户名/`, root 用户为 `/root/`
 
 ### 文档文件和加密文件
 
@@ -139,13 +143,13 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 - [x] 后台优化 - 设置按照其功能进行分离
 - [x] 体验优化 - 支持前后端分离部署
 - [x] 体验优化 - 文本预览更换 vscode 同款编辑器 monaco editor
+- [x] 新功能 - Docker 支持
+- [x] 架构调整 - 支持多存储策略
 - [ ] 新功能 - 后台支持上传、编辑、删除等操作
 - [ ] 新功能 - WebDav 支持
-- [ ] 新功能 - Docker 支持
 - [ ] 新功能 - 离线下载 (aria2)
 - [ ] 体验优化 - 忽略文件列表 (正则表达式)
 - [ ] 体验优化 - 自定义支持预览的文件后缀 (正则表达式)
-- [ ] 架构调整 - 支持多存储策略
 - [ ] 体验优化 - 一键安装脚本
 
 ## 支持作者
