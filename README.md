@@ -23,8 +23,9 @@
 * 文件夹密码
 * 支持在线浏览文本文件, 视频, 图片, 音乐. (支持 FLV 和 HLS)
 * 文件/目录二维码
-* 缓存动态开启, 缓存自动刷新
-* 全局搜索
+* 缓存动态开启, ~~缓存自动刷新 (v2.2 及以前版本支持)~~
+* ~~全局搜索 (v2.2 及以前版本支持)~~
+* 同时挂载多个存储策略
 * 支持 阿里云 OSS, FTP, 华为云 OBS, 本地存储, MINIO, OneDrive 国际/家庭/个人版, OneDrive 世纪互联版, 七牛云 KODO, 腾讯云 COS, 又拍云 USS.
 
 ## 快速开始
@@ -34,11 +35,15 @@
 ```bash
 # CentOS系统
 yum install -y java-1.8.0-openjdk unzip
+```
 
+```bash
 # Debian 9 / Ubuntu 14+
 apt update
 apt install -y openjdk-8-jre-headless unzip
+```
 
+```bash
 # Debian 10 (Buster) 系统
 apt update && apt install -y apt-transport-https software-properties-common ca-certificates dirmngr gnupg
 wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add -
@@ -46,7 +51,9 @@ add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
 apt update && apt install -y adoptopenjdk-8-hotspot-jre
 ```
 
+
 > 如为更新程序, 则请先执行 `~/zfile/bin/stop.sh && rm -rf ~/zfile` 清理旧程序. 首次安装请忽略此选项.
+
 
 下载项目:
 
@@ -56,6 +63,8 @@ wget https://c.jun6.net/ZFILE/zfile-release.war
 mkdir zfile && unzip zfile-release.war -d zfile && rm -rf zfile-release.war
 chmod +x zfile/bin/*.sh
 ```
+
+> 下载指定版本可以将 `zfile-release.war` 改为 `zfile-x.x.war`，如 `zfile-2.2.war`。
 
 程序的目录结构为:
 ```
@@ -74,7 +83,7 @@ chmod +x zfile/bin/*.sh
  ~/zfile/bin/start.sh
 ```
 
-篇幅有限, 更详细的安装教程请参考: [安装文档](http://zhaojun.im/zfile-install)
+篇幅有限, 更详细的安装教程及介绍请参考: [ZFile 文档](http://zhaojun.im/zfile-install)
 
 访问地址:
 
@@ -85,30 +94,6 @@ chmod +x zfile/bin/*.sh
 管理后台: http://127.0.0.1:8080/#/admin
 
 
-## OneDrive 使用教程.
-
-访问地址进行授权, 获取 accessToken 和 refreshToken:
-
-
-国际/家庭/个人版:
-
-https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=09939809-c617-43c8-a220-a93c1513c5d4&response_type=code&redirect_uri=https://zfile.jun6.net/onedrive/callback&scope=offline_access%20User.Read%20Files.ReadWrite.All
-
-
-世纪互联版:
-
-https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1907-488d-9eb2-1b465c53c1c5&response_type=code&redirect_uri=https://zfile.jun6.net/onedrive/china-callback&scope=offline_access%20User.Read%20Files.ReadWrite.All
-
-
-然后分别填写至访问令牌和刷新令牌即可:
-
-![http://cdn.jun6.net/2020-01-24_18-57-06.png](http://cdn.jun6.net/2020-01-24_18-57-06.png)
-
-## 运行环境
-
-* JDK: `1.8`
-* 数据库: `h2/mysql`
-
 ## 预览
 
 ![前台首页](https://cdn.jun6.net/2020/04/19/d590d2bde13bb.png)
@@ -118,9 +103,6 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 
 ## 常见问题
 
-### 数据库
-
-缓存默认支持 `h2` 和 `mysql`, 前者为嵌入式数据库, 无需安装, 但后者相对性能更好.
 
 ### 默认路径
 
@@ -129,6 +111,8 @@ https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=4a72d927-1
 windows 为 `C:/Users/用户名/`
 
 linux 为 `/home/用户名/`, root 用户为 `/root/`
+
+> 2.3 及以后版本路径为 `~/.zfile-new/db/`
 
 ### 文档文件和加密文件
 
@@ -155,7 +139,6 @@ linux 为 `/home/用户名/`, root 用户为 `/root/`
 ## 支持作者
 
 如果本项目对你有帮助，请作者喝杯咖啡吧。
-
 
 <img src="http://cdn.jun6.net/alipay.png" width="200" height="312">
 <img src="http://cdn.jun6.net/wechat.png" width="222" height="300">
