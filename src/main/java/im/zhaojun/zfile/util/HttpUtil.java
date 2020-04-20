@@ -3,8 +3,11 @@ package im.zhaojun.zfile.util;
 import im.zhaojun.zfile.exception.PreviewException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
+
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * @author zhaojun
@@ -30,8 +33,17 @@ public class HttpUtil {
      * 获取远程文件大小
      */
     public static Long getRemoteFileSize(String url) {
-        HttpHeaders httpHeaders = new RestTemplate().headForHeaders(url);
-        return httpHeaders.getContentLength();
+        long size = 0;
+        URL urlObject;
+        try {
+            urlObject = new URL(url);
+            URLConnection conn = urlObject.openConnection();
+            size = conn.getContentLength();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return size;
     }
 
 }

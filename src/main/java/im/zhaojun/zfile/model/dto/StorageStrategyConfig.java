@@ -12,7 +12,7 @@ public class StorageStrategyConfig {
 
     private String pathStyle;
 
-    private boolean isPrivate;
+    private Boolean isPrivate;
 
     private String accessKey;
 

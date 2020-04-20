@@ -2,6 +2,7 @@ package im.zhaojun.zfile.service;
 
 import im.zhaojun.zfile.context.StorageTypeContext;
 import im.zhaojun.zfile.exception.InitializeException;
+import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.dto.DriveConfigDTO;
 import im.zhaojun.zfile.model.dto.StorageStrategyConfig;
 import im.zhaojun.zfile.model.entity.DriveConfig;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 驱动器 Service 类
@@ -87,7 +89,11 @@ public class DriveConfigService {
             try {
                 declaredField = STORAGE_STRATEGY_CONFIG_CLASS.getDeclaredField(key);
                 declaredField.setAccessible(true);
-                declaredField.set(storageStrategyConfig, value);
+                if (Objects.equals(StorageConfigConstant.IS_PRIVATE, key)) {
+                    declaredField.set(storageStrategyConfig, Boolean.valueOf(value));
+                } else {
+                    declaredField.set(storageStrategyConfig, value);
+                }
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 if (log.isDebugEnabled()) {
                     log.debug("通过反射, 将字段 {" + key + "}注入 DriveConfigDTO 时出现异常:", e);

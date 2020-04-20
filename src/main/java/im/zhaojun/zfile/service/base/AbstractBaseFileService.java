@@ -29,11 +29,11 @@ public abstract class AbstractBaseFileService implements BaseFileService {
      */
     protected boolean isInitialized = false;
 
+
     /**
      * 基路径
      */
     protected String basePath;
-
     /**
      * 驱动器 ID
      */

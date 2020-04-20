@@ -57,7 +57,7 @@ public class AliyunServiceImpl extends AbstractS3BaseFileService implements Base
                 isInitialized = testConnection();
             }
         } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
+            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过", e);
         }
     }
 
@@ -75,6 +75,7 @@ public class AliyunServiceImpl extends AbstractS3BaseFileService implements Base
             add(new StorageConfig("domain", "Bucket 域名 / CDN 加速域名"));
             add(new StorageConfig("endPoint", "区域"));
             add(new StorageConfig("basePath", "基路径"));
+            add(new StorageConfig("isPrivate", "是否是私有空间"));
         }};
     }
 }

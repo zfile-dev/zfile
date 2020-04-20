@@ -93,6 +93,7 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
      * @return  S3 对象访问地址
      */
     public String s3ObjectUrl(String path) {
+        basePath = basePath == null ? "" : basePath;
         String fullPath = StringUtils.removeFirstSeparator(StringUtils.removeDuplicateSeparator(basePath + "/" + path));
 
         // 如果不是私有空间, 且指定了加速域名, 则直接返回下载地址.
