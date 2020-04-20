@@ -1,6 +1,7 @@
 package im.zhaojun.zfile.service;
 
 import im.zhaojun.zfile.context.StorageTypeContext;
+import im.zhaojun.zfile.exception.InitializeException;
 import im.zhaojun.zfile.model.dto.DriveConfigDTO;
 import im.zhaojun.zfile.model.dto.StorageStrategyConfig;
 import im.zhaojun.zfile.model.entity.DriveConfig;
@@ -163,6 +164,11 @@ public class DriveConfigService {
         storageConfigRepository.saveAll(storageConfigList);
 
         driveContext.initDrive(driveConfig.getId());
+
+        AbstractBaseFileService driveService = driveContext.getDriveService(driveConfig.getId());
+        if (driveService.getIsUnInitialized()) {
+            throw new InitializeException("初始化异常, 请检查配置是否正确.");
+        }
     }
 
 

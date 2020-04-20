@@ -63,12 +63,27 @@ public class GlobleExceptionHandler {
         // }
     }
 
+    /**
+     * 文件预览异常
+     */
     @ExceptionHandler({PreviewException.class})
     @ResponseBody
     @ResponseStatus
     public ResultBean previewException(PreviewException ex) {
         return ResultBean.error(ex.getMessage());
     }
+
+
+    /**
+     * 初始化异常
+     */
+    @ExceptionHandler({InitializeException.class})
+    @ResponseBody
+    @ResponseStatus
+    public ResultBean initializeException(InitializeException ex) {
+        return ResultBean.error(ex.getMessage());
+    }
+
 
 
 

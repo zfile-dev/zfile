@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,12 +64,17 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
     }
 
     @Override
-    public List<FileItemDTO> fileList(String path) {
+    public List<FileItemDTO> fileList(String path) throws FileNotFoundException {
         List<FileItemDTO> fileItemList = new ArrayList<>();
 
         String fullPath = StringUtils.concatPath(filePath, path);
 
         File file = new File(fullPath);
+
+        if (!file.exists()) {
+            throw new FileNotFoundException("文件不存在");
+        }
+
         File[] files = file.listFiles();
 
         if (files == null) {

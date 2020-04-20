@@ -19,6 +19,7 @@ public class StorageConfigService {
     @Resource
     private StorageConfigRepository storageConfigRepository;
 
+
     public List<StorageConfig> selectStorageConfigByType(StorageTypeEnum storageTypeEnum) {
         return storageConfigRepository.findByTypeOrderById(storageTypeEnum);
     }
@@ -55,7 +56,5 @@ public class StorageConfigService {
     public void updateStorageConfig(List<StorageConfig> storageConfigList) {
         storageConfigRepository.saveAll(storageConfigList);
     }
-
-
 
 }
