@@ -23,12 +23,14 @@ public class StorageConfigService {
         return storageConfigRepository.findByTypeOrderById(storageTypeEnum);
     }
 
+
     public List<StorageConfig> selectStorageConfigByDriveId(Integer driveId) {
         return storageConfigRepository.findByDriveIdOrderById(driveId);
     }
 
-    public StorageConfig selectByTypeAndKey(StorageTypeEnum storageType, String key) {
-        return storageConfigRepository.findByTypeAndKey(storageType, key);
+
+    public StorageConfig findByDriveIdAndKey(Integer driveId, String key) {
+        return storageConfigRepository.findByDriveIdAndKey(driveId, key);
     }
 
 

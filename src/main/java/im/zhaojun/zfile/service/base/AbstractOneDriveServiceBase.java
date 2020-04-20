@@ -4,7 +4,6 @@ import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
@@ -18,13 +17,17 @@ import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,7 +65,7 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
      */
     public OneDriveToken getRefreshToken() {
         StorageConfig refreshStorageConfig =
-                storageConfigRepository.findByTypeAndKey(this.getStorageTypeEnum(), StorageConfigConstant.REFRESH_TOKEN_KEY);
+                storageConfigRepository.findByDriveIdAndKey(driveId, StorageConfigConstant.REFRESH_TOKEN_KEY);
 
         String param = "client_id=" + getClientId() +
                 "&redirect_uri=" + getRedirectUri() +
@@ -124,18 +127,23 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
             }
             fullPath = StringUtils.removeLastSeparator(fullPath);
 
-            ResponseEntity<String> responseEntity;
+            JSONObject root;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("driveId", driveId.toString());
+            HttpEntity<Object> entity = new HttpEntity<>(headers);
+
             try {
-                responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, getGraphEndPoint(), fullPath);
+                root = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
             } catch (HttpClientErrorException e) {
                 log.debug("调用 OneDrive 时出现了网络异常: {} , 已尝试重新刷新 token 后再试.", e.getMessage());
                 refreshOneDriveToken();
-                responseEntity = oneDriveRestTemplate.getForEntity(requestUrl, String.class, getGraphEndPoint(), fullPath);
+                root = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
             }
 
-            String body = responseEntity.getBody();
-
-            JSONObject root = JSON.parseObject(body);
+            if (root == null) {
+                return Collections.emptyList();
+            }
 
             nextLink = root.getString("@odata.nextLink");
 
@@ -171,10 +179,15 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
 
         String requestUrl;
 
-        ResponseEntity<String> responseEntity = oneDriveRestTemplate.getForEntity(DRIVER_ITEM_URL, String.class, getGraphEndPoint(), fullPath);
-        String body = responseEntity.getBody();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("driveId", driveId.toString());
+        HttpEntity<Object> entity = new HttpEntity<>(headers);
 
-        JSONObject fileItem = JSON.parseObject(body);
+        JSONObject fileItem = oneDriveRestTemplate.exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
+
+        if (fileItem == null) {
+            return null;
+        }
 
         FileItemDTO fileItemDTO = new FileItemDTO();
         fileItemDTO.setName(fileItem.getString("name"));
@@ -213,9 +226,9 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
         }
 
         StorageConfig accessTokenConfig =
-                storageConfigService.selectByTypeAndKey(this.getStorageTypeEnum(), StorageConfigConstant.ACCESS_TOKEN_KEY);
+                storageConfigService.findByDriveIdAndKey(driveId, StorageConfigConstant.ACCESS_TOKEN_KEY);
         StorageConfig refreshTokenConfig =
-                storageConfigService.selectByTypeAndKey(this.getStorageTypeEnum(), StorageConfigConstant.REFRESH_TOKEN_KEY);
+                storageConfigService.findByDriveIdAndKey(driveId, StorageConfigConstant.REFRESH_TOKEN_KEY);
         accessTokenConfig.setValue(refreshToken.getAccessToken());
         refreshTokenConfig.setValue(refreshToken.getRefreshToken());
 

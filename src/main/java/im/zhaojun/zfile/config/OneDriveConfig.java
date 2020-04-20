@@ -8,11 +8,13 @@ import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
 import im.zhaojun.zfile.service.impl.OneDriveServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.Collections;
+import java.util.LinkedList;
 
 /**
  * @author zhaojun
@@ -38,18 +40,11 @@ public class OneDriveConfig {
         RestTemplate restTemplate = new RestTemplate();
 
         ClientHttpRequestInterceptor interceptor = (httpRequest, bytes, clientHttpRequestExecution) -> {
-            String host = httpRequest.getURI().getHost();
-            StorageTypeEnum type;
-            if (oneDriveChinaServiceImpl.getGraphEndPoint().contains(host)) {
-                type = StorageTypeEnum.ONE_DRIVE_CHINA;
-            } else if  (oneDriveServiceImpl.getGraphEndPoint().contains(host)) {
-                type = StorageTypeEnum.ONE_DRIVE;
-            } else {
-                return clientHttpRequestExecution.execute(httpRequest, bytes);
-            }
+            HttpHeaders headers = httpRequest.getHeaders();
+            Integer driveId = Integer.valueOf(((LinkedList)headers.get("driveId")).get(0).toString());
 
             StorageConfig accessTokenConfig =
-                    storageConfigService.selectByTypeAndKey(type, StorageConfigConstant.ACCESS_TOKEN_KEY);
+                    storageConfigService.findByDriveIdAndKey(driveId, StorageConfigConstant.ACCESS_TOKEN_KEY);
 
             String tokenValue = String.format("%s %s", "Bearer", accessTokenConfig.getValue());
             httpRequest.getHeaders().add("Authorization", tokenValue);

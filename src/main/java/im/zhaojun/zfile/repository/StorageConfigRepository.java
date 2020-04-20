@@ -56,16 +56,16 @@ public interface StorageConfigRepository extends JpaRepository<StorageConfig, In
 
 
     /**
-     * 根据存储类型找到某个 KEY 的值
+     * 查找某个驱动器的某个 KEY 的值
      *
-     * @param   type
-     *          存储类型
+     * @param   driveId
+     *          驱动器
      *
      * @param   key
      *          KEY 值
      *
      * @return  KEY 对应的对象
      */
-    StorageConfig findByTypeAndKey(StorageTypeEnum type, String key);
+    StorageConfig findByDriveIdAndKey(Integer driveId, String key);
 
 }
