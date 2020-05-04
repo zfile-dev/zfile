@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 /**
  * @author zhaojun
@@ -27,7 +28,7 @@ public class StorageConfig {
 
     private String title;
 
-    @Column(length = 4000)
+    @Lob
     private String value;
 
     private Integer driveId;
