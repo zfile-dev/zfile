@@ -75,7 +75,7 @@ esac
 #清除之前的zfile
 clear_zfile(){
 	cd ~
-	if [ -d "zfile"]; then
+	if [ -d "zfile" ]; then
   		~/zfile/bin/stop.sh
 		rm -rf ~/zfile
 	fi
@@ -84,7 +84,7 @@ clear_zfile(){
 #卸载zfile
 uninstall_zfile(){
 	cd ~
-	if [ -d "zfile"]; then
+	if [ -d "zfile" ]; then
   		~/zfile/bin/stop.sh
 		rm -rf ~/zfile
 		rm -rf ~/.zfile*
