@@ -95,6 +95,7 @@ uninstall_zfile(){
 Update_zfile(){
 	clear_zfile
 	install_zfile_new
+	start_zfile
 }
 
 #安装openjdk
@@ -117,7 +118,8 @@ install_zfile_new(){
 	wget -P ~ https://c.jun6.net/ZFILE/zfile-release.war
 	mkdir zfile && unzip zfile-release.war -d zfile && rm -rf zfile-release.war
 	chmod +x ~/zfile/bin/*.sh
-	echo -e "安装成功，访问地址  ${Green_font_prefix}http://ip:8080${Font_color_suffix}  
+	start_zfile
+	echo -e "安装成功，访问地址:  ${Green_font_prefix}http://ip:8080${Font_color_suffix}  
 	
 ${Red_font_prefix}如无法访问，请检查服务器端口是否开放${Font_color_suffix}"
 }
@@ -129,6 +131,7 @@ install_zfile(){
 	wget -P ~ https://c.jun6.net/ZFILE/zfile-${1}.war
 	mkdir zfile && unzip zfile-${1}.war -d zfile && rm -rf zfile-${1}.war
 	chmod +x ~/zfile/bin/*.sh
+	start_zfile
 	echo -e "安装成功，访问地址  ${Green_font_prefix}http://ip:8080${Font_color_suffix}  
 
 ${Red_font_prefix}如无法访问，请检查服务器端口是否开放${Font_color_suffix}"
