@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #=================================================
-#	System Required: CentOS 6/7,Debian 8/9,Ubuntu 16+
+#	System Required: CentOS,Debian,Ubuntu 16+
 #	Description: Z-file管理脚本
 #	Version: 0.1
 #	Author: wayen
