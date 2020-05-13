@@ -3,7 +3,7 @@
 #=================================================
 #	System Required: CentOS,Debian,Ubuntu 16+
 #	Description: Z-file管理脚本
-#	Version: 0.1
+#	Version: 0.2
 #	Author: wayen
 #	Blog: https://www.iwayen.cn/
 #=================================================
@@ -13,7 +13,7 @@ Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_p
 
 #开始菜单
 start_menu(){
-echo && echo -e " Z-file 管理脚本 ${Red_font_prefix}[v0.1]${Font_color_suffix}
+echo && echo -e " Z-file 管理脚本 ${Red_font_prefix}[v0.2]${Font_color_suffix}
   
  ${Red_font_prefix}务必在安装z-file前先安装java环境，可直接调用脚本安装${Font_color_suffix}
 
@@ -139,32 +139,37 @@ ${Red_font_prefix}如无法访问，请检查服务器端口是否开放${Font_c
 
 #安装旧版Z-file
 install_zfile_last(){
-	echo && echo -e " Z-file 管理脚本 ${Red_font_prefix}[v0.1]${Font_color_suffix}
+	echo && echo -e " Z-file 管理脚本 ${Red_font_prefix}[v0.2]${Font_color_suffix}
 
 ${Red_font_prefix}单盘与多盘互换时配置文件需要重新设置${Font_color_suffix}
 ${Red_font_prefix}但配置文件不会被删除，再次安装时可直接使用${Font_color_suffix}
 
-${Green_font_prefix}0.${Font_color_suffix} 安装Z-file v2.2(单盘版本)
-${Green_font_prefix}1.${Font_color_suffix} 安装Z-file v2.3(多盘版本)
-${Green_font_prefix}2.${Font_color_suffix} 安装Z-file v2.4(多盘版本)
-${Green_font_prefix}3.${Font_color_suffix} 退出脚本
+${Green_font_prefix}1.${Font_color_suffix} 安装Z-file v2.2(单盘版本)
+${Green_font_prefix}2.${Font_color_suffix} 安装Z-file v2.3(多盘版本)
+${Green_font_prefix}3.${Font_color_suffix} 安装Z-file v2.4(多盘版本)
+${Green_font_prefix}4.${Font_color_suffix} 安装Z-file v2.5(多盘版本)
+${Green_font_prefix}0.${Font_color_suffix} 退出脚本
 ————————————————————————————————" && echo
 
 	read -p " 请输入数字 [0-3]:" num
 	case "$num" in
-	0)
+	1)
 	clear_zfile
 	install_zfile 2.2
 	;;
-	1)
+	2)
 	clear_zfile
 	install_zfile 2.3
 	;;
-	2)
+	3)
 	clear_zfile
 	install_zfile 2.4
 	;;
-	3)
+	4)
+	clear_zfile
+	install_zfile 2.5
+	;;
+	0)
 	exit 1
 	;;
 	*)
