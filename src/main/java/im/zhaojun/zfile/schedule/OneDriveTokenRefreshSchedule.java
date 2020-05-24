@@ -23,7 +23,7 @@ import java.util.List;
 @Configuration
 @EnableScheduling
 @Slf4j
-public class GlobalScheduleTask {
+public class OneDriveTokenRefreshSchedule {
 
     @Resource
     private OneDriveServiceImpl oneDriveServiceImpl;
