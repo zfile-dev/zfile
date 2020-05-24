@@ -1,8 +1,6 @@
 package im.zhaojun.zfile.cache;
 
-import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.CacheObj;
-import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.util.StrUtil;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
@@ -33,6 +31,9 @@ public class ZFileCache {
     @Value("${zfile.cache.timeout}")
     private long timeout;
 
+    @Value("${zfile.cache.auto-refresh.interval}")
+    private long autoRefreshInterval;
+
 
     /**
      * 缓存 map 对象.
@@ -44,7 +45,7 @@ public class ZFileCache {
      * key: 文件夹路径
      * value: 文件夹中内容
      */
-    private ConcurrentMap<Integer, TimedCache<String, List<FileItemDTO>>> drivesCache = new ConcurrentHashMap<>();
+    private ConcurrentMap<Integer, MyTimedCache<DriveCacheKey, List<FileItemDTO>>> drivesCache = new ConcurrentHashMap<>();
 
     /**
      * 系统设置缓存
@@ -68,7 +69,7 @@ public class ZFileCache {
      *          文件夹中列表
      */
     public synchronized void put(Integer driveId, String key, List<FileItemDTO> value) {
-        getCacheByDriveId(driveId).put(key, value);
+        getCacheByDriveId(driveId).put(new DriveCacheKey(driveId, key), value);
     }
 
 
@@ -84,7 +85,7 @@ public class ZFileCache {
      * @return  驱动器中文件夹的内容
      */
     public List<FileItemDTO> get(Integer driveId, String key) {
-        return getCacheByDriveId(driveId).get(key, false);
+        return getCacheByDriveId(driveId).get(new DriveCacheKey(driveId, key), false);
     }
 
 
@@ -161,10 +162,10 @@ public class ZFileCache {
      * @return      所有缓存 key
      */
     public Set<String> keySet(Integer driveId) {
-        Iterator<CacheObj<String, List<FileItemDTO>>> cacheObjIterator = getCacheByDriveId(driveId).cacheObjIterator();
+        Iterator<CacheObj<DriveCacheKey, List<FileItemDTO>>> cacheObjIterator = getCacheByDriveId(driveId).cacheObjIterator();
         Set<String> keys = new HashSet<>();
         while (cacheObjIterator.hasNext()) {
-            keys.add(cacheObjIterator.next().getKey());
+            keys.add(cacheObjIterator.next().getKey().getKey());
         }
         return keys;
     }
@@ -180,7 +181,7 @@ public class ZFileCache {
      *          文件夹路径
      */
     public void remove(Integer driveId, String key) {
-        getCacheByDriveId(driveId).remove(key);
+        getCacheByDriveId(driveId).remove(new DriveCacheKey(driveId, key));
     }
 
 
@@ -241,14 +242,74 @@ public class ZFileCache {
      *
      * @return  驱动器对应的缓存
      */
-    private synchronized TimedCache<String, List<FileItemDTO>> getCacheByDriveId(Integer driveId) {
-        TimedCache<String, List<FileItemDTO>> driveCache = drivesCache.get(driveId);
+    private synchronized MyTimedCache<DriveCacheKey, List<FileItemDTO>> getCacheByDriveId(Integer driveId) {
+        MyTimedCache<DriveCacheKey, List<FileItemDTO>> driveCache = drivesCache.get(driveId);
         if (driveCache == null) {
-            driveCache = CacheUtil.newTimedCache(timeout * 1000);
+            driveCache = new MyTimedCache<>(timeout * 1000);
             drivesCache.put(driveId, driveCache);
+            startAutoCacheRefresh(driveId);
         }
-
         return driveCache;
+    }
+
+
+    /**
+     * 获取指定驱动器的缓存命中数
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @return  缓存命中数
+     */
+    public int getHitCount(Integer driveId) {
+        return getCacheByDriveId(driveId).getHitCount();
+    }
+
+
+    /**
+     * 获取指定驱动器的缓存未命中数
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @return  缓存未命中数
+     */
+    public int getMissCount(Integer driveId) {
+        return getCacheByDriveId(driveId).getMissCount();
+    }
+
+
+    /**
+     * 开启缓存自动刷新, 仅当数据库设置为开启时, 才会真正开启缓存自动刷新.
+     *
+     * @param   driveId
+     *          驱动器 ID
+     */
+    public void startAutoCacheRefresh(Integer driveId) {
+        DriveConfig driveConfig = driverConfigRepository.findById(driveId).get();
+        Boolean autoRefreshCache = driveConfig.getAutoRefreshCache();
+        if (autoRefreshCache != null && autoRefreshCache) {
+            MyTimedCache<DriveCacheKey, List<FileItemDTO>> driveCache = drivesCache.get(driveId);
+            if (driveCache == null) {
+                driveCache = new MyTimedCache<>(timeout * 1000);
+                drivesCache.put(driveId, driveCache);
+            }
+            driveCache.schedulePrune(autoRefreshInterval * 1000);
+        }
+    }
+
+
+    /**
+     * 停止缓存自动刷新
+     *
+     * @param   driveId
+     *          驱动器 ID
+     */
+    public void stopAutoCacheRefresh(Integer driveId) {
+        MyTimedCache<DriveCacheKey, List<FileItemDTO>> driveCache = drivesCache.get(driveId);
+        if (driveCache != null) {
+            driveCache.cancelPruneSchedule();
+        }
     }
 
 }

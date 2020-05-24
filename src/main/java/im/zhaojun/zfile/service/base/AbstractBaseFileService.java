@@ -141,21 +141,6 @@ public abstract class AbstractBaseFileService implements BaseFileService {
 
 
     /**
-     * 刷新指定 key 的缓存:
-     *  1. 清空此 key 的缓存.
-     *  2. 重新调用方法写入缓存.
-     *
-     * @param   key
-     *          缓存 key (文件夹名称)
-     */
-    public void refreshCache(String key) throws Exception {
-        zFileCache.remove(driveId, key);
-        BaseFileService currentFileService = (BaseFileService) AopContext.currentProxy();
-        currentFileService.fileList(key);
-    }
-
-
-    /**
      * 获取单个文件信息
      *
      * @param   path
