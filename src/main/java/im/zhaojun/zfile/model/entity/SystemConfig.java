@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 /**
  * @author zhaojun
@@ -22,6 +23,7 @@ public class SystemConfig {
     @Column(name = "k")
     private String key;
 
+    @Lob
     private String value;
 
     private String remark;

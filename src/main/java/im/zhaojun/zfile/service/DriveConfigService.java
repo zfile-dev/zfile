@@ -1,8 +1,11 @@
 package im.zhaojun.zfile.service;
 
+import im.zhaojun.zfile.cache.ZFileCache;
+import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.context.StorageTypeContext;
 import im.zhaojun.zfile.exception.InitializeException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
+import im.zhaojun.zfile.model.dto.CacheInfoDTO;
 import im.zhaojun.zfile.model.dto.DriveConfigDTO;
 import im.zhaojun.zfile.model.dto.StorageStrategyConfig;
 import im.zhaojun.zfile.model.entity.DriveConfig;
@@ -11,7 +14,6 @@ import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.repository.DriverConfigRepository;
 import im.zhaojun.zfile.repository.StorageConfigRepository;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import im.zhaojun.zfile.context.DriveContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 驱动器 Service 类
@@ -38,6 +41,9 @@ public class DriveConfigService {
 
     @Resource
     private DriveContext driveContext;
+
+    @Resource
+    private ZFileCache zFileCache;
 
     public static final Class<StorageStrategyConfig> STORAGE_STRATEGY_CONFIG_CLASS = StorageStrategyConfig.class;
 
@@ -60,7 +66,7 @@ public class DriveConfigService {
      * @return  驱动器设置
      */
     public DriveConfig findById(Integer id) {
-        return driverConfigRepository.getOne(id);
+        return driverConfigRepository.findById(id).get();
     }
 
 
@@ -136,6 +142,12 @@ public class DriveConfigService {
         StorageTypeEnum storageType = driveConfigDTO.getType();
         BeanUtils.copyProperties(driveConfigDTO, driveConfig);
         driverConfigRepository.save(driveConfig);
+
+        if (driveConfig.getAutoRefreshCache()) {
+            startAutoCacheRefresh(driveConfig.getId());
+        } else {
+            stopAutoCacheRefresh(driveConfig.getId());
+        }
 
         // 保存存储策略设置.
         StorageStrategyConfig storageStrategyConfig = driveConfigDTO.getStorageStrategyConfig();
@@ -221,4 +233,97 @@ public class DriveConfigService {
             driverConfigRepository.save(driveConfig);
         }
     }
+
+
+    /**
+     * 更新指定驱动器的缓存启用状态
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @param   autoRefreshCache
+     *          是否启用缓存自动刷新
+     */
+    public void updateAutoRefreshCacheStatus(Integer driveId, Boolean autoRefreshCache) {
+        DriveConfig driveConfig = findById(driveId);
+        if (driveConfig != null) {
+            driveConfig.setAutoRefreshCache(autoRefreshCache);
+            driverConfigRepository.save(driveConfig);
+        }
+    }
+
+
+    /**
+     * 获取指定驱动器的缓存信息
+     * @param   driveId
+     *          驱动器 ID
+     * @return  缓存信息
+     */
+    public CacheInfoDTO findCacheInfo(Integer driveId) {
+        int hitCount = zFileCache.getHitCount(driveId);
+        int missCount = zFileCache.getMissCount(driveId);
+        Set<String> keys = zFileCache.keySet(driveId);
+        int cacheCount = keys.size();
+        return new CacheInfoDTO(cacheCount, hitCount, missCount, keys);
+    }
+
+
+
+    /**
+     * 刷新指定 key 的缓存:
+     *  1. 清空此 key 的缓存.
+     *  2. 重新调用方法写入缓存.
+     *
+     * @param   driveId
+     *          驱动器 ID
+     *
+     * @param   key
+     *          缓存 key (文件夹名称)
+     */
+    public void refreshCache(Integer driveId, String key) throws Exception {
+        zFileCache.remove(driveId, key);
+        AbstractBaseFileService baseFileService = driveContext.getDriveService(driveId);
+        baseFileService.fileList(key);
+    }
+
+
+
+    /**
+     * 开启缓存自动刷新, 仅当数据库设置为开启时, 才会真正开启缓存自动刷新.
+     *
+     * @param   driveId
+     *          驱动器 ID
+     */
+    public void startAutoCacheRefresh(Integer driveId) {
+        DriveConfig driveConfig = findById(driveId);
+        driveConfig.setAutoRefreshCache(true);
+        driverConfigRepository.save(driveConfig);
+        zFileCache.startAutoCacheRefresh(driveId);
+    }
+
+
+    /**
+     * 停止缓存自动刷新
+     *
+     * @param   driveId
+     *          驱动器 ID
+     */
+    public void stopAutoCacheRefresh(Integer driveId) {
+        DriveConfig driveConfig = findById(driveId);
+        driveConfig.setAutoRefreshCache(false);
+        driverConfigRepository.save(driveConfig);
+        zFileCache.stopAutoCacheRefresh(driveId);
+    }
+
+    /**
+     * 清理缓存
+     *
+     * @param   driveId
+     *          驱动器 ID
+     */
+    public void clearCache(Integer driveId) {
+        zFileCache.clear(driveId);
+    }
+
+
 }

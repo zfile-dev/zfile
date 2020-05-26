@@ -6,19 +6,9 @@
             "description": "目录缓存过期时间 和 下载地址过期时间. 单位为秒."
         },
         {
-            "name": "zfile.cache.auto-refresh.enable",
-            "type": "java.lang.Boolean",
-            "description": "是否开启自动刷新缓存."
-        },
-        {
-            "name": "zfile.cache.auto-refresh.delay",
-            "type": "java.lang.Long",
-            "description": "启动项目后多久开始自动刷新缓存, 推荐与 interval 一致, 因为项目启动时会缓存所有文件. 单位为秒.."
-        },
-        {
             "name": "zfile.cache.auto-refresh.interval",
             "type": "java.lang.Long",
-            "description": "任务间隔时间, 也就是每多长时间会自动刷新缓存一次.."
+            "description": "任务间隔时间, 每隔多长时间检测一次到期的缓存 KEY 并自动刷新, 单位为秒."
         },
         {
             "name": "zfile.constant.readme",

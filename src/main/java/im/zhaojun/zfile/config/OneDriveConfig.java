@@ -2,7 +2,6 @@ package im.zhaojun.zfile.config;
 
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.entity.StorageConfig;
-import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
 import im.zhaojun.zfile.service.impl.OneDriveServiceImpl;
