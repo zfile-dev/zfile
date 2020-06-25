@@ -6,6 +6,7 @@ import com.UpYun;
 import com.upyun.UpException;
 import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
@@ -122,7 +123,7 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
             int lastDelimiterIndex = path.lastIndexOf("/");
             String name = path.substring(lastDelimiterIndex + 1);
 
-            Map<String, String> fileInfo = upYun.getFileInfo(StringUtils.removeDuplicateSeparator(basePath + "/" + path));
+            Map<String, String> fileInfo = upYun.getFileInfo(StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path));
 
             if (fileInfo == null) {
                 throw new NotExistFileException();
@@ -138,7 +139,7 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
                 fileItemDTO.setType(FileTypeEnum.FOLDER);
             } else {
                 fileItemDTO.setType(FileTypeEnum.FILE);
-                fileItemDTO.setUrl(getDownloadUrl(StringUtils.removeDuplicateSeparator(basePath + "/" + path)));
+                fileItemDTO.setUrl(getDownloadUrl(StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path)));
             }
             return fileItemDTO;
         } catch (IOException | UpException e) {

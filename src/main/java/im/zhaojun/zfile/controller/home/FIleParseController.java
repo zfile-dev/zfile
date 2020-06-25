@@ -1,32 +1,19 @@
-package im.zhaojun.zfile.controller;
+package im.zhaojun.zfile.controller.home;
 
-import im.zhaojun.zfile.model.dto.ResultBean;
-import im.zhaojun.zfile.model.enums.StorageTypeEnum;
-import im.zhaojun.zfile.util.AudioHelper;
+import im.zhaojun.zfile.model.support.ResultBean;
+import im.zhaojun.zfile.util.AudioUtil;
 import im.zhaojun.zfile.util.HttpUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 公共 Controller
+ * 文件解析 Controller
  * @author zhaojun
  */
 @RestController
 @RequestMapping("/common")
-public class CommonController {
-
-
-    /**
-     * 返回系统支持的所有存储策略
-     *
-     * @return 存储策略
-     */
-    @GetMapping("/support-strategy")
-    public ResultBean supportStrategy() {
-        return ResultBean.successData(StorageTypeEnum.values());
-    }
-
+public class FIleParseController {
 
     /**
      * 获取文件内容, 仅限用于 txt, md, ini 等普通文本文件.
@@ -52,7 +39,7 @@ public class CommonController {
      */
     @GetMapping("/audio-info")
     public ResultBean getAudioInfo(String url) throws Exception {
-        return ResultBean.success(AudioHelper.getAudioInfo(url));
+        return ResultBean.success(AudioUtil.getAudioInfo(url));
     }
 
 }

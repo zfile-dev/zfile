@@ -1,6 +1,7 @@
 package im.zhaojun.zfile.util;
 
 import cn.hutool.core.util.ObjectUtil;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 
 /**
  * @author zhaojun
@@ -98,6 +99,6 @@ public class StringUtils {
     public static String getFullPath(String basePath, String path) {
         basePath = ObjectUtil.defaultIfNull(basePath, "");
         path = ObjectUtil.defaultIfNull(path, "");
-        return StringUtils.removeDuplicateSeparator(basePath + "/" + path);
+        return StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path);
     }
 }

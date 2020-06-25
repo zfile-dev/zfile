@@ -12,26 +12,40 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 驱动器上下文环境
+ * 每个驱动器对应一个 Service, 其中初始化好了与对象存储的连接信息.
+ * 此驱动器上下文环境用户缓存每个 Service, 避免重复创建连接.
  * @author zhaojun
  */
 @Component
 @DependsOn("springContextHolder")
 public class DriveContext implements ApplicationContextAware {
 
+    /**
+     * Map<Integer, AbstractBaseFileService>
+     * Map<驱动器 ID, 驱动器连接 Service>
+     */
     private static Map<Integer, AbstractBaseFileService> drivesServiceMap = new ConcurrentHashMap<>();
-
-    private static Map<StorageTypeEnum, Class<AbstractBaseFileService>> storageTypeEnumClassMap = new ConcurrentHashMap<>();
 
     @Resource
     private DriveConfigService driveConfigService;
+
+
+    /**
+     * 项目启动时, 自动调用所有驱动器进行初始化.
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        List<DriveConfig> list = driveConfigService.list();
+        for (DriveConfig driveConfig : list) {
+            init(driveConfig.getId());
+        }
+    }
 
 
     /**
@@ -40,7 +54,7 @@ public class DriveContext implements ApplicationContextAware {
      * @param   driveId
      *          驱动器 ID.
      */
-    public void initDrive(Integer driveId) {
+    public void init(Integer driveId) {
         AbstractBaseFileService baseFileService = getBeanByDriveId(driveId);
         if (baseFileService != null) {
             baseFileService.init(driveId);
@@ -57,7 +71,7 @@ public class DriveContext implements ApplicationContextAware {
      *
      * @return  驱动器对应的 Service
      */
-    public AbstractBaseFileService getDriveService(Integer driveId) {
+    public AbstractBaseFileService get(Integer driveId) {
         return drivesServiceMap.get(driveId);
     }
 
@@ -68,7 +82,7 @@ public class DriveContext implements ApplicationContextAware {
      * @param   driveId
      *          驱动器 ID
      */
-    public void destroyDrive(Integer driveId) {
+    public void destroy(Integer driveId) {
         drivesServiceMap.remove(driveId);
     }
 
@@ -90,18 +104,6 @@ public class DriveContext implements ApplicationContextAware {
             }
         }
         return null;
-    }
-
-
-    /**
-     * 项目启动时, 自动调用所有驱动器进行初始化.
-     */
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        List<DriveConfig> list = driveConfigService.list();
-        for (DriveConfig driveConfig : list) {
-            initDrive(driveConfig.getId());
-        }
     }
 
 }

@@ -1,11 +1,11 @@
-package im.zhaojun.zfile.controller;
+package im.zhaojun.zfile.controller.home;
 
 import cn.hutool.core.util.URLUtil;
+import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import im.zhaojun.zfile.context.DriveContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ import java.util.Objects;
  * @author Zhao Jun
  */
 @Controller
-public class PageController {
+public class DirectLinkController {
 
     @Resource
     private DriveContext driveContext;
@@ -44,7 +44,7 @@ public class PageController {
             filePath = "/" + filePath;
         }
 
-        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
+        AbstractBaseFileService fileService = driveContext.get(driveId);
         FileItemDTO fileItem = fileService.getFileItem(filePath);
 
         String url = fileItem.getUrl();
@@ -67,4 +67,5 @@ public class PageController {
             return "redirect:" + url;
         }
     }
+
 }

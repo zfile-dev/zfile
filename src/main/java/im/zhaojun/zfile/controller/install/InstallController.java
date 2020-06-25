@@ -1,9 +1,9 @@
-package im.zhaojun.zfile.controller;
+package im.zhaojun.zfile.controller.install;
 
 import cn.hutool.crypto.SecureUtil;
 import im.zhaojun.zfile.controller.admin.AdminController;
-import im.zhaojun.zfile.model.dto.ResultBean;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
 import org.springframework.util.StringUtils;

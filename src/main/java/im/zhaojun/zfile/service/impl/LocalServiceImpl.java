@@ -3,6 +3,7 @@ package im.zhaojun.zfile.service.impl;
 import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.constant.SystemConfigConstant;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.entity.SystemConfig;
@@ -63,6 +64,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
         }
     }
 
+
     @Override
     public List<FileItemDTO> fileList(String path) throws FileNotFoundException {
         List<FileItemDTO> fileItemList = new ArrayList<>();
@@ -99,7 +101,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
     @Override
     public String getDownloadUrl(String path) {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
-        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + driveId + "/" + path);
+        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + driveId + ZFileConstant.PATH_SEPARATOR + path);
     }
 
     public String getFilePath() {

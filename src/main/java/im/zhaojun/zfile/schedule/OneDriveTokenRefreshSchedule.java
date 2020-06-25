@@ -1,12 +1,12 @@
 package im.zhaojun.zfile.schedule;
 
+import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.base.AbstractOneDriveServiceBase;
 import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
 import im.zhaojun.zfile.service.impl.OneDriveServiceImpl;
-import im.zhaojun.zfile.context.DriveContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -54,7 +54,7 @@ public class OneDriveTokenRefreshSchedule {
                 String name = driveConfig.getName();
 
                 try {
-                    AbstractOneDriveServiceBase driveService = (AbstractOneDriveServiceBase) driveContext.getDriveService(driveConfig.getId());
+                    AbstractOneDriveServiceBase driveService = (AbstractOneDriveServiceBase) driveContext.get(driveConfig.getId());
                     driveService.refreshOneDriveToken();
                     log.info("刷新驱动器 {}, {} key 时间: {}", name, storageType.getDescription(), LocalDateTime.now());
                 } catch (Exception e) {

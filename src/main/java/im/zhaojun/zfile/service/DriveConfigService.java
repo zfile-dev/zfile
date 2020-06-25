@@ -181,9 +181,9 @@ public class DriveConfigService {
         }
         storageConfigRepository.saveAll(storageConfigList);
 
-        driveContext.initDrive(driveConfig.getId());
+        driveContext.init(driveConfig.getId());
 
-        AbstractBaseFileService driveService = driveContext.getDriveService(driveConfig.getId());
+        AbstractBaseFileService driveService = driveContext.get(driveConfig.getId());
         if (driveService.getIsUnInitialized()) {
             throw new InitializeException("初始化异常, 请检查配置是否正确.");
         }
@@ -200,7 +200,7 @@ public class DriveConfigService {
     public void deleteById(Integer id) {
         driverConfigRepository.deleteById(id);
         storageConfigRepository.deleteByDriveId(id);
-        driveContext.destroyDrive(id);
+        driveContext.destroy(id);
     }
 
 
@@ -282,7 +282,7 @@ public class DriveConfigService {
      */
     public void refreshCache(Integer driveId, String key) throws Exception {
         zFileCache.remove(driveId, key);
-        AbstractBaseFileService baseFileService = driveContext.getDriveService(driveId);
+        AbstractBaseFileService baseFileService = driveContext.get(driveId);
         baseFileService.fileList(key);
     }
 

@@ -32,7 +32,7 @@ public class MyTimedCache<K, V> extends TimedCache<K, V> {
             driveContext = SpringContextHolder.getBean(DriveContext.class);
         }
         DriveCacheKey cacheKey = (DriveCacheKey) key;
-        AbstractBaseFileService baseFileService = driveContext.getDriveService(cacheKey.getDriveId());
+        AbstractBaseFileService baseFileService = driveContext.get(cacheKey.getDriveId());
         try {
             baseFileService.fileList(cacheKey.getKey());
         } catch (Exception e) {

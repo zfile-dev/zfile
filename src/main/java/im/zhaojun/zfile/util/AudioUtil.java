@@ -24,9 +24,9 @@ import java.net.URL;
  * 音频解析工具类
  * @author zhaojun
  */
-public class AudioHelper {
+public class AudioUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(AudioHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(AudioUtil.class);
 
     public static AudioInfoDTO getAudioInfo(String url) throws Exception {
         String query = new URL(URLUtil.decode(url)).getQuery();

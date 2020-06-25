@@ -1,14 +1,14 @@
-package im.zhaojun.zfile.controller;
+package im.zhaojun.zfile.controller.home;
 
+import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
-import im.zhaojun.zfile.model.dto.ResultBean;
 import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
 import im.zhaojun.zfile.model.support.FilePageModel;
+import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.util.FileComparator;
 import im.zhaojun.zfile.util.HttpUtil;
 import im.zhaojun.zfile.util.StringUtils;
@@ -83,8 +83,8 @@ public class FileController {
                            @RequestParam(defaultValue = "/") String path,
                            @RequestParam(required = false) String password,
                            @RequestParam(defaultValue = "1") Integer page) throws Exception {
-        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
-        List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + path + "/"));
+        AbstractBaseFileService fileService = driveContext.get(driveId);
+        List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator(ZFileConstant.PATH_SEPARATOR + path + ZFileConstant.PATH_SEPARATOR));
 
         for (FileItemDTO fileItemDTO : fileItemList) {
             if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())) {
@@ -94,7 +94,7 @@ public class FileController {
                 } catch (HttpClientErrorException httpClientErrorException) {
                     log.debug("尝试重新获取密码文件缓存中链接后仍失败", httpClientErrorException);
                     try {
-                        String fullPath = StringUtils.removeDuplicateSeparator(fileItemDTO.getPath() + "/" + fileItemDTO.getName());
+                        String fullPath = StringUtils.removeDuplicateSeparator(fileItemDTO.getPath() + ZFileConstant.PATH_SEPARATOR + fileItemDTO.getName());
                         FileItemDTO fileItem = fileService.getFileItem(fullPath);
                         expectedPasswordContent = HttpUtil.getTextContent(fileItem.getUrl());
                     } catch (Exception e) {
@@ -128,8 +128,8 @@ public class FileController {
     public ResultBean getConfig(@PathVariable(name = "driveId") Integer driveId, String path) {
         SystemFrontConfigDTO systemConfig = systemConfigService.getSystemFrontConfig(driveId);
 
-        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
-        String fullPath = StringUtils.removeDuplicateSeparator(path + "/" + ZFileConstant.README_FILE_NAME);
+        AbstractBaseFileService fileService = driveContext.get(driveId);
+        String fullPath = StringUtils.removeDuplicateSeparator(path + ZFileConstant.PATH_SEPARATOR + ZFileConstant.README_FILE_NAME);
         try {
             FileItemDTO fileItem = fileService.getFileItem(fullPath);
             String readme = HttpUtil.getTextContent(fileItem.getUrl());
@@ -214,7 +214,8 @@ public class FileController {
      */
     @GetMapping("/directlink/{driveId}")
     public ResultBean directlink(@PathVariable(name = "driveId") Integer driveId, String path) {
-        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
+        AbstractBaseFileService fileService = driveContext.get(driveId);
         return ResultBean.successData(fileService.getFileItem(path));
     }
+
 }

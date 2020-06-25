@@ -28,15 +28,21 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class ZFileCache {
 
+    /**
+     * 缓存过期时间
+     */
     @Value("${zfile.cache.timeout}")
     private long timeout;
 
+    /**
+     * 缓存自动刷新间隔
+     */
     @Value("${zfile.cache.auto-refresh.interval}")
     private long autoRefreshInterval;
 
 
     /**
-     * 缓存 map 对象.
+     * 文件/文件对象缓存.
      *
      * ConcurrentMap<Integer, ConcurrentHashMap<String, List<FileItemDTO>>>
      * ConcurrentMap<driveId, ConcurrentHashMap<key, value>>

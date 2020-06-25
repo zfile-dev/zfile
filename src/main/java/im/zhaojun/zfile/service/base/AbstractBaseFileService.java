@@ -6,7 +6,6 @@ import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.SystemConfigService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
@@ -120,7 +119,7 @@ public abstract class AbstractBaseFileService implements BaseFileService {
 
 
     /**
-     * 获取初始化当前存储策略, 所需要的参数信息 (表单填写)
+     * 获取初始化当前存储策略, 所需要的参数信息 (用于表单填写)
      *
      * @return  初始化所需的参数列表
      */

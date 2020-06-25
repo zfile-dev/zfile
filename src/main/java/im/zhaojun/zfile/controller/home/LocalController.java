@@ -42,8 +42,8 @@ public class LocalController {
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         AntPathMatcher apm = new AntPathMatcher();
         String filePath = apm.extractPathWithinPattern(bestMatchPattern, path);
-        LocalServiceImpl localService = (LocalServiceImpl) driveContext.getDriveService(driveId);
-        return FileUtil.export(new File(StringUtils.concatPath(localService.getFilePath(), filePath)));
+        LocalServiceImpl localService = (LocalServiceImpl) driveContext.get(driveId);
+        return FileUtil.export(new File(StringUtils.removeDuplicateSeparator(localService.getFilePath() + ZFileConstant.PATH_SEPARATOR + filePath)));
     }
 
 }
