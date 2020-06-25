@@ -69,7 +69,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
     public List<FileItemDTO> fileList(String path) throws FileNotFoundException {
         List<FileItemDTO> fileItemList = new ArrayList<>();
 
-        String fullPath = StringUtils.concatPath(filePath, path);
+        String fullPath = StringUtils.removeDuplicateSeparator(filePath + path);
 
         File file = new File(fullPath);
 
