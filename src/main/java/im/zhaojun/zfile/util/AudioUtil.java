@@ -41,7 +41,9 @@ public class AudioUtil {
             return AudioInfoDTO.buildDefaultAudioInfoDTO();
         }
 
-        File file = new File(ZFileConstant.USER_HOME + ZFileConstant.AUDIO_TMP_PATH + UUID.fastUUID());
+        String fullFilePath = StringUtils.removeDuplicateSeparator(ZFileConstant.TMP_FILE_PATH + ZFileConstant.PATH_SEPARATOR + UUID.fastUUID());
+
+        File file = new File(fullFilePath);
         FileUtil.mkParentDirs(file);
         HttpUtil.downloadFile(url, file);
         AudioInfoDTO audioInfoDTO = parseAudioInfo(file);

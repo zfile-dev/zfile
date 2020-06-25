@@ -24,7 +24,7 @@ spring:
 
     # h2 内存数据库 配置
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:~/.zfile-new/db/zfile
+    url: jdbc:h2:${zfile.db.path}
     username: zfile
     password: 123456
 
@@ -50,6 +50,12 @@ spring:
     active: prod
 
 zfile:
+  log:
+    path: ${user.home}/.zfile/logs
+  db:
+    path: ${user.home}/.zfile/db/zfile
+  tmp:
+    path: ${user.home}/.zfile/tmp
   cache:
     auto-refresh:
       interval: 1

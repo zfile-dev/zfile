@@ -14,7 +14,9 @@
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
     <!-- 定义日志的根目录 -->
-    <property name="LOG_HOME" value="${user.home}/.zfile/logs"/>
+    <property resource="application.yml"/>
+    <springProperty scope="context" name="LOG_HOME" source="zfile.log.path"/>
+
     <!-- 定义日志文件名称 -->
     <property name="appName" value="zfile"/>
 
