@@ -1,6 +1,6 @@
 package im.zhaojun.zfile.exception;
 
-import im.zhaojun.zfile.model.dto.ResultBean;
+import im.zhaojun.zfile.model.support.ResultBean;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +19,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class GlobleExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobleExceptionHandler.class);
-
-    @ExceptionHandler(SearchDisableException.class)
-    @ResponseBody
-    @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResultBean searchDisableExceptionHandler(SearchDisableException e) {
-        if (log.isDebugEnabled()) {
-            log.debug(e.getMessage(), e);
-        }
-        return ResultBean.error(e.getMessage());
-    }
-
 
     @ExceptionHandler
     @ResponseBody

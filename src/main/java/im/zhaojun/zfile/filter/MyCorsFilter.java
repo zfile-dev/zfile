@@ -23,4 +23,5 @@ public class MyCorsFilter {
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
+
 }
