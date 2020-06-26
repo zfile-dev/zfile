@@ -15,8 +15,6 @@ import lombok.SneakyThrows;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -35,8 +33,6 @@ import java.util.Objects;
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileService {
-
-    private static final Logger log = LoggerFactory.getLogger(FtpServiceImpl.class);
 
     @Resource
     private StorageConfigService storageConfigService;

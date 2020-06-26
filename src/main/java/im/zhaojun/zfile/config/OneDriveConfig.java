@@ -3,8 +3,6 @@ package im.zhaojun.zfile.config;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.service.StorageConfigService;
-import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
-import im.zhaojun.zfile.service.impl.OneDriveServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -23,12 +21,6 @@ public class OneDriveConfig {
 
     @Resource
     private StorageConfigService storageConfigService;
-
-    @Resource
-    private OneDriveServiceImpl oneDriveServiceImpl;
-
-    @Resource
-    private OneDriveChinaServiceImpl oneDriveChinaServiceImpl;
 
     /**
      * OneDrive 请求 RestTemplate, 会在请求头中添加 Bearer: Authorization {token} 信息, 用于 API 认证.

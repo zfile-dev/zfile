@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/common")
-public class FIleParseController {
+public class FileParseController {
 
     /**
      * 获取文件内容, 仅限用于 txt, md, ini 等普通文本文件.

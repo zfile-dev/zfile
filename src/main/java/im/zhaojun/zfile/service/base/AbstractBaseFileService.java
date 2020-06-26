@@ -5,7 +5,6 @@ import im.zhaojun.zfile.exception.InitializeDriveException;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
-import im.zhaojun.zfile.service.SystemConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -18,6 +17,10 @@ import java.util.List;
 @Slf4j
 public abstract class AbstractBaseFileService implements BaseFileService {
 
+
+    @Resource
+    private ZFileCache zFileCache;
+
     /**
      * 下载链接过期时间, 目前只在兼容 S3 协议的存储策略中使用到.
      */
@@ -29,22 +32,15 @@ public abstract class AbstractBaseFileService implements BaseFileService {
      */
     protected boolean isInitialized = false;
 
-
     /**
      * 基路径
      */
     protected String basePath;
+
     /**
      * 驱动器 ID
      */
     public Integer driveId;
-
-    @Resource
-    private SystemConfigService systemConfigService;
-
-    @Resource
-    private ZFileCache zFileCache;
-
 
     /***
      * 获取指定路径下的文件及文件夹, 默认缓存 60 分钟，每隔 30 分钟刷新一次.
@@ -70,14 +66,15 @@ public abstract class AbstractBaseFileService implements BaseFileService {
 
     /**
      * 初始化方法, 启动时自动调用实现类的此方法进行初始化.
+     *
+     * @param   driveId
+     *          驱动器 ID
      */
     public abstract void init(Integer driveId);
 
 
     /**
      * 测试是否连接成功, 会尝试取调用获取根路径的文件, 如果没有抛出异常, 则认为连接成功, 某些存储策略需要复写此方法.
-     *
-     * @return 连接结果
      */
     protected void testConnection() {
         try {

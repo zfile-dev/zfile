@@ -5,8 +5,6 @@ import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.base.AbstractOneDriveServiceBase;
-import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
-import im.zhaojun.zfile.service.impl.OneDriveServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -24,12 +22,6 @@ import java.util.List;
 @EnableScheduling
 @Slf4j
 public class OneDriveTokenRefreshSchedule {
-
-    @Resource
-    private OneDriveServiceImpl oneDriveServiceImpl;
-
-    @Resource
-    private OneDriveChinaServiceImpl oneDriveChinaServiceImpl;
 
     @Resource
     private DriveConfigService driveConfigService;

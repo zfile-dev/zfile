@@ -121,7 +121,6 @@ public class DriveConfigService {
      * @return  驱动器对应的存储策略.
      */
     public StorageTypeEnum findStorageTypeById(Integer id) {
-        // return findById(id).getType();
         return driverConfigRepository.findById(id).get().getType();
     }
 
