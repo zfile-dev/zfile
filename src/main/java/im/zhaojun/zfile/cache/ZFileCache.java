@@ -178,7 +178,7 @@ public class ZFileCache {
 
 
     /**
-     * 从缓存中删除指定存储器的某个路径的缓存
+     * 从缓存中删除指定驱动器的某个路径的缓存
      *
      * @param   driveId
      *          驱动器 ID

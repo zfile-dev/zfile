@@ -122,7 +122,7 @@ public class FileController {
      * @param   driveId
      *          驱动器 ID
      *
-     * @return  返回指定存储器的系统配置信息
+     * @return  返回指定驱动器的系统配置信息
      */
     @GetMapping("/config/{driveId}")
     public ResultBean getConfig(@PathVariable(name = "driveId") Integer driveId, String path) {

@@ -19,7 +19,7 @@ public interface DriverConfigRepository extends JpaRepository<DriveConfig, Integ
      * @param   type
      *          存储类型
      *
-     * @return  指定存储类型的存储器
+     * @return  指定存储类型的驱动器
      */
     List<DriveConfig> findByType(StorageTypeEnum type);
 

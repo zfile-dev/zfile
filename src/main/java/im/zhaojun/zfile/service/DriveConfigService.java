@@ -210,7 +210,7 @@ public class DriveConfigService {
      * @param   type
      *          存储类型
      *
-     * @return  指定存储类型的存储器
+     * @return  指定存储类型的驱动器
      */
     public List<DriveConfig> findByType(StorageTypeEnum type) {
         return driverConfigRepository.findByType(type);
