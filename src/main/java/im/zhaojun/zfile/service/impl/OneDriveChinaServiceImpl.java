@@ -41,23 +41,19 @@ public class OneDriveChinaServiceImpl extends AbstractOneDriveServiceBase implem
 
     @Override
     public void init(Integer driveId) {
-        try {
-            this.driveId = driveId;
-            Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
-            String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
-            String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
-            super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
+        this.driveId = driveId;
+        Map<String, StorageConfig> stringStorageConfigMap =
+                storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
+        String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
+        super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
-            if (StringUtils.isEmpty(accessToken) || StringUtils.isEmpty(refreshToken)) {
-                log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
-                isInitialized = false;
-            } else {
-                refreshOneDriveToken();
-                isInitialized = testConnection();
-            }
-        } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
+        if (StringUtils.isEmpty(accessToken) || StringUtils.isEmpty(refreshToken)) {
+            log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
+            isInitialized = false;
+        } else {
+            refreshOneDriveToken();
+            testConnection();
         }
     }
 

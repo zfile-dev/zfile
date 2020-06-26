@@ -1,10 +1,12 @@
 package im.zhaojun.zfile.context;
 
+import im.zhaojun.zfile.exception.InvalidDriveException;
 import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.util.SpringContextHolder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -24,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 @DependsOn("springContextHolder")
+@Slf4j
 public class DriveContext implements ApplicationContextAware {
 
     /**
@@ -43,7 +46,11 @@ public class DriveContext implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         List<DriveConfig> list = driveConfigService.list();
         for (DriveConfig driveConfig : list) {
-            init(driveConfig.getId());
+            try {
+                init(driveConfig.getId());
+            } catch (Exception e) {
+                log.debug(driveConfig.getName() + " 初始化异常, 已跳过", e);
+            }
         }
     }
 
@@ -72,7 +79,11 @@ public class DriveContext implements ApplicationContextAware {
      * @return  驱动器对应的 Service
      */
     public AbstractBaseFileService get(Integer driveId) {
-        return drivesServiceMap.get(driveId);
+        AbstractBaseFileService abstractBaseFileService = drivesServiceMap.get(driveId);
+        if (abstractBaseFileService == null) {
+            throw new InvalidDriveException("此驱动器不存在或初始化失败, 请检查后台参数配置");
+        }
+        return abstractBaseFileService;
     }
 
 

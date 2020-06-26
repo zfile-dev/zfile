@@ -11,6 +11,7 @@ import im.zhaojun.zfile.service.StorageConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.service.base.BaseFileService;
 import im.zhaojun.zfile.util.StringUtils;
+import lombok.SneakyThrows;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,28 +53,25 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
 
     private String password;
 
+    @SneakyThrows(IOException.class)
     @Override
     public void init(Integer driveId) {
-        try {
-            this.driveId = driveId;
-            Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
-            host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
-            port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
-            username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
-            password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
-            domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
-            super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
-            if (Objects.isNull(host) || Objects.isNull(port) || Objects.isNull(username) || Objects.isNull(password)) {
-                isInitialized = false;
-            } else {
-                ftp = new Ftp(host, Integer.parseInt(port), username, password, StandardCharsets.UTF_8);
-                ftp.getClient().configure(new FTPClientConfig(FTPClientConfig.SYST_UNIX));
-                ftp.getClient().type(FTP.BINARY_FILE_TYPE);
-                isInitialized = testConnection();
-            }
-        } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
+        this.driveId = driveId;
+        Map<String, StorageConfig> stringStorageConfigMap =
+                storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
+        port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
+        username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
+        password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
+        domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
+        super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
+        if (Objects.isNull(host) || Objects.isNull(port)) {
+            isInitialized = false;
+        } else {
+            ftp = new Ftp(host, Integer.parseInt(port), username, password, StandardCharsets.UTF_8);
+            ftp.getClient().configure(new FTPClientConfig(FTPClientConfig.SYST_UNIX));
+            ftp.getClient().type(FTP.BINARY_FILE_TYPE);
+            testConnection();
         }
     }
 

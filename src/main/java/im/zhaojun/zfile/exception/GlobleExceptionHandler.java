@@ -40,6 +40,7 @@ public class GlobleExceptionHandler {
         return ResultBean.error("文件不存在");
     }
 
+
     /**
      * 捕获 ClientAbortException 异常, 不做任何处理, 防止出现大量堆栈日志输出, 此异常不影响功能.
      */
@@ -51,6 +52,7 @@ public class GlobleExceptionHandler {
         //     log.debug("出现了断开异常:", ex);
         // }
     }
+
 
     /**
      * 文件预览异常
@@ -66,10 +68,10 @@ public class GlobleExceptionHandler {
     /**
      * 初始化异常
      */
-    @ExceptionHandler({InitializeException.class})
+    @ExceptionHandler({InitializeDriveException.class})
     @ResponseBody
     @ResponseStatus
-    public ResultBean initializeException(InitializeException ex) {
+    public ResultBean initializeException(InitializeDriveException ex) {
         return ResultBean.error(ex.getMessage());
     }
 
@@ -83,7 +85,12 @@ public class GlobleExceptionHandler {
         if (log.isDebugEnabled()) {
             log.debug(e.getMessage(), e);
         }
-        return ResultBean.error("系统异常, 请联系管理员");
+
+        if (e.getClass() == Exception.class) {
+            return ResultBean.error("系统异常, 请联系管理员");
+        } else {
+            return ResultBean.error(e.getMessage());
+        }
     }
 
 }

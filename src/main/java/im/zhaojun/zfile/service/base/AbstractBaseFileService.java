@@ -1,6 +1,7 @@
 package im.zhaojun.zfile.service.base;
 
 import im.zhaojun.zfile.cache.ZFileCache;
+import im.zhaojun.zfile.exception.InitializeDriveException;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
@@ -78,15 +79,12 @@ public abstract class AbstractBaseFileService implements BaseFileService {
      *
      * @return 连接结果
      */
-    protected boolean testConnection() {
-        boolean flag = true;
+    protected void testConnection() {
         try {
             fileList("/");
         } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常", e);
-            flag = false;
+            throw new InitializeDriveException("初始化异常, 错误信息为: " + e.getMessage(), e);
         }
-        return flag;
     }
 
 

@@ -32,32 +32,28 @@ public class HuaweiServiceImpl extends AbstractS3BaseFileService implements Base
 
     @Override
     public void init(Integer driveId) {
-        try {
-            this.driveId = driveId;
-            Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
-            String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
-            String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
-            String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
+        this.driveId = driveId;
+        Map<String, StorageConfig> stringStorageConfigMap =
+                storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
+        String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
+        String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
 
-            bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
-            domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
-            basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
-            isPrivate = Convert.toBool(stringStorageConfigMap.get(StorageConfigConstant.IS_PRIVATE).getValue(), true);
+        bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
+        domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
+        basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
+        isPrivate = Convert.toBool(stringStorageConfigMap.get(StorageConfigConstant.IS_PRIVATE).getValue(), true);
 
-            if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
-                log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
-                isInitialized = false;
-            } else {
-                BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-                s3Client = AmazonS3ClientBuilder.standard()
-                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                        .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "obs")).build();
+        if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
+            log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
+            isInitialized = false;
+        } else {
+            BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+            s3Client = AmazonS3ClientBuilder.standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "obs")).build();
 
-                isInitialized = testConnection();
-            }
-        } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
+            testConnection();
         }
     }
 
