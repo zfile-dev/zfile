@@ -53,6 +53,7 @@ public class MinIOServiceImpl extends AbstractS3BaseFileService implements BaseF
                     .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "minio")).build();
 
             testConnection();
+            isInitialized = true;
         }
     }
 

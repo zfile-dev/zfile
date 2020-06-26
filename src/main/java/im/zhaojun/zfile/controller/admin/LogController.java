@@ -27,6 +27,9 @@ public class LogController {
      */
     @GetMapping("/log")
     public ResponseEntity<Object> downloadLog(HttpServletResponse response) {
+        if (log.isDebugEnabled()) {
+            log.debug("下载诊断日志");
+        }
         String userHome = System.getProperty("user.home");
         File fileZip = ZipUtil.zip(userHome + "/.zfile/logs");
         String currentDate = DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss");

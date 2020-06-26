@@ -64,6 +64,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
             throw new InitializeDriveException("文件路径: \"" + file.getAbsolutePath() + "\"不存在, 请检查是否填写正确.");
         } else {
             testConnection();
+            isInitialized = true;
         }
     }
 
@@ -149,4 +150,5 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
             add(new StorageConfig("filePath", "文件路径"));
         }};
     }
+
 }

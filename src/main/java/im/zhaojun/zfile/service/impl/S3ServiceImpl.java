@@ -59,6 +59,7 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
                     .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "")).build();
 
             testConnection();
+            isInitialized = true;
         }
     }
 
@@ -80,4 +81,5 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
             add(new StorageConfig("isPrivate", "是否是私有空间"));
         }};
     }
+
 }

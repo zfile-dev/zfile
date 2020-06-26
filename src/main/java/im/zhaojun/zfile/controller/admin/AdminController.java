@@ -3,7 +3,6 @@ package im.zhaojun.zfile.controller.admin;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.SystemConfigService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +16,6 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/admin")
-@Slf4j
 public class AdminController {
 
     @Resource

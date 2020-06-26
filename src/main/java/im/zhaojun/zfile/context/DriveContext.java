@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.context;
 
+import com.alibaba.fastjson.JSON;
 import im.zhaojun.zfile.exception.InvalidDriveException;
 import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
@@ -40,7 +41,7 @@ public class DriveContext implements ApplicationContextAware {
 
 
     /**
-     * 项目启动时, 自动调用所有驱动器进行初始化.
+     * 项目启动时, 自动调用数据库已存储的所有驱动器进行初始化.
      */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -48,8 +49,10 @@ public class DriveContext implements ApplicationContextAware {
         for (DriveConfig driveConfig : list) {
             try {
                 init(driveConfig.getId());
+                log.info("启动时初始化驱动器成功, 驱动器信息: {}", JSON.toJSONString(driveConfig));
+                throw new RuntimeException("xx");
             } catch (Exception e) {
-                log.debug(driveConfig.getName() + " 初始化异常, 已跳过", e);
+                log.error("启动时初始化驱动器失败, 驱动器信息: {}", JSON.toJSONString(driveConfig), e);
             }
         }
     }
@@ -64,7 +67,13 @@ public class DriveContext implements ApplicationContextAware {
     public void init(Integer driveId) {
         AbstractBaseFileService baseFileService = getBeanByDriveId(driveId);
         if (baseFileService != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("尝试初始化驱动器, driveId: {}", driveId);
+            }
             baseFileService.init(driveId);
+            if (log.isDebugEnabled()) {
+                log.debug("初始化驱动器成功, driveId: {}", driveId);
+            }
             drivesServiceMap.put(driveId, baseFileService);
         }
     }
@@ -94,6 +103,9 @@ public class DriveContext implements ApplicationContextAware {
      *          驱动器 ID
      */
     public void destroy(Integer driveId) {
+        if (log.isDebugEnabled()) {
+            log.debug("清理驱动器上下文对象, driveId: {}", driveId);
+        }
         drivesServiceMap.remove(driveId);
     }
 

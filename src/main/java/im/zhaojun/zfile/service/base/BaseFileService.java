@@ -17,6 +17,7 @@ public interface BaseFileService {
      */
     List<FileItemDTO> fileList(String path) throws Exception;
 
+
     /**
      * 获取文件下载地址
      * @param path  文件路径

@@ -7,6 +7,7 @@ import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.repository.DriverConfigRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,11 @@ import java.util.concurrent.ConcurrentMap;
  * @author zhaojun
  */
 @Component
+@Slf4j
 public class ZFileCache {
+
+    @Resource
+    private DriverConfigRepository driverConfigRepository;
 
     /**
      * 缓存过期时间
@@ -39,7 +44,6 @@ public class ZFileCache {
      */
     @Value("${zfile.cache.auto-refresh.interval}")
     private long autoRefreshInterval;
-
 
     /**
      * 文件/文件对象缓存.
@@ -57,9 +61,6 @@ public class ZFileCache {
      * 系统设置缓存
      */
     private SystemConfigDTO systemConfigCache;
-
-    @Resource
-    private DriverConfigRepository driverConfigRepository;
 
 
     /**
@@ -102,6 +103,9 @@ public class ZFileCache {
      *          驱动器 ID
      */
     public void clear(Integer driveId) {
+        if (log.isDebugEnabled()) {
+            log.debug("清空驱动器所有缓存, driveId: {}", driveId);
+        }
         getCacheByDriveId(driveId).clear();
     }
 
@@ -286,12 +290,15 @@ public class ZFileCache {
 
 
     /**
-     * 开启缓存自动刷新, 仅当数据库设置为开启时, 才会真正开启缓存自动刷新.
+     * 开启缓存自动刷新
      *
      * @param   driveId
      *          驱动器 ID
      */
     public void startAutoCacheRefresh(Integer driveId) {
+        if (log.isDebugEnabled()) {
+            log.debug("开启缓存自动刷新 driveId: {}", driveId);
+        }
         DriveConfig driveConfig = driverConfigRepository.findById(driveId).get();
         Boolean autoRefreshCache = driveConfig.getAutoRefreshCache();
         if (autoRefreshCache != null && autoRefreshCache) {
@@ -312,6 +319,9 @@ public class ZFileCache {
      *          驱动器 ID
      */
     public void stopAutoCacheRefresh(Integer driveId) {
+        if (log.isDebugEnabled()) {
+            log.debug("停止缓存自动刷新 driveId: {}", driveId);
+        }
         MyTimedCache<DriveCacheKey, List<FileItemDTO>> driveCache = drivesCache.get(driveId);
         if (driveCache != null) {
             driveCache.cancelPruneSchedule();

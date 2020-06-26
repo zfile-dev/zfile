@@ -61,9 +61,7 @@ public class SystemConfigService {
                 Object convertVal = Convert.convert(field.getType(), strVal);
                 field.set(systemConfigDTO, convertVal);
             } catch (NoSuchFieldException | IllegalAccessException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("通过反射, 将字段 {" + key + "}注入 SystemConfigDTO 时出现异常:", e);
-                }
+                log.error("通过反射, 将字段 {} 注入 SystemConfigDTO 时出现异常:", key, e);
             }
         }
 
@@ -93,9 +91,7 @@ public class SystemConfigService {
                 try {
                     val = field.get(systemConfigDTO);
                 } catch (IllegalAccessException e) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("通过反射, 从 SystemConfigDTO 获取字段 {" + key + "}  时出现异常:", e);
-                    }
+                    log.error("通过反射, 从 SystemConfigDTO 获取字段 {}  时出现异常:", key, e);
                 }
 
                 if (val != null) {

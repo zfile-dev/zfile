@@ -54,6 +54,7 @@ public class QiniuServiceImpl extends AbstractS3BaseFileService implements BaseF
                     .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "kodo")).build();
 
             testConnection();
+            isInitialized = true;
         }
     }
 

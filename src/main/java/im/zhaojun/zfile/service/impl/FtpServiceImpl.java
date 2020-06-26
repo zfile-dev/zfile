@@ -68,6 +68,7 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
             ftp.getClient().configure(new FTPClientConfig(FTPClientConfig.SYST_UNIX));
             ftp.getClient().type(FTP.BINARY_FILE_TYPE);
             testConnection();
+            isInitialized = true;
         }
     }
 
@@ -140,4 +141,5 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
             add(new StorageConfig("basePath", "基路径"));
         }};
     }
+
 }

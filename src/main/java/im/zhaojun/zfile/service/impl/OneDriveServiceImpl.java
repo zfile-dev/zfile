@@ -54,6 +54,7 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements 
         } else {
             refreshOneDriveToken();
             testConnection();
+            isInitialized = true;
         }
     }
 
@@ -96,4 +97,5 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements 
     public String getScope() {
         return scope;
     }
+
 }

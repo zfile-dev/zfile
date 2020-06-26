@@ -5,7 +5,6 @@ import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +17,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin")
-@Slf4j
 public class MateDataController {
 
     /**

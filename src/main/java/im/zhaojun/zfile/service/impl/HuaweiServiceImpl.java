@@ -54,6 +54,7 @@ public class HuaweiServiceImpl extends AbstractS3BaseFileService implements Base
                     .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "obs")).build();
 
             testConnection();
+            isInitialized = true;
         }
     }
 
@@ -74,6 +75,5 @@ public class HuaweiServiceImpl extends AbstractS3BaseFileService implements Base
             add(new StorageConfig("isPrivate", "是否是私有空间"));
         }};
     }
-
 
 }

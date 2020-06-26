@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.schedule;
 
+import com.alibaba.fastjson.JSON;
 import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
@@ -11,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -48,15 +48,15 @@ public class OneDriveTokenRefreshSchedule {
                 try {
                     AbstractOneDriveServiceBase driveService = (AbstractOneDriveServiceBase) driveContext.get(driveConfig.getId());
                     driveService.refreshOneDriveToken();
-                    log.info("刷新驱动器 {}, {} key 时间: {}", name, storageType.getDescription(), LocalDateTime.now());
+                    log.info("尝试刷新 OneDrive Token, DriveInfo: {}", JSON.toJSONString(driveConfig));
                 } catch (Exception e) {
-                    log.debug("刷新驱动器 " + name + " Token 失败.", e);
+                    log.error("刷新 OneDrive Token 失败, DriveInfo: {}", JSON.toJSONString(driveConfig), e);
                 }
 
             });
 
         } catch (Throwable e) {
-            log.debug("尝试调用 OneDrive 自动刷新 AccessToken 定时任务出现未知异常", e);
+            log.error("尝试调用 OneDrive 自动刷新 AccessToken 定时任务出现未知异常", e);
         }
 
     }

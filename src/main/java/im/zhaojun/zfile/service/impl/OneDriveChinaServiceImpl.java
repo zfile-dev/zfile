@@ -54,6 +54,7 @@ public class OneDriveChinaServiceImpl extends AbstractOneDriveServiceBase implem
         } else {
             refreshOneDriveToken();
             testConnection();
+            isInitialized = true;
         }
     }
 

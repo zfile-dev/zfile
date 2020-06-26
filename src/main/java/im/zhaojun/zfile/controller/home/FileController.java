@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.controller.home;
 
+import com.alibaba.fastjson.JSON;
 import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
@@ -84,7 +85,8 @@ public class FileController {
                            @RequestParam(required = false) String password,
                            @RequestParam(defaultValue = "1") Integer page) throws Exception {
         AbstractBaseFileService fileService = driveContext.get(driveId);
-        List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator(ZFileConstant.PATH_SEPARATOR + path + ZFileConstant.PATH_SEPARATOR));
+        List<FileItemDTO> fileItemList =
+                fileService.fileList(StringUtils.removeDuplicateSeparator(ZFileConstant.PATH_SEPARATOR + path + ZFileConstant.PATH_SEPARATOR));
 
         for (FileItemDTO fileItemDTO : fileItemList) {
             if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())) {
@@ -92,13 +94,14 @@ public class FileController {
                 try {
                     expectedPasswordContent = HttpUtil.getTextContent(fileItemDTO.getUrl());
                 } catch (HttpClientErrorException httpClientErrorException) {
-                    log.debug("尝试重新获取密码文件缓存中链接后仍失败", httpClientErrorException);
+                    log.error("尝试重新获取密码文件缓存中链接后仍失败, driveId: {}, path: {}, inputPassword: {}, passwordFile:{} ",
+                            driveId, path, password, JSON.toJSONString(fileItemDTO), httpClientErrorException);
                     try {
                         String fullPath = StringUtils.removeDuplicateSeparator(fileItemDTO.getPath() + ZFileConstant.PATH_SEPARATOR + fileItemDTO.getName());
                         FileItemDTO fileItem = fileService.getFileItem(fullPath);
                         expectedPasswordContent = HttpUtil.getTextContent(fileItem.getUrl());
                     } catch (Exception e) {
-                        log.debug("尝试重新获取密码文件链接后仍失败, 已暂时取消密码", e);
+                        log.error("尝试重新获取密码文件链接后仍失败, 已暂时取消密码", e);
                         break;
                     }
                 }
@@ -130,12 +133,13 @@ public class FileController {
 
         AbstractBaseFileService fileService = driveContext.get(driveId);
         String fullPath = StringUtils.removeDuplicateSeparator(path + ZFileConstant.PATH_SEPARATOR + ZFileConstant.README_FILE_NAME);
+        FileItemDTO fileItem = null;
         try {
-            FileItemDTO fileItem = fileService.getFileItem(fullPath);
+            fileItem = fileService.getFileItem(fullPath);
             String readme = HttpUtil.getTextContent(fileItem.getUrl());
             systemConfig.setReadme(readme);
         } catch (Exception e) {
-            // ignore
+            log.error("获取 README 文件异常, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem), e);
         }
 
         return ResultBean.successData(systemConfig);

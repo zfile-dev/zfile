@@ -44,11 +44,13 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
         return s3FileList(path);
     }
 
+
     @Override
     public String getDownloadUrl(String path) {
         this.path = path;
         return s3ObjectUrl(path);
     }
+
 
     /**
      * 获取 S3 指定目录下的对象列表
@@ -89,6 +91,7 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
         return fileItemList;
     }
 
+
     /**
      * 获取对象的访问链接, 如果指定了域名, 则替换为自定义域名.
      * @return  S3 对象访问地址
@@ -112,6 +115,7 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
         return URLUtil.decode(defaultUrl);
     }
 
+
     @Override
     public FileItemDTO getFileItem(String path) {
         List<FileItemDTO> list;
@@ -131,4 +135,5 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
 
         throw new NotExistFileException();
     }
+
 }

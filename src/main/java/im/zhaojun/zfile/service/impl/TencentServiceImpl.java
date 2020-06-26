@@ -53,6 +53,7 @@ public class TencentServiceImpl extends AbstractS3BaseFileService implements Bas
                     .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "cos")).build();
 
             testConnection();
+            isInitialized = true;
         }
     }
 
@@ -74,4 +75,5 @@ public class TencentServiceImpl extends AbstractS3BaseFileService implements Bas
             add(new StorageConfig("isPrivate", "是否是私有空间"));
         }};
     }
+
 }

@@ -135,7 +135,7 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
             try {
                 root = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
             } catch (HttpClientErrorException e) {
-                log.debug("调用 OneDrive 时出现了网络异常: {} , 已尝试重新刷新 token 后再试.", e.getMessage());
+                log.debug("调用 OneDrive 时出现了网络异常, 已尝试重新刷新 token 后再试.", e);
                 refreshOneDriveToken();
                 root = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
             }

@@ -66,6 +66,7 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
         } else {
             upYun = new UpYun(bucketName, username, password);
             testConnection();
+            isInitialized = true;
         }
     }
 

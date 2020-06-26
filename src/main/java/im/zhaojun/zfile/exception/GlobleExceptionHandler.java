@@ -20,17 +20,6 @@ public class GlobleExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobleExceptionHandler.class);
 
-    @ExceptionHandler
-    @ResponseBody
-    @ResponseStatus
-    public ResultBean searchDisableExceptionHandler(StorageStrategyUninitializedException e) {
-        if (log.isDebugEnabled()) {
-            log.debug(e.getMessage(), e);
-        }
-        return ResultBean.error(e.getMessage());
-    }
-
-
     /**
      * 不存在的文件异常
      */
@@ -76,15 +65,11 @@ public class GlobleExceptionHandler {
     }
 
 
-
-
     @ExceptionHandler
     @ResponseBody
     @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR)
     public ResultBean searchDisableExceptionHandler(Exception e) {
-        if (log.isDebugEnabled()) {
-            log.debug(e.getMessage(), e);
-        }
+        log.error(e.getMessage(), e);
 
         if (e.getClass() == Exception.class) {
             return ResultBean.error("系统异常, 请联系管理员");

@@ -54,6 +54,7 @@ public class AliyunServiceImpl extends AbstractS3BaseFileService implements Base
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
                     .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "oss")).build();
             testConnection();
+            isInitialized = true;
         }
     }
 
