@@ -2,6 +2,7 @@ package im.zhaojun.zfile.controller.home;
 
 import com.alibaba.fastjson.JSON;
 import im.zhaojun.zfile.context.DriveContext;
+import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
@@ -139,7 +140,11 @@ public class FileController {
             String readme = HttpUtil.getTextContent(fileItem.getUrl());
             systemConfig.setReadme(readme);
         } catch (Exception e) {
-            log.error("获取 README 文件异常, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem), e);
+            if (e instanceof NotExistFileException) {
+                log.debug("不存在 README 文件, 已跳过, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem));
+            } else {
+                log.error("获取 README 文件异常, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem), e);
+            }
         }
 
         return ResultBean.successData(systemConfig);
