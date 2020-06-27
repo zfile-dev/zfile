@@ -16,6 +16,8 @@ import im.zhaojun.zfile.repository.StorageConfigRepository;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,9 +55,23 @@ public class DriveConfigService {
      * @return  驱动器列表
      */
     public List<DriveConfig> list() {
-        return driverConfigRepository.findAll();
+        Sort sort = new Sort(Sort.Direction.ASC,"orderNum");
+        return driverConfigRepository.findAll(sort);
     }
 
+
+    /**
+     * 获取所有已启用的驱动器列表
+     *
+     * @return  已启用的驱动器列表
+     */
+    public List<DriveConfig> listOnlyEnable() {
+        DriveConfig driveConfig = new DriveConfig();
+        driveConfig.setEnable(true);
+        Example<DriveConfig> example = Example.of(driveConfig);
+        Sort sort = new Sort(Sort.Direction.ASC,"orderNum");
+        return driverConfigRepository.findAll(example, sort);
+    }
 
     /**
      * 获取指定驱动器设置
@@ -124,12 +140,22 @@ public class DriveConfigService {
 
 
     /**
+     * 新增或设置驱动器设置
+     * @param driveConfig   驱动器设置
+     * @return              保存后的驱动器设置
+     */
+    public DriveConfig saveOrUpdate(DriveConfig driveConfig) {
+        return driverConfigRepository.save(driveConfig);
+    }
+
+
+    /**
      * 保存驱动器基本信息及其对应的参数设置
      *
      * @param driveConfigDTO    驱动器 DTO 对象
      */
     @Transactional(rollbackFor = Exception.class)
-    public void save(DriveConfigDTO driveConfigDTO) {
+    public void saveDriveConfigDTO(DriveConfigDTO driveConfigDTO) {
 
         // 判断是新增还是修改
         boolean updateFlag = driveConfigDTO.getId() != null;

@@ -59,7 +59,7 @@ public class DriveController {
      */
     @PostMapping("/drive")
     public ResultBean saveDriveItem(@RequestBody DriveConfigDTO driveConfigDTO) {
-        driveConfigService.save(driveConfigDTO);
+        driveConfigService.saveDriveConfigDTO(driveConfigDTO);
         return ResultBean.success();
     }
 
@@ -75,5 +75,36 @@ public class DriveController {
         driveConfigService.deleteById(id);
         return ResultBean.success();
     }
+
+
+    /**
+     * 启用驱动器
+     *
+     * @param   id
+     *          驱动器 ID
+     */
+    @PostMapping("/drive/{id}/enable")
+    public ResultBean enable(@PathVariable("id") Integer id) {
+        DriveConfig driveConfig = driveConfigService.findById(id);
+        driveConfig.setEnable(true);
+        driveConfigService.saveOrUpdate(driveConfig);
+        return ResultBean.success();
+    }
+
+
+    /**
+     * 停止驱动器
+     *
+     * @param   id
+     *          驱动器 ID
+     */
+    @PostMapping("/drive/{id}/disable")
+    public ResultBean disable(@PathVariable("id") Integer id) {
+        DriveConfig driveConfig = driveConfigService.findById(id);
+        driveConfig.setEnable(false);
+        driveConfigService.saveOrUpdate(driveConfig);
+        return ResultBean.success();
+    }
+
 
 }

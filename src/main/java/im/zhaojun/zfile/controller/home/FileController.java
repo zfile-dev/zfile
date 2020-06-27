@@ -53,13 +53,13 @@ public class FileController {
 
 
     /**
-     * 获取所有驱动器
+     * 获取所有已启用的驱动器
      *
-     * @return  所有驱动器
+     * @return  所有已启用驱动器
      */
     @GetMapping("/drive/list")
     public ResultBean drives() {
-        return ResultBean.success(driveConfigService.list());
+        return ResultBean.success(driveConfigService.listOnlyEnable());
     }
 
     /**

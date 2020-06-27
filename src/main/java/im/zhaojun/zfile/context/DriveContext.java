@@ -50,7 +50,6 @@ public class DriveContext implements ApplicationContextAware {
             try {
                 init(driveConfig.getId());
                 log.info("启动时初始化驱动器成功, 驱动器信息: {}", JSON.toJSONString(driveConfig));
-                throw new RuntimeException("xx");
             } catch (Exception e) {
                 log.error("启动时初始化驱动器失败, 驱动器信息: {}", JSON.toJSONString(driveConfig), e);
             }

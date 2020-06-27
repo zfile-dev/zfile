@@ -21,6 +21,8 @@ public class DriveConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private Boolean enable;
+
     private String name;
 
     private Boolean enableCache;
@@ -34,5 +36,7 @@ public class DriveConfig {
     private Boolean searchIgnoreCase;
 
     private Boolean searchContainEncryptedFile;
+
+    private Integer orderNum;
 
 }

@@ -18,6 +18,8 @@ public class DriveConfigDTO {
     @JsonDeserialize(using = StorageTypeEnumJsonDeSerializerConvert.class)
     private StorageTypeEnum type;
 
+    private Boolean enable;
+
     private boolean enableCache;
 
     private boolean autoRefreshCache;
@@ -27,6 +29,8 @@ public class DriveConfigDTO {
     private boolean searchIgnoreCase;
 
     private boolean searchContainEncryptedFile;
+
+    private Integer orderNum;
 
     private StorageStrategyConfig storageStrategyConfig;
 
