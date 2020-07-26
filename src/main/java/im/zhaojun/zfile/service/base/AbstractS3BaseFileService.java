@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import im.zhaojun.zfile.exception.NotExistFileException;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.service.StorageConfigService;
@@ -43,11 +44,13 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
         return s3FileList(path);
     }
 
+
     @Override
     public String getDownloadUrl(String path) {
         this.path = path;
         return s3ObjectUrl(path);
     }
+
 
     /**
      * 获取 S3 指定目录下的对象列表
@@ -88,13 +91,14 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
         return fileItemList;
     }
 
+
     /**
      * 获取对象的访问链接, 如果指定了域名, 则替换为自定义域名.
      * @return  S3 对象访问地址
      */
     public String s3ObjectUrl(String path) {
         basePath = basePath == null ? "" : basePath;
-        String fullPath = StringUtils.removeFirstSeparator(StringUtils.removeDuplicateSeparator(basePath + "/" + path));
+        String fullPath = StringUtils.removeFirstSeparator(StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path));
 
         // 如果不是私有空间, 且指定了加速域名, 则直接返回下载地址.
         if (BooleanUtil.isFalse(isPrivate) && StringUtils.isNotNullOrEmpty(domain)) {
@@ -110,6 +114,7 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
         }
         return URLUtil.decode(defaultUrl);
     }
+
 
     @Override
     public FileItemDTO getFileItem(String path) {
@@ -130,4 +135,5 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
 
         throw new NotExistFileException();
     }
+
 }

@@ -28,4 +28,5 @@ public enum FileTypeEnum {
     public void setValue(String value) {
         this.value = value;
     }
+
 }

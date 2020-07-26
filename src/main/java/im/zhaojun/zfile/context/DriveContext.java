@@ -1,10 +1,13 @@
 package im.zhaojun.zfile.context;
 
+import com.alibaba.fastjson.JSON;
+import im.zhaojun.zfile.exception.InvalidDriveException;
 import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.util.SpringContextHolder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -12,26 +15,46 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 驱动器上下文环境
+ * 每个驱动器对应一个 Service, 其中初始化好了与对象存储的连接信息.
+ * 此驱动器上下文环境用户缓存每个 Service, 避免重复创建连接.
  * @author zhaojun
  */
 @Component
 @DependsOn("springContextHolder")
+@Slf4j
 public class DriveContext implements ApplicationContextAware {
 
+    /**
+     * Map<Integer, AbstractBaseFileService>
+     * Map<驱动器 ID, 驱动器连接 Service>
+     */
     private static Map<Integer, AbstractBaseFileService> drivesServiceMap = new ConcurrentHashMap<>();
-
-    private static Map<StorageTypeEnum, Class<AbstractBaseFileService>> storageTypeEnumClassMap = new ConcurrentHashMap<>();
 
     @Resource
     private DriveConfigService driveConfigService;
+
+
+    /**
+     * 项目启动时, 自动调用数据库已存储的所有驱动器进行初始化.
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        List<DriveConfig> list = driveConfigService.list();
+        for (DriveConfig driveConfig : list) {
+            try {
+                init(driveConfig.getId());
+                log.info("启动时初始化驱动器成功, 驱动器信息: {}", JSON.toJSONString(driveConfig));
+            } catch (Exception e) {
+                log.error("启动时初始化驱动器失败, 驱动器信息: {}", JSON.toJSONString(driveConfig), e);
+            }
+        }
+    }
 
 
     /**
@@ -40,10 +63,16 @@ public class DriveContext implements ApplicationContextAware {
      * @param   driveId
      *          驱动器 ID.
      */
-    public void initDrive(Integer driveId) {
+    public void init(Integer driveId) {
         AbstractBaseFileService baseFileService = getBeanByDriveId(driveId);
         if (baseFileService != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("尝试初始化驱动器, driveId: {}", driveId);
+            }
             baseFileService.init(driveId);
+            if (log.isDebugEnabled()) {
+                log.debug("初始化驱动器成功, driveId: {}", driveId);
+            }
             drivesServiceMap.put(driveId, baseFileService);
         }
     }
@@ -57,8 +86,12 @@ public class DriveContext implements ApplicationContextAware {
      *
      * @return  驱动器对应的 Service
      */
-    public AbstractBaseFileService getDriveService(Integer driveId) {
-        return drivesServiceMap.get(driveId);
+    public AbstractBaseFileService get(Integer driveId) {
+        AbstractBaseFileService abstractBaseFileService = drivesServiceMap.get(driveId);
+        if (abstractBaseFileService == null) {
+            throw new InvalidDriveException("此驱动器不存在或初始化失败, 请检查后台参数配置");
+        }
+        return abstractBaseFileService;
     }
 
 
@@ -68,7 +101,10 @@ public class DriveContext implements ApplicationContextAware {
      * @param   driveId
      *          驱动器 ID
      */
-    public void destroyDrive(Integer driveId) {
+    public void destroy(Integer driveId) {
+        if (log.isDebugEnabled()) {
+            log.debug("清理驱动器上下文对象, driveId: {}", driveId);
+        }
         drivesServiceMap.remove(driveId);
     }
 
@@ -90,18 +126,6 @@ public class DriveContext implements ApplicationContextAware {
             }
         }
         return null;
-    }
-
-
-    /**
-     * 项目启动时, 自动调用所有驱动器进行初始化.
-     */
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        List<DriveConfig> list = driveConfigService.list();
-        for (DriveConfig driveConfig : list) {
-            initDrive(driveConfig.getId());
-        }
     }
 
 }

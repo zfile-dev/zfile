@@ -1,7 +1,7 @@
 package im.zhaojun.zfile.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import im.zhaojun.zfile.model.dto.ResultBean;
+import im.zhaojun.zfile.model.support.ResultBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.BadCredentialsException;

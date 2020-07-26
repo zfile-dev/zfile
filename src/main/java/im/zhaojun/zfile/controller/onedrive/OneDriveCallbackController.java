@@ -1,4 +1,4 @@
-package im.zhaojun.zfile.controller;
+package im.zhaojun.zfile.controller.onedrive;
 
 import im.zhaojun.zfile.model.support.OneDriveToken;
 import im.zhaojun.zfile.service.impl.OneDriveChinaServiceImpl;
@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  */
 @Controller
 @RequestMapping("/onedrive")
-public class OneDriveController {
+public class OneDriveCallbackController {
 
     @Resource
     private OneDriveServiceImpl oneDriveServiceImpl;

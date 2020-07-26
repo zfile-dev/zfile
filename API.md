@@ -10,22 +10,14 @@
 
 当 `code == 0` 时, `data` 中为请求所需数据.
 
-当 `code != 0` 时, 应当将 `msg` 中的属性作为参考值.
+当 `code != 0` 时, 应当将 `msg` 中的内容作为参考值.
 
 
-## 获取文件列表
+## 驱动器列表
 
 ### 请求 URL
 
-`/api/list`  `GET`
-
-### 参数
-
-|  参数名  |    描述    | 是否必填 |            参考值            |
-| :------: | :--------: | :------: | :--------------------------: |
-|   path   |    路径    |    是    |      `/`, `/文件夹名称`      |
-| password | 文件夹密码 |    否    |     当文件夹需要密码时,      |
-|   page   |    页数    |    否    | 默认取第一页, 每页固定 30 条 |
+`/api/drive/list`  `GET`
 
 ### 响应
 
@@ -35,40 +27,51 @@
     "code": 0,
     "data": [
         {
-            "name": "密码文件夹",
-            "time": "2020-01-28 13:17",
-            "size": 4096,
-            "type": "FOLDER",
-            "path": "/",
-            "url": null
-        },
-        {
-            "name": "新建 文本文档.txt",
-            "time": "2020-01-28 13:16",
-            "size": 3,
-            "type": "FILE",
-            "path": "/",
-            "url": "http://127.0.0.1:8080/file/新建 文本文档.txt"
+            "id": 3,                        --- 此 ID 是驱动器 ID, 用来唯一区分驱动器
+            "name": "演示 A 盘",            --- 驱动器名称
+            "enableCache": true,            --- 是否开启了缓存
+            "autoRefreshCache": false,      --- 是否开启了缓存自动刷新
+            "type": {                       --- 存储源类型
+                "key": "upyun",
+                "description": "又拍云 USS"
+            },
+            "searchEnable": false,          --- 是否开启搜索
+            "searchIgnoreCase": false,      --- 搜索是否忽略大小写
+            "searchContainEncryptedFile": false     --- 搜索是否包含加密文件夹
         }
     ]
 }
 ```
 
-## 搜索
 
+
+## 获取文件列表
 
 ### 请求 URL
 
-`/api/search`  `GET`
+`/api/list/{driveId}`  `GET`
 
-### 参数
 
-| 参数名 |  描述  | 是否必填 |            参考值            |
-| :----: | :----: | :------: | :--------------------------: |
-|  name  | 搜索值 |    是    |           模糊匹配           |
-|  page  |  页数  |    否    | 默认取第一页, 每页固定 30 条 |
+### URL 参数
+
+
+| 参数名  |         描述          | 是否必填 |                 参考值                 |
+| :-----: | :-------------------: | :------: | :------------------------------------: |
+| driveId | 驱动器 ID |    是    | 参考 `获取驱动器列表` 接口返回的 id 值 |
+
+
+### 请求参数
+
+
+|  参数名  |    描述    | 是否必填 |            参考值            |
+| :------: | :--------: | :------: | :--------------------------: |
+|   path   |    路径    |    是    |      `/`, `/文件夹名称`      |
+| password | 文件夹密码 |    否    |     当文件夹需要密码时,      |
+|   page   |    页数    |    否    | 默认取第一页, 每页固定 30 条 |
+
 
 ### 响应
+
 
 ```json
 {
@@ -100,7 +103,14 @@
 
 ### 请求 URL
 
-`/api/directlink`  `GET`
+`/api/directlink/{driveId}`  `GET`
+
+
+### URL 参数
+
+| 参数名  |         描述          | 是否必填 |                 参考值                 |
+| :-----: | :-------------------: | :------: | :------------------------------------: |
+| driveId | 驱动器 ID |    是    | 参考 `获取驱动器列表` 接口返回的 id 值 |
 
 ### 参数
 
@@ -130,7 +140,15 @@
 
 ### 请求 URL
 
-`/api/config`  `GET`
+`/api/config/{driveId}`  `GET`
+
+
+### URL 参数
+
+| 参数名  |         描述          | 是否必填 |                 参考值                 |
+| :-----: | :-------------------: | :------: | :------------------------------------: |
+| driveId | 驱动器 ID |    是    | 参考 `获取驱动器列表` 接口返回的 id 值 |
+
 
 ### 参数
 
@@ -145,20 +163,19 @@
     "msg": "操作成功",
     "code": 0,
     "data": {
-        "readme": null,     # 文档文件名称
-        "viewConfig": {
-            "siteName": "站点名称",     # 站点名称
-            "infoEnable": false,        # 是否开启右侧信息框
-            "searchEnable": false,      # 是否开启搜索
-            "searchIgnoreCase": true,   # 搜索是否忽略大小写
-            "storageStrategy": "local", # 当前启用存储引擎
-            "username": "2",            # 用户名
-            "domain": "http://127.0.0.1:8080",  # 域名
-            "enableCache": false,               # 是否开启缓存
-            "searchContainEncryptedFile": false,    # 搜索是否包含加密文件夹
-            "customJs": "",             # 自定义 js 片段
-            "customCss": ""             # 自定义 css 片段
-        }
+        "siteName": "ZFile 演示站",
+        "searchEnable": false,
+        "username": "zhao",
+        "domain": "https://zfile.jun6.net",
+        "customJs": "",
+        "customCss": "",
+        "tableSize": "small",
+        "showOperator": true,
+        "showDocument": true,
+        "announcement": "本站是 ZFile 演示站，交流反馈群 180605017",
+        "showAnnouncement": true,
+        "layout": "full",
+        "readme": null
     }
 }
 ```

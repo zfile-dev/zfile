@@ -1,7 +1,7 @@
 package im.zhaojun.zfile.controller.admin;
 
 import im.zhaojun.zfile.model.dto.CacheInfoDTO;
-import im.zhaojun.zfile.model.dto.ResultBean;
+import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.DriveConfigService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

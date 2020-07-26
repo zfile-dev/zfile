@@ -1,4 +1,4 @@
-package im.zhaojun.zfile.model.dto;
+package im.zhaojun.zfile.model.support;
 
 import java.io.Serializable;
 

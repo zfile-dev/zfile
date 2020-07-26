@@ -24,9 +24,9 @@ import java.net.URL;
  * 音频解析工具类
  * @author zhaojun
  */
-public class AudioHelper {
+public class AudioUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(AudioHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(AudioUtil.class);
 
     public static AudioInfoDTO getAudioInfo(String url) throws Exception {
         String query = new URL(URLUtil.decode(url)).getQuery();
@@ -41,7 +41,9 @@ public class AudioHelper {
             return AudioInfoDTO.buildDefaultAudioInfoDTO();
         }
 
-        File file = new File(ZFileConstant.USER_HOME + ZFileConstant.AUDIO_TMP_PATH + UUID.fastUUID());
+        String fullFilePath = StringUtils.removeDuplicateSeparator(ZFileConstant.TMP_FILE_PATH + ZFileConstant.PATH_SEPARATOR + UUID.fastUUID());
+
+        File file = new File(fullFilePath);
         FileUtil.mkParentDirs(file);
         HttpUtil.downloadFile(url, file);
         AudioInfoDTO audioInfoDTO = parseAudioInfo(file);

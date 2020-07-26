@@ -71,6 +71,21 @@
             "name": "zfile.preview.text.maxFileSizeKb",
             "type": "java.lang.Long",
             "description": "允许在线读取文本文件的文件大小, 单位为 KB."
+        },
+        {
+            "name": "zfile.log.path",
+            "type": "java.lang.String",
+            "description": "日志文件路径."
+        },
+        {
+            "name": "zfile.db.path",
+            "type": "java.lang.String",
+            "description": "数据库文件路径."
+        },
+        {
+            "name": "zfile.tmp.path",
+            "type": "java.lang.String",
+            "description": "临时文件路径."
         }
     ]
 }

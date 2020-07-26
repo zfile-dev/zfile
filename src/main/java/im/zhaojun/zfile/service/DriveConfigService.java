@@ -3,7 +3,7 @@ package im.zhaojun.zfile.service;
 import im.zhaojun.zfile.cache.ZFileCache;
 import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.context.StorageTypeContext;
-import im.zhaojun.zfile.exception.InitializeException;
+import im.zhaojun.zfile.exception.InitializeDriveException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.dto.CacheInfoDTO;
 import im.zhaojun.zfile.model.dto.DriveConfigDTO;
@@ -16,6 +16,8 @@ import im.zhaojun.zfile.repository.StorageConfigRepository;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,9 +55,23 @@ public class DriveConfigService {
      * @return  驱动器列表
      */
     public List<DriveConfig> list() {
-        return driverConfigRepository.findAll();
+        Sort sort = new Sort(Sort.Direction.ASC,"orderNum");
+        return driverConfigRepository.findAll(sort);
     }
 
+
+    /**
+     * 获取所有已启用的驱动器列表
+     *
+     * @return  已启用的驱动器列表
+     */
+    public List<DriveConfig> listOnlyEnable() {
+        DriveConfig driveConfig = new DriveConfig();
+        driveConfig.setEnable(true);
+        Example<DriveConfig> example = Example.of(driveConfig);
+        Sort sort = new Sort(Sort.Direction.ASC,"orderNum");
+        return driverConfigRepository.findAll(example, sort);
+    }
 
     /**
      * 获取指定驱动器设置
@@ -101,9 +117,7 @@ public class DriveConfigService {
                     declaredField.set(storageStrategyConfig, value);
                 }
             } catch (NoSuchFieldException | IllegalAccessException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("通过反射, 将字段 {" + key + "}注入 DriveConfigDTO 时出现异常:", e);
-                }
+                log.error("通过反射, 将字段 {} 注入 DriveConfigDTO 时出现异常:", key, e);
             }
 
         }
@@ -121,8 +135,17 @@ public class DriveConfigService {
      * @return  驱动器对应的存储策略.
      */
     public StorageTypeEnum findStorageTypeById(Integer id) {
-        // return findById(id).getType();
         return driverConfigRepository.findById(id).get().getType();
+    }
+
+
+    /**
+     * 新增或设置驱动器设置
+     * @param driveConfig   驱动器设置
+     * @return              保存后的驱动器设置
+     */
+    public DriveConfig saveOrUpdate(DriveConfig driveConfig) {
+        return driverConfigRepository.save(driveConfig);
     }
 
 
@@ -132,7 +155,7 @@ public class DriveConfigService {
      * @param driveConfigDTO    驱动器 DTO 对象
      */
     @Transactional(rollbackFor = Exception.class)
-    public void save(DriveConfigDTO driveConfigDTO) {
+    public void saveDriveConfigDTO(DriveConfigDTO driveConfigDTO) {
 
         // 判断是新增还是修改
         boolean updateFlag = driveConfigDTO.getId() != null;
@@ -142,12 +165,6 @@ public class DriveConfigService {
         StorageTypeEnum storageType = driveConfigDTO.getType();
         BeanUtils.copyProperties(driveConfigDTO, driveConfig);
         driverConfigRepository.save(driveConfig);
-
-        if (driveConfig.getAutoRefreshCache()) {
-            startAutoCacheRefresh(driveConfig.getId());
-        } else {
-            stopAutoCacheRefresh(driveConfig.getId());
-        }
 
         // 保存存储策略设置.
         StorageStrategyConfig storageStrategyConfig = driveConfigDTO.getStorageStrategyConfig();
@@ -173,20 +190,25 @@ public class DriveConfigService {
                 storageConfig.setType(storageType);
                 storageConfig.setDriveId(driveConfig.getId());
             } catch (IllegalAccessException | NoSuchFieldException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("通过反射, 从 StorageStrategyConfig 中获取字段 {" + key + "} 时出现异常:", e);
-                }
+                log.error("通过反射, 从 StorageStrategyConfig 中获取字段 {} 时出现异常:", key, e);
             }
 
         }
         storageConfigRepository.saveAll(storageConfigList);
 
-        driveContext.initDrive(driveConfig.getId());
+        driveContext.init(driveConfig.getId());
 
-        AbstractBaseFileService driveService = driveContext.getDriveService(driveConfig.getId());
+        AbstractBaseFileService driveService = driveContext.get(driveConfig.getId());
         if (driveService.getIsUnInitialized()) {
-            throw new InitializeException("初始化异常, 请检查配置是否正确.");
+            throw new InitializeDriveException("初始化异常, 请检查配置是否正确.");
         }
+
+        if (driveConfig.getAutoRefreshCache()) {
+            startAutoCacheRefresh(driveConfig.getId());
+        } else if (updateFlag){
+            stopAutoCacheRefresh(driveConfig.getId());
+        }
+
     }
 
 
@@ -198,9 +220,20 @@ public class DriveConfigService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteById(Integer id) {
+        if (log.isDebugEnabled()) {
+            log.debug("尝试删除驱动器, driveId: {}", id);
+        }
+        DriveConfig driveConfig = driverConfigRepository.getOne(id);
         driverConfigRepository.deleteById(id);
         storageConfigRepository.deleteByDriveId(id);
-        driveContext.destroyDrive(id);
+        if (driveConfig.getEnableCache()) {
+            zFileCache.stopAutoCacheRefresh(id);
+            zFileCache.clear(id);
+        }
+        driveContext.destroy(id);
+        if (log.isDebugEnabled()) {
+            log.debug("尝试删除驱动器成功, 已清理相关数据, driveId: {}", id);
+        }
     }
 
 
@@ -210,7 +243,7 @@ public class DriveConfigService {
      * @param   type
      *          存储类型
      *
-     * @return  指定存储类型的存储器
+     * @return  指定存储类型的驱动器
      */
     public List<DriveConfig> findByType(StorageTypeEnum type) {
         return driverConfigRepository.findByType(type);
@@ -268,7 +301,6 @@ public class DriveConfigService {
     }
 
 
-
     /**
      * 刷新指定 key 的缓存:
      *  1. 清空此 key 的缓存.
@@ -281,15 +313,17 @@ public class DriveConfigService {
      *          缓存 key (文件夹名称)
      */
     public void refreshCache(Integer driveId, String key) throws Exception {
+        if (log.isDebugEnabled()) {
+            log.debug("手动刷新缓存 driveId: {}, key: {}", driveId, key);
+        }
         zFileCache.remove(driveId, key);
-        AbstractBaseFileService baseFileService = driveContext.getDriveService(driveId);
+        AbstractBaseFileService baseFileService = driveContext.get(driveId);
         baseFileService.fileList(key);
     }
 
 
-
     /**
-     * 开启缓存自动刷新, 仅当数据库设置为开启时, 才会真正开启缓存自动刷新.
+     * 开启缓存自动刷新
      *
      * @param   driveId
      *          驱动器 ID
@@ -324,6 +358,5 @@ public class DriveConfigService {
     public void clearCache(Integer driveId) {
         zFileCache.clear(driveId);
     }
-
 
 }

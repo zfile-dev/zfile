@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Aspect
 @Component
-public class FileListCacheAop {
+public class FileListCacheAspect {
 
     @Resource
     private ZFileCache zFileCache;

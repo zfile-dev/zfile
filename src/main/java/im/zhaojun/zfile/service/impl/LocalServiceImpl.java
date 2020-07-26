@@ -1,8 +1,10 @@
 package im.zhaojun.zfile.service.impl;
 
+import im.zhaojun.zfile.exception.InitializeDriveException;
 import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.constant.SystemConfigConstant;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.entity.SystemConfig;
@@ -47,27 +49,31 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
 
     @Override
     public void init(Integer driveId) {
-        try {
-            this.driveId = driveId;
-            Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
-            filePath = stringStorageConfigMap.get(StorageConfigConstant.FILE_PATH_KEY).getValue();
-            if (Objects.isNull(filePath)) {
-                log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
-                isInitialized = false;
-            } else {
-                isInitialized = testConnection();
-            }
-        } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
+        this.driveId = driveId;
+        Map<String, StorageConfig> stringStorageConfigMap =
+                storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        filePath = stringStorageConfigMap.get(StorageConfigConstant.FILE_PATH_KEY).getValue();
+        if (Objects.isNull(filePath)) {
+            log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
+            isInitialized = false;
+            return;
+        }
+
+        File file = new File(filePath);
+        if (!file.exists()) {
+            throw new InitializeDriveException("文件路径: \"" + file.getAbsolutePath() + "\"不存在, 请检查是否填写正确.");
+        } else {
+            testConnection();
+            isInitialized = true;
         }
     }
+
 
     @Override
     public List<FileItemDTO> fileList(String path) throws FileNotFoundException {
         List<FileItemDTO> fileItemList = new ArrayList<>();
 
-        String fullPath = StringUtils.concatPath(filePath, path);
+        String fullPath = StringUtils.removeDuplicateSeparator(filePath + path);
 
         File file = new File(fullPath);
 
@@ -99,7 +105,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
     @Override
     public String getDownloadUrl(String path) {
         SystemConfig usernameConfig = systemConfigRepository.findByKey(SystemConfigConstant.DOMAIN);
-        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + driveId + "/" + path);
+        return StringUtils.removeDuplicateSeparator(usernameConfig.getValue() + "/file/" + driveId + ZFileConstant.PATH_SEPARATOR + path);
     }
 
     public String getFilePath() {
@@ -144,4 +150,5 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
             add(new StorageConfig("filePath", "文件路径"));
         }};
     }
+
 }

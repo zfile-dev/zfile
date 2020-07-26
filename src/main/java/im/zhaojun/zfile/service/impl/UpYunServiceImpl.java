@@ -6,6 +6,7 @@ import com.UpYun;
 import com.upyun.UpException;
 import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
@@ -49,26 +50,23 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
 
     @Override
     public void init(Integer driveId) {
-        try {
-            this.driveId = driveId;
-            Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
-            String bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
-            String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
-            String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
-            domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
-            basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
-            basePath = ObjectUtil.defaultIfNull(basePath, "");
+        this.driveId = driveId;
+        Map<String, StorageConfig> stringStorageConfigMap =
+                storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        String bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
+        String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
+        String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();
+        domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
+        basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
+        basePath = ObjectUtil.defaultIfNull(basePath, "");
 
-            if (Objects.isNull(bucketName) || Objects.isNull(username) || Objects.isNull(password)) {
-                log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
-                isInitialized = false;
-            } else {
-                upYun = new UpYun(bucketName, username, password);
-                isInitialized = testConnection();
-            }
-        } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
+        if (Objects.isNull(bucketName) || Objects.isNull(username) || Objects.isNull(password)) {
+            log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
+            isInitialized = false;
+        } else {
+            upYun = new UpYun(bucketName, username, password);
+            testConnection();
+            isInitialized = true;
         }
     }
 
@@ -122,7 +120,7 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
             int lastDelimiterIndex = path.lastIndexOf("/");
             String name = path.substring(lastDelimiterIndex + 1);
 
-            Map<String, String> fileInfo = upYun.getFileInfo(StringUtils.removeDuplicateSeparator(basePath + "/" + path));
+            Map<String, String> fileInfo = upYun.getFileInfo(StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path));
 
             if (fileInfo == null) {
                 throw new NotExistFileException();
@@ -138,7 +136,7 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
                 fileItemDTO.setType(FileTypeEnum.FOLDER);
             } else {
                 fileItemDTO.setType(FileTypeEnum.FILE);
-                fileItemDTO.setUrl(getDownloadUrl(StringUtils.removeDuplicateSeparator(basePath + "/" + path)));
+                fileItemDTO.setUrl(getDownloadUrl(StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path)));
             }
             return fileItemDTO;
         } catch (IOException | UpException e) {

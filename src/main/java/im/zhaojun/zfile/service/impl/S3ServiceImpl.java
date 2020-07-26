@@ -32,37 +32,34 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
 
     @Override
     public void init(Integer driveId) {
-        try {
-            this.driveId = driveId;
-            Map<String, StorageConfig> stringStorageConfigMap =
-                    storageConfigService.selectStorageConfigMapByDriveId(driveId);
-            String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
-            String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
-            String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
+        this.driveId = driveId;
+        Map<String, StorageConfig> stringStorageConfigMap =
+                storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
+        String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
+        String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
 
-            super.domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
-            super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
-            super.bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
-            super.isPrivate = Convert.toBool(stringStorageConfigMap.get(StorageConfigConstant.IS_PRIVATE).getValue(), true);
+        super.domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
+        super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
+        super.bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
+        super.isPrivate = Convert.toBool(stringStorageConfigMap.get(StorageConfigConstant.IS_PRIVATE).getValue(), true);
 
-            String pathStyle = stringStorageConfigMap.get(StorageConfigConstant.PATH_STYLE).getValue();
+        String pathStyle = stringStorageConfigMap.get(StorageConfigConstant.PATH_STYLE).getValue();
 
-            boolean isPathStyle = "path-style".equals(pathStyle);
+        boolean isPathStyle = "path-style".equals(pathStyle);
 
-            if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
-                log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
-                isInitialized = false;
-            } else {
-                BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-                s3Client = AmazonS3ClientBuilder.standard()
-                        .withPathStyleAccessEnabled(isPathStyle)
-                        .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                        .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "")).build();
+        if (Objects.isNull(accessKey) || Objects.isNull(secretKey) || Objects.isNull(endPoint) || Objects.isNull(bucketName)) {
+            log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
+            isInitialized = false;
+        } else {
+            BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+            s3Client = AmazonS3ClientBuilder.standard()
+                    .withPathStyleAccessEnabled(isPathStyle)
+                    .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "")).build();
 
-                isInitialized = testConnection();
-            }
-        } catch (Exception e) {
-            log.debug(getStorageTypeEnum().getDescription() + " 初始化异常, 已跳过");
+            testConnection();
+            isInitialized = true;
         }
     }
 
@@ -84,4 +81,5 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
             add(new StorageConfig("isPrivate", "是否是私有空间"));
         }};
     }
+
 }

@@ -1,10 +1,9 @@
 package im.zhaojun.zfile.controller.admin;
 
 import im.zhaojun.zfile.model.dto.DriveConfigDTO;
-import im.zhaojun.zfile.model.dto.ResultBean;
 import im.zhaojun.zfile.model.entity.DriveConfig;
+import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.DriveConfigService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,12 +16,11 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 驱动器 Controller
+ * 驱动器相关操作 Controller
  * @author zhaojun
  */
 @RestController
 @RequestMapping("/admin")
-@Slf4j
 public class DriveController {
 
     @Resource
@@ -34,7 +32,7 @@ public class DriveController {
      *
      * @return  驱动器列表
      */
-    @GetMapping("drives")
+    @GetMapping("/drives")
     public ResultBean driveList() {
         List<DriveConfig> list = driveConfigService.list();
         return ResultBean.success(list);
@@ -47,9 +45,9 @@ public class DriveController {
      * @param   id
      *          驱动器 ID
      *
-     * @return  驱动器基本信息信息
+     * @return  驱动器基本信息
      */
-    @GetMapping("drive/{id}")
+    @GetMapping("/drive/{id}")
     public ResultBean driveItem(@PathVariable Integer id) {
         DriveConfigDTO driveConfig = driveConfigService.findDriveConfigDTOById(id);
         return ResultBean.success(driveConfig);
@@ -59,9 +57,9 @@ public class DriveController {
     /**
      * 保存驱动器设置
      */
-    @PostMapping("drive")
+    @PostMapping("/drive")
     public ResultBean saveDriveItem(@RequestBody DriveConfigDTO driveConfigDTO) {
-        driveConfigService.save(driveConfigDTO);
+        driveConfigService.saveDriveConfigDTO(driveConfigDTO);
         return ResultBean.success();
     }
 
@@ -72,10 +70,41 @@ public class DriveController {
      * @param   id
      *          驱动器 ID
      */
-    @DeleteMapping("drive/{id}")
+    @DeleteMapping("/drive/{id}")
     public ResultBean deleteDriveItem(@PathVariable Integer id) {
         driveConfigService.deleteById(id);
         return ResultBean.success();
     }
+
+
+    /**
+     * 启用驱动器
+     *
+     * @param   id
+     *          驱动器 ID
+     */
+    @PostMapping("/drive/{id}/enable")
+    public ResultBean enable(@PathVariable("id") Integer id) {
+        DriveConfig driveConfig = driveConfigService.findById(id);
+        driveConfig.setEnable(true);
+        driveConfigService.saveOrUpdate(driveConfig);
+        return ResultBean.success();
+    }
+
+
+    /**
+     * 停止驱动器
+     *
+     * @param   id
+     *          驱动器 ID
+     */
+    @PostMapping("/drive/{id}/disable")
+    public ResultBean disable(@PathVariable("id") Integer id) {
+        DriveConfig driveConfig = driveConfigService.findById(id);
+        driveConfig.setEnable(false);
+        driveConfigService.saveOrUpdate(driveConfig);
+        return ResultBean.success();
+    }
+
 
 }

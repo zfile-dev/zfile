@@ -19,9 +19,6 @@ public class SystemFrontConfigDTO {
 
     private Boolean searchEnable;
 
-    // @JsonSerialize(using = StorageTypeEnumSerializerConvert.class)
-    // private StorageTypeEnum storageStrategy;
-
     private String username;
 
     private String domain;

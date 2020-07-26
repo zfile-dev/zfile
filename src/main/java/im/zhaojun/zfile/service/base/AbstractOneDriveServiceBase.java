@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -136,7 +135,7 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
             try {
                 root = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
             } catch (HttpClientErrorException e) {
-                log.debug("调用 OneDrive 时出现了网络异常: {} , 已尝试重新刷新 token 后再试.", e.getMessage());
+                log.debug("调用 OneDrive 时出现了网络异常, 已尝试重新刷新 token 后再试.", e);
                 refreshOneDriveToken();
                 root = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
             }
@@ -177,8 +176,6 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
 
         String fullPath = StringUtils.getFullPath(basePath, path);
 
-        String requestUrl;
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("driveId", driveId.toString());
         HttpEntity<Object> entity = new HttpEntity<>(headers);
@@ -206,16 +203,41 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
     }
 
 
+    /**
+     * 获取 GraphEndPoint, 对于不同版本的 OneDrive, 此地址会不同.
+     * @return          Graph 连接点
+     */
     public abstract String getGraphEndPoint();
 
+
+    /**
+     * 获取 AuthenticateEndPoint, 对于不同版本的 OneDrive, 此地址会不同.
+     * @return          Authenticate 连接点
+     */
     public abstract String getAuthenticateEndPoint();
 
+    /**
+     * 获取 Client ID.
+     * @return  Client Id
+     */
     public abstract String getClientId();
 
+    /**
+     * 获取重定向地址.
+     * @return  重定向地址
+     */
     public abstract String getRedirectUri();
 
+    /**
+     * 获取 Client Secret 密钥.
+     * @return  Client Secret 密钥.
+     */
     public abstract String getClientSecret();
 
+    /**
+     * 获取 API Scope.
+     * @return  Scope
+     */
     public abstract String getScope();
 
     public void refreshOneDriveToken() {

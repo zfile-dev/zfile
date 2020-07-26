@@ -1,14 +1,16 @@
-package im.zhaojun.zfile.controller;
+package im.zhaojun.zfile.controller.home;
 
+import com.alibaba.fastjson.JSON;
+import im.zhaojun.zfile.context.DriveContext;
+import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
-import im.zhaojun.zfile.model.dto.ResultBean;
 import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
 import im.zhaojun.zfile.model.support.FilePageModel;
+import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
-import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.util.FileComparator;
 import im.zhaojun.zfile.util.HttpUtil;
 import im.zhaojun.zfile.util.StringUtils;
@@ -52,13 +54,13 @@ public class FileController {
 
 
     /**
-     * 获取所有驱动器
+     * 获取所有已启用的驱动器
      *
-     * @return  所有驱动器
+     * @return  所有已启用驱动器
      */
     @GetMapping("/drive/list")
     public ResultBean drives() {
-        return ResultBean.success(driveConfigService.list());
+        return ResultBean.success(driveConfigService.listOnlyEnable());
     }
 
     /**
@@ -83,8 +85,9 @@ public class FileController {
                            @RequestParam(defaultValue = "/") String path,
                            @RequestParam(required = false) String password,
                            @RequestParam(defaultValue = "1") Integer page) throws Exception {
-        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
-        List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator("/" + path + "/"));
+        AbstractBaseFileService fileService = driveContext.get(driveId);
+        List<FileItemDTO> fileItemList =
+                fileService.fileList(StringUtils.removeDuplicateSeparator(ZFileConstant.PATH_SEPARATOR + path + ZFileConstant.PATH_SEPARATOR));
 
         for (FileItemDTO fileItemDTO : fileItemList) {
             if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())) {
@@ -92,13 +95,14 @@ public class FileController {
                 try {
                     expectedPasswordContent = HttpUtil.getTextContent(fileItemDTO.getUrl());
                 } catch (HttpClientErrorException httpClientErrorException) {
-                    log.debug("尝试重新获取密码文件缓存中链接后仍失败", httpClientErrorException);
+                    log.error("尝试重新获取密码文件缓存中链接后仍失败, driveId: {}, path: {}, inputPassword: {}, passwordFile:{} ",
+                            driveId, path, password, JSON.toJSONString(fileItemDTO), httpClientErrorException);
                     try {
-                        String fullPath = StringUtils.removeDuplicateSeparator(fileItemDTO.getPath() + "/" + fileItemDTO.getName());
+                        String fullPath = StringUtils.removeDuplicateSeparator(fileItemDTO.getPath() + ZFileConstant.PATH_SEPARATOR + fileItemDTO.getName());
                         FileItemDTO fileItem = fileService.getFileItem(fullPath);
                         expectedPasswordContent = HttpUtil.getTextContent(fileItem.getUrl());
                     } catch (Exception e) {
-                        log.debug("尝试重新获取密码文件链接后仍失败, 已暂时取消密码", e);
+                        log.error("尝试重新获取密码文件链接后仍失败, 已暂时取消密码", e);
                         break;
                     }
                 }
@@ -122,20 +126,25 @@ public class FileController {
      * @param   driveId
      *          驱动器 ID
      *
-     * @return  返回指定存储器的系统配置信息
+     * @return  返回指定驱动器的系统配置信息
      */
     @GetMapping("/config/{driveId}")
     public ResultBean getConfig(@PathVariable(name = "driveId") Integer driveId, String path) {
         SystemFrontConfigDTO systemConfig = systemConfigService.getSystemFrontConfig(driveId);
 
-        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
-        String fullPath = StringUtils.removeDuplicateSeparator(path + "/" + ZFileConstant.README_FILE_NAME);
+        AbstractBaseFileService fileService = driveContext.get(driveId);
+        String fullPath = StringUtils.removeDuplicateSeparator(path + ZFileConstant.PATH_SEPARATOR + ZFileConstant.README_FILE_NAME);
+        FileItemDTO fileItem = null;
         try {
-            FileItemDTO fileItem = fileService.getFileItem(fullPath);
+            fileItem = fileService.getFileItem(fullPath);
             String readme = HttpUtil.getTextContent(fileItem.getUrl());
             systemConfig.setReadme(readme);
         } catch (Exception e) {
-            // ignore
+            if (e instanceof NotExistFileException) {
+                log.debug("不存在 README 文件, 已跳过, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem));
+            } else {
+                log.error("获取 README 文件异常, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem), e);
+            }
         }
 
         return ResultBean.successData(systemConfig);
@@ -214,7 +223,8 @@ public class FileController {
      */
     @GetMapping("/directlink/{driveId}")
     public ResultBean directlink(@PathVariable(name = "driveId") Integer driveId, String path) {
-        AbstractBaseFileService fileService = driveContext.getDriveService(driveId);
+        AbstractBaseFileService fileService = driveContext.get(driveId);
         return ResultBean.successData(fileService.getFileItem(path));
     }
+
 }

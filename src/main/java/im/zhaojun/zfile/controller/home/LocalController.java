@@ -1,7 +1,8 @@
-package im.zhaojun.zfile.controller;
+package im.zhaojun.zfile.controller.home;
 
-import im.zhaojun.zfile.service.impl.LocalServiceImpl;
 import im.zhaojun.zfile.context.DriveContext;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
+import im.zhaojun.zfile.service.impl.LocalServiceImpl;
 import im.zhaojun.zfile.util.FileUtil;
 import im.zhaojun.zfile.util.StringUtils;
 import org.springframework.http.ResponseEntity;
@@ -37,13 +38,12 @@ public class LocalController {
     @GetMapping("/file/{driveId}/**")
     @ResponseBody
     public ResponseEntity<Object> downAttachment(@PathVariable("driveId") Integer driveId, final HttpServletRequest request) {
-        String path = (String) request.getAttribute(
-                HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         AntPathMatcher apm = new AntPathMatcher();
         String filePath = apm.extractPathWithinPattern(bestMatchPattern, path);
-        LocalServiceImpl localService = (LocalServiceImpl) driveContext.getDriveService(driveId);
-        return FileUtil.export(new File(StringUtils.concatPath(localService.getFilePath(), filePath)));
+        LocalServiceImpl localService = (LocalServiceImpl) driveContext.get(driveId);
+        return FileUtil.export(new File(StringUtils.removeDuplicateSeparator(localService.getFilePath() + ZFileConstant.PATH_SEPARATOR + filePath)));
     }
 
 }
