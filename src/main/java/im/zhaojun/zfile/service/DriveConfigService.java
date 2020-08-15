@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.service;
 
+import com.alibaba.fastjson.JSONObject;
 import im.zhaojun.zfile.cache.ZFileCache;
 import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.context.StorageTypeContext;
@@ -357,6 +358,18 @@ public class DriveConfigService {
      */
     public void clearCache(Integer driveId) {
         zFileCache.clear(driveId);
+    }
+
+
+    /**
+     * 交换驱动器排序
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void saveDriveDrag(List<JSONObject> driveConfigs) {
+        for (int i = 0; i < driveConfigs.size(); i++) {
+            JSONObject item = driveConfigs.get(i);
+            driverConfigRepository.updateSetOrderNumById(i, item.getInteger("id"));
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.controller.admin;
 
+import com.alibaba.fastjson.JSONObject;
 import im.zhaojun.zfile.model.dto.DriveConfigDTO;
 import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.entity.FilterConfig;
@@ -119,6 +120,12 @@ public class DriveController {
     @PostMapping("/drive/{id}/filters")
     public ResultBean saveFilters(@RequestBody List<FilterConfig> filter, @PathVariable("id") Integer driveId) {
         filterConfigService.batchSave(filter, driveId);
+        return ResultBean.success();
+    }
+
+    @PostMapping("/drive/drag")
+    public ResultBean saveDriveDrag(@RequestBody List<JSONObject> driveConfigs) {
+        driveConfigService.saveDriveDrag(driveConfigs);
         return ResultBean.success();
     }
 
