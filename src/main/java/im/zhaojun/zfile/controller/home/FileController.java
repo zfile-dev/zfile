@@ -142,12 +142,16 @@ public class FileController {
         SystemFrontConfigDTO systemConfig = systemConfigService.getSystemFrontConfig(driveId);
 
         AbstractBaseFileService fileService = driveContext.get(driveId);
+        DriveConfig driveConfig = driveConfigService.findById(driveId);
         String fullPath = StringUtils.removeDuplicateSeparator(path + ZFileConstant.PATH_SEPARATOR + ZFileConstant.README_FILE_NAME);
         FileItemDTO fileItem = null;
         try {
             fileItem = fileService.getFileItem(fullPath);
-            String readme = HttpUtil.getTextContent(fileItem.getUrl());
-            systemConfig.setReadme(readme);
+
+            if (!Objects.equals(driveConfig.getType(), StorageTypeEnum.FTP)) {
+                String readme = HttpUtil.getTextContent(fileItem.getUrl());
+                systemConfig.setReadme(readme);
+            }
         } catch (Exception e) {
             if (e instanceof NotExistFileException) {
                 log.debug("不存在 README 文件, 已跳过, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem));
