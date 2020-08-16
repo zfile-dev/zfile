@@ -83,7 +83,7 @@ public class DriveConfigService {
      * @return  驱动器设置
      */
     public DriveConfig findById(Integer id) {
-        return driverConfigRepository.findById(id).get();
+        return driverConfigRepository.findById(id).orElse(null);
     }
 
 
