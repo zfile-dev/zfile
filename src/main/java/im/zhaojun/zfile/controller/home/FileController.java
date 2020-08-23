@@ -6,9 +6,12 @@ import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
+import im.zhaojun.zfile.model.entity.DriveConfig;
+import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.model.support.FilePageModel;
 import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.DriveConfigService;
+import im.zhaojun.zfile.service.FilterConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.util.FileComparator;
@@ -46,6 +49,9 @@ public class FileController {
 
     @Resource
     private DriveConfigService driveConfigService;
+
+    @Resource
+    private FilterConfigService filterConfigService;
 
     /**
      * 滚动加载每页条数.
@@ -117,6 +123,9 @@ public class FileController {
                 return ResultBean.error("此文件夹需要密码.", ResultBean.REQUIRED_PASSWORD);
             }
         }
+
+        // 过滤掉表达式中不存在的数据.
+        fileItemList.removeIf(next -> filterConfigService.filterResultIsHidden(driveId, StringUtils.concatUrl(next.getPath(), next.getName())));
         return ResultBean.successData(getSortedPagingData(fileItemList, page));
     }
 
@@ -133,12 +142,16 @@ public class FileController {
         SystemFrontConfigDTO systemConfig = systemConfigService.getSystemFrontConfig(driveId);
 
         AbstractBaseFileService fileService = driveContext.get(driveId);
+        DriveConfig driveConfig = driveConfigService.findById(driveId);
         String fullPath = StringUtils.removeDuplicateSeparator(path + ZFileConstant.PATH_SEPARATOR + ZFileConstant.README_FILE_NAME);
         FileItemDTO fileItem = null;
         try {
             fileItem = fileService.getFileItem(fullPath);
-            String readme = HttpUtil.getTextContent(fileItem.getUrl());
-            systemConfig.setReadme(readme);
+
+            if (!Objects.equals(driveConfig.getType(), StorageTypeEnum.FTP)) {
+                String readme = HttpUtil.getTextContent(fileItem.getUrl());
+                systemConfig.setReadme(readme);
+            }
         } catch (Exception e) {
             if (e instanceof NotExistFileException) {
                 log.debug("不存在 README 文件, 已跳过, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem));

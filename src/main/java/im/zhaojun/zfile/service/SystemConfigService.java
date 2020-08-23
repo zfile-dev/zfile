@@ -3,6 +3,7 @@ package im.zhaojun.zfile.service;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.crypto.SecureUtil;
 import im.zhaojun.zfile.cache.ZFileCache;
+import im.zhaojun.zfile.exception.InvalidDriveException;
 import im.zhaojun.zfile.model.constant.SystemConfigConstant;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
@@ -120,6 +121,9 @@ public class SystemConfigService {
         BeanUtils.copyProperties(systemConfig, systemFrontConfigDTO);
 
         DriveConfig driveConfig = driveConfigService.findById(driveId);
+        if (driveConfig == null) {
+            throw new InvalidDriveException("此驱动器不存在或初始化失败, 请检查后台参数配置");
+        }
         systemFrontConfigDTO.setSearchEnable(driveConfig.getSearchEnable());
         return systemFrontConfigDTO;
     }

@@ -1,9 +1,12 @@
 package im.zhaojun.zfile.controller.admin;
 
+import com.alibaba.fastjson.JSONObject;
 import im.zhaojun.zfile.model.dto.DriveConfigDTO;
 import im.zhaojun.zfile.model.entity.DriveConfig;
+import im.zhaojun.zfile.model.entity.FilterConfig;
 import im.zhaojun.zfile.model.support.ResultBean;
 import im.zhaojun.zfile.service.DriveConfigService;
+import im.zhaojun.zfile.service.FilterConfigService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +29,8 @@ public class DriveController {
     @Resource
     private DriveConfigService driveConfigService;
 
+    @Resource
+    private FilterConfigService filterConfigService;
 
     /**
      * 获取所有驱动器列表
@@ -106,5 +111,22 @@ public class DriveController {
         return ResultBean.success();
     }
 
+
+    @GetMapping("/drive/{id}/filters")
+    public ResultBean getFilters(@PathVariable("id") Integer id) {
+        return ResultBean.success(filterConfigService.findByDriveId(id));
+    }
+
+    @PostMapping("/drive/{id}/filters")
+    public ResultBean saveFilters(@RequestBody List<FilterConfig> filter, @PathVariable("id") Integer driveId) {
+        filterConfigService.batchSave(filter, driveId);
+        return ResultBean.success();
+    }
+
+    @PostMapping("/drive/drag")
+    public ResultBean saveDriveDrag(@RequestBody List<JSONObject> driveConfigs) {
+        driveConfigService.saveDriveDrag(driveConfigs);
+        return ResultBean.success();
+    }
 
 }
