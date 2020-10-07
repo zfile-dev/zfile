@@ -83,7 +83,7 @@ chmod +x zfile/bin/*.sh
  ~/zfile/bin/start.sh
 ```
 
-篇幅有限, 更详细的安装教程及介绍请参考: [ZFile 文档](http://zhaojun.im/zfile-install)
+篇幅有限, 更详细的安装教程及介绍请参考: [ZFile 文档](http://docs.zhaojun.im/zfile)
 
 访问地址:
 
@@ -129,10 +129,8 @@ linux 为 `/home/用户名/`, root 用户为 `/root/`
 - [x] 体验优化 - 文本预览更换 vscode 同款编辑器 monaco editor
 - [x] 新功能 - Docker 支持
 - [x] 架构调整 - 支持多存储策略
+- [x] 体验优化 - 忽略文件列表 (正则表达式)
 - [ ] 新功能 - 后台支持上传、编辑、删除等操作
-- [ ] 新功能 - WebDav 支持
-- [ ] 新功能 - 离线下载 (aria2)
-- [ ] 体验优化 - 忽略文件列表 (正则表达式)
 - [ ] 体验优化 - 自定义支持预览的文件后缀 (正则表达式)
 - [ ] 体验优化 - 一键安装脚本
 
