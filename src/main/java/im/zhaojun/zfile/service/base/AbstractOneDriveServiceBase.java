@@ -6,6 +6,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
@@ -20,10 +21,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -180,7 +184,14 @@ public abstract class AbstractOneDriveServiceBase extends AbstractBaseFileServic
         headers.set("driveId", driveId.toString());
         HttpEntity<Object> entity = new HttpEntity<>(headers);
 
-        JSONObject fileItem = oneDriveRestTemplate.exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
+        JSONObject fileItem = null;
+        try {
+            fileItem = oneDriveRestTemplate.exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), fullPath).getBody();
+        } catch (HttpClientErrorException e) {
+            if (e.getRawStatusCode() == 404) {
+                throw new NotExistFileException();
+            }
+        }
 
         if (fileItem == null) {
             return null;
