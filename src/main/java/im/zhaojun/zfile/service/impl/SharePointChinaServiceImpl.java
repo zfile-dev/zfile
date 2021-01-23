@@ -4,7 +4,7 @@ import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.StorageConfigService;
-import im.zhaojun.zfile.service.base.AbstractOneDriveServiceBase;
+import im.zhaojun.zfile.service.base.AbstractSharePointServiceBase;
 import im.zhaojun.zfile.service.base.BaseFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,22 +22,22 @@ import java.util.Map;
 @Service
 @Slf4j
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements BaseFileService {
+public class SharePointChinaServiceImpl extends AbstractSharePointServiceBase implements BaseFileService {
 
     @Resource
     private StorageConfigService storageConfigService;
 
-    @Value("${zfile.onedrive.clientId}")
-    protected String clientId;
+    @Value("${zfile.onedrive-china.clientId}")
+    private String clientId;
 
-    @Value("${zfile.onedrive.redirectUri}")
-    protected String redirectUri;
+    @Value("${zfile.onedrive-china.redirectUri}")
+    private String redirectUri;
 
-    @Value("${zfile.onedrive.clientSecret}")
-    protected String clientSecret;
+    @Value("${zfile.onedrive-china.clientSecret}")
+    private String clientSecret;
 
-    @Value("${zfile.onedrive.scope}")
-    protected String scope;
+    @Value("${zfile.onedrive-china.scope}")
+    private String scope;
 
     @Override
     public void init(Integer driveId) {
@@ -46,6 +46,7 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements 
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
         String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
         String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
+        super.siteId = stringStorageConfigMap.get(StorageConfigConstant.SHAREPOINT_SITE_ID).getValue();
         super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
         if (StringUtils.isEmpty(accessToken) || StringUtils.isEmpty(refreshToken)) {
@@ -60,17 +61,17 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements 
 
     @Override
     public StorageTypeEnum getStorageTypeEnum() {
-        return StorageTypeEnum.ONE_DRIVE;
+        return StorageTypeEnum.SHAREPOINT_DRIVE_CHINA;
     }
 
     @Override
     public String getGraphEndPoint() {
-        return "graph.microsoft.com";
+        return "microsoftgraph.chinacloudapi.cn";
     }
 
     @Override
     public String getAuthenticateEndPoint() {
-        return "login.microsoftonline.com";
+        return "login.partner.microsoftonline.cn";
     }
 
     @Override

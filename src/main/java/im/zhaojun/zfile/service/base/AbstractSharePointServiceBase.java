@@ -1,22 +1,18 @@
 package im.zhaojun.zfile.service.base;
 
 import im.zhaojun.zfile.model.entity.StorageConfig;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Zhao Jun
- */
-@Slf4j
-public abstract class AbstractOneDriveServiceBase extends MicrosoftDriveServiceBase {
+public abstract class AbstractSharePointServiceBase extends MicrosoftDriveServiceBase {
+
+    protected String siteId;
 
     @Override
     public String getType() {
-        return "me";
+        return "sites/" + siteId;
     }
-
 
     @Override
     public String getDownloadUrl(String path) {
@@ -29,6 +25,7 @@ public abstract class AbstractOneDriveServiceBase extends MicrosoftDriveServiceB
             add(new StorageConfig("accessToken", "访问令牌"));
             add(new StorageConfig("refreshToken", "刷新令牌"));
             add(new StorageConfig("basePath", "基路径"));
+            add(new StorageConfig("siteId", "SiteId"));
         }};
     }
 }

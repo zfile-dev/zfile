@@ -25,6 +25,8 @@ public enum StorageTypeEnum {
     S3("s3", "S3通用协议"),
     ONE_DRIVE("onedrive", "OneDrive"),
     ONE_DRIVE_CHINA("onedrive-china", "OneDrive 世纪互联"),
+    SHAREPOINT_DRIVE("sharepoint", "SharePoint"),
+    SHAREPOINT_DRIVE_CHINA("sharepoint-china", "SharePoint 世纪互联"),
     QINIU("qiniu", "七牛云 KODO");
 
     private String key;

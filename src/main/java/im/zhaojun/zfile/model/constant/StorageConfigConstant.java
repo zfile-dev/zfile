@@ -33,6 +33,8 @@ public class StorageConfigConstant {
 
     public static final String REFRESH_TOKEN_KEY = "refreshToken";
 
+    public static final String SHAREPOINT_SITE_ID = "siteId";
+
     public static final String PATH_STYLE = "pathStyle";
 
     public static final String IS_PRIVATE = "isPrivate";

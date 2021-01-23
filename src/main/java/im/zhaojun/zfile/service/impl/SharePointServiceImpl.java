@@ -4,7 +4,7 @@ import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.StorageConfigService;
-import im.zhaojun.zfile.service.base.AbstractOneDriveServiceBase;
+import im.zhaojun.zfile.service.base.AbstractSharePointServiceBase;
 import im.zhaojun.zfile.service.base.BaseFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ import java.util.Map;
 @Service
 @Slf4j
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements BaseFileService {
+public class SharePointServiceImpl extends AbstractSharePointServiceBase implements BaseFileService {
 
     @Resource
     private StorageConfigService storageConfigService;
@@ -46,6 +46,7 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements 
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
         String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
         String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
+        super.siteId = stringStorageConfigMap.get(StorageConfigConstant.SHAREPOINT_SITE_ID).getValue();
         super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
 
         if (StringUtils.isEmpty(accessToken) || StringUtils.isEmpty(refreshToken)) {
@@ -60,7 +61,7 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements 
 
     @Override
     public StorageTypeEnum getStorageTypeEnum() {
-        return StorageTypeEnum.ONE_DRIVE;
+        return StorageTypeEnum.SHAREPOINT_DRIVE;
     }
 
     @Override

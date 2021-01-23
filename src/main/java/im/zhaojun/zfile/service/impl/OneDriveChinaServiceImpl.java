@@ -59,11 +59,6 @@ public class OneDriveChinaServiceImpl extends AbstractOneDriveServiceBase implem
     }
 
     @Override
-    public String getDownloadUrl(String path) {
-        return null;
-    }
-
-    @Override
     public StorageTypeEnum getStorageTypeEnum() {
         return StorageTypeEnum.ONE_DRIVE_CHINA;
     }
