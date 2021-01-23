@@ -128,4 +128,20 @@ public class DriveContext implements ApplicationContextAware {
         return null;
     }
 
+
+    /**
+     * 更新上下文环境中的驱动器 ID
+     *
+     * @param   updateId
+     *          驱动器原 ID
+     *
+     * @param   newId
+     *          驱动器新 ID
+     */
+    public void updateDriveId(Integer updateId, Integer newId) {
+        AbstractBaseFileService fileService = drivesServiceMap.remove(updateId);
+        fileService.setDriveId(newId);
+        drivesServiceMap.put(newId, fileService);
+    }
+
 }

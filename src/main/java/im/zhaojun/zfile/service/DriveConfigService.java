@@ -50,6 +50,7 @@ public class DriveConfigService {
 
     public static final Class<StorageStrategyConfig> STORAGE_STRATEGY_CONFIG_CLASS = StorageStrategyConfig.class;
 
+
     /**
      * 获取所有驱动器列表
      * 
@@ -73,6 +74,7 @@ public class DriveConfigService {
         Sort sort = new Sort(Sort.Direction.ASC,"orderNum");
         return driverConfigRepository.findAll(example, sort);
     }
+
 
     /**
      * 获取指定驱动器设置
@@ -127,6 +129,7 @@ public class DriveConfigService {
         return driveConfigDTO;
     }
 
+
     /**
      * 获取指定驱动器的存储策略.
      *
@@ -141,12 +144,11 @@ public class DriveConfigService {
 
 
     /**
-     * 新增或设置驱动器设置
+     * 更新驱动器设置
      * @param driveConfig   驱动器设置
-     * @return              保存后的驱动器设置
      */
-    public DriveConfig saveOrUpdate(DriveConfig driveConfig) {
-        return driverConfigRepository.save(driveConfig);
+    public void updateDriveConfig(DriveConfig driveConfig) {
+        driverConfigRepository.save(driveConfig);
     }
 
 
@@ -165,6 +167,11 @@ public class DriveConfigService {
         DriveConfig driveConfig = new DriveConfig();
         StorageTypeEnum storageType = driveConfigDTO.getType();
         BeanUtils.copyProperties(driveConfigDTO, driveConfig);
+
+        if (driveConfig.getId() == null) {
+            Integer nextId = selectNextId();
+            driveConfig.setId(nextId);
+        }
         driverConfigRepository.save(driveConfig);
 
         // 保存存储策略设置.
@@ -210,6 +217,38 @@ public class DriveConfigService {
             stopAutoCacheRefresh(driveConfig.getId());
         }
 
+    }
+
+
+    /**
+     * 查询驱动器最大的 ID
+     *
+     * @return  驱动器最大 ID
+     */
+    public Integer selectNextId() {
+        Integer maxId = driverConfigRepository.selectMaxId();
+        if (maxId == null) {
+            maxId = 1;
+        }
+
+        return maxId + 1;
+    }
+
+
+    /**
+     * 更新驱动器 ID
+     *
+     * @param   updateId
+     *          驱动器原 ID
+     *
+     * @param   newId
+     *          驱动器新 ID
+     */
+    @Transactional
+    public void updateId(Integer updateId, Integer newId) {
+        driverConfigRepository.updateId(updateId, newId);
+        storageConfigRepository.updateDriveId(updateId, newId);
+        driveContext.updateDriveId(updateId, newId);
     }
 
 
@@ -264,24 +303,6 @@ public class DriveConfigService {
         DriveConfig driveConfig = findById(driveId);
         if (driveConfig != null) {
             driveConfig.setEnableCache(cacheEnable);
-            driverConfigRepository.save(driveConfig);
-        }
-    }
-
-
-    /**
-     * 更新指定驱动器的缓存启用状态
-     *
-     * @param   driveId
-     *          驱动器 ID
-     *
-     * @param   autoRefreshCache
-     *          是否启用缓存自动刷新
-     */
-    public void updateAutoRefreshCacheStatus(Integer driveId, Boolean autoRefreshCache) {
-        DriveConfig driveConfig = findById(driveId);
-        if (driveConfig != null) {
-            driveConfig.setAutoRefreshCache(autoRefreshCache);
             driverConfigRepository.save(driveConfig);
         }
     }

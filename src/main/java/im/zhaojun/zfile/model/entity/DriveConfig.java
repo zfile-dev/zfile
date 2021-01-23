@@ -18,7 +18,6 @@ import javax.persistence.Id;
 public class DriveConfig {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private Boolean enable;

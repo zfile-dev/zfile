@@ -26,8 +26,40 @@ public interface DriverConfigRepository extends JpaRepository<DriveConfig, Integ
     List<DriveConfig> findByType(StorageTypeEnum type);
 
 
+    /**
+     * 更新驱动器 ID 的排序值
+     *
+     * @param   orderNum
+     *          排序值
+     *
+     * @param   id
+     *          驱动器 ID
+     */
     @Modifying
     @Query(value="update DRIVER_CONFIG set orderNum = :orderNum where id = :id")
     void updateSetOrderNumById(Integer orderNum, Integer id);
+
+
+    /**
+     * 查询驱动器最大的 ID
+     *
+     * @return  驱动器最大 ID
+     */
+    @Query(nativeQuery = true, value = "select max(id) max from DRIVER_CONFIG")
+    Integer selectMaxId();
+
+
+    /**
+     * 更新驱动器 ID
+     *
+     * @param   updateId
+     *          驱动器原 ID
+     *
+     * @param   newId
+     *          驱动器新 ID
+     */
+    @Modifying
+    @Query(value="update DRIVER_CONFIG set id = :newId where id = :updateId")
+    void updateId(Integer updateId, Integer newId);
 
 }
