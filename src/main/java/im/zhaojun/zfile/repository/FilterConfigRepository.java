@@ -14,13 +14,15 @@ public interface FilterConfigRepository extends JpaRepository<FilterConfig, Inte
 
     /**
      * 获取驱动器下的所有规则
-     * @param driveId   驱动器 ID
+     * @param       driveId
+     *              驱动器 ID
      */
     List<FilterConfig> findByDriveId(Integer driveId);
 
     /**
      * 根据驱动器 ID 删除其所有的规则
-     * @param driveId   驱动器 ID
+     * @param       driveId
+     *              驱动器 ID
      */
     void deleteByDriveId(Integer driveId);
 
