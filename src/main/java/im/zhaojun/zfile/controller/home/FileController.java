@@ -3,13 +3,14 @@ package im.zhaojun.zfile.controller.home;
 import com.alibaba.fastjson.JSON;
 import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.exception.NotExistFileException;
+import im.zhaojun.zfile.exception.PasswordVerifyException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
 import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
-import im.zhaojun.zfile.model.support.FilePageModel;
 import im.zhaojun.zfile.model.support.ResultBean;
+import im.zhaojun.zfile.model.support.VerifyResult;
 import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.FilterConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
@@ -26,9 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,11 +51,6 @@ public class FileController {
     @Resource
     private FilterConfigService filterConfigService;
 
-    /**
-     * 滚动加载每页条数.
-     */
-    private static final Integer PAGE_SIZE = 30;
-
 
     /**
      * 获取所有已启用的驱动器
@@ -70,7 +63,7 @@ public class FileController {
     }
 
     /**
-     * 获取某个驱动器下, 指定路径的数据, 每页固定 {@link #PAGE_SIZE} 条数据.
+     * 获取某个驱动器下, 指定路径的数据
      *
      * @param   driveId
      *          驱动器 ID
@@ -81,52 +74,29 @@ public class FileController {
      * @param   password
      *          文件夹密码, 某些文件夹需要密码才能访问, 当不需要密码时, 此参数可以为空
      *
-     * @param   page
-     *          页数
-     *
      * @return  当前路径下所有文件及文件夹
      */
     @GetMapping("/list/{driveId}")
     public ResultBean list(@PathVariable(name = "driveId") Integer driveId,
                            @RequestParam(defaultValue = "/") String path,
                            @RequestParam(required = false) String password,
-                           @RequestParam(defaultValue = "1") Integer page) throws Exception {
+                           @RequestParam(required = false) String orderBy,
+                           @RequestParam(required = false, defaultValue = "asc") String orderDirection) throws Exception {
         AbstractBaseFileService fileService = driveContext.get(driveId);
-        List<FileItemDTO> fileItemList =
-                fileService.fileList(StringUtils.removeDuplicateSeparator(ZFileConstant.PATH_SEPARATOR + path + ZFileConstant.PATH_SEPARATOR));
+        List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator(ZFileConstant.PATH_SEPARATOR + path + ZFileConstant.PATH_SEPARATOR));
 
-        for (FileItemDTO fileItemDTO : fileItemList) {
-            if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())) {
-                String expectedPasswordContent;
-                try {
-                    expectedPasswordContent = HttpUtil.getTextContent(fileItemDTO.getUrl());
-                } catch (HttpClientErrorException httpClientErrorException) {
-                    log.error("尝试重新获取密码文件缓存中链接后仍失败, driveId: {}, path: {}, inputPassword: {}, passwordFile:{} ",
-                            driveId, path, password, JSON.toJSONString(fileItemDTO), httpClientErrorException);
-                    try {
-                        String fullPath = StringUtils.removeDuplicateSeparator(fileItemDTO.getPath() + ZFileConstant.PATH_SEPARATOR + fileItemDTO.getName());
-                        FileItemDTO fileItem = fileService.getFileItem(fullPath);
-                        expectedPasswordContent = HttpUtil.getTextContent(fileItem.getUrl());
-                    } catch (Exception e) {
-                        log.error("尝试重新获取密码文件链接后仍失败, 已暂时取消密码", e);
-                        break;
-                    }
-                }
-
-                if (Objects.equals(expectedPasswordContent, password)) {
-                    break;
-                }
-
-                if (password != null && !"".equals(password)) {
-                    return ResultBean.error("密码错误.", ResultBean.INVALID_PASSWORD);
-                }
-                return ResultBean.error("此文件夹需要密码.", ResultBean.REQUIRED_PASSWORD);
-            }
+        // 校验密码, 如果校验不通过, 则返回错误消息
+        VerifyResult verifyResult = verifyPassword(fileItemList, driveId, path, password);
+        if (!verifyResult.isPassed()) {
+            return ResultBean.error(verifyResult.getMsg(), verifyResult.getCode());
         }
 
-        // 过滤掉表达式中不存在的数据.
-        fileItemList.removeIf(next -> filterConfigService.filterResultIsHidden(driveId, StringUtils.concatUrl(next.getPath(), next.getName())));
-        return ResultBean.successData(getSortedPagingData(fileItemList, page));
+        // 过滤掉驱动器配置的表达式中要隐藏的数据
+        filterFileList(fileItemList, driveId);
+
+        // 按照自然排序
+        fileItemList.sort(new FileComparator(orderBy, orderDirection));
+        return ResultBean.successData(fileItemList);
     }
 
     /**
@@ -154,74 +124,14 @@ public class FileController {
             }
         } catch (Exception e) {
             if (e instanceof NotExistFileException) {
-                log.debug("不存在 README 文件, 已跳过, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem));
+                log.trace("不存在 README 文件, 已跳过, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem));
             } else {
-                log.error("获取 README 文件异常, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem), e);
+                log.trace("获取 README 文件异常, fullPath: {}, fileItem: {}", fullPath, JSON.toJSONString(fileItem), e);
             }
         }
 
         return ResultBean.successData(systemConfig);
     }
-
-
-    @GetMapping("/search/{driveId}")
-    public ResultBean search(@RequestParam(value = "name", defaultValue = "/") String name,
-                             @RequestParam(defaultValue = "name") String sortBy,
-                             @RequestParam(defaultValue = "asc") String order,
-                             @RequestParam(defaultValue = "1") Integer page,
-                             @PathVariable("driveId") Integer driveId) {
-        return ResultBean.error("暂不支持搜索功能");
-    }
-
-
-    /**
-     * 过滤文件列表, 去除密码, 文档文件.
-     *
-     * @param   fileItemList
-     *          文件列表
-     */
-    private void filterFileList(List<FileItemDTO> fileItemList) {
-        if (fileItemList == null) {
-            return;
-        }
-
-        fileItemList.removeIf(fileItem -> ZFileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())
-                || ZFileConstant.README_FILE_NAME.equals(fileItem.getName()));
-    }
-
-
-    /**
-     * 对传入的文件列表, 按照文件名进行排序, 然后取相应页数的文件
-     *
-     * @param   fileItemList
-     *          文件列表
-     *
-     * @param   page
-     *          要取的页数
-     *
-     * @return  排序及分页后的那段数据
-     */
-    private FilePageModel getSortedPagingData(List<FileItemDTO> fileItemList, Integer page) {
-        ArrayList<FileItemDTO> copy = new ArrayList<>(Arrays.asList(new FileItemDTO[fileItemList.size()]));
-        Collections.copy(copy, fileItemList);
-
-        // 排序, 先按照文件类型比较, 文件夹在前, 文件在后, 然后根据 sortBy 字段排序, 默认为升序;
-        copy.sort(new FileComparator());
-        filterFileList(copy);
-
-        int total = copy.size();
-        int totalPage = (total + PAGE_SIZE - 1) / PAGE_SIZE;
-
-        if (page > totalPage) {
-            return new FilePageModel(totalPage, Collections.emptyList());
-        }
-
-        int start = (page - 1) * PAGE_SIZE;
-        int end = page * PAGE_SIZE;
-        end = Math.min(end, total);
-        return new FilePageModel(totalPage, copy.subList(start, end));
-    }
-
 
     /**
      * 获取指定路径下的文件信息内容
@@ -238,6 +148,104 @@ public class FileController {
     public ResultBean directlink(@PathVariable(name = "driveId") Integer driveId, String path) {
         AbstractBaseFileService fileService = driveContext.get(driveId);
         return ResultBean.successData(fileService.getFileItem(path));
+    }
+
+
+    /**
+     * 校验密码
+     * @param   fileItemList
+     *          文件列表
+     * @param   driveId
+     *          驱动器 ID
+     * @param   path
+     *          请求路径
+     * @param   inputPassword
+     *          用户输入的密码
+     * @return  是否校验通过
+     */
+    private VerifyResult verifyPassword(List<FileItemDTO> fileItemList, Integer driveId, String path, String inputPassword) {
+        AbstractBaseFileService fileService = driveContext.get(driveId);
+
+        for (FileItemDTO fileItemDTO : fileItemList) {
+            if (ZFileConstant.PASSWORD_FILE_NAME.equals(fileItemDTO.getName())) {
+                String expectedPasswordContent;
+                try {
+                    expectedPasswordContent = HttpUtil.getTextContent(fileItemDTO.getUrl());
+                } catch (HttpClientErrorException httpClientErrorException) {
+                    log.trace("尝试重新获取密码文件缓存中链接后仍失败, driveId: {}, path: {}, inputPassword: {}, passwordFile:{} ",
+                            driveId, path, inputPassword, JSON.toJSONString(fileItemDTO), httpClientErrorException);
+                    try {
+                        String pwdFileFullPath = StringUtils.removeDuplicateSeparator(fileItemDTO.getPath() + ZFileConstant.PATH_SEPARATOR + fileItemDTO.getName());
+                        FileItemDTO pwdFileItem = fileService.getFileItem(pwdFileFullPath);
+                        expectedPasswordContent = HttpUtil.getTextContent(pwdFileItem.getUrl());
+                    } catch (Exception e) {
+                        throw new PasswordVerifyException("此文件夹未加密文件夹, 但密码检查异常, 请联系管理员检查密码设置", e);
+                    }
+                }
+
+                if (matchPassword(expectedPasswordContent, inputPassword)) {
+                    break;
+                }
+
+                if (inputPassword != null && !"".equals(inputPassword)) {
+                    return VerifyResult.fail("密码错误.", ResultBean.INVALID_PASSWORD);
+                }
+                return VerifyResult.fail("此文件夹需要密码.", ResultBean.INVALID_PASSWORD);
+            }
+        }
+
+        return VerifyResult.success();
+    }
+
+
+    /**
+     * 校验两个密码是否相同, 忽略空白字符
+     *
+     * @param   expectedPasswordContent
+     *          预期密码
+     *
+     * @param   password
+     *          实际输入密码
+     *
+     * @return  是否匹配
+     */
+    private boolean matchPassword(String expectedPasswordContent, String password) {
+        if (Objects.equals(expectedPasswordContent, password)) {
+            return true;
+        }
+
+        if (expectedPasswordContent == null) {
+            return false;
+        }
+
+        if (password == null) {
+            return false;
+        }
+
+        expectedPasswordContent = expectedPasswordContent.replace("\n", "").trim();
+        password = password.replace("\n", "").trim();
+        return Objects.equals(expectedPasswordContent, password);
+    }
+
+
+    /**
+     * 过滤文件列表, 去除密码, 文档文件和此驱动器通过规则过滤的文件.
+     *
+     * @param   fileItemList
+     *          文件列表
+     * @param   driveId
+     *          驱动器 ID
+     */
+    private void filterFileList(List<FileItemDTO> fileItemList, Integer driveId) {
+        if (fileItemList == null) {
+            return;
+        }
+
+        fileItemList.removeIf(
+                fileItem -> ZFileConstant.PASSWORD_FILE_NAME.equals(fileItem.getName())
+                        || ZFileConstant.README_FILE_NAME.equals(fileItem.getName())
+                        || filterConfigService.filterResultIsHidden(driveId, StringUtils.concatUrl(fileItem.getPath(), fileItem.getName()))
+        );
     }
 
 }
