@@ -4,7 +4,6 @@ import im.zhaojun.zfile.model.support.ResultBean;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +41,16 @@ public class GlobleExceptionHandler {
         // }
     }
 
+    /**
+     * 文件预览异常
+     */
+    @ExceptionHandler({PasswordVerifyException.class})
+    @ResponseBody
+    @ResponseStatus
+    public ResultBean passwordVerifyException(PasswordVerifyException ex) {
+        return ResultBean.error(ex.getMessage());
+    }
+
 
     /**
      * 文件预览异常
@@ -67,7 +76,7 @@ public class GlobleExceptionHandler {
 
     @ExceptionHandler
     @ResponseBody
-    @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus
     public ResultBean searchDisableExceptionHandler(Exception e) {
         log.error(e.getMessage(), e);
 
