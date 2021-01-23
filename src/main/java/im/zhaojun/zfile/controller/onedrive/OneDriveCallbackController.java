@@ -31,6 +31,13 @@ public class OneDriveCallbackController {
         return "callback";
     }
 
+    @GetMapping("/authorize")
+    public String authorize() {
+        return "redirect:https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=" + oneDriveServiceImpl.getClientId() +
+                "&response_type=code&redirect_uri=" + oneDriveServiceImpl.getRedirectUri() +
+                "&scope=" + oneDriveServiceImpl.getScope();
+    }
+
 
     @GetMapping("/china-callback")
     public String oneDriveChinaCallback(String code, Model model) {
@@ -38,6 +45,13 @@ public class OneDriveCallbackController {
         model.addAttribute("accessToken", oneDriveToken.getAccessToken());
         model.addAttribute("refreshToken", oneDriveToken.getRefreshToken());
         return "callback";
+    }
+
+    @GetMapping("/china-authorize")
+    public String authorizeChina() {
+        return "redirect:https://login.chinacloudapi.cn/common/oauth2/v2.0/authorize?client_id=" + oneDriveChinaServiceImpl.getClientId() +
+                "&response_type=code&redirect_uri=" + oneDriveChinaServiceImpl.getRedirectUri() +
+                "&scope=" + oneDriveChinaServiceImpl.getScope();
     }
 
 }
