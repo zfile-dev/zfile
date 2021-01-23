@@ -1,7 +1,9 @@
 package im.zhaojun.zfile.controller.home;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.context.DriveContext;
+import im.zhaojun.zfile.exception.NotAllowedDownloadException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 /**
+ * 直链 Controller
  * @author Zhao Jun
  */
 @Controller
@@ -33,7 +36,8 @@ public class DirectLinkController {
      * @return  重定向至文件直链
      */
     @GetMapping("/directlink/{driveId}/**")
-    public String directlink(@PathVariable("driveId") Integer driveId, final HttpServletRequest request) {
+    public String directlink(@PathVariable("driveId") Integer driveId,
+                             final HttpServletRequest request) {
         String path = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
@@ -42,6 +46,10 @@ public class DirectLinkController {
 
         if (filePath.length() > 0 && filePath.charAt(0) != ZFileConstant.PATH_SEPARATOR_CHAR) {
             filePath = "/" + filePath;
+        }
+
+        if (Objects.equals(FileUtil.getName(filePath), ZFileConstant.PASSWORD_FILE_NAME)) {
+            throw new NotAllowedDownloadException("不允许下载此文件");
         }
 
         AbstractBaseFileService fileService = driveContext.get(driveId);
