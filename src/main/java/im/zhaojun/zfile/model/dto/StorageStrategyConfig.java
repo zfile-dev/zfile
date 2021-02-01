@@ -41,4 +41,9 @@ public class StorageStrategyConfig {
     private String basePath;
 
     private String siteId;
+
+    private String siteName;
+
+    private String siteType;
+
 }
