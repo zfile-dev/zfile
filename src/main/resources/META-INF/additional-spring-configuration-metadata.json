@@ -86,6 +86,11 @@
             "name": "zfile.tmp.path",
             "type": "java.lang.String",
             "description": "临时文件路径."
+        },
+        {
+            "name": "zfile.debug",
+            "type": "java.lang.Boolean",
+            "description": "是否开启 debug 模式."
         }
     ]
 }
