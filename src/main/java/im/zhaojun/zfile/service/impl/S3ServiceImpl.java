@@ -38,6 +38,7 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
         String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
         String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
         String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
+        String region=endPoint.split(".")[1];
 
         super.domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
         super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
@@ -56,7 +57,7 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
             s3Client = AmazonS3ClientBuilder.standard()
                     .withPathStyleAccessEnabled(isPathStyle)
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "")).build();
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint,region)).build();
 
             testConnection();
             isInitialized = true;
