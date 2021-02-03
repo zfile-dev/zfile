@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.util;
 
+import cn.hutool.core.comparator.CompareUtil;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
 
@@ -43,8 +44,8 @@ public class FileComparator implements Comparator<FileItemDTO> {
         if (o1Type.equals(o2Type)) {
             int result;
             switch (sortBy) {
-                case "time": result = o1.getTime().compareTo(o2.getTime()); break;
-                case "size": result = o1.getSize().compareTo(o2.getSize()); break;
+                case "time": result = CompareUtil.compare(o1.getTime(), o2.getTime()); break;
+                case "size": result = CompareUtil.compare(o1.getSize(), o2.getSize()); break;
                 default: result = naturalOrderComparator.compare(o1.getName(), o2.getName()); break;
             }
             return "asc".equals(order) ? result : -result;
