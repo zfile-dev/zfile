@@ -11,6 +11,8 @@ public class SharePointInfoVO {
 
     private String domainPrefix;
 
+    private String siteType;
+
     private String siteName;
 
     private String domainType;
