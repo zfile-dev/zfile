@@ -10,6 +10,7 @@ import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.base.AbstractS3BaseFileService;
 import im.zhaojun.zfile.service.base.BaseFileService;
+import im.zhaojun.zfile.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -38,7 +39,6 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
         String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
         String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
         String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
-        String region=endPoint.split(".")[1];
 
         super.domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
         super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
@@ -53,11 +53,15 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
             log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
             isInitialized = false;
         } else {
+            String region = "";
+            if (StringUtils.isNotNullOrEmpty(endPoint)) {
+                region = endPoint.split("\\.")[1];
+            }
             BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
             s3Client = AmazonS3ClientBuilder.standard()
                     .withPathStyleAccessEnabled(isPathStyle)
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint,region)).build();
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, region)).build();
 
             testConnection();
             isInitialized = true;
