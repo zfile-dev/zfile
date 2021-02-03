@@ -53,6 +53,17 @@ public class GlobleExceptionHandler {
 
 
     /**
+     * 无效的驱动器异常
+     */
+    @ExceptionHandler({InvalidDriveException.class})
+    @ResponseBody
+    @ResponseStatus
+    public ResultBean invalidDriveException(InvalidDriveException ex) {
+        return ResultBean.error(ex.getMessage());
+    }
+
+
+    /**
      * 文件预览异常
      */
     @ExceptionHandler({PreviewException.class})
