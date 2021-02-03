@@ -108,8 +108,17 @@ public class SharePointHelperController {
             sharePointInfoVO.setDomainPrefix(domainPrefix);
         }
 
+
+        if (StrUtil.isEmpty(sharePointInfoVO.getSiteType())) {
+            sharePointInfoVO.setSiteType("/sites/");
+        }
+
         // 请求接口
-        String requestUrl = StrUtil.format("https://{}/v1.0/sites/{}.sharepoint.{}:/{}", host, sharePointInfoVO.getDomainPrefix(), sharePointInfoVO.getDomainType(), sharePointInfoVO.getSiteName());
+        String requestUrl = StrUtil.format("https://{}/v1.0/sites/{}.sharepoint.{}:/{}/{}", host,
+                sharePointInfoVO.getDomainPrefix(),
+                sharePointInfoVO.getDomainType(),
+                sharePointInfoVO.getSiteType(),
+                sharePointInfoVO.getSiteName());
         HttpRequest getRequest = HttpUtil.createGet(requestUrl);
         HttpResponse execute = getRequest.addHeaders(authorizationHeaders).execute();
         String body = execute.body();
