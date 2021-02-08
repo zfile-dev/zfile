@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.controller.home;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.exception.NotExistFileException;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -85,18 +87,21 @@ public class FileController {
         AbstractBaseFileService fileService = driveContext.get(driveId);
         List<FileItemDTO> fileItemList = fileService.fileList(StringUtils.removeDuplicateSeparator(ZFileConstant.PATH_SEPARATOR + path + ZFileConstant.PATH_SEPARATOR));
 
+        // 创建副本, 防止排序和过滤对原数据产生影响
+        List<FileItemDTO> copyList = new ArrayList<>(fileItemList);
+
         // 校验密码, 如果校验不通过, 则返回错误消息
-        VerifyResult verifyResult = verifyPassword(fileItemList, driveId, path, password);
+        VerifyResult verifyResult = verifyPassword(copyList, driveId, path, password);
         if (!verifyResult.isPassed()) {
             return ResultBean.error(verifyResult.getMsg(), verifyResult.getCode());
         }
 
         // 过滤掉驱动器配置的表达式中要隐藏的数据
-        filterFileList(fileItemList, driveId);
+        filterFileList(copyList, driveId);
 
         // 按照自然排序
-        fileItemList.sort(new FileComparator(orderBy, orderDirection));
-        return ResultBean.successData(fileItemList);
+        copyList.sort(new FileComparator(orderBy, orderDirection));
+        return ResultBean.successData(copyList);
     }
 
     /**

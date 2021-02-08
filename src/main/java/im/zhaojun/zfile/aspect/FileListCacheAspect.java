@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public class FileListCacheAspect {
         if (enableCache) {
             List<FileItemDTO> cacheFileList = zFileCache.get(driveId, path);
             if (cacheFileList == null) {
-                result = (List<FileItemDTO>) point.proceed();
+                result = Collections.unmodifiableList((List<FileItemDTO>) point.proceed());
                 zFileCache.put(driveId, path, result);
             } else {
                 result = cacheFileList;
