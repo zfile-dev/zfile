@@ -2,6 +2,7 @@ package im.zhaojun.zfile.util;
 
 import cn.hutool.core.io.FileUtil;
 import im.zhaojun.zfile.exception.PreviewException;
+import im.zhaojun.zfile.exception.TextParseException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
@@ -32,7 +33,13 @@ public class HttpUtil {
             throw new PreviewException("预览文件超出大小, 最大支持 " + FileUtil.readableFileSize(maxFileSize));
         }
 
-        String result = restTemplate.getForObject(url, String.class);
+        String result;
+        try {
+            result = restTemplate.getForObject(url, String.class);
+        } catch (Exception e) {
+            throw new TextParseException("文件解析异常");
+        }
+
         return result == null ? "" : result;
     }
 
