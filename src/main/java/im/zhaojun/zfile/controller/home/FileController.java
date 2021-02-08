@@ -192,10 +192,10 @@ public class FileController {
                     break;
                 }
 
-                if (inputPassword != null && !"".equals(inputPassword)) {
-                    return VerifyResult.fail("密码错误.", ResultBean.INVALID_PASSWORD);
+                if (StrUtil.isEmpty(inputPassword)) {
+                    return VerifyResult.fail("此文件夹需要密码.", ResultBean.REQUIRED_PASSWORD);
                 }
-                return VerifyResult.fail("此文件夹需要密码.", ResultBean.INVALID_PASSWORD);
+                return VerifyResult.fail("密码错误.", ResultBean.INVALID_PASSWORD);
             }
         }
 
