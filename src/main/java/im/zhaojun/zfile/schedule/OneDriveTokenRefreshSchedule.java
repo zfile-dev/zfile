@@ -42,9 +42,6 @@ public class OneDriveTokenRefreshSchedule {
             driveConfigList.addAll(driveConfigService.findByType(StorageTypeEnum.ONE_DRIVE_CHINA));
 
             driveConfigList.forEach(driveConfig -> {
-                StorageTypeEnum storageType = driveConfig.getType();
-                String name = driveConfig.getName();
-
                 try {
                     AbstractOneDriveServiceBase driveService = (AbstractOneDriveServiceBase) driveContext.get(driveConfig.getId());
                     driveService.refreshOneDriveToken();
@@ -52,7 +49,6 @@ public class OneDriveTokenRefreshSchedule {
                 } catch (Exception e) {
                     log.error("刷新 OneDrive Token 失败, DriveInfo: {}", JSON.toJSONString(driveConfig), e);
                 }
-
             });
 
         } catch (Throwable e) {

@@ -88,7 +88,7 @@ public class GlobleExceptionHandler {
     @ExceptionHandler
     @ResponseBody
     @ResponseStatus
-    public ResultBean searchDisableExceptionHandler(Exception e) {
+    public ResultBean extraExceptionHandler(Exception e) {
         log.error(e.getMessage(), e);
 
         if (e.getClass() == Exception.class) {
