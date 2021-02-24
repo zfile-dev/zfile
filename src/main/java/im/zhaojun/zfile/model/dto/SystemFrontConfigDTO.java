@@ -41,4 +41,6 @@ public class SystemFrontConfigDTO {
 
     private String readme;
 
+    private Boolean debugMode;
+
 }

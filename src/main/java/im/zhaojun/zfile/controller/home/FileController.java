@@ -41,6 +41,9 @@ import java.util.Objects;
 @RestController
 public class FileController {
 
+    @Value("${zfile.debug}")
+    private Boolean debug;
+
     @Resource
     private SystemConfigService systemConfigService;
 
@@ -115,7 +118,7 @@ public class FileController {
     @GetMapping("/config/{driveId}")
     public ResultBean getConfig(@PathVariable(name = "driveId") Integer driveId, String path) {
         SystemFrontConfigDTO systemConfig = systemConfigService.getSystemFrontConfig(driveId);
-
+        systemConfig.setDebugMode(debug);
         AbstractBaseFileService fileService = driveContext.get(driveId);
         DriveConfig driveConfig = driveConfigService.findById(driveId);
         String fullPath = StringUtils.removeDuplicateSeparator(path + ZFileConstant.PATH_SEPARATOR + ZFileConstant.README_FILE_NAME);
