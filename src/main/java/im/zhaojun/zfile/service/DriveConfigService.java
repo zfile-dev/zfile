@@ -191,6 +191,16 @@ public class DriveConfigService {
         List<StorageConfig> storageConfigList;
         if (updateFlag) {
             storageConfigList = storageConfigRepository.findByDriveId(driveConfigDTO.getId());
+            // 如果从数据库获取到的数据不为空, 则校验数据是否和当前存储类型一直, 如不一直则进行矫正.
+            if (CollectionUtil.isNotEmpty(storageConfigList)) {
+                StorageConfig storageConfig = storageConfigList.get(0);
+                StorageTypeEnum type = storageConfig.getType();
+
+                if (!Objects.equals(type, storageType)) {
+                    storageConfigRepository.deleteByDriveId(driveConfigDTO.getId());
+                    storageConfigList = storageTypeService.storageStrategyConfigList();
+                }
+            }
         } else {
             storageConfigList = storageTypeService.storageStrategyConfigList();
         }
@@ -255,6 +265,7 @@ public class DriveConfigService {
      */
     @Transactional
     public void updateId(Integer updateId, Integer newId) {
+        zFileCache.clear(updateId);
         driverConfigRepository.updateId(updateId, newId);
         storageConfigRepository.updateDriveId(updateId, newId);
         filterConfigRepository.updateDriveId(updateId, newId);
