@@ -37,21 +37,25 @@ public class ShortLinkController {
         // 拼接直链地址.
         String fullPath = StringUtils.removeDuplicateSeparator("/directlink/" + driveId + path);
 
-        ShortLinkConfig shortLinkConfig;
-        String randomKey;
-        do {
-            // 获取短链
-            randomKey = RandomUtil.randomString(6);
-            shortLinkConfig = shortLinkConfigService.findByKey(randomKey);
-        } while (shortLinkConfig != null);
+        ShortLinkConfig shortLinkConfig = shortLinkConfigService.findByUrl(fullPath);
+
+        if (shortLinkConfig == null) {
+
+            String randomKey;
+            do {
+                // 获取短链
+                randomKey = RandomUtil.randomString(6);
+                shortLinkConfig = shortLinkConfigService.findByKey(randomKey);
+            } while (shortLinkConfig != null);
+
+            shortLinkConfig = new ShortLinkConfig();
+            shortLinkConfig.setKey(randomKey);
+            shortLinkConfig.setUrl(fullPath);
+            shortLinkConfigService.save(shortLinkConfig);
+        }
 
 
-        shortLinkConfig = new ShortLinkConfig();
-        shortLinkConfig.setKey(randomKey);
-        shortLinkConfig.setUrl(fullPath);
-        shortLinkConfigService.save(shortLinkConfig);
-
-        String shortUrl = StringUtils.removeDuplicateSeparator(domain + "/s/" + randomKey);
+        String shortUrl = StringUtils.removeDuplicateSeparator(domain + "/s/" + shortLinkConfig.getKey());
         return ResultBean.successData(shortUrl);
     }
 
