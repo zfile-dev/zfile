@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import im.zhaojun.zfile.cache.ZFileCache;
 import im.zhaojun.zfile.context.DriveContext;
@@ -13,6 +14,8 @@ import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.repository.DriverConfigRepository;
+import im.zhaojun.zfile.repository.FilterConfigRepository;
+import im.zhaojun.zfile.repository.ShortLinkConfigRepository;
 import im.zhaojun.zfile.repository.StorageConfigRepository;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +44,12 @@ public class DriveConfigService {
 
     @Resource
     private StorageConfigRepository storageConfigRepository;
+
+    @Resource
+    private FilterConfigRepository filterConfigRepository;
+
+    @Resource
+    private ShortLinkConfigRepository shortLinkConfigRepository;
 
     @Resource
     private DriveContext driveContext;
@@ -248,6 +257,8 @@ public class DriveConfigService {
     public void updateId(Integer updateId, Integer newId) {
         driverConfigRepository.updateId(updateId, newId);
         storageConfigRepository.updateDriveId(updateId, newId);
+        filterConfigRepository.updateDriveId(updateId, newId);
+        shortLinkConfigRepository.updateUrlDriveId("/directlink/" + updateId, "/directlink/" + newId);
         driveContext.updateDriveId(updateId, newId);
     }
 

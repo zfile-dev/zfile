@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -57,4 +58,18 @@ public interface ShortLinkConfigRepository extends JpaRepository<ShortLinkConfig
      *              短链 URL
      */
     ShortLinkConfig findByUrl(String url);
+
+
+    /**
+     * 更新驱动器 ID
+     *
+     * @param   updateSubPath
+     *          原路径部分名称
+     *
+     * @param   newSubPath
+     *          修改后路径部分名称
+     */
+    @Modifying
+    @Query(value="update SHORT_LINK set url = replace(url, :updateSubPath, :newSubPath)")
+    void updateUrlDriveId(String updateSubPath, String newSubPath);
 }
