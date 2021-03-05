@@ -27,6 +27,10 @@ public class ShortLinkConfigService {
         return shortLinkConfigRepository.findByKey(key);
     }
 
+    public ShortLinkConfig findByUrl(String url) {
+        return shortLinkConfigRepository.findByUrl(url);
+    }
+
     public void save(ShortLinkConfig shortLinkConfig) {
         shortLinkConfig.setCreateDate(new Date());
         shortLinkConfigRepository.save(shortLinkConfig);

@@ -20,7 +20,7 @@ public interface ShortLinkConfigRepository extends JpaRepository<ShortLinkConfig
      * 获取驱动器下的所有规则
      *
      * @param       key
-     *              驱动器 ID
+     *              短链 Key
      */
     ShortLinkConfig findByKey(String key);
 
@@ -49,4 +49,12 @@ public interface ShortLinkConfigRepository extends JpaRepository<ShortLinkConfig
     //                 " and (:dateTo is null or date_format(create_date, '%Y-%m-%d') <= date_format(:dateTo, '%Y-%m-%d')) ) "
     // )
     Page<ShortLinkConfig> findByPage(String key, String url, Date dateFrom, Date dateTo, Pageable pageable);
+
+    /**
+     * 获取驱动器下的所有规则
+     *
+     * @param       url
+     *              短链 URL
+     */
+    ShortLinkConfig findByUrl(String url);
 }
