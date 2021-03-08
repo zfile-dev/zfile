@@ -9,8 +9,10 @@ import im.zhaojun.zfile.service.ShortLinkConfigService;
 import im.zhaojun.zfile.service.SystemConfigService;
 import im.zhaojun.zfile.util.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
@@ -33,10 +35,8 @@ public class ShortLinkController {
     public ResultBean shortLink(String driveId, String path) {
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
         String domain = systemConfig.getDomain();
-
         // 拼接直链地址.
         String fullPath = StringUtils.removeDuplicateSeparator("/directlink/" + driveId + path);
-
         ShortLinkConfig shortLinkConfig = shortLinkConfigService.findByUrl(fullPath);
 
         if (shortLinkConfig == null) {
@@ -71,6 +71,32 @@ public class ShortLinkController {
 
         String url = URLUtil.encode(StringUtils.removeDuplicateSeparator(domain + shortLinkConfig.getUrl()));
         return "redirect:" + url;
+    }
 
+
+
+    @GetMapping("admin/api/short-link/key")
+    @ResponseBody
+    public ResultBean updateShortKey(Integer id, String newKey) {
+        ShortLinkConfig shortLinkConfig = shortLinkConfigService.findById(id);
+        if (shortLinkConfig == null) {
+            throw new RuntimeException("此直链不存在或已失效.");
+        }
+
+        shortLinkConfig.setKey(newKey);
+        shortLinkConfigService.save(shortLinkConfig);
+        return ResultBean.success();
+    }
+
+    /**
+     * 批量删除直链
+     */
+    @DeleteMapping("admin/api/short-link")
+    @ResponseBody
+    public ResultBean batchDelete(@RequestParam("id[]") Integer[] ids) {
+        for (Integer id : ids) {
+            shortLinkConfigService.deleteById(id);
+        }
+        return ResultBean.success();
     }
 }

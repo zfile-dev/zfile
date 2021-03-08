@@ -16,6 +16,7 @@ import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ShortLinkConfigService {
@@ -25,6 +26,11 @@ public class ShortLinkConfigService {
 
     public ShortLinkConfig findByKey(String key) {
         return shortLinkConfigRepository.findByKey(key);
+    }
+
+    public ShortLinkConfig findById(Integer id) {
+        Optional<ShortLinkConfig> shortLinkConfigOptional = shortLinkConfigRepository.findById(id);
+        return shortLinkConfigOptional.orElse(null);
     }
 
     public ShortLinkConfig findByUrl(String url) {
