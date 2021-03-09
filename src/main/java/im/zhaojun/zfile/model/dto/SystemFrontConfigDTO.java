@@ -43,4 +43,6 @@ public class SystemFrontConfigDTO {
 
     private Boolean debugMode;
 
+    private Boolean defaultSwitchToImgMode;
+
 }

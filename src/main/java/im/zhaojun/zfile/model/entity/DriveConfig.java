@@ -36,4 +36,6 @@ public class DriveConfig {
 
     private Integer orderNum;
 
+    private Boolean defaultSwitchToImgMode;
+
 }

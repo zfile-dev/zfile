@@ -34,4 +34,6 @@ public class DriveConfigDTO {
 
     private StorageStrategyConfig storageStrategyConfig;
 
+    private boolean defaultSwitchToImgMode;
+
 }

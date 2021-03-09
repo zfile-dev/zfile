@@ -112,6 +112,10 @@ public class DriveConfigService {
         DriveConfigDTO driveConfigDTO = new DriveConfigDTO();
 
         List<StorageConfig> storageConfigList = storageConfigRepository.findByDriveId(driveConfig.getId());
+        Boolean defaultSwitchToImgMode = driveConfig.getDefaultSwitchToImgMode();
+        if (defaultSwitchToImgMode == null) {
+            driveConfig.setDefaultSwitchToImgMode(false);
+        }
         BeanUtils.copyProperties(driveConfig, driveConfigDTO);
 
         StorageStrategyConfig storageStrategyConfig = new StorageStrategyConfig();
