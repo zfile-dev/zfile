@@ -74,10 +74,14 @@ public class ShortLinkController {
     }
 
 
-
     @GetMapping("admin/api/short-link/key")
     @ResponseBody
     public ResultBean updateShortKey(Integer id, String newKey) {
+        ShortLinkConfig newShortLinkConfig = shortLinkConfigService.findByKey(newKey);
+        if (newShortLinkConfig != null) {
+            throw new RuntimeException("您输入的 Key 已存在，请重新输入");
+        }
+
         ShortLinkConfig shortLinkConfig = shortLinkConfigService.findById(id);
         if (shortLinkConfig == null) {
             throw new RuntimeException("此直链不存在或已失效.");
