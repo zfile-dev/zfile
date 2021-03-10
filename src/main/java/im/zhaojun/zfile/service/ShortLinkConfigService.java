@@ -25,7 +25,7 @@ public class ShortLinkConfigService {
     private ShortLinkConfigRepository shortLinkConfigRepository;
 
     public ShortLinkConfig findByKey(String key) {
-        return shortLinkConfigRepository.findByKey(key);
+        return shortLinkConfigRepository.findFirstByKey(key);
     }
 
     public ShortLinkConfig findById(Integer id) {
@@ -34,7 +34,7 @@ public class ShortLinkConfigService {
     }
 
     public ShortLinkConfig findByUrl(String url) {
-        return shortLinkConfigRepository.findByUrl(url);
+        return shortLinkConfigRepository.findFirstByUrl(url);
     }
 
     public void save(ShortLinkConfig shortLinkConfig) {

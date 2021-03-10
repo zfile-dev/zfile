@@ -23,7 +23,7 @@ public interface ShortLinkConfigRepository extends JpaRepository<ShortLinkConfig
      * @param       key
      *              短链 Key
      */
-    ShortLinkConfig findByKey(String key);
+    ShortLinkConfig findFirstByKey(String key);
 
     @Query(nativeQuery = true,
             value = " select * from SHORT_LINK where " +
@@ -57,7 +57,7 @@ public interface ShortLinkConfigRepository extends JpaRepository<ShortLinkConfig
      * @param       url
      *              短链 URL
      */
-    ShortLinkConfig findByUrl(String url);
+    ShortLinkConfig findFirstByUrl(String url);
 
 
     /**
