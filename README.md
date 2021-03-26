@@ -7,7 +7,7 @@
 
 此项目是一个在线文件目录的程序, 支持各种对象存储和本地存储, 使用定位是个人放常用工具下载, 或做公共的文件库. 不会向多账户方向开发.
 
-前端基于 [h5ai](https://larsjung.de/h5ai/) 的原有功能使用 Vue 重新开发了一遍. 后端采用 SpringBoot, 数据库采用内嵌数据库.
+前端基于 [h5ai](https://larsjung.de/h5ai/) 的原有功能使用 Vue 重新开发、后端采用 SpringBoot, 数据库采用内嵌数据库.
 
 预览地址: [https://zfile.jun6.net](https://zfile.jun6.net)
 
@@ -15,18 +15,20 @@
 
 ## 系统特色
 
-* 内存缓存 (免安装)
-* 内存数据库 (免安装)
-* 个性化配置
-* 自定义目录的 readme 说明文件
-* 自定义 JS, CSS
+* Docker 支持
+* 文件数据库 (免安装)
+* 直链功能
+* 图片模式
 * 文件夹密码
+* 忽略文件夹
+* 自定义 JS, CSS
+* 自定义目录的 readme 说明文件
 * 支持在线浏览文本文件, 视频, 图片, 音乐. (支持 FLV 和 HLS)
 * 文件/目录二维码
+* 同时挂载多个存储策略
 * 缓存动态开启, ~~缓存自动刷新 (v2.2 及以前版本支持)~~
 * ~~全局搜索 (v2.2 及以前版本支持)~~
-* 同时挂载多个存储策略
-* 支持 阿里云 OSS, FTP, 华为云 OBS, 本地存储, MINIO, OneDrive 国际/家庭/个人版, OneDrive 世纪互联版, 七牛云 KODO, 腾讯云 COS, 又拍云 USS.
+* 支持 S3 协议, 阿里云 OSS, FTP, 华为云 OBS, 本地存储, MINIO, OneDrive 国际/家庭/个人版/世纪互联版/SharePoint, , 七牛云 KODO, 腾讯云 COS, 又拍云 USS.
 
 ## 快速开始
 
@@ -96,28 +98,14 @@ chmod +x zfile/bin/*.sh
 
 ## 预览
 
-![前台首页](https://cdn.jun6.net/2020/04/19/d590d2bde13bb.png)
-![后台设置-驱动器设置](https://cdn.jun6.net/2020/04/19/d58fc2debcce8.png)
-![后台设置-驱动器设置](https://cdn.jun6.net/2020/04/19/0f321e47fc18c.png)
-![后台设置-显示设置](https://cdn.jun6.net/2020/04/19/6d7c300b89671.png)
-
-## 常见问题
-
-
-### 默认路径
-
-默认 H2 数据库文件地址: `~/.zfile/db/`, `~` 表示用户目录
-
-windows 为 `C:/Users/用户名/`
-
-linux 为 `/home/用户名/`, root 用户为 `/root/`
-
-> 2.3 及以后版本路径为 `~/.zfile-new/db/`
-
-### 文档文件和加密文件
-
-- 目录文档显示文件名为 `readme.md`
-- 目录需要密码访问, 添加文件 `password.txt` (无法拦截此文件被下载, 但可以改名文件)
+![前台首页](https://cdn.jun6.net/2021/03/23/c1f4631ee2de4.png)
+![图片预览](https://cdn.jun6.net/2021/03/23/713741d43b939.png)
+![视频预览](https://cdn.jun6.net/2021/03/23/9c724383bb506.png)
+![文本预览](https://cdn.jun6.net/2021/03/23/b00efdfb4892e.png)
+![音频预览](https://cdn.jun6.net/2021/03/23/d15b14378d3f0.png)
+![后台设置-驱动器列表](https://cdn.jun6.net/2021/03/23/b4f76f20ea73a.png)
+![后台设置-新增驱动器](https://cdn.jun6.net/2021/03/23/e70e04f8cc5b6.png)
+![后台设置-站点设置](https://cdn.jun6.net/2021/03/23/fd946991bb6b9.png)
 
 ## 开发计划
 
@@ -127,16 +115,29 @@ linux 为 `/home/用户名/`, root 用户为 `/root/`
 - [x] 后台优化 - 设置按照其功能进行分离
 - [x] 体验优化 - 支持前后端分离部署
 - [x] 体验优化 - 文本预览更换 vscode 同款编辑器 monaco editor
-- [x] 新功能 - Docker 支持
 - [x] 架构调整 - 支持多存储策略
 - [x] 体验优化 - 忽略文件列表 (正则表达式)
-- [ ] 新功能 - 后台支持上传、编辑、删除等操作
+- [x] 新功能 - Docker 支持
+- [x] 新功能 - 图片模式
+- [x] 新功能 - 直链/短链管理
+- [ ] ~~新功能 - 后台支持上传、编辑、删除等操作 （不再支持）~~
 - [ ] 体验优化 - 自定义支持预览的文件后缀 (正则表达式)
 - [ ] 体验优化 - 一键安装脚本
+- [ ] 新功能 - 分享功能，支持分享密码，文件夹分享
+- [ ] 新功能 - 直链支持 Referer 防盗链
+- [ ] 体验优化 - 视频列表支持
+- [ ] 新功能 - 单独页面打开文件预览
+- [ ] 新功能 - 在线查看日志功能
+- [ ] 部署优化 - Docker Compose 支持
 
 ## 支持作者
 
 如果本项目对你有帮助，请作者喝杯咖啡吧。
 
-<img src="http://cdn.jun6.net/alipay.png" width="200" height="312">
-<img src="http://cdn.jun6.net/wechat.png" width="222" height="300">
+<img src="https://cdn.jun6.net/2021/03/23/62166c3d573ab.png" width="40%" alt="微信">
+<img src="https://cdn.jun6.net/2021/03/23/6041164e85adf.png" width="40%" alt="支付宝">
+
+
+## 项目 star 趋势
+
+<img src="https://star.jun6.net/zhaojun1998/zfile.svg" alt="star 趋势">
