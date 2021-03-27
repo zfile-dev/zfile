@@ -138,7 +138,7 @@ chmod +x zfile/bin/*.sh
 
 ## 项目 star 趋势
 
-<img src="https://star.jun6.net/zhaojun1998/zfile.svg" alt="star 趋势">
+[![starcharts stargazers over time](https://starchart.cc/zhaojun1998/zfile.svg)](https://starchart.cc/zhaojun1998/zfile.svg)
 
 ## 服务器赞助
 
