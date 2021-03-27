@@ -134,10 +134,12 @@ chmod +x zfile/bin/*.sh
 
 如果本项目对你有帮助，请作者喝杯咖啡吧。
 
-<img src="https://cdn.jun6.net/2021/03/23/62166c3d573ab.png" width="40%" alt="微信">
-<img src="https://cdn.jun6.net/2021/03/23/6041164e85adf.png" width="40%" alt="支付宝">
-
+<img src="https://cdn.jun6.net/2021/03/27/152704e91f13d.png" width="400" alt="赞助我">
 
 ## 项目 star 趋势
 
 <img src="https://star.jun6.net/zhaojun1998/zfile.svg" alt="star 趋势">
+
+## 服务器赞助
+
+[云联小白](http://www.mcmc.pro/)
