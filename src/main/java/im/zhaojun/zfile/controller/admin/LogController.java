@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.Date;
 
@@ -26,14 +25,14 @@ public class LogController {
      * 系统日志下载
      */
     @GetMapping("/log")
-    public ResponseEntity<Object> downloadLog(HttpServletResponse response) {
+    public ResponseEntity<Object> downloadLog() {
         if (log.isDebugEnabled()) {
             log.debug("下载诊断日志");
         }
         String userHome = System.getProperty("user.home");
         File fileZip = ZipUtil.zip(userHome + "/.zfile/logs");
         String currentDate = DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss");
-        return FileUtil.export(fileZip, "ZFile 诊断日志 - " + currentDate + ".zip");
+        return FileUtil.exportSingleThread(fileZip, "ZFile 诊断日志 - " + currentDate + ".zip");
     }
 
 }

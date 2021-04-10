@@ -23,7 +23,13 @@ import java.util.Date;
 @Slf4j
 public class FileUtil {
 
-    public static ResponseEntity<Object> export(File file, String fileName) {
+    /**
+     * 文件下载，单线程，直接传
+     * @param file          文件对象
+     * @param fileName      要保存为的文件名
+     * @return              文件下载对象
+     */
+    public static ResponseEntity<Object> exportSingleThread(File file, String fileName) {
         if (!file.exists()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("404 FILE NOT FOUND");
         }
@@ -58,6 +64,30 @@ public class FileUtil {
      * @param file          下载的文件
      */
     public static void export(HttpServletRequest request, HttpServletResponse response, File file) {
+        export(request, response, file, file.getName());
+    }
+
+    /**
+     * 返回文件给 response，支持断点续传和多线程下载
+     * @param request       请求对象
+     * @param response      响应对象
+     * @param file          下载的文件
+     * @param fileName      下载的文件名，为空则默认读取文件名称
+     */
+    public static void export(HttpServletRequest request, HttpServletResponse response, File file, String fileName) {
+        if (!file.exists()) {
+            try {
+                response.getWriter().write("404 FILE NOT FOUND");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (StringUtils.isNullOrEmpty(fileName)) {
+            //文件名
+            fileName = file.getName();
+        }
+
         String range = request.getHeader(HttpHeaders.RANGE);
 
         String rangeSeparator = "-";
@@ -102,8 +132,6 @@ public class FileUtil {
 
         //要下载的长度（endByte 为总长度 -1，这时候要加回去）
         long contentLength = endByte - startByte + 1;
-        //文件名
-        String fileName = file.getName();
         //文件类型
         String contentType = request.getServletContext().getMimeType(fileName);
 

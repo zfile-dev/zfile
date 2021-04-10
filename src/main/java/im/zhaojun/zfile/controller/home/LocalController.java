@@ -32,8 +32,6 @@ public class LocalController {
      *
      * @param   driveId
      *          驱动器 ID
-     *
-     * @return  文件
      */
     @GetMapping("/file/{driveId}/**")
     @ResponseBody
