@@ -13,7 +13,6 @@ import im.zhaojun.zfile.service.base.BaseFileService;
 import im.zhaojun.zfile.util.StringUtils;
 import lombok.SneakyThrows;
 import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClientConfig;
 import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -65,7 +64,6 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
             isInitialized = false;
         } else {
             ftp = new Ftp(host, Integer.parseInt(port), username, password, StandardCharsets.UTF_8);
-            ftp.getClient().configure(new FTPClientConfig(FTPClientConfig.SYST_UNIX));
             ftp.getClient().type(FTP.BINARY_FILE_TYPE);
             testConnection();
             isInitialized = true;
@@ -83,7 +81,6 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
             ftpFiles = ftp.getClient().listFiles(fullPath);
         } catch (Exception e) {
             e.printStackTrace();
-            // ignore
         }
 
         List<FileItemDTO> fileItemList = new ArrayList<>();
