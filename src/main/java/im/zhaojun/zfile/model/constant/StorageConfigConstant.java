@@ -41,4 +41,6 @@ public class StorageConfigConstant {
 
     public static final String IS_PRIVATE = "isPrivate";
 
+    public static final String PROXY_DOMAIN = "proxyDomain";
+
 }

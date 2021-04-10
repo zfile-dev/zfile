@@ -46,4 +46,6 @@ public class StorageStrategyConfig {
 
     private String siteType;
 
+    private String proxyDomain;
+
 }

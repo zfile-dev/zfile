@@ -24,6 +24,7 @@ public abstract class AbstractSharePointServiceBase extends MicrosoftDriveServic
         return new ArrayList<StorageConfig>() {{
             add(new StorageConfig("accessToken", "访问令牌"));
             add(new StorageConfig("refreshToken", "刷新令牌"));
+            add(new StorageConfig("proxyDomain", "反代域名"));
             add(new StorageConfig("basePath", "基路径"));
             add(new StorageConfig("siteName", "站点名称"));
             add(new StorageConfig("siteId", "SiteId"));

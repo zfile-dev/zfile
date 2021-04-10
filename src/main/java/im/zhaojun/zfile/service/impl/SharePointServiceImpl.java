@@ -48,6 +48,10 @@ public class SharePointServiceImpl extends AbstractSharePointServiceBase impleme
         String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
         super.siteId = stringStorageConfigMap.get(StorageConfigConstant.SHAREPOINT_SITE_ID).getValue();
         super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
+        StorageConfig proxyDomainStorageConfig = stringStorageConfigMap.get(StorageConfigConstant.PROXY_DOMAIN);
+        if (proxyDomainStorageConfig != null) {
+            super.proxyDomain = proxyDomainStorageConfig.getValue();
+        }
 
         if (StringUtils.isEmpty(accessToken) || StringUtils.isEmpty(refreshToken)) {
             log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());

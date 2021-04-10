@@ -32,12 +32,6 @@ import java.util.List;
 @Slf4j
 public abstract class MicrosoftDriveServiceBase extends AbstractBaseFileService {
 
-
-    /**
-     * https://graph.microsoft.com/v1.0/drives/6e4cf6d2f7e15197/root:%2FData%2F%E5%B8%A6%E6%9C%89%E7%AC%A6%E5%8F%B7%E6%96%87%E4%BB%B6%E5%A4%B9%E6%B5%8B%E8%AF%95%2F%25100+%2520:/children
-     * https://graph.microsoft.com/v1.0/me/drive/root:%2FData%2F%E5%B8%A6%E6%9C%89%E7%AC%A6%E5%8F%B7%E6%96%87%E4%BB%B6%E5%A4%B9%E6%B5%8B%E8%AF%95%2F%25100+%2520:/children
-     */
-
     /**
      * 获取根文件 API URI
      */
@@ -63,6 +57,7 @@ public abstract class MicrosoftDriveServiceBase extends AbstractBaseFileService 
      */
     private static final String ONE_DRIVE_FILE_FLAG = "file";
 
+    protected String proxyDomain;
 
     @Resource
     @Lazy
@@ -174,7 +169,11 @@ public abstract class MicrosoftDriveServiceBase extends AbstractBaseFileService 
                 fileItemDTO.setTime(fileItem.getDate("lastModifiedDateTime"));
 
                 if (fileItem.containsKey("file")) {
-                    fileItemDTO.setUrl(fileItem.getString("@microsoft.graph.downloadUrl"));
+                    String originUrl = fileItem.getString("@microsoft.graph.downloadUrl");
+                    if (StringUtils.isNotNullOrEmpty(proxyDomain)) {
+                        originUrl = StringUtils.replaceHost(originUrl, proxyDomain);
+                    }
+                    fileItemDTO.setUrl(originUrl);
                     fileItemDTO.setType(FileTypeEnum.FILE);
                 } else {
                     fileItemDTO.setType(FileTypeEnum.FOLDER);

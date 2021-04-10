@@ -1,6 +1,7 @@
 package im.zhaojun.zfile.util;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 
 /**
@@ -100,5 +101,17 @@ public class StringUtils {
         basePath = ObjectUtil.defaultIfNull(basePath, "");
         path = ObjectUtil.defaultIfNull(path, "");
         return StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path);
+    }
+
+    /**
+     * 替换 URL 中的 Host 部分，如替换 http://a.com/1.txt 为 https://abc.com/1.txt
+     * @param   originUrl
+     *          原 URL
+     * @param   replaceHost
+     *          替换的 HOST
+     * @return  替换后的 URL
+     */
+    public static String replaceHost(String originUrl, String replaceHost) {
+        return concatPath(replaceHost, URLUtil.getPath(originUrl));
     }
 }
