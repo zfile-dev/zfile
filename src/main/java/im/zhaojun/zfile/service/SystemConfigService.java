@@ -163,4 +163,14 @@ public class SystemConfigService {
         return systemConfigDTO.getUsername();
     }
 
+    /**
+     * 获取站点域名
+     *
+     * @return  站点域名
+     */
+    public String getDomain() {
+        SystemConfigDTO systemConfigDTO = getSystemConfig();
+        return systemConfigDTO.getDomain();
+    }
+
 }
