@@ -37,7 +37,7 @@ public class HttpUtil {
         try {
             result = restTemplate.getForObject(url, String.class);
         } catch (Exception e) {
-            throw new TextParseException("文件解析异常");
+            throw new TextParseException("文件解析异常, 请求 url = " + url + ", 异常信息为 = " + e.getMessage());
         }
 
         return result == null ? "" : result;

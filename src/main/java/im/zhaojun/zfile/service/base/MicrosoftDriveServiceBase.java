@@ -147,7 +147,7 @@ public abstract class MicrosoftDriveServiceBase extends AbstractBaseFileService 
             try {
                 root = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
             } catch (HttpClientErrorException e) {
-                log.debug("调用 OneDrive 时出现了网络异常, 已尝试重新刷新 token 后再试.");
+                log.debug("调用 OneDrive 时出现了网络异常, 响应信息: {}, 已尝试重新刷新 token 后再试.", e.getResponseBodyAsString());
                 refreshOneDriveToken();
                 root = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
             }
@@ -201,7 +201,7 @@ public abstract class MicrosoftDriveServiceBase extends AbstractBaseFileService 
         try {
             fileItem = oneDriveRestTemplate.exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
         } catch (HttpClientErrorException e) {
-            log.debug("调用 OneDrive 时出现了网络异常, 已尝试重新刷新 token 后再试.");
+            log.debug("调用 OneDrive 时出现了网络异常, 响应信息: {}, 已尝试重新刷新 token 后再试.", e.getResponseBodyAsString());
             refreshOneDriveToken();
             fileItem = oneDriveRestTemplate.exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
         }
