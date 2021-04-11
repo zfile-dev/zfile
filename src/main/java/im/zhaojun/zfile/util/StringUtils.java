@@ -3,6 +3,7 @@ package im.zhaojun.zfile.util;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
+import im.zhaojun.zfile.service.SystemConfigService;
 
 /**
  * @author zhaojun
@@ -113,5 +114,33 @@ public class StringUtils {
      */
     public static String replaceHost(String originUrl, String replaceHost) {
         return concatPath(replaceHost, URLUtil.getPath(originUrl));
+    }
+
+    /**
+     * 拼接 URL，并去除重复的分隔符 '/'，但不会影响 http:// 和 https:// 这种头部
+     * @param strs      拼接的字符数组
+     * @return          拼接结果
+     */
+    public static String concatUrl(String... strs) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < strs.length; i++) {
+            sb.append(strs[i]);
+            if (i != strs.length - 1) {
+                sb.append(DELIMITER);
+            }
+        }
+        return removeDuplicateSeparator(sb.toString());
+    }
+
+    /**
+     * 拼接文件直链生成 URL
+     * @param driveId       驱动器 ID
+     * @param fullPath      文件全路径
+     * @return              生成结果
+     */
+    public static String generatorLink(Integer driveId, String fullPath) {
+        SystemConfigService systemConfigService = SpringContextHolder.getBean(SystemConfigService.class);
+        String domain = systemConfigService.getDomain();
+        return concatUrl(domain, "directlink", String.valueOf(driveId), fullPath);
     }
 }
