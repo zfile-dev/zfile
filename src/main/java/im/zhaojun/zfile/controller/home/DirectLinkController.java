@@ -3,10 +3,12 @@ package im.zhaojun.zfile.controller.home;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.context.DriveContext;
-import im.zhaojun.zfile.exception.NotAllowedDownloadException;
+import im.zhaojun.zfile.exception.NotEnabledDriveException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
+import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.enums.FileTypeEnum;
+import im.zhaojun.zfile.service.DriveConfigService;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.AntPathMatcher;
@@ -37,7 +39,14 @@ public class DirectLinkController {
      */
     @GetMapping("/directlink/{driveId}/**")
     public String directlink(@PathVariable("driveId") Integer driveId,
-                             final HttpServletRequest request) {
+                             final HttpServletRequest request,
+                             final HttpServletResponse response) throws IOException {
+        DriveConfig driveConfig = driveConfigService.findById(driveId);
+        Boolean enable = driveConfig.getEnable();
+        if (!enable) {
+            throw new NotEnabledDriveException();
+        }
+
         String path = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);

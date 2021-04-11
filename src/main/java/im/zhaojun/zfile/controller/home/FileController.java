@@ -3,7 +3,7 @@ package im.zhaojun.zfile.controller.home;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import im.zhaojun.zfile.context.DriveContext;
-import im.zhaojun.zfile.exception.NotExistFileException;
+import im.zhaojun.zfile.exception.NotEnabledDriveException;
 import im.zhaojun.zfile.exception.PasswordVerifyException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
@@ -113,6 +113,12 @@ public class FileController {
         // 开始获取参数信息
         SystemFrontConfigDTO systemConfig = systemConfigService.getSystemFrontConfig(driveId);
         DriveConfig driveConfig = driveConfigService.findById(driveId);
+        Boolean enable = driveConfig.getEnable();
+        if (!enable) {
+            throw new NotEnabledDriveException();
+        }
+
+
         systemConfig.setDebugMode(debug);
         systemConfig.setDefaultSwitchToImgMode(driveConfig.getDefaultSwitchToImgMode());
 
