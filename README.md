@@ -1,30 +1,45 @@
-# Z-File
+<p align = "center">
+<img alt="ZFile" src="https://cdn.jun6.net/2021/04/21/69a89344e2a84.png" height="150px">
+<br><br>
+基于 Java 的在线网盘程序，支持对接 S3、OneDrive、SharePoint、又拍云、本地存储、FTP 等存储源，支持在线浏览图片、播放音视频，文本文件等文件类型。
+<br><br>
+<img src="https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square">
+<img src="https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a">
+<img src="https://img.shields.io/github/last-commit/zhaojun1998/zfile.svg?style=flat-square">
+<img src="https://img.shields.io/github/downloads/zhaojun1998/zfile/total?style=flat-square">
+<img src="https://img.shields.io/github/v/release/zhaojun1998/zfile?style=flat-square">
+<img src="https://img.shields.io/github/commit-activity/y/zhaojun1998/zfile?style=flat-square">
+<br>
+<img src="https://img.shields.io/github/issues/zhaojun1998/zfile?style=flat-square">
+<img src="https://img.shields.io/github/issues-closed-raw/zhaojun1998/zfile?style=flat-square">
+<img src="https://img.shields.io/github/forks/zhaojun1998/zfile?style=flat-square">
+<img src="https://img.shields.io/github/stars/zhaojun1998/zfile?style=flat-square">
+<img src="https://img.shields.io/github/watchers/zhaojun1998/zfile?style=flat-square">
+<br>
+<a href="https://www.jetbrains.com/?from=zfile"><img src="https://cdn.jun6.net/2021/04/21/26e410d60b0b0.png?1=1" width="146px" height="158px"></a>
+</p>
 
-![https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square](https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a)](https://www.codacy.com/manual/zhaojun1998/zfile?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=zhaojun1998/zfile&amp;utm_campaign=Badge_Grade)
-![https://img.shields.io/badge/springboot-2.0.6-orange.svg?style=flat-square](https://img.shields.io/badge/springboot-2.0.6-yellow.svg?longCache=true&style=popout-square)
-![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/zhaojun1998/zfile.svg?style=flat-square)
-
-此项目是一个在线文件目录的程序, 支持各种对象存储和本地存储, 使用定位是个人放常用工具下载, 或做公共的文件库. 不会向多账户方向开发.
-
-前端基于 [h5ai](https://larsjung.de/h5ai/) 的原有功能使用 Vue 重新开发、后端采用 SpringBoot, 数据库采用内嵌数据库.
+## 相关地址
 
 预览地址: [https://zfile.jun6.net](https://zfile.jun6.net)
 
 文档地址: [http://docs.zhaojun.im/zfile](http://docs.zhaojun.im/zfile)
 
+项目源码: [https://github.com/zhaojun1998/zfile](https://github.com/zhaojun1998/zfile)
+
+前端源码: [https://github.com/zhaojun1998/zfile-vue](https://github.com/zhaojun1998/zfile-vue)
+
 ## 系统特色
 
-* Docker 支持
-* 文件数据库 (免安装)
-* 直链功能
-* 图片模式
 * 文件夹密码
-* 忽略文件夹
-* 自定义 JS, CSS
-* 自定义目录的 readme 说明文件
+* 目录 README 说明
+* 文件直链（短链，永久直链，二维码）
 * 支持在线浏览文本文件, 视频, 图片, 音乐. (支持 FLV 和 HLS)
-* 文件/目录二维码
+* 图片模式
+* Docker 支持
+* 隐藏指定文件夹（通配符支持）
+* 自定义 JS, CSS
+* 自定义目录 README 说明文件和密码文件名称
 * 同时挂载多个存储策略
 * 缓存动态开启, ~~缓存自动刷新 (v2.2 及以前版本支持)~~
 * ~~全局搜索 (v2.2 及以前版本支持)~~
@@ -136,7 +151,7 @@ chmod +x zfile/bin/*.sh
 
 <img src="https://cdn.jun6.net/2021/03/27/152704e91f13d.png" width="400" alt="赞助我">
 
-## 项目 star 趋势
+## Stargazers over time
 
 [![starcharts stargazers over time](https://starchart.cc/zhaojun1998/zfile.svg)](https://starchart.cc/zhaojun1998/zfile.svg)
 
