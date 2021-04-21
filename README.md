@@ -15,8 +15,6 @@
 <img src="https://img.shields.io/github/forks/zhaojun1998/zfile?style=flat-square">
 <img src="https://img.shields.io/github/stars/zhaojun1998/zfile?style=flat-square">
 <img src="https://img.shields.io/github/watchers/zhaojun1998/zfile?style=flat-square">
-<br>
-<a href="https://www.jetbrains.com/?from=zfile"><img src="https://cdn.jun6.net/2021/04/21/26e410d60b0b0.png?1=1" width="146px" height="158px"></a>
 </p>
 
 ## 相关地址
@@ -155,6 +153,12 @@ chmod +x zfile/bin/*.sh
 
 [![starcharts stargazers over time](https://starchart.cc/zhaojun1998/zfile.svg)](https://starchart.cc/zhaojun1998/zfile.svg)
 
-## 服务器赞助
+## 特别赞助
+
+### 开发工具
+
+<a href="https://www.jetbrains.com/?from=zfile"><img src="https://cdn.jun6.net/2021/04/21/26e410d60b0b0.png?1=1" width="100px"></a>
+
+### 服务器
 
 [云联小白](http://www.mcmc.pro/)
