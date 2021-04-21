@@ -46,4 +46,10 @@ public class SystemConfigDTO {
     private Boolean showAnnouncement;
 
     private String layout;
+
+    private Boolean showLinkBtn;
+
+    private Boolean showShortLink;
+
+    private Boolean showPathLink;
 }

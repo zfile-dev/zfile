@@ -45,4 +45,9 @@ public class SystemFrontConfigDTO {
 
     private Boolean defaultSwitchToImgMode;
 
+    private Boolean showLinkBtn;
+
+    private Boolean showShortLink;
+
+    private Boolean showPathLink;
 }
