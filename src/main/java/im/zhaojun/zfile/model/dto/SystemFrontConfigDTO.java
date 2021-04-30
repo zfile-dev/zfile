@@ -41,4 +41,13 @@ public class SystemFrontConfigDTO {
 
     private String readme;
 
+    private Boolean debugMode;
+
+    private Boolean defaultSwitchToImgMode;
+
+    private Boolean showLinkBtn;
+
+    private Boolean showShortLink;
+
+    private Boolean showPathLink;
 }

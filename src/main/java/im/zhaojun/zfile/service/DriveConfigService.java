@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.service;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import im.zhaojun.zfile.cache.ZFileCache;
 import im.zhaojun.zfile.context.DriveContext;
@@ -13,6 +14,8 @@ import im.zhaojun.zfile.model.entity.DriveConfig;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.repository.DriverConfigRepository;
+import im.zhaojun.zfile.repository.FilterConfigRepository;
+import im.zhaojun.zfile.repository.ShortLinkConfigRepository;
 import im.zhaojun.zfile.repository.StorageConfigRepository;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
 import lombok.extern.slf4j.Slf4j;
@@ -43,12 +46,19 @@ public class DriveConfigService {
     private StorageConfigRepository storageConfigRepository;
 
     @Resource
+    private FilterConfigRepository filterConfigRepository;
+
+    @Resource
+    private ShortLinkConfigRepository shortLinkConfigRepository;
+
+    @Resource
     private DriveContext driveContext;
 
     @Resource
     private ZFileCache zFileCache;
 
     public static final Class<StorageStrategyConfig> STORAGE_STRATEGY_CONFIG_CLASS = StorageStrategyConfig.class;
+
 
     /**
      * 获取所有驱动器列表
@@ -73,6 +83,7 @@ public class DriveConfigService {
         Sort sort = new Sort(Sort.Direction.ASC,"orderNum");
         return driverConfigRepository.findAll(example, sort);
     }
+
 
     /**
      * 获取指定驱动器设置
@@ -101,6 +112,10 @@ public class DriveConfigService {
         DriveConfigDTO driveConfigDTO = new DriveConfigDTO();
 
         List<StorageConfig> storageConfigList = storageConfigRepository.findByDriveId(driveConfig.getId());
+        Boolean defaultSwitchToImgMode = driveConfig.getDefaultSwitchToImgMode();
+        if (defaultSwitchToImgMode == null) {
+            driveConfig.setDefaultSwitchToImgMode(false);
+        }
         BeanUtils.copyProperties(driveConfig, driveConfigDTO);
 
         StorageStrategyConfig storageStrategyConfig = new StorageStrategyConfig();
@@ -127,6 +142,7 @@ public class DriveConfigService {
         return driveConfigDTO;
     }
 
+
     /**
      * 获取指定驱动器的存储策略.
      *
@@ -141,12 +157,11 @@ public class DriveConfigService {
 
 
     /**
-     * 新增或设置驱动器设置
+     * 更新驱动器设置
      * @param driveConfig   驱动器设置
-     * @return              保存后的驱动器设置
      */
-    public DriveConfig saveOrUpdate(DriveConfig driveConfig) {
-        return driverConfigRepository.save(driveConfig);
+    public void updateDriveConfig(DriveConfig driveConfig) {
+        driverConfigRepository.save(driveConfig);
     }
 
 
@@ -165,6 +180,11 @@ public class DriveConfigService {
         DriveConfig driveConfig = new DriveConfig();
         StorageTypeEnum storageType = driveConfigDTO.getType();
         BeanUtils.copyProperties(driveConfigDTO, driveConfig);
+
+        if (driveConfig.getId() == null) {
+            Integer nextId = selectNextId();
+            driveConfig.setId(nextId);
+        }
         driverConfigRepository.save(driveConfig);
 
         // 保存存储策略设置.
@@ -172,12 +192,8 @@ public class DriveConfigService {
 
         AbstractBaseFileService storageTypeService = StorageTypeContext.getStorageTypeService(storageType);
 
-        List<StorageConfig> storageConfigList;
-        if (updateFlag) {
-            storageConfigList = storageConfigRepository.findByDriveId(driveConfigDTO.getId());
-        } else {
-            storageConfigList = storageTypeService.storageStrategyConfigList();
-        }
+        List<StorageConfig> storageConfigList = storageTypeService.storageStrategyConfigList();
+        storageConfigRepository.deleteByDriveId(driveConfigDTO.getId());
 
         for (StorageConfig storageConfig : storageConfigList) {
             String key = storageConfig.getKey();
@@ -210,6 +226,41 @@ public class DriveConfigService {
             stopAutoCacheRefresh(driveConfig.getId());
         }
 
+    }
+
+
+    /**
+     * 查询驱动器最大的 ID
+     *
+     * @return  驱动器最大 ID
+     */
+    public Integer selectNextId() {
+        Integer maxId = driverConfigRepository.selectMaxId();
+        if (maxId == null) {
+            maxId = 1;
+        }
+
+        return maxId + 1;
+    }
+
+
+    /**
+     * 更新驱动器 ID
+     *
+     * @param   updateId
+     *          驱动器原 ID
+     *
+     * @param   newId
+     *          驱动器新 ID
+     */
+    @Transactional
+    public void updateId(Integer updateId, Integer newId) {
+        zFileCache.clear(updateId);
+        driverConfigRepository.updateId(updateId, newId);
+        storageConfigRepository.updateDriveId(updateId, newId);
+        filterConfigRepository.updateDriveId(updateId, newId);
+        shortLinkConfigRepository.updateUrlDriveId("/directlink/" + updateId, "/directlink/" + newId);
+        driveContext.updateDriveId(updateId, newId);
     }
 
 
@@ -264,24 +315,6 @@ public class DriveConfigService {
         DriveConfig driveConfig = findById(driveId);
         if (driveConfig != null) {
             driveConfig.setEnableCache(cacheEnable);
-            driverConfigRepository.save(driveConfig);
-        }
-    }
-
-
-    /**
-     * 更新指定驱动器的缓存启用状态
-     *
-     * @param   driveId
-     *          驱动器 ID
-     *
-     * @param   autoRefreshCache
-     *          是否启用缓存自动刷新
-     */
-    public void updateAutoRefreshCacheStatus(Integer driveId, Boolean autoRefreshCache) {
-        DriveConfig driveConfig = findById(driveId);
-        if (driveConfig != null) {
-            driveConfig.setAutoRefreshCache(autoRefreshCache);
             driverConfigRepository.save(driveConfig);
         }
     }

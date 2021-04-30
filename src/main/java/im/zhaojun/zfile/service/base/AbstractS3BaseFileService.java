@@ -73,7 +73,11 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
             fileItemDTO.setTime(s.getLastModified());
             fileItemDTO.setType(FileTypeEnum.FILE);
             fileItemDTO.setPath(path);
-            fileItemDTO.setUrl(getDownloadUrl(StringUtils.concatUrl(path, fileItemDTO.getName())));
+
+            String fullPathAndName = StringUtils.concatUrl(path, fileItemDTO.getName());
+            String directlink = StringUtils.generatorLink(driveId, fullPathAndName);
+            fileItemDTO.setUrl(directlink);
+
             fileItemList.add(fileItemDTO);
         }
 
@@ -129,6 +133,7 @@ public abstract class AbstractS3BaseFileService extends AbstractBaseFileService 
         for (FileItemDTO fileItemDTO : list) {
             String fullPath = StringUtils.concatUrl(fileItemDTO.getPath(), fileItemDTO.getName());
             if (Objects.equals(fullPath, path)) {
+                fileItemDTO.setUrl(getDownloadUrl(path));
                 return fileItemDTO;
             }
         }

@@ -4,7 +4,6 @@ import im.zhaojun.zfile.model.support.ResultBean;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,12 +19,22 @@ public class GlobleExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobleExceptionHandler.class);
 
+
+    /**
+     * 不存在的文件异常
+     */
+    @ExceptionHandler({NotEnabledDriveException.class})
+    @ResponseBody
+    public ResultBean notEnabledDrive() {
+        return ResultBean.error("驱动器已关闭");
+    }
+
     /**
      * 不存在的文件异常
      */
     @ExceptionHandler({NotExistFileException.class})
     @ResponseBody
-    public ResultBean notExistFile(Exception ex) {
+    public ResultBean notExistFile() {
         return ResultBean.error("文件不存在");
     }
 
@@ -36,10 +45,31 @@ public class GlobleExceptionHandler {
     @ExceptionHandler({HttpMediaTypeNotAcceptableException.class, ClientAbortException.class})
     @ResponseBody
     @ResponseStatus
-    public void clientAbortException(Exception ex) {
+    public void clientAbortException() {
         // if (log.isDebugEnabled()) {
         //     log.debug("出现了断开异常:", ex);
         // }
+    }
+
+    /**
+     * 文件预览异常
+     */
+    @ExceptionHandler({PasswordVerifyException.class})
+    @ResponseBody
+    @ResponseStatus
+    public ResultBean passwordVerifyException(PasswordVerifyException ex) {
+        return ResultBean.error(ex.getMessage());
+    }
+
+
+    /**
+     * 无效的驱动器异常
+     */
+    @ExceptionHandler({InvalidDriveException.class})
+    @ResponseBody
+    @ResponseStatus
+    public ResultBean invalidDriveException(InvalidDriveException ex) {
+        return ResultBean.error(ex.getMessage());
     }
 
 
@@ -67,8 +97,8 @@ public class GlobleExceptionHandler {
 
     @ExceptionHandler
     @ResponseBody
-    @ResponseStatus(code= HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResultBean searchDisableExceptionHandler(Exception e) {
+    @ResponseStatus
+    public ResultBean extraExceptionHandler(Exception e) {
         log.error(e.getMessage(), e);
 
         if (e.getClass() == Exception.class) {

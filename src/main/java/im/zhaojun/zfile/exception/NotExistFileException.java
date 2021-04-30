@@ -1,6 +1,7 @@
 package im.zhaojun.zfile.exception;
 
 /**
+ * 不存在的文件异常
  * @author zhaojun
  */
 public class NotExistFileException extends RuntimeException {

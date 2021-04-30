@@ -4,8 +4,6 @@ import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import lombok.Data;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
@@ -18,7 +16,6 @@ import javax.persistence.Id;
 public class DriveConfig {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private Boolean enable;
@@ -38,5 +35,7 @@ public class DriveConfig {
     private Boolean searchContainEncryptedFile;
 
     private Integer orderNum;
+
+    private Boolean defaultSwitchToImgMode;
 
 }

@@ -144,4 +144,11 @@ public abstract class AbstractBaseFileService implements BaseFileService {
      */
     public abstract FileItemDTO getFileItem(String path);
 
+    public Integer getDriveId() {
+        return driveId;
+    }
+
+    public void setDriveId(Integer driveId) {
+        this.driveId = driveId;
+    }
 }

@@ -1,7 +1,5 @@
 package im.zhaojun.zfile.service;
 
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import im.zhaojun.zfile.model.entity.FilterConfig;
 import im.zhaojun.zfile.repository.FilterConfigRepository;
@@ -11,13 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author zhaojun

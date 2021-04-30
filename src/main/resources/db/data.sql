@@ -11,3 +11,6 @@ INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (15, 'showDocument', '是
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (16, 'announcement', '网站公告');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (17, 'showAnnouncement', '是否显示网站公告');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (18, 'layout', '页面布局');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (19, 'showLinkBtn', '是否显示生成直链按钮');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (20, 'showShortLink', '是否显示短链');
+INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`) VALUES (21, 'showPathLink', '是否显示路径直链');

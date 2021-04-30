@@ -123,7 +123,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
 
     @Override
     public FileItemDTO getFileItem(String path) {
-        String fullPath = StringUtils.concatPath(filePath, path);
+        String fullPath = filePath + path;
 
         File file = new File(fullPath);
 

@@ -3,6 +3,8 @@ package im.zhaojun.zfile.repository;
 import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -67,5 +69,19 @@ public interface StorageConfigRepository extends JpaRepository<StorageConfig, In
      * @return  KEY 对应的对象
      */
     StorageConfig findByDriveIdAndKey(Integer driveId, String key);
+
+
+    /**
+     * 更新驱动器 ID 对应的参数设置为新的驱动器 ID
+     *
+     * @param   updateId
+     *          驱动器原 ID
+     *
+     * @param   newId
+     *          驱动器新 ID
+     */
+    @Modifying
+    @Query(value="update STORAGE_CONFIG set driveId = :newId where driveId = :updateId")
+    void updateDriveId(Integer updateId, Integer newId);
 
 }

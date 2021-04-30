@@ -1,3 +1,34 @@
+zfile:
+  debug: false
+  log:
+    path: ${user.home}/.zfile/logs
+  db:
+    path: ${user.home}/.zfile/db/zfile
+  tmp:
+    path: ${user.home}/.zfile/tmp
+  cache:
+    auto-refresh:
+      interval: 1
+    timeout: 1800
+  constant:
+    readme: readme.md
+    password: password.txt
+  preview:
+    audio:
+      maxFileSizeMb: 5
+    text:
+      maxFileSizeKb: 512
+  onedrive:
+    clientId: 09939809-c617-43c8-a220-a93c1513c5d4
+    clientSecret: _l:zI-_yrW75lV8M61K@z.I2K@B/On6Q
+    redirectUri: https://zfile.jun6.net/onedrive/callback
+    scope: offline_access User.Read Files.ReadWrite.All
+  onedrive-china:
+    clientId: 4a72d927-1907-488d-9eb2-1b465c53c1c5
+    clientSecret: Y9CEA=82da5n-y_]KAWAgLH3?R9xf7Uw
+    redirectUri: https://zfile.jun6.net/onedrive/china-callback
+    scope: offline_access User.Read Files.ReadWrite.All
+
 server:
   port: 8080
   servlet:
@@ -13,7 +44,7 @@ spring:
       settings:
         web-allow-others: true
       path: /h2-console
-      enabled: false
+      enabled: ${zfile.debug}
   datasource:
     # 初始化数据导入
     data: classpath*:db/data.sql
@@ -48,33 +79,3 @@ spring:
       gzipped: true
   profiles:
     active: prod
-
-zfile:
-  log:
-    path: ${user.home}/.zfile/logs
-  db:
-    path: ${user.home}/.zfile/db/zfile
-  tmp:
-    path: ${user.home}/.zfile/tmp
-  cache:
-    auto-refresh:
-      interval: 1
-    timeout: 1800
-  constant:
-    readme: readme.md
-    password: password.txt
-  preview:
-      audio:
-          maxFileSizeMb: 5
-      text:
-          maxFileSizeKb: 512
-  onedrive:
-    clientId: 09939809-c617-43c8-a220-a93c1513c5d4
-    clientSecret: _l:zI-_yrW75lV8M61K@z.I2K@B/On6Q
-    redirectUri: https://zfile.jun6.net/onedrive/callback
-    scope: offline_access User.Read Files.ReadWrite.All
-  onedrive-china:
-    clientId: 4a72d927-1907-488d-9eb2-1b465c53c1c5
-    clientSecret: Y9CEA=82da5n-y_]KAWAgLH3?R9xf7Uw
-    redirectUri: https://zfile.jun6.net/onedrive/china-callback
-    scope: offline_access User.Read Files.ReadWrite.All

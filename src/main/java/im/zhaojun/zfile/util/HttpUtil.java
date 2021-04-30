@@ -1,6 +1,8 @@
 package im.zhaojun.zfile.util;
 
+import cn.hutool.core.io.FileUtil;
 import im.zhaojun.zfile.exception.PreviewException;
+import im.zhaojun.zfile.exception.TextParseException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
@@ -16,16 +18,28 @@ import java.net.URLConnection;
 public class HttpUtil {
 
     /**
-     * 最大支持文件预览大小: 1M
+     * 获取 URL 对应的文件内容
+     *
+     * @param   url
+     *          文件 URL
+     * @return  文件 URL
      */
     public static String getTextContent(String url) {
         RestTemplate restTemplate = SpringContextHolder.getBean("restTemplate");
 
-        if (getRemoteFileSize(url) > (1024 * ZFileConstant.TEXT_MAX_FILE_SIZE_KB)) {
-            throw new PreviewException("存储源跨域请求失败, 服务器中转状态, 预览文件超出大小, 最大支持 1M");
+        long maxFileSize = 1024 * ZFileConstant.TEXT_MAX_FILE_SIZE_KB;
+
+        if (getRemoteFileSize(url) > maxFileSize) {
+            throw new PreviewException("预览文件超出大小, 最大支持 " + FileUtil.readableFileSize(maxFileSize));
         }
 
-        String result = restTemplate.getForObject(url, String.class);
+        String result;
+        try {
+            result = restTemplate.getForObject(url, String.class);
+        } catch (Exception e) {
+            throw new TextParseException("文件解析异常, 请求 url = " + url + ", 异常信息为 = " + e.getMessage());
+        }
+
         return result == null ? "" : result;
     }
 
