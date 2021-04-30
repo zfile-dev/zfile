@@ -147,7 +147,7 @@ chmod +x zfile/bin/*.sh
 
 如果本项目对你有帮助，请作者喝杯咖啡吧。
 
-<img src="https://cdn.jun6.net/2021/03/27/152704e91f13d.png" width="400" alt="赞助我">
+<img src="https://i.loli.net/2021/04/30/vS9lIEQGTCZJniF.png" width="400" alt="赞助我">
 
 ## Stargazers over time
 
