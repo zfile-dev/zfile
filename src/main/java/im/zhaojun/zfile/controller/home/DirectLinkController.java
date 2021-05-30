@@ -72,7 +72,7 @@ public class DirectLinkController {
 
         if (StrUtil.equalsIgnoreCase(FileUtil.extName(fileItem.getName()), "m3u8")) {
             String textContent = HttpUtil.getTextContent(url);
-            response.setContentType("application/json;charset=utf-8");
+            response.setContentType("application/vnd.apple.mpegurl;charset=utf-8");
             PrintWriter out = response.getWriter();
             out.write(textContent);
             out.flush();
