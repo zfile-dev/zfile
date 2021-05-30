@@ -37,6 +37,18 @@ public interface ShortLinkConfigRepository extends JpaRepository<ShortLinkConfig
                     " and (:dateFrom is null or create_date >= :dateFrom" +
                     " and (:dateTo is null or create_date <= :dateTo) "
     )
+    // @Query(nativeQuery = true,
+    //         value = " select * from SHORT_LINK where " +
+    //                 " key like concat('%', :key,'%') " +
+    //                 " and url like concat('%', :url,'%') " +
+    //                 " and (:dateFrom is null or date_format(create_date, '%Y-%m-%d') >= date_format(:dateFrom, '%Y-%m-%d'))" +
+    //                 " and (:dateTo is null or date_format(create_date, '%Y-%m-%d') <= date_format(:dateTo, '%Y-%m-%d')) ) ",
+    //         countQuery =  " select count(1) from SHORT_LINK where " +
+    //                 " key like concat('%', :key,'%') " +
+    //                 " and url like concat('%', :url,'%') " +
+    //                 " and (:dateFrom  is null or date_format(create_date, '%Y-%m-%d') >= date_format(:dateFrom, '%Y-%m-%d'))" +
+    //                 " and (:dateTo is null or date_format(create_date, '%Y-%m-%d') <= date_format(:dateTo, '%Y-%m-%d')) ) "
+    // )
     Page<ShortLinkConfig> findByPage(String key, String url, Date dateFrom, Date dateTo, Pageable pageable);
 
     /**

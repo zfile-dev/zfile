@@ -138,24 +138,6 @@ public class FileController {
 
 
     /**
-     * 获取指定路径下的文件信息内容
-     *
-     * @param   driveId
-     *          驱动器 ID
-     *
-     * @param   path
-     *          文件全路径
-     *
-     * @return  该文件的名称, 路径, 大小, 下载地址等信息.
-     */
-    @GetMapping("/directlink/{driveId}")
-    public ResultBean directlink(@PathVariable(name = "driveId") Integer driveId, String path) {
-        AbstractBaseFileService fileService = driveContext.get(driveId);
-        return ResultBean.successData(fileService.getFileItem(path));
-    }
-
-
-    /**
      * 校验密码
      * @param   fileItemList
      *          文件列表
