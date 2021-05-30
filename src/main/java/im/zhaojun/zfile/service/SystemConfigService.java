@@ -1,6 +1,7 @@
 package im.zhaojun.zfile.service;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import im.zhaojun.zfile.cache.ZFileCache;
 import im.zhaojun.zfile.exception.InvalidDriveException;
@@ -173,4 +174,14 @@ public class SystemConfigService {
         return systemConfigDTO.getDomain();
     }
 
+
+    /**
+     * 获取是否已安装初始化
+     *
+     * @return  是否已安装初始化
+     */
+    public boolean getIsInstall() {
+        SystemConfigDTO systemConfigDTO = getSystemConfig();
+        return StrUtil.isNotEmpty(systemConfigDTO.getUsername());
+    }
 }

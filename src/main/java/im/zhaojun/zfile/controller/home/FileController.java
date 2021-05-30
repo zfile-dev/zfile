@@ -68,7 +68,10 @@ public class FileController {
      */
     @GetMapping("/drive/list")
     public ResultBean drives() {
-        return ResultBean.success(driveConfigService.listOnlyEnable());
+        List<DriveConfig> driveList = driveConfigService.listOnlyEnable();
+        boolean isInstall = systemConfigService.getIsInstall();
+        DriveListDTO driveListDTO = new DriveListDTO(driveList, isInstall);
+        return ResultBean.success(driveListDTO);
     }
 
     /**
