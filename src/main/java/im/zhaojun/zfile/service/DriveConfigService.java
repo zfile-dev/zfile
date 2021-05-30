@@ -238,10 +238,10 @@ public class DriveConfigService {
     public Integer selectNextId() {
         Integer maxId = driverConfigRepository.selectMaxId();
         if (maxId == null) {
-            maxId = 1;
+            return 1;
+        } else {
+            return maxId + 1;
         }
-
-        return maxId + 1;
     }
 
 
