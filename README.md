@@ -153,12 +153,10 @@ chmod +x zfile/bin/*.sh
 
 [![starcharts stargazers over time](https://starchart.cc/zhaojun1998/zfile.svg)](https://starchart.cc/zhaojun1998/zfile.svg)
 
-## 特别赞助
+## 服务器赞助
 
-### 开发工具
+<a href="https://kuline.cn"><img src="https://cdn.jun6.net/2021/05/14/1f6a4f0ad09ce.png" width="100px"></a>
+
+## 开发工具赞助
 
 <a href="https://www.jetbrains.com/?from=zfile"><img src="https://cdn.jun6.net/2021/04/21/26e410d60b0b0.png?1=1" width="100px"></a>
-
-### 服务器
-
-[云联小白](http://www.mcmc.pro/)
