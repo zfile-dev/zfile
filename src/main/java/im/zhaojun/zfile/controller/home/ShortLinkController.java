@@ -2,6 +2,7 @@ package im.zhaojun.zfile.controller.home;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.URLUtil;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.model.entity.ShortLinkConfig;
 import im.zhaojun.zfile.model.support.ResultBean;
@@ -36,7 +37,7 @@ public class ShortLinkController {
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
         String domain = systemConfig.getDomain();
         // 拼接直链地址.
-        String fullPath = StringUtils.removeDuplicateSeparator("/directlink/" + driveId + path);
+        String fullPath = StringUtils.concatUrl(StringUtils.DELIMITER_STR, ZFileConstant.DIRECT_LINK_PREFIX, driveId, path);
         ShortLinkConfig shortLinkConfig = shortLinkConfigService.findByUrl(fullPath);
 
         if (shortLinkConfig == null) {

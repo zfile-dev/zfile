@@ -6,6 +6,7 @@ import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.exception.NotEnabledDriveException;
 import im.zhaojun.zfile.exception.PasswordVerifyException;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
+import im.zhaojun.zfile.model.dto.DriveListDTO;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.dto.FileListDTO;
 import im.zhaojun.zfile.model.dto.SystemFrontConfigDTO;
@@ -118,9 +119,9 @@ public class FileController {
             throw new NotEnabledDriveException();
         }
 
-
         systemConfig.setDebugMode(debug);
         systemConfig.setDefaultSwitchToImgMode(driveConfig.getDefaultSwitchToImgMode());
+        systemConfig.setDirectLinkPrefix(ZFileConstant.DIRECT_LINK_PREFIX);
 
         // 如果不是 FTP 模式，则尝试获取当前文件夹中的 README 文件，有则读取，没有则停止
         if (!Objects.equals(driveConfig.getType(), StorageTypeEnum.FTP)) {

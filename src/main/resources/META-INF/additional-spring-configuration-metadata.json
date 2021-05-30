@@ -91,6 +91,12 @@
             "name": "zfile.debug",
             "type": "java.lang.Boolean",
             "description": "是否开启 debug 模式."
+        },
+        {
+            "name": "zfile.directLinkPrefix",
+            "type": "java.lang.String",
+            "defaultValue": "directlink",
+            "description": "直链前缀名称, 默认为 directlink"
         }
     ]
 }

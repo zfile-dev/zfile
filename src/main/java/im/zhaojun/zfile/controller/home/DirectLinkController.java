@@ -45,7 +45,7 @@ public class DirectLinkController {
      *
      * @return  重定向至文件直链
      */
-    @GetMapping("/directlink/{driveId}/**")
+    @GetMapping("/${zfile.directLinkPrefix}/{driveId}/**")
     public String directlink(@PathVariable("driveId") Integer driveId,
                              final HttpServletRequest request,
                              final HttpServletResponse response) throws IOException {

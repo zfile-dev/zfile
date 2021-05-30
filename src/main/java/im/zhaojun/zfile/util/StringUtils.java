@@ -13,6 +13,8 @@ public class StringUtils {
 
     public static final char DELIMITER = '/';
 
+    public static final String DELIMITER_STR = "/";
+
     public static final String HTTP_PROTOCAL = "http://";
 
     public static final String HTTPS_PROTOCAL = "https://";
@@ -141,6 +143,6 @@ public class StringUtils {
     public static String generatorLink(Integer driveId, String fullPath) {
         SystemConfigService systemConfigService = SpringContextHolder.getBean(SystemConfigService.class);
         String domain = systemConfigService.getDomain();
-        return concatUrl(domain, "directlink", String.valueOf(driveId), fullPath);
+        return concatUrl(domain, ZFileConstant.DIRECT_LINK_PREFIX, String.valueOf(driveId), fullPath);
     }
 }

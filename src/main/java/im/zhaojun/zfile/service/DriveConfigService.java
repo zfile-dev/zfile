@@ -1,12 +1,12 @@
 package im.zhaojun.zfile.service;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSONObject;
 import im.zhaojun.zfile.cache.ZFileCache;
 import im.zhaojun.zfile.context.DriveContext;
 import im.zhaojun.zfile.context.StorageTypeContext;
 import im.zhaojun.zfile.exception.InitializeDriveException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
+import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.model.dto.CacheInfoDTO;
 import im.zhaojun.zfile.model.dto.DriveConfigDTO;
 import im.zhaojun.zfile.model.dto.StorageStrategyConfig;
@@ -18,6 +18,7 @@ import im.zhaojun.zfile.repository.FilterConfigRepository;
 import im.zhaojun.zfile.repository.ShortLinkConfigRepository;
 import im.zhaojun.zfile.repository.StorageConfigRepository;
 import im.zhaojun.zfile.service.base.AbstractBaseFileService;
+import im.zhaojun.zfile.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Example;
@@ -259,7 +260,12 @@ public class DriveConfigService {
         driverConfigRepository.updateId(updateId, newId);
         storageConfigRepository.updateDriveId(updateId, newId);
         filterConfigRepository.updateDriveId(updateId, newId);
-        shortLinkConfigRepository.updateUrlDriveId("/directlink/" + updateId, "/directlink/" + newId);
+
+
+        String updateSubPath = StringUtils.concatUrl(StringUtils.DELIMITER_STR, ZFileConstant.DIRECT_LINK_PREFIX, String.valueOf(updateId));
+        String newSubPath = StringUtils.concatUrl(StringUtils.DELIMITER_STR, ZFileConstant.DIRECT_LINK_PREFIX, String.valueOf(newId));
+
+        shortLinkConfigRepository.updateUrlDriveId(updateSubPath, newSubPath);
         driveContext.updateDriveId(updateId, newId);
     }
 

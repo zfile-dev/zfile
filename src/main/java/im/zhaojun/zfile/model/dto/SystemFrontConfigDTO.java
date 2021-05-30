@@ -50,4 +50,7 @@ public class SystemFrontConfigDTO {
     private Boolean showShortLink;
 
     private Boolean showPathLink;
+
+    private String directLinkPrefix;
+
 }

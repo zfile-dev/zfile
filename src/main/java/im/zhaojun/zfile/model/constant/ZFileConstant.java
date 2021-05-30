@@ -16,6 +16,10 @@ public class ZFileConstant {
 
     public static final String PATH_SEPARATOR = "/";
 
+    /**
+     * 直链前缀名称
+     */
+    public static String DIRECT_LINK_PREFIX = "directlink";
 
     /**
      * 系统产生的临时文件路径
@@ -68,5 +72,9 @@ public class ZFileConstant {
         ZFileConstant.TEXT_MAX_FILE_SIZE_KB = maxFileSizeKb;
     }
 
+    @Autowired(required = false)
+    public void setDirectLinkPrefix(@Value("${zfile.directLinkPrefix}") String directLinkPrefix) {
+        ZFileConstant.DIRECT_LINK_PREFIX = directLinkPrefix;
+    }
 
 }
