@@ -32,17 +32,21 @@ public class LocalController {
      *
      * @param   driveId
      *          驱动器 ID
+     * @param   type
+     *          附件预览类型:
+     *              download:下载
+     *              default: 浏览器默认行为
      */
     @GetMapping("/file/{driveId}/**")
     @ResponseBody
-    public void downAttachment(@PathVariable("driveId") Integer driveId, final HttpServletRequest request, final HttpServletResponse response) {
+    public void downAttachment(@PathVariable("driveId") Integer driveId, String type, final HttpServletRequest request, final HttpServletResponse response) {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String bestMatchPattern = (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
         AntPathMatcher apm = new AntPathMatcher();
         String filePath = apm.extractPathWithinPattern(bestMatchPattern, path);
         LocalServiceImpl localService = (LocalServiceImpl) driveContext.get(driveId);
         File file = new File(StringUtils.removeDuplicateSeparator(localService.getFilePath() + ZFileConstant.PATH_SEPARATOR + filePath));
-        FileUtil.export(request, response, file);
+        FileUtil.export(request, response, file, type);
     }
 
 }

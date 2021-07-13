@@ -1,6 +1,8 @@
 package im.zhaojun.zfile.util;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
+import im.zhaojun.zfile.model.constant.LocalFileResponseTypeConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.core.io.FileSystemResource;
@@ -16,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author zhaojun
@@ -63,18 +66,18 @@ public class FileUtil {
      * @param response      响应对象
      * @param file          下载的文件
      */
-    public static void export(HttpServletRequest request, HttpServletResponse response, File file) {
-        export(request, response, file, file.getName());
+    public static void export(HttpServletRequest request, HttpServletResponse response, File file, String type) {
+        export(request, response, file, file.getName(), type);
     }
 
     /**
-     * 返回文件给 response，支持断点续传和多线程下载
+     * 返回文件给 response，支持断点续传和多线程下载 (动态变化的文件不支持)
      * @param request       请求对象
      * @param response      响应对象
      * @param file          下载的文件
      * @param fileName      下载的文件名，为空则默认读取文件名称
      */
-    public static void export(HttpServletRequest request, HttpServletResponse response, File file, String fileName) {
+    public static void export(HttpServletRequest request, HttpServletResponse response, File file, String fileName, String type) {
         if (!file.exists()) {
             try {
                 response.getWriter().write("404 FILE NOT FOUND");
@@ -135,11 +138,15 @@ public class FileUtil {
         //文件类型
         String contentType = request.getServletContext().getMimeType(fileName);
 
+        if (Objects.equals(type, LocalFileResponseTypeConstant.DOWNLOAD) || StrUtil.isEmpty(contentType)) {
+            contentType = "attachment";
+        }
+
         response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
         response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
         // 这里文件名换你想要的，inline 表示浏览器可以直接使用
         // 参考资料：https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Disposition
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=" + URLUtil.encode(fileName));
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,  contentType + ";filename=" + URLUtil.encode(fileName));
         response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
         // [要下载的开始位置]-[结束位置]/[文件总大小]
         response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes " + startByte + rangeSeparator + endByte + "/" + file.length());
