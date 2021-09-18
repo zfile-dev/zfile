@@ -5,6 +5,9 @@ import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.model.constant.ZFileConstant;
 import im.zhaojun.zfile.service.SystemConfigService;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * @author zhaojun
  */
@@ -115,7 +118,13 @@ public class StringUtils {
      * @return  替换后的 URL
      */
     public static String replaceHost(String originUrl, String replaceHost) {
-        return concatPath(replaceHost, URLUtil.getPath(originUrl));
+        try {
+            String path = new URL(originUrl).getFile();
+            return concatPath(replaceHost, path);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
