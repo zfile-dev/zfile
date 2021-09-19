@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author zhaojun
@@ -120,6 +123,30 @@ public abstract class AbstractBaseFileService implements BaseFileService {
      */
     public abstract List<StorageConfig> storageStrategyConfigList();
 
+
+    /**
+     * 合并数据库查询到的驱动器参数和驱动器本身支持的参数列表, 防止获取新增参数字段时出现空指针异常
+     *
+     * @param   dbStorageConfigList
+     *          数据库查询到的存储列表
+     */
+    public void mergeStrategyConfig(Map<String, StorageConfig> dbStorageConfigList) {
+        // 获取驱动器支持的参数列表
+        List<StorageConfig> storageConfigs = this.storageStrategyConfigList();
+
+        // 比对数据库已存储的参数列表和驱动器支持的参数列表, 找出新增的支持项
+        Set<String> dbConfigKeySet = dbStorageConfigList.keySet();
+        Set<String> allKeySet = storageConfigs.stream().map(StorageConfig::getKey).collect(Collectors.toSet());
+
+        allKeySet.removeAll(dbConfigKeySet);
+
+        // 对于新增的参数, put 到数据库查询的 Map 中, 防止程序获取时出现 NPE.
+        for (String key : allKeySet) {
+            StorageConfig storageConfig = new StorageConfig();
+            storageConfig.setValue("");
+            dbStorageConfigList.put(key, storageConfig);
+        }
+    }
 
     /**
      * 搜索文件

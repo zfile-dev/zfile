@@ -54,6 +54,7 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
         this.driveId = driveId;
         Map<String, StorageConfig> stringStorageConfigMap =
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        this.mergeStrategyConfig(stringStorageConfigMap);
         host = stringStorageConfigMap.get(StorageConfigConstant.HOST_KEY).getValue();
         port = stringStorageConfigMap.get(StorageConfigConstant.PORT_KEY).getValue();
         username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();

@@ -1,6 +1,7 @@
 package im.zhaojun.zfile.service.impl;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.StrUtil;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -10,7 +11,6 @@ import im.zhaojun.zfile.model.entity.StorageConfig;
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.service.base.AbstractS3BaseFileService;
 import im.zhaojun.zfile.service.base.BaseFileService;
-import im.zhaojun.zfile.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -36,6 +36,7 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
         this.driveId = driveId;
         Map<String, StorageConfig> stringStorageConfigMap =
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        this.mergeStrategyConfig(stringStorageConfigMap);
         String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
         String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
         String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();

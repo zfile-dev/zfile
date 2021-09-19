@@ -44,6 +44,7 @@ public class SharePointServiceImpl extends AbstractSharePointServiceBase impleme
         this.driveId = driveId;
         Map<String, StorageConfig> stringStorageConfigMap =
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        this.mergeStrategyConfig(stringStorageConfigMap);
         String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
         String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
         super.siteId = stringStorageConfigMap.get(StorageConfigConstant.SHAREPOINT_SITE_ID).getValue();

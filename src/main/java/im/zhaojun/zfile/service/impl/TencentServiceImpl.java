@@ -35,6 +35,7 @@ public class TencentServiceImpl extends AbstractS3BaseFileService implements Bas
         this.driveId = driveId;
         Map<String, StorageConfig> stringStorageConfigMap =
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        this.mergeStrategyConfig(stringStorageConfigMap);
         String secretId = stringStorageConfigMap.get(StorageConfigConstant.SECRET_ID_KEY).getValue();
         String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
         String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();

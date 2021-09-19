@@ -44,6 +44,7 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase implements 
         this.driveId = driveId;
         Map<String, StorageConfig> stringStorageConfigMap =
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        this.mergeStrategyConfig(stringStorageConfigMap);
         String accessToken = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_TOKEN_KEY).getValue();
         String refreshToken = stringStorageConfigMap.get(StorageConfigConstant.REFRESH_TOKEN_KEY).getValue();
         super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();

@@ -53,6 +53,7 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
         this.driveId = driveId;
         Map<String, StorageConfig> stringStorageConfigMap =
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        this.mergeStrategyConfig(stringStorageConfigMap);
         String bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
         String username = stringStorageConfigMap.get(StorageConfigConstant.USERNAME_KEY).getValue();
         String password = stringStorageConfigMap.get(StorageConfigConstant.PASSWORD_KEY).getValue();

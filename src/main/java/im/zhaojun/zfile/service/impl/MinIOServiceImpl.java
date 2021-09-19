@@ -35,6 +35,7 @@ public class MinIOServiceImpl extends AbstractS3BaseFileService implements BaseF
         this.driveId = driveId;
         Map<String, StorageConfig> stringStorageConfigMap =
                 storageConfigService.selectStorageConfigMapByDriveId(driveId);
+        this.mergeStrategyConfig(stringStorageConfigMap);
         String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
         String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
         String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();

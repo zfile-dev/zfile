@@ -43,4 +43,6 @@ public class StorageConfigConstant {
 
     public static final String PROXY_DOMAIN = "proxyDomain";
 
+    public static final String REGION_KEY = "region";
+
 }
