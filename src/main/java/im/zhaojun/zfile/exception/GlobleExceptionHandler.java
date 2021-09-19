@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.net.ConnectException;
+
 /**
  * 全局异常处理器
  * @author zhaojun
@@ -104,6 +106,17 @@ public class GlobleExceptionHandler {
     public ResultBean handlerNotLoginException(NotLoginException e) {
         return ResultBean.error("未登录");
     }
+
+
+    /**
+     * 登录异常拦截器
+     */
+    @ExceptionHandler(ConnectException.class)
+    @ResponseBody
+    public ResultBean handlerConnectException(ConnectException e) {
+        return ResultBean.error("请求失败, 清稍后再试");
+    }
+
 
 
     @ExceptionHandler
