@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.exception;
 
+import cn.dev33.satoken.exception.NotLoginException;
 import im.zhaojun.zfile.model.support.ResultBean;
 import org.apache.catalina.connector.ClientAbortException;
 import org.slf4j.Logger;
@@ -92,6 +93,16 @@ public class GlobleExceptionHandler {
     @ResponseStatus
     public ResultBean initializeException(InitializeDriveException ex) {
         return ResultBean.error(ex.getMessage());
+    }
+
+    /**
+     * 登录异常拦截器
+     */
+    @ExceptionHandler(NotLoginException.class)
+    @ResponseBody
+    @ResponseStatus
+    public ResultBean handlerNotLoginException(NotLoginException e) {
+        return ResultBean.error("未登录");
     }
 
 
