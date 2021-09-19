@@ -30,7 +30,7 @@ public class InstallController {
     }
 
 
-    @PostMapping("/install")
+    @PostMapping("/doInstall")
     public ResultBean install(SystemConfigDTO systemConfigDTO) {
         if (!StringUtils.isEmpty(systemConfigService.getAdminUsername())) {
             return ResultBean.error("请勿重复初始化.");
