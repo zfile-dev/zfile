@@ -35,7 +35,8 @@ server:
   servlet:
     context-path: ''
   tomcat:
-    max-threads: 20
+    threads:
+      max: 20
   compression:
     enabled: true
 
@@ -47,13 +48,6 @@ spring:
       path: /h2-console
       enabled: ${zfile.debug}
   datasource:
-    # 初始化数据导入
-    data: classpath*:db/data.sql
-    sql-script-encoding: utf-8
-
-    initialization-mode: always
-    continue-on-error: true
-
     # h2 内存数据库 配置
     driver-class-name: org.h2.Driver
     url: jdbc:h2:${zfile.db.path}
@@ -75,5 +69,15 @@ spring:
       hibernate:
         format_sql: false
     show-sql: false
+    generate-ddl: true
+    defer-datasource-initialization: true
   profiles:
     active: prod
+
+  # 初始化数据导入
+  sql:
+    init:
+      continue-on-error: true
+      mode: always
+      data-locations: classpath*:db/data.sql
+      encoding: utf-8
