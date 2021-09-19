@@ -272,7 +272,7 @@ public abstract class MicrosoftDriveServiceBase extends AbstractBaseFileService 
 
 
     /**
-     * 刷新当前存储器 AccessToken
+     * 刷新当前驱动器 AccessToken
      */
     public void refreshOneDriveToken() {
         OneDriveToken refreshToken = getRefreshToken();
