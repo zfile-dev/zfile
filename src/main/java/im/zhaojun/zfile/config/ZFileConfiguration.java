@@ -1,5 +1,7 @@
 package im.zhaojun.zfile.config;
 
+import im.zhaojun.zfile.filter.CorsFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,14 @@ public class ZFileConfiguration {
         }));
 
         return restTemplate;
+    }
+
+    @Bean
+    public FilterRegistrationBean filterRegist() {
+        FilterRegistrationBean frBean = new FilterRegistrationBean();
+        frBean.setFilter(new CorsFilter());
+        frBean.addUrlPatterns("/*");
+        return frBean;
     }
 
 }
