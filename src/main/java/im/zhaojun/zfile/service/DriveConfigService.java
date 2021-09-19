@@ -67,7 +67,7 @@ public class DriveConfigService {
      * @return  驱动器列表
      */
     public List<DriveConfig> list() {
-        Sort sort = new Sort(Sort.Direction.ASC,"orderNum");
+        Sort sort = Sort.by(Sort.Direction.ASC,"orderNum");
         return driverConfigRepository.findAll(sort);
     }
 
@@ -81,7 +81,7 @@ public class DriveConfigService {
         DriveConfig driveConfig = new DriveConfig();
         driveConfig.setEnable(true);
         Example<DriveConfig> example = Example.of(driveConfig);
-        Sort sort = new Sort(Sort.Direction.ASC,"orderNum");
+        Sort sort = Sort.by(Sort.Direction.ASC,"orderNum");
         return driverConfigRepository.findAll(example, sort);
     }
 

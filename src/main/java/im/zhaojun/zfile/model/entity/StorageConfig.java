@@ -2,6 +2,7 @@ package im.zhaojun.zfile.model.entity;
 
 import im.zhaojun.zfile.model.enums.StorageTypeEnum;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ import javax.persistence.Lob;
  */
 @Entity(name = "STORAGE_CONFIG")
 @Data
+@NoArgsConstructor
 public class StorageConfig {
 
     @Id

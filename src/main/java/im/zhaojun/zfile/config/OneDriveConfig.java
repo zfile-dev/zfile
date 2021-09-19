@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author zhaojun
@@ -31,7 +31,7 @@ public class OneDriveConfig {
 
         ClientHttpRequestInterceptor interceptor = (httpRequest, bytes, clientHttpRequestExecution) -> {
             HttpHeaders headers = httpRequest.getHeaders();
-            Integer driveId = Integer.valueOf(((LinkedList)headers.get("driveId")).get(0).toString());
+            Integer driveId = Integer.valueOf(((List)headers.get("driveId")).get(0).toString());
 
             StorageConfig accessTokenConfig =
                     storageConfigService.findByDriveIdAndKey(driveId, StorageConfigConstant.ACCESS_TOKEN_KEY);
