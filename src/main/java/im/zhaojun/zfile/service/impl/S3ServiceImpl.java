@@ -40,6 +40,7 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
         String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
         String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
         String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
+        String region = stringStorageConfigMap.get(StorageConfigConstant.REGION_KEY).getValue();
 
         super.domain = stringStorageConfigMap.get(StorageConfigConstant.DOMAIN_KEY).getValue();
         super.basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
@@ -54,8 +55,7 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
             log.debug("初始化存储策略 [{}] 失败: 参数不完整", getStorageTypeEnum().getDescription());
             isInitialized = false;
         } else {
-            String region = "";
-            if (StringUtils.isNotNullOrEmpty(endPoint)) {
+            if (StrUtil.isNotEmpty(endPoint) && StrUtil.isEmpty(region)) {
                 region = endPoint.split("\\.")[1];
             }
             BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -81,6 +81,7 @@ public class S3ServiceImpl extends AbstractS3BaseFileService implements BaseFile
             add(new StorageConfig("secretKey", "SecretKey"));
             add(new StorageConfig("endPoint", "服务地址(EndPoint)"));
             add(new StorageConfig("bucketName", "存储空间名称"));
+            add(new StorageConfig("region", "地域"));
             add(new StorageConfig("basePath", "基路径"));
             add(new StorageConfig("domain", "加速域名"));
             add(new StorageConfig("pathStyle", "域名风格"));

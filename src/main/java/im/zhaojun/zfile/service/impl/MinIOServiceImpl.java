@@ -39,6 +39,8 @@ public class MinIOServiceImpl extends AbstractS3BaseFileService implements BaseF
         String accessKey = stringStorageConfigMap.get(StorageConfigConstant.ACCESS_KEY).getValue();
         String secretKey = stringStorageConfigMap.get(StorageConfigConstant.SECRET_KEY).getValue();
         String endPoint = stringStorageConfigMap.get(StorageConfigConstant.ENDPOINT_KEY).getValue();
+        String region = stringStorageConfigMap.get(StorageConfigConstant.REGION_KEY).getValue();
+
         bucketName = stringStorageConfigMap.get(StorageConfigConstant.BUCKET_NAME_KEY).getValue();
         basePath = stringStorageConfigMap.get(StorageConfigConstant.BASE_PATH).getValue();
         isPrivate = Convert.toBool(stringStorageConfigMap.get(StorageConfigConstant.IS_PRIVATE).getValue(), true);
@@ -51,7 +53,7 @@ public class MinIOServiceImpl extends AbstractS3BaseFileService implements BaseF
             s3Client = AmazonS3ClientBuilder.standard()
                     .withPathStyleAccessEnabled(true)
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, "minio")).build();
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, region)).build();
 
             testConnection();
             isInitialized = true;
@@ -72,6 +74,7 @@ public class MinIOServiceImpl extends AbstractS3BaseFileService implements BaseF
             add(new StorageConfig("secretKey", "SecretKey"));
             add(new StorageConfig("endPoint", "服务地址"));
             add(new StorageConfig("bucketName", "存储空间名称"));
+            add(new StorageConfig("region", "地域"));
             add(new StorageConfig("basePath", "基路径"));
             add(new StorageConfig("isPrivate", "是否是私有空间"));
         }};
