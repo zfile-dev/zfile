@@ -169,8 +169,10 @@ public class FileController {
                         FileItemDTO pwdFileItem = fileService.getFileItem(pwdFileFullPath);
                         expectedPasswordContent = HttpUtil.getTextContent(pwdFileItem.getUrl());
                     } catch (Exception e) {
-                        throw new PasswordVerifyException("此文件夹未加密文件夹, 但密码检查异常, 请联系管理员检查密码设置", e);
+                        throw new PasswordVerifyException("此文件夹为加密文件夹, 但密码检查异常, 请联系管理员检查密码设置", e);
                     }
+                } catch (Exception e) {
+                    throw new PasswordVerifyException("此文件夹为加密文件夹, 但密码检查异常, 请联系管理员检查密码设置", e);
                 }
 
                 if (matchPassword(expectedPasswordContent, inputPassword)) {
