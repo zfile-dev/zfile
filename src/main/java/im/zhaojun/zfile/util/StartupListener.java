@@ -37,7 +37,7 @@ public class StartupListener implements ApplicationListener<ApplicationStartedEv
         for (String localIp : localIps) {
             String addr = String.format("http://%s:%s", localIp, serverPort);
             indexAddr.append(addr).append("\t");
-            indexAdminAddr.append(addr).append("/#/admin").append("\t");
+            indexAdminAddr.append(addr).append("/admin").append("\t");
         }
         log.info("ZFile started at          " + indexAddr);
         log.info("ZFile Admin started at    " + indexAdminAddr);
