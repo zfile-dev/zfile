@@ -19,9 +19,9 @@
 
 ## 相关地址
 
-预览地址: [https://zfile.jun6.net](https://zfile.jun6.net)
+预览地址: [https://zfile.vip](https://zfile.vip)
 
-文档地址: [http://docs.zhaojun.im/zfile](http://docs.zhaojun.im/zfile)
+文档地址: [httsp://docs.zfile.vip](httsp://docs.zfile.vip)
 
 项目源码: [https://github.com/zhaojun1998/zfile](https://github.com/zhaojun1998/zfile)
 
@@ -69,14 +69,14 @@ apt update && apt install -y adoptopenjdk-8-hotspot-jre
 
 > 如为更新程序, 则请先执行 `~/zfile/bin/stop.sh && rm -rf ~/zfile` 清理旧程序. 首次安装请忽略此选项.
 
-
 下载项目:
 
 ```bash
-cd ~
+export ZFILE_INSTALL_PATH=~/zfile
+mkdir -p $ZFILE_INSTALL_PATH && cd $ZFILE_INSTALL_PATH
 wget https://c.jun6.net/ZFILE/zfile-release.war
-mkdir zfile && unzip zfile-release.war -d zfile && rm -rf zfile-release.war
-chmod +x zfile/bin/*.sh
+unzip zfile-release.war && rm -rf zfile-release.war
+chmod +x $ZFILE_INSTALL_PATH/bin/*.sh
 ```
 
 > 下载指定版本可以将 `zfile-release.war` 改为 `zfile-x.x.war`，如 `zfile-2.2.war`。
@@ -98,7 +98,7 @@ chmod +x zfile/bin/*.sh
  ~/zfile/bin/start.sh
 ```
 
-篇幅有限, 更详细的安装教程及介绍请参考: [ZFile 文档](http://docs.zhaojun.im/zfile)
+篇幅有限, 更详细的安装教程及介绍请参考: [ZFile 文档](https://docs.zfile.vip)
 
 访问地址:
 
@@ -120,29 +120,6 @@ chmod +x zfile/bin/*.sh
 ![后台设置-新增驱动器](https://cdn.jun6.net/2021/03/23/e70e04f8cc5b6.png)
 ![后台设置-站点设置](https://cdn.jun6.net/2021/03/23/fd946991bb6b9.png)
 
-## 开发计划
-
-- [x] API 支持 [点击查看文档](https://github.com/zhaojun1998/zfile/blob/master/API.md)
-- [x] 更方便的部署方式
-- [x] 布局优化 - 自定义操作按钮 (现为右键实现)
-- [x] 后台优化 - 设置按照其功能进行分离
-- [x] 体验优化 - 支持前后端分离部署
-- [x] 体验优化 - 文本预览更换 vscode 同款编辑器 monaco editor
-- [x] 架构调整 - 支持多存储策略
-- [x] 体验优化 - 忽略文件列表 (正则表达式)
-- [x] 新功能 - Docker 支持
-- [x] 新功能 - 图片模式
-- [x] 新功能 - 直链/短链管理
-- [ ] ~~新功能 - 后台支持上传、编辑、删除等操作 （不再支持）~~
-- [ ] 体验优化 - 自定义支持预览的文件后缀 (正则表达式)
-- [ ] 体验优化 - 一键安装脚本
-- [ ] 新功能 - 分享功能，支持分享密码，文件夹分享
-- [ ] 新功能 - 直链支持 Referer 防盗链
-- [ ] 体验优化 - 视频列表支持
-- [ ] 新功能 - 单独页面打开文件预览
-- [ ] 新功能 - 在线查看日志功能
-- [ ] 部署优化 - Docker Compose 支持
-
 ## 支持作者
 
 如果本项目对你有帮助，请作者喝杯咖啡吧。
@@ -152,10 +129,6 @@ chmod +x zfile/bin/*.sh
 ## Stargazers over time
 
 [![starcharts stargazers over time](https://starchart.cc/zhaojun1998/zfile.svg)](https://starchart.cc/zhaojun1998/zfile.svg)
-
-## 服务器赞助
-
-<a href="https://kuline.cn"><img src="https://cdn.jun6.net/2021/05/14/1f6a4f0ad09ce.png" width="100px"></a>
 
 ## 开发工具赞助
 

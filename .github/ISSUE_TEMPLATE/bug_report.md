@@ -16,7 +16,7 @@ assignees: ''
   请确认你已经做了下面这些事情，若 bug 还是未解决，那么请尽可详细地描述你的问题。
 
   - 我已经安装了最新版的 ZFile
-  - 我已经阅读了 ZFile 的文档：http://docs.zhaojun.im/zfile
+  - 我已经阅读了 ZFile 的文档：https://docs.zfile.vip
   - 我已经搜索了已有的 Issues 列表中有关的信息
   - 我已经清理过浏览器缓存并重试
 -->
