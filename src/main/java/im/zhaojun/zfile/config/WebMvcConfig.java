@@ -42,8 +42,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public WebServerFactoryCustomizer<ConfigurableWebServerFactory> webServerFactoryCustomizer(){
         return factory -> {
             ErrorPage error404Page = new ErrorPage(HttpStatus.NOT_FOUND, "/index.html");
+            ErrorPage error200Page = new ErrorPage(HttpStatus.OK, "/index.html");
             Set<ErrorPage> errorPages = new HashSet<>();
             errorPages.add(error404Page);
+            errorPages.add(error200Page);
             factory.setErrorPages(errorPages);
         };
     }
