@@ -56,6 +56,7 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
+            <version>1.4.197</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -84,7 +85,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.8</version>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.61</version>
+            <version>1.2.69</version>
         </dependency>
 
 
