@@ -216,7 +216,11 @@ public abstract class MicrosoftDriveServiceBase extends AbstractBaseFileService 
         fileItemDTO.setTime(fileItem.getDate("lastModifiedDateTime"));
 
         if (fileItem.containsKey(ONE_DRIVE_FILE_FLAG)) {
-            fileItemDTO.setUrl(fileItem.getString("@microsoft.graph.downloadUrl"));
+            String originUrl = fileItem.getString("@microsoft.graph.downloadUrl");
+            if (StringUtils.isNotNullOrEmpty(proxyDomain)) {
+                originUrl = StringUtils.replaceHost(originUrl, proxyDomain);
+            }
+            fileItemDTO.setUrl(originUrl);
             fileItemDTO.setType(FileTypeEnum.FILE);
         } else {
             fileItemDTO.setType(FileTypeEnum.FOLDER);
