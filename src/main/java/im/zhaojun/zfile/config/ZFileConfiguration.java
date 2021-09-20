@@ -39,12 +39,4 @@ public class ZFileConfiguration {
         return restTemplate;
     }
 
-    @Bean
-    public FilterRegistrationBean filterRegist() {
-        FilterRegistrationBean frBean = new FilterRegistrationBean();
-        frBean.setFilter(new CorsFilter());
-        frBean.addUrlPatterns("/*");
-        return frBean;
-    }
-
 }
