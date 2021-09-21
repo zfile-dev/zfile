@@ -21,7 +21,7 @@
 
 预览地址: [https://zfile.vip](https://zfile.vip)
 
-文档地址: [httsp://docs.zfile.vip](httsp://docs.zfile.vip)
+文档地址: [https://docs.zfile.vip](https://docs.zfile.vip)
 
 项目源码: [https://github.com/zhaojun1998/zfile](https://github.com/zhaojun1998/zfile)
 
