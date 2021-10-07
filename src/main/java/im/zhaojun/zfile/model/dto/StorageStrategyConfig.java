@@ -48,4 +48,6 @@ public class StorageStrategyConfig {
 
     private String proxyDomain;
 
+    private String region;
+
 }
