@@ -2,10 +2,7 @@ package im.zhaojun.zfile.model.entity;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity(name = "SHORT_LINK")
@@ -16,6 +13,7 @@ public class ShortLinkConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "`key`")
     private String key;
 
     private String url;
