@@ -23,6 +23,8 @@
 
 文档地址: [https://docs.zfile.vip](https://docs.zfile.vip)
 
+社区地址: [https://bbs.zfile.vip](https://bbs.zfile.vip)
+
 项目源码: [https://github.com/zhaojun1998/zfile](https://github.com/zhaojun1998/zfile)
 
 前端源码: [https://github.com/zhaojun1998/zfile-vue](https://github.com/zhaojun1998/zfile-vue)
