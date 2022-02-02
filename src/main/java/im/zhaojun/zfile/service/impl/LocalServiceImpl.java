@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import im.zhaojun.zfile.exception.InitializeDriveException;
 import im.zhaojun.zfile.exception.NotExistFileException;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
@@ -25,6 +26,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +74,9 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
 
     @Override
     public List<FileItemDTO> fileList(String path) throws FileNotFoundException {
+        if (StrUtil.startWith(path, "..")) {
+            return Collections.emptyList();
+        }
         List<FileItemDTO> fileItemList = new ArrayList<>();
 
         String fullPath = StringUtils.removeDuplicateSeparator(filePath + path);
