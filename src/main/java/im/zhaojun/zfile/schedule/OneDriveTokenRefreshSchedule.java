@@ -40,6 +40,9 @@ public class OneDriveTokenRefreshSchedule {
 
             List<DriveConfig> driveConfigList = driveConfigService.findByType(StorageTypeEnum.ONE_DRIVE);
             driveConfigList.addAll(driveConfigService.findByType(StorageTypeEnum.ONE_DRIVE_CHINA));
+            driveConfigList.addAll(driveConfigService.findByType(StorageTypeEnum.SHAREPOINT_DRIVE));
+            driveConfigList.addAll(driveConfigService.findByType(StorageTypeEnum.SHAREPOINT_DRIVE_CHINA));
+
 
             driveConfigList.forEach(driveConfig -> {
                 try {
