@@ -2,6 +2,7 @@ package im.zhaojun.zfile.service.impl;
 
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.extra.ftp.Ftp;
+import cn.hutool.extra.ftp.FtpMode;
 import im.zhaojun.zfile.model.constant.StorageConfigConstant;
 import im.zhaojun.zfile.model.dto.FileItemDTO;
 import im.zhaojun.zfile.model.entity.StorageConfig;
@@ -22,6 +23,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,6 +68,7 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
         } else {
             ftp = new Ftp(host, Integer.parseInt(port), username, password, StandardCharsets.UTF_8);
             ftp.getClient().type(FTP.BINARY_FILE_TYPE);
+            ftp.setMode(FtpMode.Passive);
             testConnection();
             isInitialized = true;
         }
@@ -88,6 +91,10 @@ public class FtpServiceImpl extends AbstractBaseFileService implements BaseFileS
 
         for (FTPFile ftpFile : ftpFiles) {
             FileItemDTO fileItemDTO = new FileItemDTO();
+            // 跳过 ftp 的本目录和上级目录
+            if (Arrays.asList(".", "..").contains(ftpFile.getName())) {
+                continue;
+            }
             fileItemDTO.setName(ftpFile.getName());
             fileItemDTO.setSize(ftpFile.getSize());
             fileItemDTO.setTime(ftpFile.getTimestamp().getTime());
