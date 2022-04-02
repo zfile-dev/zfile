@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -121,7 +122,7 @@ public class UpYunServiceImpl extends AbstractBaseFileService implements BaseFil
             int lastDelimiterIndex = path.lastIndexOf("/");
             String name = path.substring(lastDelimiterIndex + 1);
 
-            Map<String, String> fileInfo = upYun.getFileInfo(StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path));
+            Map<String, String> fileInfo = upYun.getFileInfo(URLUtil.encode(StringUtils.removeDuplicateSeparator(basePath + ZFileConstant.PATH_SEPARATOR + path), StandardCharsets.UTF_8));
 
             if (fileInfo == null) {
                 throw new NotExistFileException();
