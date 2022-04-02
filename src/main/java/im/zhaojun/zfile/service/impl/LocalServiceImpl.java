@@ -74,7 +74,7 @@ public class LocalServiceImpl extends AbstractBaseFileService implements BaseFil
 
     @Override
     public List<FileItemDTO> fileList(String path) throws FileNotFoundException {
-        if (StrUtil.startWith(path, "..")) {
+        if (StrUtil.startWith(path, "..") || StrUtil.startWith(path, "/..")) {
             return Collections.emptyList();
         }
         List<FileItemDTO> fileItemList = new ArrayList<>();
