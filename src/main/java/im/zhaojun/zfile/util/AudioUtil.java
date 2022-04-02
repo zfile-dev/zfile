@@ -1,10 +1,16 @@
 package im.zhaojun.zfile.util;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.URLUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
@@ -29,27 +35,36 @@ public class AudioUtil {
     private static final Logger log = LoggerFactory.getLogger(AudioUtil.class);
 
     public static AudioInfoDTO getAudioInfo(String url) throws Exception {
-        String query = new URL(URLUtil.decode(url)).getQuery();
+        AudioInfoDTO audioInfoDTO;
+        try {
+            String query = new URL(URLUtil.decode(url)).getQuery();
 
-        if (query != null) {
-            url = url.replace(query, URLUtil.encode(query));
+            if (query != null) {
+                url = url.replace(query, URLUtil.encode(query));
+            }
+
+            // 如果音乐文件大小超出 5M, 则不解析此音乐
+            if (im.zhaojun.zfile.util.HttpUtil.getRemoteFileSize(url)
+                    > (1024 * 1024 * ZFileConstant.AUDIO_MAX_FILE_SIZE_MB)) {
+                return AudioInfoDTO.buildDefaultAudioInfoDTO();
+            }
+
+            String fullFilePath = StringUtils.removeDuplicateSeparator(ZFileConstant.TMP_FILE_PATH + ZFileConstant.PATH_SEPARATOR + UUID.fastUUID());
+
+            File file = new File(fullFilePath);
+            FileUtil.mkParentDirs(file);
+
+            final HttpResponse response = HttpRequest.get(url).setFollowRedirects(true).timeout(-1).executeAsync();
+            response.writeBody(file);
+
+            audioInfoDTO = parseAudioInfo(file);
+            audioInfoDTO.setSrc(url);
+            file.deleteOnExit();
+            return audioInfoDTO;
+        } catch (Exception e) {
+            log.error("获取音频文件信息失败.", e);
         }
-
-        // 如果音乐文件大小超出 5M, 则不解析此音乐
-        if (im.zhaojun.zfile.util.HttpUtil.getRemoteFileSize(url)
-                > (1024 * 1024 * ZFileConstant.AUDIO_MAX_FILE_SIZE_MB)) {
-            return AudioInfoDTO.buildDefaultAudioInfoDTO();
-        }
-
-        String fullFilePath = StringUtils.removeDuplicateSeparator(ZFileConstant.TMP_FILE_PATH + ZFileConstant.PATH_SEPARATOR + UUID.fastUUID());
-
-        File file = new File(fullFilePath);
-        FileUtil.mkParentDirs(file);
-        HttpUtil.downloadFile(url, file);
-        AudioInfoDTO audioInfoDTO = parseAudioInfo(file);
-        audioInfoDTO.setSrc(url);
-        file.deleteOnExit();
-        return audioInfoDTO;
+        return AudioInfoDTO.buildDefaultAudioInfoDTO();
     }
 
     private static AudioInfoDTO parseAudioInfo(File file) throws IOException, UnsupportedTagException {
