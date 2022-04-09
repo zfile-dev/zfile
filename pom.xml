@@ -94,6 +94,23 @@
             <version>3.6</version>
         </dependency>
 
+        <!-- WebDav -->
+        <dependency>
+            <groupId>io.milton</groupId>
+            <artifactId>milton-server-ce</artifactId>
+            <version>3.1.1.413</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>json</artifactId>
+                    <groupId>org.json</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- 其他工具类 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
