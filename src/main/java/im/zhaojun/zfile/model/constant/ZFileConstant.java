@@ -22,6 +22,11 @@ public class ZFileConstant {
     public static String DIRECT_LINK_PREFIX = "directlink";
 
     /**
+     * WebDav前缀
+     */
+    public static String WEB_DAV_PREFIX = "/webdav";
+
+    /**
      * 系统产生的临时文件路径
      */
     public static String TMP_FILE_PATH = "/.zfile/tmp2/";
