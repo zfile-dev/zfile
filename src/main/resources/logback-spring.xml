@@ -76,6 +76,9 @@
 		true： 表示当前logger的appender-ref和rootLogger的appender-ref都有效
     -->
 
+    <!-- milton webdav -->
+    <logger name="io.milton" additivity="false" level="info"/>
+
     <!-- jetCache logger -->
     <logger name="com.alicp" additivity="false" level="debug"/>
 
