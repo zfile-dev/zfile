@@ -15,6 +15,7 @@ import io.milton.http.HttpManager;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.util.Collections;
 import java.util.Date;
@@ -28,6 +29,7 @@ import java.util.List;
  */
 @Slf4j
 @ResourceController
+@ConditionalOnProperty(value = "webdav.enable", havingValue = "true")
 public class WebDavController {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebDavController.class);
 

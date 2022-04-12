@@ -97,6 +97,11 @@
             "type": "java.lang.String",
             "defaultValue": "directlink",
             "description": "直链前缀名称, 默认为 directlink"
+        },
+        {
+            "name": "zfile.webdav",
+            "type": "java.lang.Boolean",
+            "description": "是否开启 webdav 文件管理."
         }
     ]
 }

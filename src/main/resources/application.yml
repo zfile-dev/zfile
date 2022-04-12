@@ -1,5 +1,6 @@
 zfile:
   debug: false
+  webdav: false
   directLinkPrefix: directlink
   log:
     path: ${user.home}/.zfile/logs
