@@ -14,3 +14,4 @@ INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `value`) VALUES (18, 'layout', '
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `value`) VALUES (19, 'showLinkBtn', '是否显示生成直链按钮', 'true');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `value`) VALUES (20, 'showShortLink', '是否显示短链', 'true');
 INSERT INTO SYSTEM_CONFIG (`ID`, `k`, `REMARK`, `value`) VALUES (21, 'showPathLink', '是否显示路径直链', 'true');
+alter table short_link change "key" key varchar(255) null;
