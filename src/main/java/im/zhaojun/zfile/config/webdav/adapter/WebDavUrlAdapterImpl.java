@@ -27,7 +27,7 @@ public class WebDavUrlAdapterImpl implements UrlAdapter {
     @Override
     public String getUrl(Request request) {
         // 匹配url前缀和驱动器ID
-        Matcher matcher = RegexMatchUtils.match("^" + ZFileConstant.WEB_DAV_PREFIX + "/(\\d+?)(.*)",
+        Matcher matcher = RegexMatchUtils.match("^" + ZFileConstant.WEB_DAV_PREFIX + "/(\\d+)(.*)",
                 HttpManager.decodeUrl(request.getAbsolutePath()));
         final String driveId = RegexMatchUtils.getIndexResult(matcher, 1);
         if (driveId == null) {

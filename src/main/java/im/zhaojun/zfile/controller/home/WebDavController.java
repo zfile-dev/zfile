@@ -153,7 +153,7 @@ public class WebDavController {
      */
     private Integer getDriveId() {
         String requestUrl = HttpManager.decodeUrl(HttpManager.request().getAbsolutePath());
-        final String driveId = RegexMatchUtils.matchByIndex("^" + ZFileConstant.WEB_DAV_PREFIX + "/(\\d+?)(.*)", requestUrl, 1);
+        final String driveId = RegexMatchUtils.matchByIndex("^" + ZFileConstant.WEB_DAV_PREFIX + "/(\\d+)(.*)", requestUrl, 1);
         return driveId != null ? Integer.valueOf(driveId) : null;
     }
 }
