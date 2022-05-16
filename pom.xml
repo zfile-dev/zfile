@@ -111,6 +111,14 @@
             </exclusions>
         </dependency>
 
+
+        <!-- webdav client -->
+        <dependency>
+            <groupId>com.github.lookfirst</groupId>
+            <artifactId>sardine</artifactId>
+            <version>5.10</version>
+        </dependency>
+
         <!-- 其他工具类 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
