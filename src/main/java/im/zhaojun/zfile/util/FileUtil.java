@@ -137,16 +137,18 @@ public class FileUtil {
         long contentLength = endByte - startByte + 1;
         //文件类型
         String contentType = request.getServletContext().getMimeType(fileName);
-
-        if (Objects.equals(type, LocalFileResponseTypeConstant.DOWNLOAD) || StrUtil.isEmpty(contentType)) {
-            contentType = "attachment";
+        if (StrUtil.isEmpty(contentType)) {
+            contentType = "application/octet-stream";
         }
 
         response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
         response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
         // 这里文件名换你想要的，inline 表示浏览器可以直接使用
         // 参考资料：https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Disposition
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,  contentType + ";filename=" + URLUtil.encode(fileName));
+        if (Objects.equals(type, LocalFileResponseTypeConstant.DOWNLOAD) || StrUtil.isEmpty(contentType)) {
+            String contentDisposition = "attachment;filename=" + URLUtil.encode(fileName);
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION,  contentDisposition);
+        }
         response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contentLength));
         // [要下载的开始位置]-[结束位置]/[文件总大小]
         response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes " + startByte + rangeSeparator + endByte + "/" + file.length());
