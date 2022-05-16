@@ -17,6 +17,7 @@ public enum StorageTypeEnum {
     LOCAL("local", "本地存储"),
     ALIYUN("aliyun", "阿里云 OSS"),
     TENCENT("tencent", "腾讯云 COS"),
+    WebDAV("webdav", "WebDAV"),
     UPYUN("upyun", "又拍云 USS"),
     FTP("ftp", "FTP"),
     UFILE("ufile", "UFile"),

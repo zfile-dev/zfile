@@ -23,6 +23,12 @@ public class StorageConfigConstant {
 
     public static final String PASSWORD_KEY = "password";
 
+    public static final String WEBDAV_USERNAME = "webdavUsername";
+
+    public static final String WEBDAV_PASSWORD = "webdavPassword";
+
+    public static final String WEBDAV_URL = "webdavUrl";
+
     public static final String HOST_KEY = "host";
 
     public static final String PORT_KEY = "port";

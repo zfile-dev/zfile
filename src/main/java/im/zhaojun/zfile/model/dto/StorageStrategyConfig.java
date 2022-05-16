@@ -50,4 +50,10 @@ public class StorageStrategyConfig {
 
     private String region;
 
+    private String webdavUsername;
+
+    private String webdavPassword;
+
+    private String webdavUrl;
+
 }
