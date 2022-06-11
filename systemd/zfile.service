@@ -1,0 +1,12 @@
+[Unit]
+Description=Zfile Daemon
+After=network.target
+
+[Service]
+ExecStart=/root/zstarter.sh
+Restart=always
+RestartSec=5
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
