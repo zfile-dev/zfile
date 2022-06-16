@@ -55,7 +55,7 @@ public class WebdavServiceImpl extends AbstractBaseFileService {
 		} else {
 			// 如果用户名和密码为空，则使用默认用户名和密码
 			if (StrUtil.isNotEmpty(username) && StrUtil.isNotEmpty(password)) {
-				sardine = SardineFactory.begin("admin", "YgSBFCbH");
+				sardine = SardineFactory.begin(username, password);
 			} else {
 				sardine = SardineFactory.begin();
 			}
