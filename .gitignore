@@ -1,11 +1,8 @@
 HELP.md
 target/
-.mvn/wrapper/**
-!**/src/main/**
-**/src/test/**
-
-mvnw
-mvnw.cmd
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
 ### STS ###
 .apt_generated
@@ -29,6 +26,12 @@ mvnw.cmd
 /nbdist/
 /.nb-gradle/
 build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+/.mvn/wrapper/
+/mvnw
+/mvnw.cmd
+/.script/

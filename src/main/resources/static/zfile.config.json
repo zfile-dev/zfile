@@ -1,3 +1,27 @@
 {
-  "baseUrl": ""
+	"baseUrl": "",
+	"fileList": {
+		"backHandler": "click",
+		"defaultSize": "small",
+		"emptyText": "数据为空，请先上传或添加文件"
+	},
+	"router": {
+		"mode": "history"
+	},
+	"skeleton": {
+		"enable": true,
+		"show": "always",
+		"size": 30
+	},
+	"gallery": {
+		"column": 3,
+		"columnSpacing": 50,
+		"gutter": 50,
+		"showInfo": true,
+		"showInfoMode": "hover"
+	},
+	"imagePreview": {
+		"mode": "full"
+	},
+	"officePreview": {}
 }

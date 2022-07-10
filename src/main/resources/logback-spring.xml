@@ -14,7 +14,7 @@
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
     <!-- 定义日志的根目录 -->
-    <property resource="application.yml"/>
+    <property resource="application.properties"/>
     <springProperty scope="context" name="LOG_HOME" source="zfile.log.path"/>
 
     <!-- 定义日志文件名称 -->
@@ -47,18 +47,18 @@
             滚动时产生的文件的存放位置及文件名称 %d{yyyy-MM-dd}：按天进行日志滚动
             %i：当文件大小超过maxFileSize时，按照i进行文件滚动
             -->
-            <fileNamePattern>${LOG_HOME}/${appName}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/${appName}-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <!--
             可选节点，控制保留的归档文件的最大数量，超出数量就删除旧文件。假设设置每天滚动，
             且maxHistory是365，则只保存最近365天的文件，删除之前的旧文件。注意，删除旧文件是，
             那些为了归档而创建的目录也会被删除。
             -->
-            <MaxHistory>365</MaxHistory>
+            <MaxHistory>30</MaxHistory>
             <!--
             当日志文件超过maxFileSize指定的大小是，根据上面提到的%i进行日志文件滚动 注意此处配置SizeBasedTriggeringPolicy是无法实现按文件大小进行滚动的，必须配置timeBasedFileNamingAndTriggeringPolicy
             -->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>5MB</maxFileSize>
+                <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
         <!-- 日志输出格式： -->
@@ -76,9 +76,6 @@
 		true： 表示当前logger的appender-ref和rootLogger的appender-ref都有效
     -->
 
-    <!-- milton webdav -->
-    <logger name="io.milton" additivity="false" level="info"/>
-
     <!-- jetCache logger -->
     <logger name="com.alicp" additivity="false" level="debug"/>
 
@@ -86,7 +83,10 @@
     <logger name="org.hibernate.SQL" additivity="false" level="debug"/>
 
     <springProfile name="dev">
-        <logger name="im.zhaojun" additivity="true" level="debug"/>
+        <logger name="im.zhaojun.zfile.admin.mapper" additivity="false" level="debug">
+            <appender-ref ref="stdout"/>
+            <appender-ref ref="appLogAppender"/>
+        </logger>
     </springProfile>
 
     <springProfile name="prod">
