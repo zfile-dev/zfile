@@ -4,6 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import im.zhaojun.zfile.admin.mapper.ReadmeConfigMapper;
 import im.zhaojun.zfile.admin.model.entity.ReadmeConfig;
+import im.zhaojun.zfile.common.constant.ZFileConstant;
+import im.zhaojun.zfile.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,6 +88,8 @@ public class ReadmeConfigService extends ServiceImpl<ReadmeConfigMapper, ReadmeC
 	 * @return  是否显示
 	 */
 	private ReadmeConfig getReadmeByTestPattern(List<ReadmeConfig> patternList, String test) {
+		test = StringUtils.concat(test, ZFileConstant.PATH_SEPARATOR);
+
 		for (ReadmeConfig filterConfig : patternList) {
 			String expression = filterConfig.getExpression();
 			if (StrUtil.isEmpty(expression)) {
