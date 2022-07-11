@@ -1,0 +1,1 @@
+alter table download_log modify storage_key varchar(64) null comment '存储源 key';
