@@ -1,5 +1,7 @@
 package im.zhaojun.zfile.admin.controller.setting;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.admin.model.request.setting.UpdateLinkSettingRequest;
@@ -52,6 +54,10 @@ public class SettingController {
     public AjaxJson<?> updatePwd(@Valid @RequestBody UpdateUserNameAndPasswordRequest settingRequest) {
         SystemConfigDTO systemConfigDTO = new SystemConfigDTO();
         BeanUtils.copyProperties(settingRequest, systemConfigDTO);
+        String password = systemConfigDTO.getPassword();
+        if (StrUtil.isNotEmpty(password)) {
+            systemConfigDTO.setPassword(SecureUtil.md5(password));
+        }
         systemConfigService.updateSystemConfig(systemConfigDTO);
         return AjaxJson.getSuccess();
     }
