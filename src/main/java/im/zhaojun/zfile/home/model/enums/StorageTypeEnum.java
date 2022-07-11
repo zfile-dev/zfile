@@ -22,7 +22,6 @@ public enum StorageTypeEnum implements IEnum {
      */
     LOCAL("local", "本地存储"),
     ALIYUN("aliyun", "阿里云 OSS"),
-    BAIDU("baidu", "百度云盘"),
     WEBDAV("webdav", "WebDAV"),
     TENCENT("tencent", "腾讯云 COS"),
     UPYUN("upyun", "又拍云 USS"),
