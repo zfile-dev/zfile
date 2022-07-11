@@ -10,6 +10,7 @@ import im.zhaojun.zfile.admin.service.ReadmeConfigService;
 import im.zhaojun.zfile.admin.service.StorageSourceService;
 import im.zhaojun.zfile.admin.service.SystemConfigService;
 import im.zhaojun.zfile.common.config.ZFileProperties;
+import im.zhaojun.zfile.common.exception.InvalidStorageSourceException;
 import im.zhaojun.zfile.common.util.AjaxJson;
 import im.zhaojun.zfile.home.convert.StorageSourceConvert;
 import im.zhaojun.zfile.home.model.dto.SystemConfigDTO;
@@ -81,6 +82,10 @@ public class SiteController {
 		String path = fileListConfigRequest.getPath();
 
 		StorageSource storageSource = storageSourceService.findByStorageKey(storageKey);
+		if (storageSource == null) {
+			throw new InvalidStorageSourceException("存储源不存在");
+		}
+
 		StorageSourceConfigResult storageSourceConfigResult = storageSourceConvert.entityToConfigResult(storageSource);
 
 		// 获取是否允许文件操作
@@ -90,7 +95,7 @@ public class SiteController {
 		Integer storageId = storageSource.getId();
 
 		// 获取指定目录 readme 文件
-		ReadmeConfig readmeByPath = readmeConfigService.findReadmeByPath(storageId, path);
+		ReadmeConfig readmeByPath = readmeConfigService.findReadmeByPath(storageId, "");
 
 		if (ObjectUtil.isNotNull(readmeByPath)) {
 			String readmeText = readmeByPath.getReadmeText();
