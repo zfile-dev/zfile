@@ -148,9 +148,10 @@ services:
 ![文本预览](https://cdn.jun6.net/2021/03/23/b00efdfb4892e.png)
 ![音频预览](https://cdn.jun6.net/uPic/2022/07/11/7U5IoK.png)
 ![管理登录](https://cdn.jun6.net/uPic/2022/07/11/U2XKcg.png)
+![后台设置-站点设置](https://cdn.jun6.net/uPic/2022/07/11/9zsedD.png)
 ![后台设置-驱动器列表](https://cdn.jun6.net/uPic/2022/07/11/y2pFa1.png)
-![后台设置-新增驱动器](https://cdn.jun6.net/2021/03/23/e70e04f8cc5b6.png)
-![后台设置-站点设置](https://cdn.jun6.net/2021/03/23/fd946991bb6b9.png)
+![后台设置-新增驱动器](https://cdn.jun6.net/uPic/2022/07/11/I1NWzF.png)
+
 
 ## 支持作者
 
