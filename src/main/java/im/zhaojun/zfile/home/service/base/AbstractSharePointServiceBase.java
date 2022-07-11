@@ -16,7 +16,7 @@ public abstract class AbstractSharePointServiceBase<P extends SharePointParam> e
 
     @Override
     public String getDownloadUrl(String pathAndName) {
-        return null;
+        return getFileItem(pathAndName).getUrl();
     }
 
 }
