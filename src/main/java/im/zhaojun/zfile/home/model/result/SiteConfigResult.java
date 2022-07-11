@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.home.model.result;
 
+import im.zhaojun.zfile.admin.model.enums.FileClickModeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -81,5 +82,8 @@ public class SiteConfigResult {
 
 	@ApiModelProperty(value = "是否在前台显示登陆按钮", example = "true")
 	private Boolean showLogin;
+
+	@ApiModelProperty(value = "默认文件点击习惯", example = "click")
+	private FileClickModeEnum fileClickMode;
 
 }

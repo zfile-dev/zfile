@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.admin.model.request.setting;
 
+import im.zhaojun.zfile.admin.model.enums.FileClickModeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -48,5 +49,8 @@ public class UpdateViewSettingRequest {
 
 	@ApiModelProperty(value = "自定义 JS")
 	private String customJs;
+
+	@ApiModelProperty(value = "默认文件点击习惯", example = "click")
+	private FileClickModeEnum fileClickMode;
 
 }

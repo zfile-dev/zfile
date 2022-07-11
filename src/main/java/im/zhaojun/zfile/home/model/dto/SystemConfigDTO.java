@@ -1,6 +1,7 @@
 package im.zhaojun.zfile.home.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import im.zhaojun.zfile.admin.model.enums.FileClickModeEnum;
 import im.zhaojun.zfile.admin.model.enums.LoginVerifyModeEnum;
 import im.zhaojun.zfile.admin.model.enums.RefererTypeEnum;
 import io.swagger.annotations.ApiModel;
@@ -115,5 +116,8 @@ public class SystemConfigDTO {
 
     @ApiModelProperty(value = "RAS Hex Key", example = "r2HKbzc1DfvOs5uHhLn7pA==")
     private String rsaHexKey;
+
+    @ApiModelProperty(value = "默认文件点击习惯", example = "click")
+    private FileClickModeEnum fileClickMode;
 
 }
