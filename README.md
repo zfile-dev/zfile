@@ -104,13 +104,31 @@ chmod +x $ZFILE_INSTALL_PATH/bin/*.sh
 <details>
 <summary>Docker (点击展开)</summary>
 
-```
+```bash
 docker run -d --name=zfile --restart=always \
     -p 8080:8080 \
     -v /root/zfile/db:/root/.zfile-v4/db \
     -v /root/zfile/logs:/root/.zfile-v4/logs \
     zhaojun1998/zfile
 ```
+
+> 如需映射配置文件则需要先在宿主机下载配置文件，然后映射到容器内:
+
+
+```bash
+# 下载到 application.properties 文件到 /root 目录下, 此目录可自行更改, 如:
+curl -o /root/application.properties https://c.jun6.net/ZFILE/application.properties
+
+# 然后增加一个 -v 参数，将此源文件映射到容器内（如修改宿主机的 application.properties 为其他路径, 则下面命令也要一起修改），如:
+docker run -d --name=zfile --restart=always \
+    -p 8080:8080 \
+    -v /root/zfile/db:/root/.zfile-v4/db \
+    -v /root/zfile/logs:/root/.zfile-v4/logs \
+    -v /root/application.properties:/root/application.properties \
+    zhaojun1998/zfile
+```
+
+
 
 </details>
 
@@ -133,9 +151,35 @@ services:
         image: zhaojun1998/zfile
 ```
 
+> 如需映射配置文件则需要先在宿主机下载配置文件，然后映射到容器内:
+
+
+下载到 application.properties 文件到 /root 目录下, 此目录可自行更改, 命令如:
+```bash
+curl -o /root/application.properties https://c.jun6.net/ZFILE/application.properties
+```
+
+> 然后增加一个 -v 参数，将此源文件映射到容器内（如修改宿主机的 application.properties 为其他路径, 则下面命令也要一起修改）, 如:
+
+```yml
+version: '3.3'
+services:
+    zfile:
+        container_name: zfile
+        restart: always
+        ports:
+            - '8080:8080'
+        volumes:
+            - '/root/zfile/db:/root/.zfile-v4/db'
+            - '/root/zfile/logs:/root/.zfile-v4/logs'
+        image: zhaojun1998/zfile
+```
+
+
 </details>
 
 ---
+
 
 篇幅有限, 更详细的安装教程及介绍请参考: [ZFile 文档](https://docs.zfile.vip)
 
@@ -143,7 +187,7 @@ services:
 
 ![前台首页](https://cdn.jun6.net/uPic/2022/07/11/eJU1B5.png)
 ![前台设置](https://cdn.jun6.net/uPic/2022/07/11/Y0fK7b.png)
-![图片预览](https://cdn.jun6.net/uPic/2022/07/11/Iz0kxC.jpg)
+![图片预览](https://cdn.jun6.net/uPic/2022/07/12/BP8wog.png)
 ![视频预览](https://cdn.jun6.net/uPic/2022/07/11/MsubMr.png)
 ![文本预览](https://cdn.jun6.net/2021/03/23/b00efdfb4892e.png)
 ![音频预览](https://cdn.jun6.net/uPic/2022/07/11/7U5IoK.png)
