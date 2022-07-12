@@ -82,7 +82,8 @@ public abstract class ProxyTransferService<P extends ProxyTransferParam> extends
 	public String getUploadUrl(String path, String name, Long size) {
 		String domain = systemConfigService.getDomain();
 		String storageKey = storageSourceService.findKeyById(storageId);
-		return StringUtils.concat(domain, PROXY_UPLOAD_LINK_PREFIX, storageKey, path, name);
+		String pathAndName = StringUtils.concat(true, path, name);
+		return StringUtils.concat(domain, PROXY_UPLOAD_LINK_PREFIX, storageKey, pathAndName);
 	}
 
 	/**
