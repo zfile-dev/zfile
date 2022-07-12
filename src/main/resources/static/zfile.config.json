@@ -11,7 +11,7 @@
 	"skeleton": {
 		"enable": true,
 		"show": "always",
-		"size": 30
+		"size": 5
 	},
 	"gallery": {
 		"column": 3,
