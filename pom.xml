@@ -282,6 +282,8 @@
                     <jvms>
                         <jvm>-Djava.security.egd=file:/dev/./urandom</jvm>
                         <jvm>-Dfile.encoding=utf-8</jvm>
+                        <jvm>-Djava.net.preferIPv4Stack=false</jvm>
+                        <jvm>-Djava.net.preferIPv4Addresses=true</jvm>
                     </jvms>
                 </configuration>
             </plugin>
