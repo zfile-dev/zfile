@@ -1,0 +1,1 @@
+alter table download_log modify ip varchar(64) null comment '访问 ip';
