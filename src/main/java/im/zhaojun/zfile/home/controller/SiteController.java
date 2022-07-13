@@ -95,7 +95,7 @@ public class SiteController {
 		Integer storageId = storageSource.getId();
 
 		// 获取指定目录 readme 文件
-		ReadmeConfig readmeByPath = readmeConfigService.findReadmeByPath(storageId, "");
+		ReadmeConfig readmeByPath = readmeConfigService.findReadmeByPath(storageId, path);
 
 		if (ObjectUtil.isNotNull(readmeByPath)) {
 			String readmeText = readmeByPath.getReadmeText();
