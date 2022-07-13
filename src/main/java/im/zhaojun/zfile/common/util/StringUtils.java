@@ -360,13 +360,6 @@ public class StringUtils {
             }
         }
 
-        // List<String> list = StrUtil.split(str, ZFileConstant.PATH_SEPARATOR, true, true);
-        //
-        // for (int i = 0; i < list.size(); i++) {
-        //     String item = list.get(i);
-        //     list.set(i, URLEncodeUtil.encodeAll(item));
-        // }
-
         return sb.toString();
     }
 
