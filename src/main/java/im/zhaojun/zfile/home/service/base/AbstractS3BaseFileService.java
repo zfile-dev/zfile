@@ -58,7 +58,7 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
 
         // 如果不是私有空间, 且指定了加速域名, 则直接返回下载地址.
         if (BooleanUtil.isFalse(param.isPrivate()) && StrUtil.isNotEmpty(domain)) {
-            return StringUtils.concat(domain, fullPath);
+            return StringUtils.concat(domain, StringUtils.encodeAllIgnoreSlashes(fullPath));
         }
 
         Integer tokenTime = param.getTokenTime();
