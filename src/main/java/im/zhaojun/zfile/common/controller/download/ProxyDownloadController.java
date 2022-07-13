@@ -68,10 +68,14 @@ public class ProxyDownloadController {
         // 进行上传.
         ProxyTransferService<?> proxyDownloadService = (ProxyTransferService<?>) storageServiceByKey;
 
-        Integer storageId = proxyDownloadService.getStorageId();
-        boolean valid = ProxyDownloadUrlUtils.validSignatureExpired(storageId, filePath, signature);
-        if (!valid) {
-            throw new IllegalArgumentException("签名无效或下载地址已过期.");
+        // 如果是私有空间才校验签名.
+        boolean privateStorage = proxyDownloadService.getParam().isPrivate();
+        if (privateStorage) {
+            Integer storageId = proxyDownloadService.getStorageId();
+            boolean valid = ProxyDownloadUrlUtils.validSignatureExpired(storageId, filePath, signature);
+            if (!valid) {
+                throw new IllegalArgumentException("签名无效或下载地址已过期.");
+            }
         }
 
         return proxyDownloadService.downloadToStream(filePath);
