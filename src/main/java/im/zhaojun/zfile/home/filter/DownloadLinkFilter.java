@@ -18,7 +18,7 @@ import im.zhaojun.zfile.admin.service.StorageSourceService;
 import im.zhaojun.zfile.admin.service.SystemConfigService;
 import im.zhaojun.zfile.common.constant.ZFileConstant;
 import im.zhaojun.zfile.common.context.StorageSourceContext;
-import im.zhaojun.zfile.common.exception.NotEnabledStorageSourceException;
+import im.zhaojun.zfile.common.exception.InvalidStorageSourceException;
 import im.zhaojun.zfile.common.exception.file.operator.DownloadFileException;
 import im.zhaojun.zfile.common.util.HttpUtil;
 import im.zhaojun.zfile.common.util.StringUtils;
@@ -174,14 +174,25 @@ public class DownloadLinkFilter implements Filter {
 		StorageSource storageSource = storageSourceService.findByStorageKey(storageKey);
 		Boolean enable = storageSource.getEnable();
 		if (!enable) {
-			throw new NotEnabledStorageSourceException();
+			log.error("存储源当前状态为未启用，仍然请求下载，存储源 key {}, 文件路径 {}", storageKey, filePath);
+			response.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
+			response.getWriter().write("当前存储源未启用, 无法下载，请联系管理员!");
+			return;
 		}
 
 		if (filePath.length() > 0 && filePath.charAt(0) != ZFileConstant.PATH_SEPARATOR_CHAR) {
 			filePath = "/" + filePath;
 		}
 
-		AbstractBaseFileService<?> fileService = storageSourceContext.getByKey(storageKey);
+		AbstractBaseFileService<?> fileService;
+		try {
+			fileService = storageSourceContext.getByKey(storageKey);
+		} catch (InvalidStorageSourceException e) {
+			log.error("无效的存储源，存储源 key {}, 文件路径 {}", storageKey, filePath);
+			response.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
+			response.getWriter().write("无效的或初始化失败的存储源, 请联系管理员!");
+			return;
+		}
 
 		String downloadUrl;
 		try {
