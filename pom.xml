@@ -20,8 +20,6 @@
         <java.version>1.8</java.version>
         <log4j2.version>2.17.0</log4j2.version>
         <org.mapstruct.version>1.5.1.Final</org.mapstruct.version>
-        <proguard.version>7.2.1</proguard.version>
-        <proguard-maven-plugin.version>2.5.3</proguard-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -276,5 +274,7 @@
                 </configuration>
             </plugin>
         </plugins>
+
+
     </build>
 </project>
