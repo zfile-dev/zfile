@@ -17,12 +17,14 @@
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="key" jdbcType="VARCHAR" property="key" />
     <result column="enable_file_operator" jdbcType="VARCHAR" property="enableFileOperator" />
+    <result column="search_mode" jdbcType="VARCHAR" property="searchMode" />
+    <result column="enable_file_anno_operator" jdbcType="BIT" property="enableFileAnnoOperator" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     `id`, `enable`, `enable_cache`, `name`, `auto_refresh_cache`, `type`, `search_enable`,
     `search_ignore_case`, `order_num`, `default_switch_to_img_mode`,
-    `remark`, `key`, `enable_file_operator`
+    `remark`, `key`, `enable_file_operator`, `search_mode`, "enable_file_anno_operator"
   </sql>
 
     <select id="findListByEnableOrderByOrderNum" resultMap="BaseResultMap">
