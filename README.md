@@ -1,20 +1,20 @@
-<p align = "center">
+<p style="text-align: center">
 <img alt="ZFile" src="https://cdn.jun6.net/2021/04/21/69a89344e2a84.png" height="150px">
 <br><br>
 基于 Java 的在线网盘程序，支持对接 S3、OneDrive、SharePoint、又拍云、本地存储、FTP、SFTP 等存储源，支持在线浏览图片、播放音视频，文本文件等文件类型。
 <br><br>
-<img src="https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square">
-<img src="https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a">
-<img src="https://img.shields.io/github/last-commit/zhaojun1998/zfile.svg?style=flat-square">
-<img src="https://img.shields.io/github/downloads/zhaojun1998/zfile/total?style=flat-square">
-<img src="https://img.shields.io/github/v/release/zhaojun1998/zfile?style=flat-square">
-<img src="https://img.shields.io/github/commit-activity/y/zhaojun1998/zfile?style=flat-square">
+<img src="https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square" alt="license">
+<img src="https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a" alt="codady">
+<img src="https://img.shields.io/github/last-commit/zhaojun1998/zfile.svg?style=flat-square" alt="last commit">
+<img src="https://img.shields.io/github/downloads/zhaojun1998/zfile/total?style=flat-square" alt="downloads">
+<img src="https://img.shields.io/github/v/release/zhaojun1998/zfile?style=flat-square" alt="release">
+<img src="https://img.shields.io/github/commit-activity/y/zhaojun1998/zfile?style=flat-square" alt="commit activity">
 <br>
-<img src="https://img.shields.io/github/issues/zhaojun1998/zfile?style=flat-square">
-<img src="https://img.shields.io/github/issues-closed-raw/zhaojun1998/zfile?style=flat-square">
-<img src="https://img.shields.io/github/forks/zhaojun1998/zfile?style=flat-square">
-<img src="https://img.shields.io/github/stars/zhaojun1998/zfile?style=flat-square">
-<img src="https://img.shields.io/github/watchers/zhaojun1998/zfile?style=flat-square">
+<img src="https://img.shields.io/github/issues/zhaojun1998/zfile?style=flat-square" alt="issues">
+<img src="https://img.shields.io/github/issues-closed-raw/zhaojun1998/zfile?style=flat-square" alt="closed issues">
+<img src="https://img.shields.io/github/forks/zhaojun1998/zfile?style=flat-square" alt="forks">
+<img src="https://img.shields.io/github/stars/zhaojun1998/zfile?style=flat-square" alt="stars">
+<img src="https://img.shields.io/github/watchers/zhaojun1998/zfile?style=flat-square" alt="watchers">
 </p>
 
 ## 相关地址
@@ -172,6 +172,7 @@ services:
         volumes:
             - '/root/zfile/db:/root/.zfile-v4/db'
             - '/root/zfile/logs:/root/.zfile-v4/logs'
+            - '/root/application.properties:/root/application.properties'
         image: zhaojun1998/zfile
 ```
 
