@@ -7,6 +7,7 @@ import im.zhaojun.zfile.admin.model.param.LocalParam;
 import im.zhaojun.zfile.common.constant.ZFileConstant;
 import im.zhaojun.zfile.common.exception.InitializeStorageSourceException;
 import im.zhaojun.zfile.common.exception.NotExistFileException;
+import im.zhaojun.zfile.common.exception.file.StorageSourceException;
 import im.zhaojun.zfile.common.exception.file.operator.GetFileInfoException;
 import im.zhaojun.zfile.common.util.StringUtils;
 import im.zhaojun.zfile.home.model.enums.FileTypeEnum;
@@ -121,9 +122,18 @@ public class LocalServiceImpl extends ProxyTransferService<LocalParam> {
 
     @Override
     public boolean renameFile(String path, String name, String newName) {
+        // 如果文件名没变，不做任何操作.
+        if (StrUtil.equals(name, newName)) {
+            return true;
+        }
+
         String srcPath = StringUtils.concat(param.getFilePath(), path, name);
         File file = new File(srcPath);
         try {
+            boolean srcExists = file.exists();
+            if (!srcExists) {
+                throw new StorageSourceException(storageId, "文件夹不存在.");
+            }
             FileUtil.rename(file, newName, true);
             return true;
         } catch (Exception e) {
