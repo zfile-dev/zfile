@@ -143,7 +143,7 @@ public class FilterConfigService extends ServiceImpl<FilterConfigMapper, FilterC
 
 
     /**
-     * 指定存储源下的文件名称, 根据过滤表达式判断是否会显示, 如果符合任意一条表达式, 则返回 true, 反之则返回 false.
+     * 指定存储源下的文件名称, 根据过滤表达式判断是否会显示, 如果符合任意一条表达式, 表示隐藏则返回 true, 反之表示不隐藏则返回 false.
      *
      * @param   storageId
      *          存储源 ID
@@ -151,7 +151,7 @@ public class FilterConfigService extends ServiceImpl<FilterConfigMapper, FilterC
      * @param   fileName
      *          文件名
      *
-     * @return  是否显示
+     * @return  是否是隐藏文件夹
      */
     public boolean filterResultIsHidden(Integer storageId, String fileName) {
         List<FilterConfig> filterConfigList = findByStorageId(storageId);
