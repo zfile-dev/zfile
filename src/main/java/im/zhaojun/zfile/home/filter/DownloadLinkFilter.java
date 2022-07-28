@@ -1,14 +1,9 @@
 package im.zhaojun.zfile.home.filter;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.servlet.ServletUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import im.zhaojun.zfile.admin.model.entity.DownloadLog;
 import im.zhaojun.zfile.admin.model.entity.ShortLink;
 import im.zhaojun.zfile.admin.model.entity.StorageSource;
 import im.zhaojun.zfile.admin.service.DownloadLogService;
@@ -18,14 +13,9 @@ import im.zhaojun.zfile.admin.service.StorageSourceService;
 import im.zhaojun.zfile.admin.service.SystemConfigService;
 import im.zhaojun.zfile.common.constant.ZFileConstant;
 import im.zhaojun.zfile.common.context.StorageSourceContext;
-import im.zhaojun.zfile.common.exception.InvalidStorageSourceException;
-import im.zhaojun.zfile.common.exception.file.operator.DownloadFileException;
-import im.zhaojun.zfile.common.util.HttpUtil;
 import im.zhaojun.zfile.common.util.StringUtils;
 import im.zhaojun.zfile.home.model.dto.SystemConfigDTO;
-import im.zhaojun.zfile.home.service.base.AbstractBaseFileService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.util.EncodingUtils;
 import org.springframework.http.HttpHeaders;
 
 import javax.servlet.Filter;
@@ -37,8 +27,6 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Date;
 import java.util.List;
 
 
@@ -109,7 +97,6 @@ public class DownloadLinkFilter implements Filter {
 			// 获取系统配置的直链前缀
 			SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
 			String directLinkPrefix = systemConfig.getDirectLinkPrefix();
-
 			if (StrUtil.equalsIgnoreCase(currentRequestPrefix, directLinkPrefix)) {
 
 				if (BooleanUtil.isFalse(systemConfig.getShowPathLink())) {
@@ -129,27 +116,7 @@ public class DownloadLinkFilter implements Filter {
 					httpServletResponse.sendRedirect(forbiddenUrl);
 					return;
 				}
-
-				Boolean recordDownloadLog = systemConfig.getRecordDownloadLog();
-				if (BooleanUtil.isTrue(recordDownloadLog)) {
-					DownloadLog downloadLog = new DownloadLog();
-					downloadLog.setPath(decodeFilePath);
-					downloadLog.setStorageKey(currentStorageKey);
-					downloadLog.setCreateTime(new Date());
-					downloadLog.setIp(ServletUtil.getClientIP(httpServletRequest));
-					downloadLog.setReferer(httpServletRequest.getHeader(HttpHeaders.REFERER));
-					downloadLog.setUserAgent(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
-
-					ShortLink shortLink = shortLinkService.findByStorageIdAndUrl(storageId, decodeFilePath);
-					// 如果没有短链，则生成短链
-					if (shortLink == null) {
-						shortLink = shortLinkService.generatorShortLink(storageId, decodeFilePath);
-					}
-					downloadLog.setShortKey(shortLink.getShortKey());
-
-					downloadLogService.save(downloadLog);
-				}
-				handleDownloadLink(httpServletResponse, currentStorageKey, decodeFilePath);
+				handleDownloadLink(httpServletResponse, storageId, currentStorageKey, decodeFilePath);
 				return;
 			}
 		}
@@ -170,7 +137,7 @@ public class DownloadLinkFilter implements Filter {
 	 * @param   filePath
 	 *          文件路径
 	 */
-	private void handleDownloadLink(HttpServletResponse response, String storageKey, String filePath) throws IOException {
+	private void handleDownloadLink(HttpServletResponse response, Integer storageId, String storageKey, String filePath) throws IOException {
 		StorageSource storageSource = storageSourceService.findByStorageKey(storageKey);
 		Boolean enable = storageSource.getEnable();
 		if (!enable) {
@@ -184,48 +151,13 @@ public class DownloadLinkFilter implements Filter {
 			filePath = "/" + filePath;
 		}
 
-		AbstractBaseFileService<?> fileService;
-		try {
-			fileService = storageSourceContext.getByKey(storageKey);
-		} catch (InvalidStorageSourceException e) {
-			log.error("无效的存储源，存储源 key {}, 文件路径 {}", storageKey, filePath);
-			response.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
-			response.getWriter().write("无效的或初始化失败的存储源, 请联系管理员!");
-			return;
+		ShortLink shortLink = shortLinkService.findByStorageIdAndUrl(storageId, filePath);
+		// 如果没有短链，则生成短链
+		if (shortLink == null) {
+			shortLink = shortLinkService.generatorShortLink(storageId, filePath);
 		}
 
-		String downloadUrl;
-		try {
-			downloadUrl = fileService.getDownloadUrl(filePath);
-		} catch (DownloadFileException e) {
-			log.error("获取文件下载链接异常 {}. 存储源 ID: {}, 文件路径: {}", e.getMessage(), e.getStorageId(), e.getPathAndName());
-			response.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
-			response.getWriter().write("获取下载链接异常，请联系管理员!");
-			return;
-		}
-
-		if (StrUtil.isEmpty(downloadUrl)) {
-			log.error("获取到文件下载链接为空，存储源 key {}, 文件路径 {}", storageKey, filePath);
-			response.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
-			response.getWriter().write("获取下载链接异常，请联系管理员![2]");
-			return;
-		}
-
-		if (StrUtil.equalsIgnoreCase(FileUtil.extName(filePath), "m3u8")) {
-			String textContent = HttpUtil.getTextContent(downloadUrl);
-			response.setContentType("application/vnd.apple.mpegurl;charset=utf-8");
-			OutputStream outputStream = response.getOutputStream();
-			byte[] textContentBytes = EncodingUtils.getBytes(textContent, CharsetUtil.CHARSET_UTF_8.displayName());
-			IoUtil.write(outputStream, true, textContentBytes);
-			return;
-		}
-
-		// 禁止直链被浏览器 302 缓存.
-		response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate, private");
-		response.setHeader(HttpHeaders.PRAGMA, "no-cache");
-		response.setHeader(HttpHeaders.EXPIRES, "0");
-
-		response.sendRedirect(downloadUrl);
+		shortLinkService.handlerDownload(storageKey, filePath, shortLink.getShortKey());
 	}
 
 }

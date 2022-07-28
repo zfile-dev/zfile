@@ -6,6 +6,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.github.xiaoymin.knife4j.annotations.DynamicParameter;
 import com.github.xiaoymin.knife4j.annotations.DynamicResponseParameters;
 import im.zhaojun.zfile.admin.model.entity.ShortLink;
+import im.zhaojun.zfile.admin.model.entity.StorageSource;
 import im.zhaojun.zfile.admin.service.ShortLinkService;
 import im.zhaojun.zfile.admin.service.StorageSourceService;
 import im.zhaojun.zfile.admin.service.SystemConfigService;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 /**
  * 短链接口
@@ -67,7 +69,7 @@ public class ShortLinkController {
         Boolean showShortLink = systemConfig.getShowShortLink();
         Boolean showPathLink = systemConfig.getShowPathLink();
         if ( BooleanUtil.isFalse(showShortLink) && BooleanUtil.isFalse(showPathLink)) {
-            throw new IllegalDownloadLinkException("当前系统不允许使用短链和短链.");
+            throw new IllegalDownloadLinkException("当前系统不允许使用短链.");
         }
 
         String domain = systemConfig.getDomain();
@@ -91,28 +93,28 @@ public class ShortLinkController {
     @ApiOperationSupport(order = 2)
     @ApiOperation(value = "跳转短链", notes = "根据短链 key 跳转（302 重定向）到对应的直链.")
     @ApiImplicitParam(paramType = "path", name = "key", value = "短链 key", required = true)
-    public String parseShortKey(@PathVariable String key) {
+    public String parseShortKey(@PathVariable String key) throws IOException {
         ShortLink shortLink = shortLinkService.findByKey(key);
         if (shortLink == null) {
             throw new RuntimeException("此直链不存在或已失效.");
         }
 
+        // 获取站点域名
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
-        String domain = systemConfig.getDomain();
 
-        // 是否允许生成短链.
+        // 判断是否允许生成短链.
         Boolean showShortLink = systemConfig.getShowShortLink();
         if ( BooleanUtil.isFalse(showShortLink)) {
             throw new IllegalDownloadLinkException("当前系统不允许使用短链.");
         }
 
-        String directLinkPrefix = systemConfig.getDirectLinkPrefix();
         Integer storageId = shortLink.getStorageId();
-        String storageKey = storageSourceService.findKeyById(storageId);
-        String filePath = StringUtils.encodeAllIgnoreSlashes(shortLink.getUrl());
+        StorageSource storageSource = storageSourceService.findById(storageId);
+        String storageKey = storageSource.getKey();
+        String filePath = shortLink.getUrl();
 
-        String url = StringUtils.concat(domain, directLinkPrefix, storageKey, filePath);
-        return "redirect:" + url;
+        shortLinkService.handlerDownload(storageKey, filePath, shortLink.getShortKey());
+        return null;
     }
 
 }
