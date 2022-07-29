@@ -1,6 +1,6 @@
 package im.zhaojun.zfile.common.util;
 
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+import java.lang.reflect.ParameterizedType;
 
 import java.lang.reflect.Type;
 
@@ -21,7 +21,7 @@ public class ClassUtils {
 	 */
 	public static Class<?> getClassFirstGenericsParam(Class<?> clazz) {
 		Type genericSuperclass = clazz.getGenericSuperclass();
-		Type actualTypeArgument = ((ParameterizedTypeImpl) genericSuperclass).getActualTypeArguments()[0];
+		Type actualTypeArgument = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
 		return (Class<?>) actualTypeArgument;
 	}
 
