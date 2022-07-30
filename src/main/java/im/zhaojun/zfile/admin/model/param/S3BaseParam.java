@@ -36,7 +36,7 @@ public class S3BaseParam implements IStorageParam {
 	@StorageParamItem(name = "下载签名有效期", required = false, defaultValue = "1800", description = "当为私有空间时, 用于下载签名的有效期, 单位为秒, 如不配置则默认为 1800 秒.")
 	private Integer tokenTime;
 
-	@StorageParamItem(name = "是否自动配置 CORS 跨域设置", order = 100, type = StorageParamTypeEnum.SWITCH, defaultValue = "true", description = "如不配置跨域设置，可能会无法导致无法上传，或上传后看不到文件 <br> 此配置会覆盖之前的跨域配置，如您已经配置过，可忽略此选项")
+	@StorageParamItem(name = "是否自动配置 CORS 跨域设置", order = 100, type = StorageParamTypeEnum.SWITCH, defaultValue = "true", description = "如不配置跨域设置，可能会无法导致无法上传，或上传后看不到文件")
 	private boolean autoConfigCors;
 
 
