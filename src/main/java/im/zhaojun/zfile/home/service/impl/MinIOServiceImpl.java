@@ -27,8 +27,6 @@ public class MinIOServiceImpl extends AbstractS3BaseFileService<MinIOParam> {
                 .withPathStyleAccessEnabled(true)
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(param.getEndPoint(), "minio")).build();
-
-        setUploadCors();
     }
 
     @Override
