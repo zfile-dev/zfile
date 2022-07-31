@@ -11,7 +11,7 @@
 
     <groupId>im.zhaojun</groupId>
     <artifactId>zfile</artifactId>
-    <version>4.0.6</version>
+    <version>4.0.7</version>
     <name>zfile</name>
     <packaging>jar</packaging>
     <description>一个在线的文件浏览系统</description>
