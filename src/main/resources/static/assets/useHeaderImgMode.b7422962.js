@@ -1,1 +1,0 @@
-import{u as r}from"./useFileUpload.7f128001.js";import{r as l,w as a}from"./index.ce603f74.js";let t=r(),e=l(!1);a(()=>e.value,()=>{t.switchImgMode(e.value)});a(()=>t.newImgMode,o=>{e.value=o});function s(){return{imgModel:e}}export{s as u};
