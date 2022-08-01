@@ -185,11 +185,12 @@ public class LocalServiceImpl extends ProxyTransferService<LocalParam> {
 
         String fileName = file.getName();
         headers.setContentDispositionFormData("attachment", StringUtils.encodeAllIgnoreSlashes(fileName));
-
+        
         return ResponseEntity
                 .ok()
                 .headers(headers)
                 .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(new FileSystemResource(file));
     }
 
