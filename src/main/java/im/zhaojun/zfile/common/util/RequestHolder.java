@@ -4,7 +4,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -58,11 +56,8 @@ public class RequestHolder {
             HttpServletResponse response = RequestHolder.getResponse();
             String fileName = FileUtil.getName(path);
 
-            Optional<MediaType> mediaTypeOptional = MediaTypeFactory.getMediaType(path);
-            MediaType mediaType = mediaTypeOptional.orElse(MediaType.APPLICATION_OCTET_STREAM);
-
             response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + StringUtils.encodeAllIgnoreSlashes(fileName));
-            response.setContentType(mediaType.getType());
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM.getType());
 
             OutputStream outputStream = response.getOutputStream();
 

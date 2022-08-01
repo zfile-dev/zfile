@@ -22,6 +22,8 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -161,9 +163,15 @@ public class FtpServiceImpl extends ProxyTransferService<FtpParam> {
         HttpServletResponse response = RequestHolder.getResponse();
         try {
             pathAndName = StringUtils.concat(param.getBasePath(), pathAndName);
-            OutputStream outputStream = response.getOutputStream();
             String fileName = FileUtil.getName(pathAndName);
             String folderName = FileUtil.getParent(pathAndName, 1);
+            
+            OutputStream outputStream = response.getOutputStream();
+    
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM.getType());
+            response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + StringUtils.encodeAllIgnoreSlashes(fileName));
+            
+            
             ftp.download(folderName, fileName, outputStream);
         } catch (Exception e) {
             throw new DownloadFileException(storageId, "下载文件失败", e);

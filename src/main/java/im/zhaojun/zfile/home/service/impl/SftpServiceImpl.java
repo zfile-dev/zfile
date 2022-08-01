@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -137,8 +139,15 @@ public class SftpServiceImpl extends ProxyTransferService<SftpParam> {
 
 		HttpServletResponse response = RequestHolder.getResponse();
 		try {
+			pathAndName = StringUtils.concat(param.getBasePath(), pathAndName);
+			String fileName = FileUtil.getName(pathAndName);
+			
 			OutputStream outputStream = response.getOutputStream();
-			sftp.download(StringUtils.concat(param.getBasePath(), pathAndName), outputStream);
+			
+			response.setContentType(MediaType.APPLICATION_OCTET_STREAM.getType());
+			response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + StringUtils.encodeAllIgnoreSlashes(fileName));
+			
+			sftp.download(pathAndName, outputStream);
 			return null;
 		} catch (IOException e) {
 			throw new RuntimeException("下载文件失败", e);
