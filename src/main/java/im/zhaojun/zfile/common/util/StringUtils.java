@@ -393,6 +393,23 @@ public class StringUtils {
             return StrUtil.sub(path, 0, toIndex);
         }
     }
+    /**
+     * 获取文件或文件夹名字
+     *
+     * @param   path
+     *          文件路径
+     *
+     * @return  文件名
+     */
+    public static String getFileName(String path) {
+        path = StringUtils.trimEndSlashes(path);
+        int fromIndex = StrUtil.lastIndexOfIgnoreCase(path, ZFileConstant.PATH_SEPARATOR);
+        if (fromIndex < 0) {
+            return "";
+        } else {
+            return StrUtil.sub(path, fromIndex+1, path.length());
+        }
+    }
 
 
 }

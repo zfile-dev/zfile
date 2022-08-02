@@ -7,6 +7,7 @@ import im.zhaojun.zfile.common.exception.TextParseException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -42,6 +43,9 @@ public class HttpUtil {
         }
 
         return result == null ? "" : result;
+    }
+    public static Long downloadFile(String url, OutputStream outputStream){
+        return cn.hutool.http.HttpUtil.download(url,outputStream,true);
     }
 
 
