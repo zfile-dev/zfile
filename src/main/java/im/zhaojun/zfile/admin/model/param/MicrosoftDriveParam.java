@@ -23,8 +23,8 @@ public class MicrosoftDriveParam implements IStorageParam {
 
 	@StorageParamItem(name = "刷新令牌", order = 4)
 	private String refreshToken;
-
-	@StorageParamItem(name = "反代域名", required = false, order = 7,
+	
+	@StorageParamItem(name = "反代域名", required = false, order = 7, description = "世纪互联版不建议启用，国际版启用后不一定比启用前快，这个要根据仔细网络情况决定.",
 			link = "https://docs.zfile.vip/#/advanced?id=onedrive-cf", linkName = "配置文档")
 	private String proxyDomain;
 
