@@ -192,7 +192,7 @@ public class IpfsServiceImpl extends ProxyTransferService<IpfsParam> {
             domain = "https://ipfs.io/ipfs";
         } else {
             domain = StringUtils.trimEndSlashes(param.getDomain());
-            domain = domain.endsWith("ipfs") ? domain : domain.concat("ipfs");
+            domain = domain.endsWith("ipfs") ? domain : StringUtils.concat(domain,"ipfs");
         }
         return StringUtils.concat(domain, fileInfo.getHash() + "?download=true" + "&filename=" + fileInfo.getName());
     }
