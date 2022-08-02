@@ -21,6 +21,13 @@
         <org.mapstruct.version>1.5.1.Final</org.mapstruct.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- spring boot 官方相关 -->
         <dependency>
@@ -94,6 +101,15 @@
             <artifactId>jsch</artifactId>
             <version>0.1.55</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.ipfs</groupId>
+            <artifactId>java-ipfs-http-client</artifactId>
+            <version>1.3.3</version>
+        </dependency>
+
+
+        <!-- 其他工具类 -->
         <dependency>
             <groupId>com.github.lookfirst</groupId>
             <artifactId>sardine</artifactId>
