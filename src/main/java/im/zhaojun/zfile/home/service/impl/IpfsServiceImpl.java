@@ -2,6 +2,7 @@ package im.zhaojun.zfile.home.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import im.zhaojun.zfile.admin.model.param.IpfsParam;
+import im.zhaojun.zfile.common.constant.ZFileConstant;
 import im.zhaojun.zfile.common.exception.file.StorageSourceException;
 import im.zhaojun.zfile.common.exception.file.operator.GetFileInfoException;
 import im.zhaojun.zfile.common.util.IpfsHelper;
@@ -164,6 +165,8 @@ public class IpfsServiceImpl extends ProxyTransferService<IpfsParam> {
 
 
         try {
+            //为传入的路径加上根目录符号
+            path = ZFileConstant.PATH_SEPARATOR.concat(path);
             ipfs.files.upload(inputStream, path);
         } catch (IOException e) {
             throw new StorageSourceException(storageId, "上传失败".concat(e.getMessage()));
