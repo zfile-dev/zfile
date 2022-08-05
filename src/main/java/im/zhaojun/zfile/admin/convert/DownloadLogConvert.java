@@ -8,6 +8,8 @@ import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
 
 /**
+ * 下载日志实体类转换器
+ *
  * @author zhaojun
  */
 @Component

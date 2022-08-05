@@ -8,6 +8,8 @@ import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
 
 /**
+ * 直链实体类器
+ *
  * @author zhaojun
  */
 @Component
