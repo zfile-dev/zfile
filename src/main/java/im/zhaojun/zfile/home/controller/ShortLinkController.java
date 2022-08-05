@@ -69,7 +69,7 @@ public class ShortLinkController {
         Boolean showShortLink = systemConfig.getShowShortLink();
         Boolean showPathLink = systemConfig.getShowPathLink();
         if ( BooleanUtil.isFalse(showShortLink) && BooleanUtil.isFalse(showPathLink)) {
-            throw new IllegalDownloadLinkException("当前系统不允许使用短链.");
+            throw new IllegalDownloadLinkException("当前系统不允许使用直链和短链.");
         }
 
         String domain = systemConfig.getDomain();
