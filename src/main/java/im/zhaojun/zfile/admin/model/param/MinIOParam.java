@@ -11,10 +11,13 @@ import lombok.Getter;
 @Getter
 public class MinIOParam extends S3BaseParam {
 
-	@StorageParamItem(name = "地域")
+	@StorageParamItem(name = "Bucket 域名 / CDN 加速域名", required = false, order = 5, description = "为 minio 的服务地址，非 web 访问地址，一般为 http://ip:9000")
+	private String domain;
+	
+	@StorageParamItem(name = "地域", defaultValue = "auto")
 	private String region;
 
-	@StorageParamItem(name = "服务地址", description = "为 minio 的服务地址，非 web 访问地址，一般为 http://ip:9000")
+	@StorageParamItem(name = "服务地址", order = 5, description = "为 minio 的服务地址，非 web 访问地址，一般为 http://ip:9000")
 	private String endPoint;
 
 }
