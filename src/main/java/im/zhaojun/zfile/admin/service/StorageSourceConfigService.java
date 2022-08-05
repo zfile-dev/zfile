@@ -7,6 +7,7 @@ import im.zhaojun.zfile.admin.mapper.StorageSourceConfigMapper;
 import im.zhaojun.zfile.admin.model.entity.StorageSourceConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -73,6 +74,7 @@ public class StorageSourceConfigService extends ServiceImpl<StorageSourceConfigM
      * @param   storageSourceConfigList
      *          存储源设置列表
      */
+    @Transactional(rollbackFor = Exception.class)
     public void updateStorageConfig(List<StorageSourceConfig> storageSourceConfigList) {
         super.updateBatchById(storageSourceConfigList);
         if (CollUtil.isNotEmpty(storageSourceConfigList)) {
@@ -89,6 +91,7 @@ public class StorageSourceConfigService extends ServiceImpl<StorageSourceConfigM
      * @param   id
      *          存储源 ID
      */
+    @Transactional(rollbackFor = Exception.class)
     public void deleteByStorageId(Integer id) {
         storageSourceConfigMapper.deleteByStorageId(id);
         sourceConfigConfigMapCache.remove(id);
