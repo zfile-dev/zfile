@@ -2,7 +2,7 @@ package im.zhaojun.zfile.home.aspect;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.admin.annoation.RefererCheck;
+import im.zhaojun.zfile.admin.annotation.RefererCheck;
 import im.zhaojun.zfile.admin.model.enums.RefererTypeEnum;
 import im.zhaojun.zfile.admin.service.SystemConfigService;
 import im.zhaojun.zfile.home.model.dto.SystemConfigDTO;

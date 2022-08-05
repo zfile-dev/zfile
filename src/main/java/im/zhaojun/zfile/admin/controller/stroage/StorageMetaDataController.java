@@ -4,7 +4,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.common.context.StorageSourceContext;
 import im.zhaojun.zfile.home.model.enums.StorageTypeEnum;
-import im.zhaojun.zfile.admin.annoation.model.StorageSourceParamDef;
+import im.zhaojun.zfile.admin.annotation.model.StorageSourceParamDef;
 import im.zhaojun.zfile.common.util.AjaxJson;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

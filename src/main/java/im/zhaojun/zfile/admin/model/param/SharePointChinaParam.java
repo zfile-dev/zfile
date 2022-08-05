@@ -1,6 +1,6 @@
 package im.zhaojun.zfile.admin.model.param;
 
-import im.zhaojun.zfile.admin.annoation.StorageParamItem;
+import im.zhaojun.zfile.admin.annotation.StorageParamItem;
 
 /**
  * SharePoint 世纪互联初始化参数

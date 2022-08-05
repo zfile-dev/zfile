@@ -1,6 +1,6 @@
-package im.zhaojun.zfile.admin.annoation.model;
+package im.zhaojun.zfile.admin.annotation.model;
 
-import im.zhaojun.zfile.admin.annoation.StorageParamSelectOption;
+import im.zhaojun.zfile.admin.annotation.StorageParamSelectOption;
 import im.zhaojun.zfile.admin.model.enums.StorageParamTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

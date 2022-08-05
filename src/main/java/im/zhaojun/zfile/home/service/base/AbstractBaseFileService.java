@@ -4,10 +4,10 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.admin.annoation.StorageParamItem;
-import im.zhaojun.zfile.admin.annoation.StorageParamSelect;
-import im.zhaojun.zfile.admin.annoation.StorageParamSelectOption;
-import im.zhaojun.zfile.admin.annoation.model.StorageSourceParamDef;
+import im.zhaojun.zfile.admin.annotation.StorageParamItem;
+import im.zhaojun.zfile.admin.annotation.StorageParamSelect;
+import im.zhaojun.zfile.admin.annotation.StorageParamSelectOption;
+import im.zhaojun.zfile.admin.annotation.model.StorageSourceParamDef;
 import im.zhaojun.zfile.admin.model.enums.StorageParamTypeEnum;
 import im.zhaojun.zfile.admin.model.param.IStorageParam;
 import im.zhaojun.zfile.admin.service.SystemConfigService;
@@ -163,7 +163,7 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 				// 从实现类中通过反射获取 options
 				Class<? extends StorageParamSelect> storageParamSelectClass = annotation.optionsClass();
 				if (ObjectUtil.isNotEmpty(storageParamSelectClass)
-						&& ObjectUtil.notEqual(storageParamSelectClass.getName(), "im.zhaojun.zfile.admin.annoation.StorageParamSelect")) {
+						&& ObjectUtil.notEqual(storageParamSelectClass.getName(), "im.zhaojun.zfile.admin.annotation.StorageParamSelect")) {
 					StorageParamSelect storageParamSelect = ReflectUtil.newInstance(storageParamSelectClass);
 					List<StorageSourceParamDef.Options> storageParamSelectOptions = storageParamSelect.getOptions(annotation, param);
 					optionsList.addAll(storageParamSelectOptions);

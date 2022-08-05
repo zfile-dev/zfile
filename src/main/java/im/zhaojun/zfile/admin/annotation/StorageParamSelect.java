@@ -1,7 +1,7 @@
-package im.zhaojun.zfile.admin.annoation;
+package im.zhaojun.zfile.admin.annotation;
 
 import im.zhaojun.zfile.admin.model.param.IStorageParam;
-import im.zhaojun.zfile.admin.annoation.model.StorageSourceParamDef;
+import im.zhaojun.zfile.admin.annotation.model.StorageSourceParamDef;
 
 import java.util.List;
 

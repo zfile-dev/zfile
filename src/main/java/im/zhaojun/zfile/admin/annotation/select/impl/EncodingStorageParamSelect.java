@@ -1,9 +1,9 @@
-package im.zhaojun.zfile.admin.annoation.select.impl;
+package im.zhaojun.zfile.admin.annotation.select.impl;
 
-import im.zhaojun.zfile.admin.annoation.StorageParamItem;
-import im.zhaojun.zfile.admin.annoation.StorageParamSelect;
+import im.zhaojun.zfile.admin.annotation.StorageParamItem;
+import im.zhaojun.zfile.admin.annotation.StorageParamSelect;
 import im.zhaojun.zfile.admin.model.param.IStorageParam;
-import im.zhaojun.zfile.admin.annoation.model.StorageSourceParamDef;
+import im.zhaojun.zfile.admin.annotation.model.StorageSourceParamDef;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;

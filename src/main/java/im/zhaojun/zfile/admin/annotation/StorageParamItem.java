@@ -1,4 +1,4 @@
-package im.zhaojun.zfile.admin.annoation;
+package im.zhaojun.zfile.admin.annotation;
 
 import im.zhaojun.zfile.admin.model.enums.StorageParamTypeEnum;
 

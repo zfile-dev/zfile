@@ -6,7 +6,7 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import im.zhaojun.zfile.admin.annoation.model.StorageSourceParamDef;
+import im.zhaojun.zfile.admin.annotation.model.StorageSourceParamDef;
 import im.zhaojun.zfile.admin.mapper.StorageSourceMapper;
 import im.zhaojun.zfile.admin.model.entity.StorageSource;
 import im.zhaojun.zfile.admin.model.entity.StorageSourceConfig;
