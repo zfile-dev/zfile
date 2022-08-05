@@ -42,12 +42,7 @@ public enum FileOperatorTypeEnum {
 	/**
 	 * 移动文件&文件夹操作
 	 */
-	MOVE("移动", "move"),
-
-	/**
-	 * 搜索操作
-	 */
-	SEARCH("搜索", "search");
+	MOVE("移动", "move");
 
 	private final String name;
 

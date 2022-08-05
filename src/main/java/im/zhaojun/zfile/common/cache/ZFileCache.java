@@ -1,7 +1,6 @@
 package im.zhaojun.zfile.common.cache;
 
 import cn.hutool.cache.impl.CacheObj;
-import cn.hutool.core.util.StrUtil;
 import im.zhaojun.zfile.admin.model.dto.StorageSourceCacheKey;
 import im.zhaojun.zfile.admin.model.entity.StorageSource;
 import im.zhaojun.zfile.admin.service.StorageSourceService;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -112,45 +110,6 @@ public class ZFileCache {
         getCacheByStorageId(storageId).clear();
     }
 
-
-    /**
-     * 获取指定存储源中已缓存文件夹数量
-     *
-     * @param   storageId
-     *          存储源 ID
-     *
-     * @return  已缓存文件夹数量
-     */
-    public int cacheCount(Integer storageId) {
-        return getCacheByStorageId(storageId).size();
-    }
-
-
-    /**
-     * 指定存储源, 根据文件及文件名查找相关的文件
-     *
-     * @param   storageId
-     *          存储源 ID
-     *
-     * @param   key
-     *          搜索键, 可匹配文件夹名称和文件名称.
-     *
-     * @return  搜索结果, 包含文件夹和文件.
-     */
-    public List<FileItemResult> find(Integer storageId, String key) {
-        return new ArrayList<>();
-    }
-
-
-    private boolean testMatch(String searchKey, boolean ignoreCase, FileItemResult fileItemResult) {
-        // 根据是否需要忽略大小写来匹配文件(夹)名
-        if (ignoreCase) {
-            return StrUtil.containsIgnoreCase(fileItemResult.getName(), searchKey);
-        } else {
-            return StrUtil.contains(fileItemResult.getName(), searchKey);
-        }
-
-    }
 
 
     /**

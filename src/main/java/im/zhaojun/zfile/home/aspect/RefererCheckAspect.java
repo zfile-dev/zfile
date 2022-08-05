@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * 校验 referer 防盗链.
- *
+ * <p>
  * 校验所有标注了 {@link RefererCheck} 的注解
  *
  * @author zhaojun
@@ -51,7 +51,7 @@ public class RefererCheckAspect {
 	 *
 	 * @return  方法运行结果
 	 */
-	@Around(value = "@annotation(im.zhaojun.zfile.admin.annoation.RefererCheck)")
+	@Around(value = "@annotation(im.zhaojun.zfile.admin.annotation.RefererCheck)")
 	public Object around(ProceedingJoinPoint point) throws Throwable {
 		// 获取配置的 referer 类型
 		SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();

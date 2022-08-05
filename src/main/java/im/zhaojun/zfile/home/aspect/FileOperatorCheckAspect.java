@@ -80,19 +80,6 @@ public class FileOperatorCheckAspect {
 	}
 
 	/**
-	 * 搜索功能权限校验
-	 *
-	 * @param   point
-	 *          连接点
-	 *
-	 * @return  方法运行结果
-	 */
-	@Around("execution(public * im.zhaojun.zfile.home.service.base.AbstractBaseFileService.search(..))")
-	public Object searchAround(ProceedingJoinPoint point) throws Throwable {
-		return check(point, FileOperatorTypeEnum.SEARCH);
-	}
-
-	/**
 	 * 校验是否有此文件操作的权限
 	 *
 	 * @param   point

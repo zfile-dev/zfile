@@ -196,17 +196,6 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 
 
 	/**
-	 * 搜索文件
-	 *
-	 * @param name 文件名
-	 * @return 包含该文件名的所有文件或文件夹
-	 */
-	public synchronized List<FileItemResult> search(String name) {
-		return zFileCache.find(storageId, name);
-	}
-
-
-	/**
 	 * 获取单个文件信息
 	 *
 	 * @param   pathAndName
