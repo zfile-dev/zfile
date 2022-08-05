@@ -204,6 +204,7 @@ public class ShortLinkService extends ServiceImpl<ShortLinkMapper, ShortLink> im
             OutputStream outputStream = response.getOutputStream();
             byte[] textContentBytes = EncodingUtils.getBytes(textContent, CharsetUtil.CHARSET_UTF_8.displayName());
             IoUtil.write(outputStream, true, textContentBytes);
+            return;
         }
 
         // 禁止直链被浏览器 302 缓存.
