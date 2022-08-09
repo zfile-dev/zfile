@@ -27,7 +27,7 @@ public class StringUtils {
 
     public static final String HTTPS_PROTOCOL = "https://";
 
-
+    public static final String IPFS_PROTOCOL = "ipfs://";
     /**
      * 移除 URL 中的前后的所有 '/'
      *
@@ -106,7 +106,7 @@ public class StringUtils {
         StringBuilder sb = new StringBuilder();
 
         // 是否包含 http 或 https 协议信息
-        boolean containProtocol =  StrUtil.containsAnyIgnoreCase(path, HTTP_PROTOCOL, HTTPS_PROTOCOL);
+        boolean containProtocol =  StrUtil.containsAnyIgnoreCase(path, HTTP_PROTOCOL, HTTPS_PROTOCOL,IPFS_PROTOCOL);
 
         if (containProtocol) {
             path = trimStartSlashes(path);
@@ -116,11 +116,15 @@ public class StringUtils {
         boolean startWithHttpProtocol = StrUtil.startWithIgnoreCase(path, HTTP_PROTOCOL);
         // 是否包含 https 协议信息
         boolean startWithHttpsProtocol = StrUtil.startWithIgnoreCase(path, HTTPS_PROTOCOL);
+        // 是否包含 ipfs 协议信息
+        boolean startWithIpfsProtocol = StrUtil.startWithIgnoreCase(path, IPFS_PROTOCOL);
 
         if (startWithHttpProtocol) {
             sb.append(HTTP_PROTOCOL);
         } else if (startWithHttpsProtocol) {
             sb.append(HTTPS_PROTOCOL);
+        } else if (startWithIpfsProtocol) {
+            sb.append(IPFS_PROTOCOL);
         }
 
         for (int i = sb.length(); i < path.length() - 1; i++) {

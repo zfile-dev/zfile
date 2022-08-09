@@ -190,13 +190,17 @@ public class IpfsServiceImpl extends ProxyTransferService<IpfsParam> {
 
     private String getDownloadUrl(IpfsFileInfo fileInfo) {
         String domain;
+        if (param.isPrivate()){
+            domain="ipfs://";
+        }
+        else {
         // 如果未填写下载域名，则默认使用公用网关下载.
         if (StrUtil.isEmpty(param.getDomain())) {
             domain = "https://ipfs.io/ipfs";
         } else {
             domain = StringUtils.trimEndSlashes(param.getDomain());
             domain = domain.endsWith("ipfs") ? domain : StringUtils.concat(domain,"ipfs");
-        }
+        }}
         return StringUtils.concat(domain, fileInfo.getHash() + "?download=true" + "&filename=" + fileInfo.getName());
     }
 
