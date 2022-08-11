@@ -11,8 +11,7 @@ import lombok.Getter;
 @Getter
 public class SharePointParam extends MicrosoftDriveParam {
 
-	@StorageParamItem(name = "clientId", defaultValue = "${zfile.onedrive.clientId}", order = 1,
-			description = "可自行更改，但修改后，下方获取访问令牌的地址不可用，需自行获取访问令牌和刷新令牌.")
+	@StorageParamItem(name = "clientId", defaultValue = "${zfile.onedrive.clientId}", order = 1)
 	private String clientId;
 
 	@StorageParamItem(name = "SecretKey", defaultValue = "${zfile.onedrive.clientSecret}", order = 2)

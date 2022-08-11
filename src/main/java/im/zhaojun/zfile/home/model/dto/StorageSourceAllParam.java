@@ -90,6 +90,9 @@ public class StorageSourceAllParam {
 
     @ApiModelProperty(value = "clientSecret", example = "l:zI-_yrW75lV8M61K@z.I2K@B/On6Q1a")
     private String clientSecret;
+    
+    @ApiModelProperty(value = "回调地址", example = "https://zfile.jun6.net/onedrive/callback")
+    private String redirectUri;
 
     @ApiModelProperty(value = "区域", example = "cn-beijing")
     private String region;

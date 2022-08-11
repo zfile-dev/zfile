@@ -11,19 +11,21 @@ import lombok.Getter;
 @Getter
 public class MicrosoftDriveParam implements IStorageParam {
 
-	@StorageParamItem(name = "clientId", defaultValue = "${zfile.onedrive.clientId}", order = 1,
-			description = "可自行更改，但修改后，下方获取访问令牌的地址不可用，需自行获取访问令牌和刷新令牌.")
+	@StorageParamItem(name = "clientId", defaultValue = "${zfile.onedrive.clientId}", order = 1)
 	private String clientId;
 
 	@StorageParamItem(name = "SecretKey", defaultValue = "${zfile.onedrive.clientSecret}", order = 2)
 	private String clientSecret;
+	
+	@StorageParamItem(name = "回调地址", description = "如使用自定义 api, 需将此处默认的域名修改为您的域名, 如 https://xxx.com/onedrive/callback, 且需在 api 中配置为回调域名.", defaultValue = "${zfile.onedrive.redirectUri}", order = 3)
+	private String redirectUri;
 
 	@StorageParamItem(name = "访问令牌", link = "/onedrive/authorize", linkName = "前往获取令牌", order = 3)
 	private String accessToken;
 
 	@StorageParamItem(name = "刷新令牌", order = 4)
 	private String refreshToken;
-	
+
 	@StorageParamItem(name = "反代域名", required = false, order = 7, description = "世纪互联版不建议启用，国际版启用后不一定比启用前快，这个要根据仔细网络情况决定.",
 			link = "https://docs.zfile.vip/#/advanced?id=onedrive-cf", linkName = "配置文档")
 	private String proxyDomain;

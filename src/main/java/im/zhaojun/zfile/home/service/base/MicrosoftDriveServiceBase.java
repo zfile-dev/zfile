@@ -119,10 +119,10 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
      *
      * @return  获取的 Token 信息.
      */
-    public OneDriveToken getToken(String code) {
-        String param = "client_id=" + getClientId() +
-                "&redirect_uri=" + getRedirectUri() +
-                "&client_secret=" + getClientSecret() +
+    public OneDriveToken getToken(String code, String clientId, String clientSecret, String redirectUri) {
+        String param = "client_id=" + clientId +
+                "&redirect_uri=" + redirectUri +
+                "&client_secret=" + clientSecret +
                 "&code=" + code +
                 "&scope=" + getScope() +
                 "&grant_type=authorization_code";
