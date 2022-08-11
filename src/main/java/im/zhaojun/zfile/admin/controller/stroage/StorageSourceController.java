@@ -13,6 +13,7 @@ import im.zhaojun.zfile.home.model.dto.StorageSourceDTO;
 import im.zhaojun.zfile.home.model.request.UpdateStorageSortRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -131,4 +132,17 @@ public class StorageSourceController {
         return AjaxJson.getSuccessData(exist);
     }
 
+    @ApiOperationSupport(order = 9)
+    @ApiOperation(value = "修改 readme 兼容模式", notes = "修改 readme 兼容模式是否启用")
+    @ApiImplicitParams({
+        @ApiImplicitParam(paramType = "path", name = "storageId", value = "存储源 id", required = true),
+        @ApiImplicitParam(paramType = "path", name = "status", value = "存储源兼容模式状态", required = true)
+    })
+    @PostMapping("/storage/{storageId}/compatibility_readme/{status}")
+    public AjaxJson<Void> changeCompatibilityReadme(@PathVariable Integer storageId, @PathVariable Boolean status) {
+        StorageSource storageSource = storageSourceService.findById(storageId);
+        storageSource.setCompatibilityReadme(status);
+        storageSourceService.updateById(storageSource);
+        return AjaxJson.getSuccess();
+    }
 }
