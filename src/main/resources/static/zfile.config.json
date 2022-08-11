@@ -1,10 +1,5 @@
 {
 	"baseUrl": "",
-	"fileList": {
-		"backHandler": "click",
-		"defaultSize": "small",
-		"emptyText": "数据为空，请先上传或添加文件"
-	},
 	"router": {
 		"mode": "history"
 	},
@@ -14,16 +9,18 @@
 		"size": 20
 	},
 	"gallery": {
+		"mobileColumn": 1,
 		"column": 3,
 		"columnSpacing": 50,
-		"gutter": 50,
+		"rowSpacing": 10,
 		"showInfo": true,
-		"showInfoMode": "hover"
+		"showInfoMode": "hover",
+		"roundedBorder": true,
+		"showBackTop": true
 	},
 	"imagePreview": {
-		"mode": "full"
+		"mode": "full",
+		"gallery": true
 	},
-	"officePreview": {
-
-	}
+	"officePreview": {}
 }
