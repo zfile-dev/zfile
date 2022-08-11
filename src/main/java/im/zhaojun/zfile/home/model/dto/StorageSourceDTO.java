@@ -62,5 +62,8 @@ public class StorageSourceDTO {
 
     @ApiModelProperty(value = "是否默认开启图片模式", example = "true")
     private boolean defaultSwitchToImgMode;
+    
+    @ApiModelProperty(value = "兼容 readme 模式", example = "true", notes = "兼容模式, 目录文档读取 readme.md 文件")
+    private Boolean compatibilityReadme;
 
 }

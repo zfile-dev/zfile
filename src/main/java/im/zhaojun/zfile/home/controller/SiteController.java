@@ -1,22 +1,29 @@
 package im.zhaojun.zfile.home.controller;
 
-import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.BooleanUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.admin.model.entity.ReadmeConfig;
 import im.zhaojun.zfile.admin.model.entity.StorageSource;
 import im.zhaojun.zfile.admin.model.enums.ReadmeDisplayModeEnum;
+import im.zhaojun.zfile.admin.model.param.IStorageParam;
 import im.zhaojun.zfile.admin.service.ReadmeConfigService;
 import im.zhaojun.zfile.admin.service.StorageSourceService;
 import im.zhaojun.zfile.admin.service.SystemConfigService;
 import im.zhaojun.zfile.common.config.ZFileProperties;
+import im.zhaojun.zfile.common.context.StorageSourceContext;
 import im.zhaojun.zfile.common.exception.InvalidStorageSourceException;
+import im.zhaojun.zfile.common.exception.NotExistFileException;
 import im.zhaojun.zfile.common.util.AjaxJson;
+import im.zhaojun.zfile.common.util.HttpUtil;
+import im.zhaojun.zfile.common.util.StringUtils;
 import im.zhaojun.zfile.home.convert.StorageSourceConvert;
 import im.zhaojun.zfile.home.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.home.model.request.FileListConfigRequest;
+import im.zhaojun.zfile.home.model.result.FileItemResult;
 import im.zhaojun.zfile.home.model.result.SiteConfigResult;
 import im.zhaojun.zfile.home.model.result.StorageSourceConfigResult;
+import im.zhaojun.zfile.home.service.base.AbstractBaseFileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +64,9 @@ public class SiteController {
 
 	@Resource
 	private ReadmeConfigService readmeConfigService;
+	
+	@Resource
+	private StorageSourceContext storageSourceContext;
 
 
 	@ApiOperationSupport(order = 1)
@@ -93,18 +103,41 @@ public class SiteController {
 
 		// 根据存储源 key 获取存储源 id
 		Integer storageId = storageSource.getId();
-
-		// 获取指定目录 readme 文件
-		ReadmeConfig readmeByPath = readmeConfigService.findReadmeByPath(storageId, path);
-
-		if (ObjectUtil.isNotNull(readmeByPath)) {
-			String readmeText = readmeByPath.getReadmeText();
-			ReadmeDisplayModeEnum displayMode = readmeByPath.getDisplayMode();
-
-			storageSourceConfigResult.setReadmeText(readmeText);
-			storageSourceConfigResult.setReadmeDisplayMode(displayMode);
+		
+		
+		ReadmeConfig readmeByPath = new ReadmeConfig();
+		readmeByPath.setStorageId(storageId);
+		readmeByPath.setDisplayMode(ReadmeDisplayModeEnum.BOTTOM);
+		if (BooleanUtil.isTrue(storageSource.getCompatibilityReadme())) {
+			try {
+				log.info("存储源 {} 兼容获取目录 {} 下的 readme.md", storageSource.getName(), path);
+				AbstractBaseFileService<IStorageParam> abstractBaseFileService = storageSourceContext.get(storageId);
+				String pathAndName = StringUtils.concat(path, "readme.md");
+				FileItemResult fileItem = abstractBaseFileService.getFileItem(pathAndName);
+				if (fileItem != null) {
+					String url = fileItem.getUrl();
+					String readmeText = HttpUtil.getTextContent(url);
+					readmeByPath.setReadmeText(readmeText);
+				}
+			} catch (Exception e) {
+				if (e instanceof NotExistFileException) {
+					log.error("存储源 {} 兼容获取目录 {} 下的 readme.md 文件失败", storageSource.getName(), path);
+				} else {
+					log.error("存储源 {} 兼容获取目录 {} 下的 readme.md 文件失败", storageSource.getName(), path, e);
+				}
+			}
+		} else {
+			// 获取指定目录 readme 文件
+			ReadmeConfig dbReadmeConfig = readmeConfigService.findReadmeByPath(storageId, path);
+			if (dbReadmeConfig != null) {
+				readmeByPath = dbReadmeConfig;
+			}
+			log.info("存储源 {} 规则模式获取目录 {} 下文档信息", storageSource.getName(), path);
 		}
-
+		
+		storageSourceConfigResult.setReadmeDisplayMode(readmeByPath.getDisplayMode());
+		storageSourceConfigResult.setReadmeText(readmeByPath.getReadmeText());
+		
 		return AjaxJson.getSuccessData(storageSourceConfigResult);
 	}
 

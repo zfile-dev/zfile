@@ -31,7 +31,6 @@ public class StorageSourceAdminResult {
 	@ApiModelProperty(value = "是否允许匿名进行文件操作", example = "true", notes = "是否允许匿名进行文件上传，编辑，删除等操作.")
 	private Boolean enableFileAnnoOperator;
 
-
 	@ApiModelProperty(value = "是否开启缓存", example = "true")
 	private Boolean enableCache;
 
@@ -78,5 +77,9 @@ public class StorageSourceAdminResult {
 
 	@ApiModelProperty(value = "存储源刷新信息")
 	private RefreshTokenCache.RefreshTokenInfo refreshTokenInfo;
+	
+	
+	@ApiModelProperty(value = "兼容 readme 模式", example = "true", notes = "兼容模式, 目录文档读取 readme.md 文件")
+	private Boolean compatibilityReadme;
 
 }
