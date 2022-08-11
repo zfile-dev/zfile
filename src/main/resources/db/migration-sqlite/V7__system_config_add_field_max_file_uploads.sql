@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('maxFileUploads', '最大同时上传文件数', 5);

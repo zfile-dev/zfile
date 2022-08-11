@@ -31,5 +31,8 @@ public class UpdateSiteSettingRequest {
 
 	@ApiModelProperty(value = "备案号", example = "冀ICP备12345678号-1")
 	private String icp;
+	
+	@ApiModelProperty(value = "最大同时上传文件数", example = "5")
+	private Integer maxFileUploads;
 
 }

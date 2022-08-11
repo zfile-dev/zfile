@@ -119,5 +119,8 @@ public class SystemConfigDTO {
 
     @ApiModelProperty(value = "默认文件点击习惯", example = "click")
     private FileClickModeEnum fileClickMode;
+    
+    @ApiModelProperty(value = "最大同时上传文件数", example = "5")
+    private Integer maxFileUploads;
 
 }
