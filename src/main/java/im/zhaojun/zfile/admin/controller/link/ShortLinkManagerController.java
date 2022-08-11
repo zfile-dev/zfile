@@ -9,6 +9,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.admin.convert.ShortLinkConvert;
 import im.zhaojun.zfile.admin.model.entity.ShortLink;
 import im.zhaojun.zfile.admin.model.entity.StorageSource;
+import im.zhaojun.zfile.admin.model.request.link.BatchDeleteRequest;
 import im.zhaojun.zfile.admin.model.result.link.ShortLinkResult;
 import im.zhaojun.zfile.admin.service.ShortLinkService;
 import im.zhaojun.zfile.admin.service.StorageSourceService;
@@ -21,12 +22,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,12 +131,12 @@ public class ShortLinkManagerController {
 
 
     @ApiOperationSupport(order = 3)
-    @DeleteMapping("/link/delete/batch")
+    @PostMapping("/link/delete/batch")
     @ResponseBody
     @ApiImplicitParam(paramType = "query", name = "ids", value = "短链 id", required = true)
     @ApiOperation(value = "批量删除短链")
-    public AjaxJson<Void> batchDelete(@RequestParam("id[]") Integer[] ids) {
-        shortLinkService.removeBatchByIds(Arrays.asList(ids));
+    public AjaxJson<Void> batchDelete(@RequestBody BatchDeleteRequest batchDeleteRequest) {
+        shortLinkService.removeBatchByIds(batchDeleteRequest.getIds());
         return AjaxJson.getSuccess();
     }
 

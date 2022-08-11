@@ -10,6 +10,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.admin.convert.DownloadLogConvert;
 import im.zhaojun.zfile.admin.model.entity.DownloadLog;
 import im.zhaojun.zfile.admin.model.entity.StorageSource;
+import im.zhaojun.zfile.admin.model.request.link.BatchDeleteRequest;
 import im.zhaojun.zfile.admin.model.request.link.QueryDownloadLogRequest;
 import im.zhaojun.zfile.admin.model.result.link.DownloadLogResult;
 import im.zhaojun.zfile.admin.service.DownloadLogService;
@@ -23,12 +24,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,12 +136,13 @@ public class DownloadLogManagerController {
 
 
     @ApiOperationSupport(order = 3)
-    @DeleteMapping("/delete/batch")
+    @PostMapping("/delete/batch")
     @ResponseBody
     @ApiImplicitParam(paramType = "query", name = "ids", value = "直链 id", required = true)
     @ApiOperation(value = "批量删除直链")
-    public AjaxJson<Void> batchDelete(@RequestParam("id[]") Integer[] ids) {
-        downloadLogService.removeBatchByIds(Arrays.asList(ids));
+    public AjaxJson<Void> batchDelete(@RequestBody BatchDeleteRequest batchDeleteRequest) {
+        List<Integer> ids = batchDeleteRequest.getIds();
+        downloadLogService.removeBatchByIds(ids);
         return AjaxJson.getSuccess();
     }
 
