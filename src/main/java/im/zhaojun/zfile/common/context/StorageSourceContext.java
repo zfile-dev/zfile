@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 每个存储源对应一个 Service, 其中初始化好了与对象存储的配置信息.
  * 此存储源上下文环境用户缓存每个 Service, 避免重复初始化.
+ *
  * 依赖 {@link FlywayDbInitializer} 初始化数据库后执行.
  *
  * @author zhaojun
