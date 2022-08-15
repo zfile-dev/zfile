@@ -1,12 +1,14 @@
 package im.zhaojun.zfile.admin.model.param;
 
 import im.zhaojun.zfile.admin.annotation.StorageParamItem;
+import lombok.Getter;
 
 /**
  * SharePoint 世纪互联初始化参数
  *
  * @author zhaojun
  */
+@Getter
 public class SharePointChinaParam extends SharePointParam {
 
 	@StorageParamItem(name = "clientId", defaultValue = "${zfile.onedrive-china.clientId}", order = 1)
