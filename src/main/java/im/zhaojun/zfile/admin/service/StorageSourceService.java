@@ -495,6 +495,7 @@ public class StorageSourceService extends ServiceImpl<StorageSourceMapper, Stora
         if (entity != null) {
             Integer id = entity.getId();
             storageIdMapCache.put(id, entity);
+            storageKeyMapCache.put(entity.getKey(), entity);
         }
         return super.updateById(entity);
     }
