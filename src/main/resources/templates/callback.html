@@ -2,25 +2,99 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>CallBack Result</title>
+    <script src="https://cdn.jun6.net/uPic/2022/08/15/tailwind.js">
+    </script>
+    <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/1.8.0/jquery-1.8.0.min.js"></script>
+    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/clipboard.js/2.0.10/clipboard.min.js"></script>
+    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/layer/3.5.1/layer.min.js"></script>
+    <title>ZFile OneDrive / SharePoint 令牌获取结果</title>
 </head>
-<body>
-
-    <h1>accessToken (访问令牌)</h1>
-    <div>
-        <input type="text" th:value="${accessToken}">
+<body class="w-full h-full">
+    <div class="h-full min-h-screen bg-gray-100 text-gray-900 flex justify-center py-10">
+        <div class="flex flex-1 max-w-screen-lg px-8 lg:0">
+            <div class="w-full">
+                <div class="relative overflow-auto">
+                    <div class="rounded mx-auto bg-white shadow py-5 px-6">
+                        <div class="text-2xl text-center mb-4">ZFile OneDrive / SharePoint 令牌获取结果</div>
+                        <form class="space-y-6">
+                            <div th:if="${oneDriveToken.success}" class="text-right">
+                                <span>状态：</span>
+                                <span class="text-green-500">获取成功</span>
+                            </div>
+                            <div th:if="${oneDriveToken.success == false}" class="text-right">
+                                <span>状态：</span>
+                                <span class="text-red-500">获取失败</span>
+                            </div>
+                            <div>
+                                <label for="accessToken" class="block text-sm font-medium text-slate-700">AccessToken (访问令牌)</label>
+                                <div class="mt-1">
+                                    <input th:value="${oneDriveToken.accessToken}" type="text" name="accessToken" id="accessToken" class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="refreshToken" class="block text-sm font-medium text-slate-700">RefreshToken (刷新令牌)</label>
+                                <div class="mt-1">
+                                    <input th:value="${oneDriveToken.refreshToken}" type="text" name="refreshToken" id="refreshToken" class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500">
+                                </div>
+                            </div>
+                            <div class="border-t-4 border-dashed">
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                tips: 以下为诊断信息，如获取成功请忽略，获取失败无法自行解决时请截图下方所有内容发送给开发者，github: <a target="_blank" class="text-blue-500" href="https://github.com/zfile-dev/zfile/issues">https://github.com/zfile-dev/zfile/issues</a>。
+                            </div>
+                            <div>
+                                <label for="clientId" class="block text-sm font-medium text-slate-700">clientId (api id)</label>
+                                <div class="mt-1">
+                                    <input th:value="${oneDriveToken.clientId}" type="text" name="clientId" id="clientId" class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="clientSecret" class="block text-sm font-medium text-slate-700">clientSecret (api 密钥)</label>
+                                <div class="mt-1">
+                                    <input th:value="${oneDriveToken.clientSecret}" type="text" name="clientSecret" id="clientSecret" class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="redirectUri" class="block text-sm font-medium text-slate-700">redirectUri (回调地址)</label>
+                                <div class="mt-1">
+                                    <input th:value="${oneDriveToken.redirectUri}" type="text" name="redirectUri" id="redirectUri" class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="body" class="block text-sm font-medium text-slate-700">响应体 (api 返回的完整信息)</label>
+                                <div class="mt-1">
+                                    <textarea th:text="${oneDriveToken.body}" rows="10" name="body" id="body" class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <h1>refreshToken (刷新令牌)</h1>
-    <div>
-        <input type="text" th:value="${refreshToken}">
-    </div>
-
 </body>
-<style>
-    input {
-        height: 30px;
-        width: 100%;
-    }
-</style>
+
+<script type="application/javascript">
+    let clipboard = new ClipboardJS('input, textarea', {
+        target: function(trigger) {
+            console.log(trigger.value)
+            return trigger;
+        }
+    });
+
+    clipboard.on('success', function(e) {
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        layer.msg('复制成功', {icon: 1})
+        e.trigger.select();
+        e.clearSelection();
+    });
+
+    clipboard.on('error', function(e) {
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        layer.msg('复制失败，请手动复制', {icon: 2})
+    });
+</script>
 </html>

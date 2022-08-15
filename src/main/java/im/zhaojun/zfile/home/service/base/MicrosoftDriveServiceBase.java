@@ -99,16 +99,26 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
                 "&client_secret=" + getClientSecret() +
                 "&refresh_token=" + refreshStorageSourceConfig.getValue() +
                 "&grant_type=refresh_token";
-
+    
+        log.info("{} 尝试刷新令牌, 参数信息为: {}", this, param);
+    
         String fullAuthenticateUrl = AUTHENTICATE_URL.replace("{authenticateEndPoint}", getAuthenticateEndPoint());
         HttpRequest post = HttpUtil.createPost(fullAuthenticateUrl);
 
         post.body(param, "application/x-www-form-urlencoded");
         HttpResponse response = post.execute();
+        String body = response.body();
+        log.info("{} 尝试刷新令牌成功, 响应信息为: {}", this, body);
+        
+        JSONObject jsonBody = JSONObject.parseObject(body);
+        
         if (response.getStatus() != HttpStatus.OK.value()) {
-            throw new RuntimeException(response.body());
+            return OneDriveToken.fail(getClientId(), getClientSecret(), getRedirectUri(), body);
         }
-        return JSONObject.parseObject(response.body(), OneDriveToken.class);
+        
+        String accessToken = jsonBody.getString("access_token");
+        String refreshToken = jsonBody.getString("refresh_token");
+        return OneDriveToken.success(getClientId(), getClientSecret(), getRedirectUri(), accessToken, refreshToken, body);
     }
 
     /**
@@ -120,6 +130,7 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
      * @return  获取的 Token 信息.
      */
     public OneDriveToken getToken(String code, String clientId, String clientSecret, String redirectUri) {
+        log.info("{} 根据授权回调 code 获取令牌：code: {}, clientId: {}, clientSecret: {}, redirectUri: {}", this, code, clientId, clientSecret, redirectUri);
         String param = "client_id=" + clientId +
                 "&redirect_uri=" + redirectUri +
                 "&client_secret=" + clientSecret +
@@ -132,7 +143,17 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
 
         post.body(param, "application/x-www-form-urlencoded");
         HttpResponse response = post.execute();
-        return JSONObject.parseObject(response.body(), OneDriveToken.class);
+        String body = response.body();
+        log.info("{} 根据授权回调 code 获取令牌结果：body: {}", this, body);
+        JSONObject jsonBody = JSONObject.parseObject(body);
+    
+        if (response.getStatus() != HttpStatus.OK.value()) {
+            return OneDriveToken.fail(clientId, clientSecret, redirectUri, body);
+        }
+    
+        String accessToken = jsonBody.getString("access_token");
+        String refreshToken = jsonBody.getString("refresh_token");
+        return OneDriveToken.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, body);
     }
 
     @Override
@@ -365,7 +386,7 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
             OneDriveToken refreshToken = getRefreshToken();
 
             if (refreshToken.getAccessToken() == null || refreshToken.getRefreshToken() == null) {
-                return;
+                throw new StorageSourceRefreshTokenException("获取或刷新 AccessToken 失败, 获取到的令牌为空, 相关诊断信息为: " + refreshToken, storageId);
             }
 
             StorageSourceConfig accessTokenConfig =

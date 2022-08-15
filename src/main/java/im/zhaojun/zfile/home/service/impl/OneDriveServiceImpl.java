@@ -1,8 +1,7 @@
 package im.zhaojun.zfile.home.service.impl;
 
-import cn.hutool.core.util.ObjectUtil;
-import im.zhaojun.zfile.home.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.admin.model.param.OneDriveParam;
+import im.zhaojun.zfile.home.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.home.service.base.AbstractOneDriveServiceBase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,17 +46,26 @@ public class OneDriveServiceImpl extends AbstractOneDriveServiceBase<OneDrivePar
     
     @Override
     public String getClientId() {
-        return ObjectUtil.defaultIfNull(param.getClientId(), clientId);
+        if (param == null || param.getClientId() == null) {
+            return clientId;
+        }
+        return param.getClientId();
     }
     
     @Override
     public String getRedirectUri() {
-        return ObjectUtil.defaultIfNull(param.getRedirectUri(), redirectUri);
+        if (param == null || param.getRedirectUri() == null) {
+            return redirectUri;
+        }
+        return param.getRedirectUri();
     }
     
     @Override
     public String getClientSecret() {
-        return ObjectUtil.defaultIfNull(param.getClientSecret(), clientSecret);
+        if (param == null || param.getClientSecret() == null) {
+            return clientSecret;
+        }
+        return param.getClientSecret();
     }
 
     @Override
