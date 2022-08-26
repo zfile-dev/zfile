@@ -53,4 +53,7 @@ public class UpdateViewSettingRequest {
 	@ApiModelProperty(value = "默认文件点击习惯", example = "click")
 	private FileClickModeEnum fileClickMode;
 
+	@ApiModelProperty(value = "onlyOffice 在线预览地址", example = "http://office.zfile.vip")
+	private String onlyOfficeUrl;
+
 }

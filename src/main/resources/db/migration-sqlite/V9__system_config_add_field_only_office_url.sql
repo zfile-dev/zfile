@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('onlyOfficeUrl', 'onlineOffice 地址', 'http://office.zfile.vip');

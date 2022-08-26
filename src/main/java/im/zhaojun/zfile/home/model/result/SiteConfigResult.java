@@ -89,4 +89,7 @@ public class SiteConfigResult {
 	@ApiModelProperty(value = "最大同时上传文件数", example = "5")
 	private Integer maxFileUploads;
 
+	@ApiModelProperty(value = "onlyOffice 在线预览地址", example = "http://office.zfile.vip")
+	private String onlyOfficeUrl;
+
 }

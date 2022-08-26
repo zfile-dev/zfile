@@ -1,0 +1,1 @@
+UPDATE system_config SET value = 'https://office.zfile.vip' WHERE value = 'http://office.zfile.vip';
