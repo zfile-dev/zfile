@@ -8,24 +8,24 @@ import lombok.Data;
  * @author zhaojun
  */
 @Data
-public class OneDriveToken {
+public class OAuth2Token {
     
     private String clientId;
     
     private String clientSecret;
     
     private String redirectUri;
-
+    
     private String accessToken;
-
+    
     private String refreshToken;
     
     private boolean success;
     
     private String body;
     
-    public static OneDriveToken success(String clientId, String clientSecret, String redirectUri, String accessToken, String refreshToken, String body) {
-        OneDriveToken token = new OneDriveToken();
+    public static OAuth2Token success(String clientId, String clientSecret, String redirectUri, String accessToken, String refreshToken, String body) {
+        OAuth2Token token = new OAuth2Token();
         token.setClientId(clientId);
         token.setClientSecret(clientSecret);
         token.setRedirectUri(redirectUri);
@@ -36,8 +36,8 @@ public class OneDriveToken {
         return token;
     }
     
-    public static OneDriveToken fail(String clientId, String clientSecret, String redirectUri, String body) {
-        OneDriveToken token = new OneDriveToken();
+    public static OAuth2Token fail(String clientId, String clientSecret, String redirectUri, String body) {
+        OAuth2Token token = new OAuth2Token();
         token.setClientId(clientId);
         token.setClientSecret(clientSecret);
         token.setRedirectUri(redirectUri);
@@ -45,5 +45,5 @@ public class OneDriveToken {
         token.setBody(body);
         return token;
     }
-
+    
 }

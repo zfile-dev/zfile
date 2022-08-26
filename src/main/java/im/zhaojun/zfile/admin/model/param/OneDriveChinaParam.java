@@ -17,7 +17,7 @@ public class OneDriveChinaParam extends OneDriveParam {
 	@StorageParamItem(name = "SecretKey", defaultValue = "${zfile.onedrive-china.clientSecret}", order = 2)
 	private String clientSecret;
 	
-	@StorageParamItem(name = "回调地址", description = "如使用自定义 api, 需将此处默认的域名修改为您的域名, 如 https://xxx.com/onedrive/china-callback, 且需在 api 中配置为回调域名.",
+	@StorageParamItem(name = "回调地址", description = "如使用自定义 api, 需将此处默认的域名修改为您的域名, 且需在 api 中配置为回调域名.",
 			defaultValue = "${zfile.onedrive-china.redirectUri}", order = 3)
 	private String redirectUri;
 

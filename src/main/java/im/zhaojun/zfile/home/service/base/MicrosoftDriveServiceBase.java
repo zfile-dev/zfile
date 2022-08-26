@@ -8,7 +8,7 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import im.zhaojun.zfile.admin.constant.StorageConfigConstant;
-import im.zhaojun.zfile.admin.model.dto.OneDriveToken;
+import im.zhaojun.zfile.admin.model.dto.OAuth2Token;
 import im.zhaojun.zfile.admin.model.entity.StorageSourceConfig;
 import im.zhaojun.zfile.admin.model.param.MicrosoftDriveParam;
 import im.zhaojun.zfile.admin.service.StorageSourceConfigService;
@@ -90,7 +90,7 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
      *
      * @return  刷新后的 Token
      */
-    public OneDriveToken getRefreshToken() {
+    public OAuth2Token getRefreshToken() {
         StorageSourceConfig refreshStorageSourceConfig =
                 storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_KEY);
 
@@ -113,12 +113,12 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
         JSONObject jsonBody = JSONObject.parseObject(body);
         
         if (response.getStatus() != HttpStatus.OK.value()) {
-            return OneDriveToken.fail(getClientId(), getClientSecret(), getRedirectUri(), body);
+            return OAuth2Token.fail(getClientId(), getClientSecret(), getRedirectUri(), body);
         }
         
         String accessToken = jsonBody.getString("access_token");
         String refreshToken = jsonBody.getString("refresh_token");
-        return OneDriveToken.success(getClientId(), getClientSecret(), getRedirectUri(), accessToken, refreshToken, body);
+        return OAuth2Token.success(getClientId(), getClientSecret(), getRedirectUri(), accessToken, refreshToken, body);
     }
 
     /**
@@ -129,7 +129,7 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
      *
      * @return  获取的 Token 信息.
      */
-    public OneDriveToken getToken(String code, String clientId, String clientSecret, String redirectUri) {
+    public OAuth2Token getToken(String code, String clientId, String clientSecret, String redirectUri) {
         log.info("{} 根据授权回调 code 获取令牌：code: {}, clientId: {}, clientSecret: {}, redirectUri: {}", this, code, clientId, clientSecret, redirectUri);
         String param = "client_id=" + clientId +
                 "&redirect_uri=" + redirectUri +
@@ -148,12 +148,12 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
         JSONObject jsonBody = JSONObject.parseObject(body);
     
         if (response.getStatus() != HttpStatus.OK.value()) {
-            return OneDriveToken.fail(clientId, clientSecret, redirectUri, body);
+            return OAuth2Token.fail(clientId, clientSecret, redirectUri, body);
         }
     
         String accessToken = jsonBody.getString("access_token");
         String refreshToken = jsonBody.getString("refresh_token");
-        return OneDriveToken.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, body);
+        return OAuth2Token.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, body);
     }
 
     @Override
@@ -383,7 +383,7 @@ public abstract class MicrosoftDriveServiceBase<P extends MicrosoftDriveParam> e
     @Override
     public void refreshAccessToken() {
         try {
-            OneDriveToken refreshToken = getRefreshToken();
+            OAuth2Token refreshToken = getRefreshToken();
 
             if (refreshToken.getAccessToken() == null || refreshToken.getRefreshToken() == null) {
                 throw new StorageSourceRefreshTokenException("获取或刷新 AccessToken 失败, 获取到的令牌为空, 相关诊断信息为: " + refreshToken, storageId);
