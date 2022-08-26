@@ -1,10 +1,11 @@
 package im.zhaojun.zfile.home.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.common.context.StorageSourceContext;
-import im.zhaojun.zfile.home.model.request.operator.DeleteFileRequest;
-import im.zhaojun.zfile.home.model.request.operator.DeleteFolderRequest;
+import im.zhaojun.zfile.home.model.enums.FileTypeEnum;
+import im.zhaojun.zfile.home.model.request.operator.BatchDeleteRequest;
 import im.zhaojun.zfile.home.model.request.operator.NewFolderRequest;
 import im.zhaojun.zfile.home.model.request.operator.RenameFileRequest;
 import im.zhaojun.zfile.home.model.request.operator.RenameFolderRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 文件操作相关接口, 如新建文件夹, 上传文件, 删除文件, 移动文件等.
@@ -52,29 +54,33 @@ public class FileOperatorController {
 
 
 	@ApiOperationSupport(order = 2)
-	@ApiOperation(value = "删除文件")
-	@PostMapping("/delete/file")
-	public AjaxJson<?> deleteFile(@Valid @RequestBody DeleteFileRequest deleteFileRequest) {
-		AbstractBaseFileService<?> fileService = storageSourceContext.getByKey(deleteFileRequest.getStorageKey());
-		boolean flag = fileService.deleteFile(deleteFileRequest.getPath(), deleteFileRequest.getName());
-		if (flag) {
-			return AjaxJson.getSuccess("删除成功");
-		} else {
-			return AjaxJson.getError("删除失败");
+	@ApiOperation(value = "批量删除文件/文件夹")
+	@PostMapping("/delete/batch")
+	public AjaxJson<?> deleteFile(@Valid @RequestBody BatchDeleteRequest batchDeleteRequest) {
+		AbstractBaseFileService<?> fileService = storageSourceContext.getByKey(batchDeleteRequest.getStorageKey());
+		List<BatchDeleteRequest.DeleteItem> deleteItems = batchDeleteRequest.getDeleteItems();
+		
+		int deleteSuccessCount = 0, deleteFailCount = 0, totalCount = CollUtil.size(deleteItems);
+		
+		for (BatchDeleteRequest.DeleteItem deleteItem : deleteItems) {
+			boolean flag = false;
+			if (deleteItem.getType() == FileTypeEnum.FILE) {
+				flag = fileService.deleteFile(deleteItem.getPath(), deleteItem.getName());
+			} else if (deleteItem.getType() == FileTypeEnum.FOLDER) {
+				flag = fileService.deleteFile(deleteItem.getPath(), deleteItem.getName());
+			}
+			
+			if (flag) {
+				deleteSuccessCount++;
+			} else {
+				deleteFailCount++;
+			}
 		}
-	}
-
-
-	@ApiOperationSupport(order = 3)
-	@ApiOperation(value = "删除文件夹")
-	@PostMapping("/delete/folder")
-	public AjaxJson<?> deleteFolder(@Valid @RequestBody DeleteFolderRequest deleteFolderRequest) {
-		AbstractBaseFileService<?> fileService = storageSourceContext.getByKey(deleteFolderRequest.getStorageKey());
-		boolean flag = fileService.deleteFolder(deleteFolderRequest.getPath(), deleteFolderRequest.getName());
-		if (flag) {
-			return AjaxJson.getSuccess("删除成功");
+		
+		if (totalCount > 1) {
+			return AjaxJson.getSuccess("批量删除 " + totalCount + " 个, 删除成功 " + deleteSuccessCount + " 个, 失败 " + deleteFailCount + " 个.");
 		} else {
-			return AjaxJson.getError("删除失败");
+			return totalCount == deleteSuccessCount ? AjaxJson.getSuccess("删除成功") : AjaxJson.getError("删除失败");
 		}
 	}
 

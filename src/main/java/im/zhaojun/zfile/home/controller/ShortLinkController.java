@@ -14,19 +14,27 @@ import im.zhaojun.zfile.common.exception.IllegalDownloadLinkException;
 import im.zhaojun.zfile.common.util.AjaxJson;
 import im.zhaojun.zfile.common.util.StringUtils;
 import im.zhaojun.zfile.home.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.home.model.request.BatchGenerateLinkRequest;
+import im.zhaojun.zfile.home.model.result.BatchGenerateLinkResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 短链接口
@@ -36,6 +44,7 @@ import java.io.IOException;
 @Api(tags = "直短链模块")
 @ApiSort(5)
 @Controller
+@Slf4j
 public class ShortLinkController {
 
     @Resource
@@ -47,8 +56,7 @@ public class ShortLinkController {
     @Resource
     private StorageSourceService storageSourceService;
 
-
-    @GetMapping("/api/short-link")
+    @PostMapping("/api/short-link/batch/generate")
     @ResponseBody
     @ApiOperationSupport(order = 1)
     @ApiOperation(value = "生成短链", notes = "对指定存储源的某文件路径生成短链")
@@ -61,7 +69,9 @@ public class ShortLinkController {
             @DynamicParameter(name = "code", value = "业务状态码，0 为正常，其他值均为异常，异常情况下见响应消息", example = "0"),
             @DynamicParameter(name = "data", value = "短链地址", example = "https://zfile.vip/s/btz4tu")
     })
-    public AjaxJson<String> generatorShortLink(String storageKey, String path) {
+    public AjaxJson<List<BatchGenerateLinkResponse>> generatorShortLink(@RequestBody @Valid BatchGenerateLinkRequest batchGenerateLinkRequest) {
+        List<BatchGenerateLinkResponse> result = new ArrayList<>();
+        
         // 获取站点域名
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
 
@@ -73,9 +83,12 @@ public class ShortLinkController {
         }
 
         String domain = systemConfig.getDomain();
-
-        // 拼接直链地址.
+        String storageKey = batchGenerateLinkRequest.getStorageKey();
+        for (String path : batchGenerateLinkRequest.getPaths()) {
+            // 拼接全路径地址.
         String fullPath = StringUtils.concat(path);
+            
+            // 生成短链
         ShortLink shortLink = shortLinkService.findByStorageKeyAndUrl(storageKey, fullPath);
         // 如果没有短链，则生成短链
         if (shortLink == null) {
@@ -84,7 +97,11 @@ public class ShortLinkController {
         }
 
         String shortUrl = StringUtils.removeDuplicateSlashes(domain + "/s/" + shortLink.getShortKey());
-        return AjaxJson.getSuccessData(shortUrl);
+            String pathLink = StringUtils.generatorPathLink(storageKey, fullPath);
+    
+            result.add(new BatchGenerateLinkResponse(shortUrl, pathLink));
+        }
+        return AjaxJson.getSuccessData(result);
     }
 
 
