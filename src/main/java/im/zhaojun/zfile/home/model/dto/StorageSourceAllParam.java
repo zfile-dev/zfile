@@ -105,5 +105,8 @@ public class StorageSourceAllParam {
 
     @ApiModelProperty(value = "编码格式", example = "UTF-8")
     private String encoding;
-
+    
+    @ApiModelProperty(value = "存储源 ID", example = "0AGrY0xF1D7PEUk9PV2")
+    private String driveId;
+    
 }

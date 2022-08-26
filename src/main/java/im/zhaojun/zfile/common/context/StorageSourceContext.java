@@ -204,7 +204,11 @@ public class StorageSourceContext implements ApplicationContextAware {
      * @return  存储源对应的 Service
      */
     public AbstractBaseFileService<?> getByKey(String key) {
-        return get(storageSourceService.findIdByKey(key));
+        Integer storageId = storageSourceService.findIdByKey(key);
+        if (storageId == null) {
+            return null;
+        }
+        return get(storageId);
     }
 
 

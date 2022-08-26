@@ -29,4 +29,9 @@ public class StorageSourceException extends RuntimeException {
 		this.storageId = storageId;
 	}
 
+	public StorageSourceException(Integer storageId, String message, Throwable cause) {
+		super(message, cause);
+		this.storageId = storageId;
+	}
+
 }

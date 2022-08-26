@@ -34,6 +34,7 @@ public enum StorageTypeEnum implements IEnum {
     ONE_DRIVE_CHINA("onedrive-china", "OneDrive 世纪互联"),
     SHAREPOINT_DRIVE("sharepoint", "SharePoint"),
     SHAREPOINT_DRIVE_CHINA("sharepoint-china", "SharePoint 世纪互联"),
+    GOOGLE_DRIVE("google-drive", "Google Drive"),
     QINIU("qiniu", "七牛云 KODO");
 
     private static final Map<String, StorageTypeEnum> ENUM_MAP = new HashMap<>();
