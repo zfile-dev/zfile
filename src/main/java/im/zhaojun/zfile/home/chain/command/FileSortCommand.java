@@ -35,6 +35,10 @@ public class FileSortCommand implements Command {
 		List<FileItemResult> fileItemList = fileContext.getFileItemList();
 		FileListRequest fileListRequest = fileContext.getFileListRequest();
 
+		if (fileListRequest.getOrderBy() == null || fileListRequest.getOrderDirection() == null) {
+			return false;
+		}
+
 		// 创建副本, 防止排序和过滤对原数据产生影响
 		List<FileItemResult> copyList = new ArrayList<>(fileItemList);
 

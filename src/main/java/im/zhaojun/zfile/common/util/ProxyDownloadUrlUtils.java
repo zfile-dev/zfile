@@ -8,6 +8,7 @@ import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import cn.hutool.extra.spring.SpringUtil;
 import im.zhaojun.zfile.admin.service.SystemConfigService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  *
  * @author zhaojun
  */
+@Slf4j
 public class ProxyDownloadUrlUtils {
 
 	private static SystemConfigService systemConfigService;
@@ -70,13 +72,17 @@ public class ProxyDownloadUrlUtils {
 			String storageId = split.get(0);
 			String pathAndName = split.get(1);
 			String expiredSecond = split.get(2);
+			
 			// 校验存储源 ID 和文件路径及是否过期.
 			if (StrUtil.equals(storageId, Convert.toStr(expectedStorageId))
 				&& StrUtil.equals(StringUtils.concat(pathAndName), StringUtils.concat(expectedPathAndName))
 				&& new Date().getTime() < Convert.toLong(expiredSecond)) {
 				return true;
 			}
+			
+			log.debug("校验链接已过期或不匹配, storageId={}, pathAndName={}, expiredSecond={}, now:={}", storageId, pathAndName, expiredSecond, new Date().getTime());
 		} catch (Exception e) {
+			log.error("校验链接是否过期异常", e);
 			return false;
 		}
 

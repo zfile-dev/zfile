@@ -89,14 +89,14 @@ public abstract class ProxyTransferService<P extends ProxyTransferParam> extends
 	/**
 	 * 上传文件
 	 *
-	 * @param   path
-	 *          文件下载路径
+	 * @param   pathAndName
+	 *          文件上传路径
 	 *
 	 * @param   inputStream
 	 *          文件流
 	 *
 	 */
-	public abstract void uploadFile(String path, InputStream inputStream);
+	public abstract void uploadFile(String pathAndName, InputStream inputStream);
 
 
 	/**

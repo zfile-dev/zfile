@@ -24,7 +24,7 @@ public class AccessTokenRefreshSchedule {
 	private StorageSourceContext storageSourceContext;
 
 	/**
-	 * 项目启动 30 秒后, 每 15 分钟执行一次刷新 OneDrive Token 的定时任务.
+	 * 项目启动 30 秒后, 每 10 分钟执行一次刷新 OneDrive Token 的定时任务.
 	 */
 	@Scheduled(fixedRate = 1000 * 60 * 10, initialDelay = 1000 * 10)
 	public void autoRefreshAccessToken() {

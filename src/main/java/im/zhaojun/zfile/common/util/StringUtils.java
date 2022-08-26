@@ -272,7 +272,7 @@ public class StringUtils {
      *
      * @return  生成结果
      */
-    public static String generatorLink(String storageKey, String fullPath) {
+    public static String generatorPathLink(String storageKey, String fullPath) {
         SystemConfigService systemConfigService = SpringUtil.getBean(SystemConfigService.class);
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
         String domain = systemConfig.getDomain();

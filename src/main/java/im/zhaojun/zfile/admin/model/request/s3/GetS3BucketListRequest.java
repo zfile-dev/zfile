@@ -28,7 +28,6 @@ public class GetS3BucketListRequest {
 	private String endPoint;
 
 	@ApiModelProperty(value = "Endpoint 接入点", required = true, example = "cn-beijing")
-	// @NotBlank(message = "地域不能为空")
 	private String region;
 
 }

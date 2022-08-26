@@ -181,9 +181,9 @@ public class FtpServiceImpl extends ProxyTransferService<FtpParam> {
 
 
     @Override
-    public synchronized void uploadFile(String path, InputStream inputStream) {
-        String fullPath = StringUtils.concat(param.getBasePath(), path);
-        String fileName = FileUtil.getName(path);
+    public synchronized void uploadFile(String pathAndName, InputStream inputStream) {
+        String fullPath = StringUtils.concat(param.getBasePath(), pathAndName);
+        String fileName = FileUtil.getName(pathAndName);
         String folderName = FileUtil.getParent(fullPath, 1);
         ftp.upload(folderName, fileName, inputStream);
     }

@@ -159,12 +159,12 @@ public class WebdavServiceImpl extends ProxyTransferService<WebdavParam> {
 	}
 
 	@Override
-	public void uploadFile(String path, InputStream inputStream) {
+	public void uploadFile(String pathAndName, InputStream inputStream) {
 		try {
-			path = getRequestPath(path);
-			sardine.put(path, inputStream);
+			pathAndName = getRequestPath(pathAndName);
+			sardine.put(pathAndName, inputStream);
 		} catch (IOException e) {
-			throw new FileUploadException(getStorageTypeEnum(), storageId, path, e);
+			throw new FileUploadException(getStorageTypeEnum(), storageId, pathAndName, e);
 		}
 	}
 
