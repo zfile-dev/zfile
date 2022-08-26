@@ -1,1 +1,0 @@
-import{e as t}from"./request.16d78231.js";import{at as r}from"./index.43c9e4f9.js";const s=e=>r.get(e,{withCredentials:!1}),i=e=>t({url:"/api/parse/content",method:"get",data:e});export{i as a,s as g};
