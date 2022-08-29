@@ -43,6 +43,8 @@
 ![PDF 预览](https://cdn.jun6.net/uPic/2022/08/13/H327bV.png)
 ### Office 预览
 ![Office 预览](https://cdn.jun6.net/uPic/2022/08/27/RxeiqI.png)
+### 3d 文件预览
+![3d 文件预览](https://cdn.jun6.net/uPic/2022/08/29/8iszyh.png)
 ### 生成直链
 ![生成直链](https://cdn.jun6.net/uPic/2022/08/13/zCX3xT.jpg)
 ### 页面设置
