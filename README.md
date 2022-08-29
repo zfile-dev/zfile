@@ -3,7 +3,7 @@
     <img alt="ZFile" src="https://cdn.jun6.net/2021/04/21/69a89344e2a84.png" height="150px">
   </a>
 <br><br>
-基于 Java 的在线网盘程序，支持对接 S3、OneDrive、SharePoint、又拍云、本地存储、FTP、SFTP 等存储源，支持在线浏览图片、播放音视频，文本文件、Office 等文件类型。
+基于 Java 的在线网盘程序，支持对接 S3、OneDrive、SharePoint、又拍云、本地存储、FTP、SFTP 等存储源，支持在线浏览图片、播放音视频，文本文件、Office、obj（3d）等文件类型。
 <br><br>
 <img src="https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square" alt="license">
 <img src="https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a" alt="codady">
