@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('allowPathLinkAnonAccess', '是否允许路径直链可直接访问', 'false');

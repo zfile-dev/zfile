@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="im.zhaojun.zfile.admin.mapper.ShortLinkMapper">
-    <resultMap id="BaseResultMap" type="im.zhaojun.zfile.admin.model.entity.ShortLink">
+<mapper namespace="im.zhaojun.zfile.module.link.mapper.ShortLinkMapper">
+    <resultMap id="BaseResultMap" type="im.zhaojun.zfile.module.link.model.entity.ShortLink">
         <!--@mbg.generated-->
         <!--@Table short_link-->
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -34,4 +34,9 @@
         from short_link
         where url=#{url,jdbcType=LONGVARCHAR} and storage_id=#{storageId,jdbcType=INTEGER}
     </select>
+
+    <delete id="deleteByStorageId">
+        delete from short_link where storage_id = #{storageId}
+    </delete>
+
 </mapper>

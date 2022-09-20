@@ -1,8 +1,7 @@
 <p align="center">
-  <a href="https://zfile.vip" target="_blank" rel="noopener noreferrer">
-    <img alt="ZFile" src="https://cdn.jun6.net/2021/04/21/69a89344e2a84.png" height="150px">
-  </a>
-<br><br>
+
+![zfile](https://cdn.jun6.net/uPic/2022/09/04/zfile-header.png)
+
 基于 Java 的在线网盘程序，支持对接 S3、OneDrive、SharePoint、又拍云、本地存储、FTP、SFTP 等存储源，支持在线浏览图片、播放音视频，文本文件、Office、obj（3d）等文件类型。
 <br><br>
 <img src="https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square" alt="license">

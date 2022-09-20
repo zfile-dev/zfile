@@ -13,93 +13,155 @@
     <conversionRule conversionWord="wEx"
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
-    <!-- 定义日志的根目录 -->
     <property resource="application.properties"/>
+    <!-- 单文件最大大小 -->
+    <property name="maxFileSize" value="10MB"/>
+    <!-- 最大保存时间（天） -->
+    <property name="maxHistory" value="30"/>
+    <!-- DEBUG 日志最大保存时间（天） -->
+    <property name="debugMaxHistory" value="7"/>
+    <!-- 日志文件 pattern -->
+    <property name="log-file-pattern" value="%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%36.36X{traceId}] [%10.10X{user}] [%15.15X{ip}] [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+    <!-- 定义日志的根目录 -->
     <springProperty scope="context" name="LOG_HOME" source="zfile.log.path"/>
+    <!-- 定义日志编码 -->
+    <springProperty scope="context" name="LOG_ENCODER" source="zfile.log.encoder"/>
 
     <!-- 定义日志文件名称 -->
     <property name="appName" value="zfile"/>
 
     <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
-    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 生产模式控制台最低只输出 INFO 级别日志 -->
         <springProfile name="prod">
             <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
                 <level>INFO</level>
             </filter>
         </springProfile>
 
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(%-6L){yellow} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
-        </layout>
+        <encoder>
+            <pattern>%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} [%36.36X{traceId}] [%10.10X{user}] [%15.15X{ip}] %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(%-6L){yellow} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
+            <charset>${LOG_ENCODER}</charset>
+        </encoder>
     </appender>
 
-    <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
-    <appender name="appLogAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 记录 debug 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
+    <appender name="debug_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 指定日志文件的名称 -->
-        <file>${LOG_HOME}/${appName}.log</file>
+        <file>${LOG_HOME}/${appName}-debug.log</file>
 
-        <!--
-            当发生滚动时，决定 RollingFileAppender 的行为，涉及文件移动和重命名
-            TimeBasedRollingPolicy： 最常用的滚动策略，它根据时间来制定滚动策略，既负责滚动也负责出发滚动。
-        -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!--
-            滚动时产生的文件的存放位置及文件名称 %d{yyyy-MM-dd}：按天进行日志滚动
-            %i：当文件大小超过maxFileSize时，按照i进行文件滚动
-            -->
-            <fileNamePattern>${LOG_HOME}/${appName}-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
-            <!--
-            可选节点，控制保留的归档文件的最大数量，超出数量就删除旧文件。假设设置每天滚动，
-            且maxHistory是365，则只保存最近365天的文件，删除之前的旧文件。注意，删除旧文件是，
-            那些为了归档而创建的目录也会被删除。
-            -->
-            <MaxHistory>30</MaxHistory>
-            <!--
-            当日志文件超过maxFileSize指定的大小是，根据上面提到的%i进行日志文件滚动 注意此处配置SizeBasedTriggeringPolicy是无法实现按文件大小进行滚动的，必须配置timeBasedFileNamingAndTriggeringPolicy
-            -->
+            <fileNamePattern>${LOG_HOME}/${appName}-debug-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <MaxHistory>${debugMaxHistory}</MaxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
+                <maxFileSize>${maxFileSize}</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
-        <!-- 日志输出格式： -->
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
-        </layout>
+
+        <encoder>
+            <pattern>${log-file-pattern}</pattern>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
     </appender>
 
-    <!--
-		logger主要用于存放日志对象，也可以定义日志类型、级别
-		name：表示匹配的logger类型前缀，也就是包的前半部分
-		level：要记录的日志级别，包括 TRACE < DEBUG < INFO < WARN < ERROR
-		additivity：作用在于children-logger是否使用 rootLogger配置的appender进行输出，
-		false：表示只用当前logger的appender-ref，
-		true： 表示当前logger的appender-ref和rootLogger的appender-ref都有效
-    -->
+    <!-- 记录 info 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
+    <appender name="info_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 指定日志文件的名称 -->
+        <file>${LOG_HOME}/${appName}-info.log</file>
 
-    <!-- jetCache logger -->
-    <logger name="com.alicp" additivity="false" level="debug"/>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/${appName}-info-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <MaxHistory>${maxHistory}</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
 
-    <!-- hibernate logger -->
-    <logger name="org.hibernate.SQL" additivity="false" level="debug"/>
+        <encoder>
+            <pattern>${log-file-pattern}</pattern>
+        </encoder>
 
-    <springProfile name="dev">
-        <logger name="im.zhaojun.zfile.admin.mapper" additivity="false" level="debug">
-            <appender-ref ref="stdout"/>
-            <appender-ref ref="appLogAppender"/>
-        </logger>
-    </springProfile>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
 
-    <springProfile name="prod">
-        <logger name="im.zhaojun" additivity="true" level="debug"/>
-    </springProfile>
+    <!-- 记录 warn 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
+    <appender name="warn_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 指定日志文件的名称 -->
+        <file>${LOG_HOME}/${appName}-warn.log</file>
 
-    <!--
-        root与logger是父子关系，没有特别定义则默认为root，任何一个类只会和一个logger对应，
-        要么是定义的logger，要么是root，判断的关键在于找到这个logger，然后判断这个logger的appender和level。
-    -->
-    <root level="info">
-        <appender-ref ref="stdout"/>
-        <appender-ref ref="appLogAppender"/>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/${appName}-warn-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <MaxHistory>${maxHistory}</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${log-file-pattern}</pattern>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 记录 error 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
+    <appender name="error_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 指定日志文件的名称 -->
+        <file>${LOG_HOME}/${appName}-error.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/${appName}-error-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <MaxHistory>${maxHistory}</MaxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${log-file-pattern}</pattern>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 控制台输出日志级别 -->
+    <root level="debug">
+        <appender-ref ref="console"/>
     </root>
+
+    <!--
+     logger 主要用于存放日志对象，也可以定义日志类型、级别
+     name：表示匹配的logger类型前缀，也就是包的前半部分
+     level：要记录的日志级别，包括 TRACE < DEBUG < INFO < WARN < ERROR
+     additivity：作用在于children-logger是否使用 rootLogger配置的appender进行输出，
+         false：表示只用当前logger的appender-ref，
+         true： 表示当前logger的appender-ref和rootLogger的appender-ref都有效
+     -->
+
+    <!-- 指定 ZFile 输出的日志到文件中 -->
+    <logger name="im.zhaojun.zfile" level="DEBUG" >
+        <appender-ref ref="debug_file"/>
+        <appender-ref ref="info_file"/>
+        <appender-ref ref="warn_file"/>
+        <appender-ref ref="error_file"/>
+    </logger>
 
 </configuration>

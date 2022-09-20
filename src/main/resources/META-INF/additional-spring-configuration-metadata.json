@@ -1,28 +1,6 @@
 {
     "properties": [
         {
-            "name": "zfile.cache.timeout",
-            "type": "java.lang.Long",
-            "description": "目录缓存过期时间 和 下载地址过期时间. 单位为秒."
-        },
-        {
-            "name": "zfile.cache.auto-refresh.interval",
-            "type": "java.lang.Long",
-            "description": "任务间隔时间, 每隔多长时间检测一次到期的缓存 KEY 并自动刷新, 单位为秒."
-        },
-        {
-            "name": "zfile.constant.readme",
-            "type": "java.lang.String",
-            "defaultValue": "readme.md",
-            "description": "文档文件 文件名."
-        },
-        {
-            "name": "zfile.constant.password",
-            "type": "java.lang.String",
-            "defaultValue": "password.txt",
-            "description": "密码文件 文件名."
-        },
-        {
             "name": "zfile.onedrive.clientId",
             "type": "java.lang.String",
             "description": "OneDrive ClientId."
@@ -63,11 +41,6 @@
             "description": "OneDrive China 认证权限."
         },
         {
-            "name": "zfile.preview.audio.maxFileSizeMb",
-            "type": "java.lang.Long",
-            "description": "允许在线解析封面, 专辑, 歌手信息的音频文件大小, 单位为 KB."
-        },
-        {
             "name": "zfile.preview.text.maxFileSizeKb",
             "type": "java.lang.Long",
             "description": "允许在线读取文本文件的文件大小, 单位为 KB."
@@ -81,11 +54,6 @@
             "name": "zfile.db.path",
             "type": "java.lang.String",
             "description": "数据库文件路径."
-        },
-        {
-            "name": "zfile.tmp.path",
-            "type": "java.lang.String",
-            "description": "临时文件路径."
         },
         {
             "name": "zfile.debug",
