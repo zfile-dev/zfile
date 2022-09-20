@@ -80,7 +80,7 @@ public class StorageSourceConfigService {
      * @param   storageId
      *          存储源 ID
      */
-    @CacheEvict(key = "#storageId")
+    @CacheEvict(key = "#storageId", beforeInvocation = true)
     public int deleteByStorageId(Integer storageId) {
         int deleteSize = storageSourceConfigMapper.deleteByStorageId(storageId);
         log.info("删除存储源 ID 为 {} 的参数配置 {} 条", storageId, deleteSize);
