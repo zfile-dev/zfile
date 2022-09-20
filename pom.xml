@@ -252,6 +252,7 @@
                         <jvm>-Dfile.encoding=utf-8</jvm>
                         <jvm>-Djava.net.preferIPv4Stack=false</jvm>
                         <jvm>-Djava.net.preferIPv4Addresses=true</jvm>
+                        <jvm>-Djava.awt.headless=true</jvm>
                     </jvms>
                 </configuration>
             </plugin>
