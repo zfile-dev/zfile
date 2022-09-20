@@ -1,0 +1,1 @@
+System.register(["./request-legacy.e2497089.js","./index-legacy.2de5676a.js"],(function(e){"use strict";var t,n;return{setters:[function(e){t=e.f},function(e){n=e.a7}],execute:function(){e("g",(e=>n.get(e,{withCredentials:!1}))),e("a",(e=>t({url:"/api/parse/content",method:"get",data:e})))}}}));

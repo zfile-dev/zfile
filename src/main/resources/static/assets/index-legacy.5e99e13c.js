@@ -1,0 +1,1 @@
+System.register(["./directive-legacy.1ac5dcca.js"],(function(e){"use strict";var i,t;return{setters:[function(e){i=e.v,t=e.L}],execute:function(){e("E",{install(e){e.directive("loading",i),e.config.globalProperties.$loading=t},directive:i,service:t})}}}));

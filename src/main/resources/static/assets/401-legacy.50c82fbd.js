@@ -1,0 +1,1 @@
+System.register([],(function(e){"use strict";return{execute:function(){var t=e("_","/assets/401.f56d4c2a.svg"),r=Object.freeze(Object.defineProperty({__proto__:null,default:t},Symbol.toStringTag,{value:"Module"}));e("a",r)}}}));
