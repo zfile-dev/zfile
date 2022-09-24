@@ -4,7 +4,6 @@ import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import im.zhaojun.zfile.core.constant.ZFileConstant;
 import im.zhaojun.zfile.core.exception.file.init.InitializeStorageSourceException;
@@ -117,10 +116,6 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public boolean deleteFile(String path, String name) {
-        log.error("删除文件: {}", path + name);
-        if (RandomUtil.randomBoolean()) {
-            throw new RuntimeException("模拟删除失败");
-        }
         String fullPath = StringUtils.concat(param.getFilePath(), path, name);
         return FileUtil.del(fullPath);
     }
