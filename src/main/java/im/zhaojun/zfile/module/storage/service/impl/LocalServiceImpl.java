@@ -118,9 +118,9 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
     @Override
     public boolean deleteFile(String path, String name) {
         log.error("删除文件: {}", path + name);
-        if (RandomUtil.randomBoolean()) {
-            throw new RuntimeException("模拟删除失败");
-        }
+//        if (RandomUtil.randomBoolean()) {
+//            throw new RuntimeException("模拟删除失败");
+//        }
         String fullPath = StringUtils.concat(param.getFilePath(), path, name);
         return FileUtil.del(fullPath);
     }
@@ -177,6 +177,8 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
         File uploadToFileObj = new File(uploadPath);
         BufferedOutputStream outputStream = FileUtil.getOutputStream(uploadToFileObj);
         IoUtil.copy(inputStream, outputStream);
+        IoUtil.close(inputStream);
+        IoUtil.close(outputStream);
     }
 
 
