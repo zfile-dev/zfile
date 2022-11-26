@@ -35,7 +35,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -64,10 +63,7 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public List<FileItemResult> fileList(String folderPath) throws FileNotFoundException {
-        // 安全检查，以 .. 或 /.. 开头的需拦截, 否则可能会获取到上层文件夹内容.
-        if (StrUtil.startWith(folderPath, "..") || StrUtil.startWith(folderPath, "/..")) {
-            return Collections.emptyList();
-        }
+        checkPathSecurity(folderPath);
 
         List<FileItemResult> fileItemList = new ArrayList<>();
 
@@ -94,6 +90,8 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public FileItemResult getFileItem(String pathAndName) {
+        checkPathSecurity(pathAndName);
+        
         String fullPath = StringUtils.concat(param.getFilePath(), pathAndName);
 
         File file = new File(fullPath);
@@ -109,6 +107,9 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public boolean newFolder(String path, String name) {
+        checkPathSecurity(path);
+        checkNameSecurity(name);
+        
         String fullPath = StringUtils.concat(param.getFilePath(), path, name);
         return FileUtil.mkdir(fullPath) != null;
     }
@@ -116,6 +117,9 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public boolean deleteFile(String path, String name) {
+        checkPathSecurity(path);
+        checkNameSecurity(name);
+        
         String fullPath = StringUtils.concat(param.getFilePath(), path, name);
         return FileUtil.del(fullPath);
     }
@@ -123,12 +127,19 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public boolean deleteFolder(String path, String name) {
+        checkPathSecurity(path);
+        checkNameSecurity(name);
+        
         return deleteFile(path, name);
     }
 
 
     @Override
     public boolean renameFile(String path, String name, String newName) {
+        checkPathSecurity(path);
+        checkNameSecurity(name);
+        checkNameSecurity(newName);
+        
         // 如果文件名没变，不做任何操作.
         if (StrUtil.equals(name, newName)) {
             return true;
@@ -149,6 +160,10 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public boolean renameFolder(String path, String name, String newName) {
+        checkPathSecurity(path);
+        checkNameSecurity(name);
+        checkNameSecurity(newName);
+        
         return renameFile(path, name, newName);
     }
 
@@ -161,6 +176,8 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public void uploadFile(String pathAndName, InputStream inputStream) {
+        checkPathSecurity(pathAndName);
+        
         String baseFilePath = param.getFilePath();
         String uploadPath = StringUtils.removeDuplicateSlashes(baseFilePath + ZFileConstant.PATH_SEPARATOR + pathAndName);
         // 如果目录不存在则创建
@@ -177,6 +194,8 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
     @Override
     public ResponseEntity<Resource> downloadToStream(String pathAndName) {
+        checkPathSecurity(pathAndName);
+        
         File file = new File(StringUtils.removeDuplicateSlashes(param.getFilePath() + ZFileConstant.PATH_SEPARATOR + pathAndName));
         if (!file.exists()) {
             ByteArrayResource byteArrayResource = new ByteArrayResource("文件不存在或异常，请联系管理员.".getBytes(StandardCharsets.UTF_8));
@@ -222,5 +241,39 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
         }
         return fileItemResult;
     }
-
+    
+    
+    /**
+     * 检查路径合法性：
+     *  - 只有以 . 开头的允许通过，其他的如 ./ ../ 的都是非法获取上层文件夹内容的路径.
+     *
+     * @param   path
+     *          文件路径
+     *
+     * @throws IllegalArgumentException    文件路径包含非法字符时会抛出此异常
+     */
+    private static void checkPathSecurity(String path) {
+        // 路径中不能包含 .. 不然可能会获取到上层文件夹的内容
+        if (StrUtil.containsAny(path, "../", "..\\")) {
+            throw new IllegalArgumentException("文件路径存在安全隐患: " + path);
+        }
+    }
+    
+    
+    /**
+     * 检查路径合法性：
+     *  - 不为空，且不包含 \ / 字符
+     *
+     * @param   name
+     *          文件路径
+     *
+     * @throws IllegalArgumentException    文件名包含非法字符时会抛出此异常
+     */
+    private static void checkNameSecurity(String name) {
+        // 路径中不能包含 .. 不然可能会获取到上层文件夹的内容
+        if (StrUtil.containsAny(name, "\\", "/")) {
+            throw new IllegalArgumentException("文件名存在安全隐患: " + name);
+        }
+    }
+    
 }
