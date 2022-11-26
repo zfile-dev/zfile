@@ -38,8 +38,8 @@ public class ProxyUploadController {
 	@PostMapping("/file/upload/{storageKey}/**")
 	@ResponseBody
 	public AjaxJson<?> upload(@RequestParam MultipartFile file, @PathVariable("storageKey") String storageKey) throws IOException {
-		if (file == null || file.isEmpty()) {
-			return AjaxJson.getError("文件为空，无法上传.");
+		if (file == null) {
+			throw new RuntimeException("空文件不能为空");
 		}
 
 		// 获取上传路径
