@@ -75,6 +75,8 @@ public class RefererCheckAspect {
 			log.warn("请求路径 {}, referer 不允许为空，当前请求 referer 为空，禁止访问.", requestUrl);
 			httpServletResponse.sendRedirect(forbiddenUrl);
 			return null;
+		} else if (refererAllowEmpty && StrUtil.isEmpty(referer)) { // 如果 referer 允许为空，且当前 referer 为空，则跳过校验
+			return point.proceed();
 		}
 
 		// 获取允许的 referer 地址
@@ -86,8 +88,6 @@ public class RefererCheckAspect {
 			log.warn("请求路径 {}, referer 为白名单模式，当前请求 referer {} 未在白名单中，禁止访问.", requestUrl, referer);
 			httpServletResponse.sendRedirect(forbiddenUrl);
 			return null;
-		} else if (refererAllowEmpty && StrUtil.isEmpty(referer)) { // 如果 referer 允许为空，且当前 referer 为空，则跳过校验
-			return point.proceed();
 		}
 
 		// 如果是黑名单模式，则校验当前 referer 是否在列表中，则禁止访问.
