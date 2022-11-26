@@ -21,5 +21,8 @@ public class FileListConfigRequest {
 
 	@ApiModelProperty(value = "请求路径", example = "/")
 	private String path = "/";
+	
+	@ApiModelProperty(value = "文件夹密码", example = "123456")
+	private String password;
 
 }

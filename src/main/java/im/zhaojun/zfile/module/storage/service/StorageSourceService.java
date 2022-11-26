@@ -361,8 +361,17 @@ public class StorageSourceService {
         // 根据存储源 key 获取存储源 id
         Integer storageId = storageSource.getId();
     
+        VerifyResultDTO verifyPassword = passwordConfigService.verifyPassword(storageId, path, fileListConfigRequest.getPassword());
+    
+        ReadmeConfig readmeByPath = null;
+        if (verifyPassword.isPassed()) {
+            // 获取指定存储源路径下的 readme 信息
+            readmeByPath = readmeConfigService.getByStorageAndPath(storageId, path, storageSource.getCompatibilityReadme());
+        } else {
+            log.info("文件夹密码验证失败，不获取 readme 信息, storageId: {}, path: {}, password: {}", storageId, path, fileListConfigRequest.getPassword());
+        }
+    
         // 获取指定存储源路径下的 readme 信息
-        ReadmeConfig readmeByPath = readmeConfigService.getByStorageAndPath(storageId, path, storageSource.getCompatibilityReadme());
         return storageSourceConvert.entityToConfigResult(storageSource, readmeByPath);
     }
     
