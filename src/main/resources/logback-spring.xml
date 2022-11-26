@@ -14,12 +14,13 @@
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
     <property resource="application.properties"/>
+
     <!-- 单文件最大大小 -->
     <property name="maxFileSize" value="10MB"/>
     <!-- 最大保存时间（天） -->
-    <property name="maxHistory" value="30"/>
+    <property name="maxHistory" value="15"/>
     <!-- DEBUG 日志最大保存时间（天） -->
-    <property name="debugMaxHistory" value="7"/>
+    <property name="debugMaxHistory" value="3"/>
     <!-- 日志文件 pattern -->
     <property name="log-file-pattern" value="%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%36.36X{traceId}] [%10.10X{user}] [%15.15X{ip}] [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
 
@@ -28,7 +29,7 @@
     <!-- 定义日志编码 -->
     <springProperty scope="context" name="LOG_ENCODER" source="zfile.log.encoder"/>
 
-    <!-- 定义日志文件名称 -->
+    <!-- 定义应用名，用于日志文件前缀 -->
     <property name="appName" value="zfile"/>
 
     <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
@@ -46,14 +47,15 @@
         </encoder>
     </appender>
 
-    <!-- 记录 debug 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
+    <!-- 只记录 debug 日志，每天滚动一次，最多保留 ${debugMaxHistory} 天，文件最大 ${maxFileSize}，总文件最大 1GB -->
     <appender name="debug_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 指定日志文件的名称 -->
         <file>${LOG_HOME}/${appName}-debug.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_HOME}/${appName}-debug-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${appName}-debug-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <MaxHistory>${debugMaxHistory}</MaxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>${maxFileSize}</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -70,13 +72,13 @@
         </filter>
     </appender>
 
-    <!-- 记录 info 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
+    <!-- 记录 info 日志及以上级别的日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
     <appender name="info_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 指定日志文件的名称 -->
-        <file>${LOG_HOME}/${appName}-info.log</file>
+        <file>${LOG_HOME}/${appName}.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_HOME}/${appName}-info-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${appName}-info-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <MaxHistory>${maxHistory}</MaxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>${maxFileSize}</maxFileSize>
@@ -87,20 +89,18 @@
             <pattern>${log-file-pattern}</pattern>
         </encoder>
 
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
         </filter>
     </appender>
 
-    <!-- 记录 warn 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
+    <!-- 只记录 warn 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
     <appender name="warn_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 指定日志文件的名称 -->
         <file>${LOG_HOME}/${appName}-warn.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_HOME}/${appName}-warn-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${appName}-warn-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <MaxHistory>${maxHistory}</MaxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>${maxFileSize}</maxFileSize>
@@ -118,13 +118,13 @@
         </filter>
     </appender>
 
-    <!-- 记录 error 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
+    <!-- 只记录 error 日志，每天滚动一次，最多保留 ${maxHistory} 天，文件最大 ${maxFileSize} -->
     <appender name="error_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 指定日志文件的名称 -->
         <file>${LOG_HOME}/${appName}-error.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_HOME}/${appName}-error-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${appName}-error-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <MaxHistory>${maxHistory}</MaxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>${maxFileSize}</maxFileSize>
@@ -143,8 +143,11 @@
     </appender>
 
     <!-- 控制台输出日志级别 -->
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="console"/>
+        <appender-ref ref="info_file"/>
+        <appender-ref ref="warn_file"/>
+        <appender-ref ref="error_file"/>
     </root>
 
     <!--
@@ -159,9 +162,10 @@
     <!-- 指定 ZFile 输出的日志到文件中 -->
     <logger name="im.zhaojun.zfile" level="DEBUG" >
         <appender-ref ref="debug_file"/>
-        <appender-ref ref="info_file"/>
-        <appender-ref ref="warn_file"/>
-        <appender-ref ref="error_file"/>
     </logger>
+
+    <logger name="springfox" level="info" />
+    <logger name="org.springframework" level="info" />
+    <logger name="com.zaxxer" level="info" />
 
 </configuration>
