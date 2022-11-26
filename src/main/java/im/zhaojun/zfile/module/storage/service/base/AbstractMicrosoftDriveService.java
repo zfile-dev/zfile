@@ -141,7 +141,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
      *
      * @return  获取的 Token 信息.
      */
-    public OAuth2TokenDTO getToken(String code, String clientId, String clientSecret, String redirectUri) {
+    public OAuth2TokenDTO getTokenByCode(String code, String clientId, String clientSecret, String redirectUri) {
         String param = "client_id=" + clientId +
                 "&redirect_uri=" + redirectUri +
                 "&client_secret=" + clientSecret +

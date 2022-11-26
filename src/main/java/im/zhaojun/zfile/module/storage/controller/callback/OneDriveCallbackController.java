@@ -80,7 +80,7 @@ public class OneDriveCallbackController {
             redirectUri = stateArr[2];
         }
         
-        OAuth2TokenDTO Oauth2TokenDTO = oneDriveServiceImpl.getToken(code, clientId, clientSecret, redirectUri);
+        OAuth2TokenDTO Oauth2TokenDTO = oneDriveServiceImpl.getTokenByCode(code, clientId, clientSecret, redirectUri);
         log.info("onedrive 国际版授权回调获取令牌结果: {}", Oauth2TokenDTO);
         
         model.addAttribute("oauth2Token", Oauth2TokenDTO);
@@ -135,7 +135,7 @@ public class OneDriveCallbackController {
             redirectUri = stateArr[2];
         }
         
-        OAuth2TokenDTO OAuth2TokenDTO = oneDriveChinaServiceImpl.getToken(code, clientId, clientSecret, redirectUri);
+        OAuth2TokenDTO OAuth2TokenDTO = oneDriveChinaServiceImpl.getTokenByCode(code, clientId, clientSecret, redirectUri);
         log.info("onedrive 世纪互联版授权回调获取令牌结果: {}", OAuth2TokenDTO);
         
         model.addAttribute("oauth2Token", OAuth2TokenDTO);
