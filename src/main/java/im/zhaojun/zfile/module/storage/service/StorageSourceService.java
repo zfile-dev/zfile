@@ -9,6 +9,7 @@ import im.zhaojun.zfile.core.util.CodeMsg;
 import im.zhaojun.zfile.module.filter.service.FilterConfigService;
 import im.zhaojun.zfile.module.link.service.ShortLinkService;
 import im.zhaojun.zfile.module.log.service.DownloadLogService;
+import im.zhaojun.zfile.module.password.model.dto.VerifyResultDTO;
 import im.zhaojun.zfile.module.password.service.PasswordConfigService;
 import im.zhaojun.zfile.module.readme.model.entity.ReadmeConfig;
 import im.zhaojun.zfile.module.readme.service.ReadmeConfigService;
@@ -309,7 +310,7 @@ public class StorageSourceService {
                 dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
     
         // 初始化并检查是否可用
-        storageSourceContext.init(storageId);
+        storageSourceContext.init(storageSource);
         log.info("根据参数初始化存储源成功, id: {}, name: {}, config size: {}",
                 dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
         
@@ -352,7 +353,7 @@ public class StorageSourceService {
         String path = fileListConfigRequest.getPath();
         
         // 判断存储源是否存在.
-        StorageSource storageSource = findByStorageKey(storageKey);
+        StorageSource storageSource = storageSourceService.findByStorageKey(storageKey);
         if (storageSource == null) {
             throw new InvalidStorageSourceException("通过存储源 key 未找到存储源, key: " + storageKey);
         }
