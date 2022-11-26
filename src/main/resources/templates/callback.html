@@ -28,6 +28,13 @@
                             <span>状态：</span>
                             <span class="text-red-500">获取失败</span>
                         </div>
+
+                        <div th:if="${oauth2Token.success == false && oauth2Token.body.contains('AADSTS65001')}" class="text-red-500 font-bold">
+                            检测到您可能是 ZFile 3.x 版本获取的令牌，因为一些兼容性问题，您需要点击以下链接重新获取令牌，或者升级 4.x 版本解决。
+                            <a target="_blank" class="text-blue-400 block" href="https://demo.zfile.vip/onedrive/china-authorize" th:if="${type.equals('OneDrive 世纪互联')}">https://demo.zfile.vip/onedrive/china-authorize</a>
+                            <a target="_blank" class="text-blue-400 block" href="https://demo.zfile.vip/onedrive/authorize" th:if="${type.equals('OneDrive 国际版')}">https://demo.zfile.vip/onedrive/authorize</a>
+                        </div>
+
                         <div>
                             <label for="accessToken" class="block text-sm font-medium text-slate-700">AccessToken (访问令牌)</label>
                             <div class="mt-1">
