@@ -1,1 +1,0 @@
-System.register(["./request-legacy.e2497089.js"],(function(t){"use strict";var e;return{setters:[function(t){e=t.f}],execute:function(){t("i",(()=>e({url:"/api/install/status",method:"get"}))),t("a",(t=>e({url:"/api/install",method:"post",data:t})))}}}));

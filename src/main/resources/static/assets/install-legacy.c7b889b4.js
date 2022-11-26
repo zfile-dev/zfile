@@ -1,0 +1,1 @@
+System.register(["./request-legacy.d578b778.js"],(function(t){"use strict";var e;return{setters:[function(t){e=t.e}],execute:function(){t("i",(function(){return e({url:"/api/install/status",method:"get"})})),t("a",(function(t){return e({url:"/api/install",method:"post",data:t})}))}}}));
