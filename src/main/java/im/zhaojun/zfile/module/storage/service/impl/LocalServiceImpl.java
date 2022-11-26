@@ -238,6 +238,8 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
         if (fileItemResult.getType() == FileTypeEnum.FILE) {
             fileItemResult.setUrl(getDownloadUrl(StringUtils.concat(folderPath, file.getName())));
+        } else {
+            fileItemResult.setSize(null);
         }
         return fileItemResult;
     }
