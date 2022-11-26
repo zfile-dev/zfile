@@ -84,8 +84,8 @@ public class StorageSourceContext implements ApplicationContextAware {
         List<StorageSource> list = storageSourceService.findAllOrderByOrderNum();
         for (StorageSource storageSource : list) {
             try {
-                init(storageSource.getId());
-                log.info("启动时初始化存储源成功, 存储源 id: {}, 存储源类型: {}, 存储源名称: {}",
+                init(storageSource);
+                log.info("启动时初始化存储源成功, 存储源 id: [{}], 存储源类型: [{}], 存储源名称: [{}]",
                         storageSource.getId(), storageSource.getType().getDescription(), storageSource.getName());
             } catch (Exception e) {
                 log.error("启动时初始化存储源失败, 存储源 id: {}, 存储源类型: {}, 存储源名称: {}",
@@ -152,10 +152,13 @@ public class StorageSourceContext implements ApplicationContextAware {
     /**
      * 初始化指定存储源的 Service, 添加到上下文环境中.
      *
-     * @param   storageId
-     *          存储源 ID.
+     * @param   storageSource
+     *          存储源对象
      */
-    public void init(Integer storageId) {
+    public void init(StorageSource storageSource) {
+        Integer storageId = storageSource.getId();
+        String storageName = storageSource.getName();
+        
         AbstractBaseFileService<IStorageParam> baseFileService = getInitStorageBeanByStorageId(storageId);
         if (baseFileService == null) {
             throw new InvalidStorageSourceException(storageId);
@@ -163,6 +166,7 @@ public class StorageSourceContext implements ApplicationContextAware {
         
         // 填充初始化参数
         baseFileService.setStorageId(storageId);
+        baseFileService.setName(storageName);
         IStorageParam initParam = getInitParam(storageId, baseFileService);
         baseFileService.setParam(initParam);
         
