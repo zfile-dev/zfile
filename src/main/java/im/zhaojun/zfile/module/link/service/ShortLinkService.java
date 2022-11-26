@@ -8,6 +8,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import im.zhaojun.zfile.module.storage.annotation.RefererCheck;
 import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.core.exception.file.InvalidStorageSourceException;
 import im.zhaojun.zfile.core.exception.file.operator.StorageSourceFileOperatorException;
@@ -146,6 +147,7 @@ public class ShortLinkService {
      *
      * @throws  IOException 可能抛出的 IO 异常
      */
+    @RefererCheck
     public void handlerDownload(String storageKey, String filePath, String shortKey) throws IOException {
         HttpServletRequest request = RequestHolder.getRequest();
         HttpServletResponse response = RequestHolder.getResponse();
