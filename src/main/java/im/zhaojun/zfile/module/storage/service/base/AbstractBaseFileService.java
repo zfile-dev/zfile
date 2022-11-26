@@ -50,7 +50,11 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 	 * 存储源 ID
 	 */
 	public Integer storageId;
-
+	
+	/**
+	 * 存储源名称
+	 */
+	private String name;
 
 	/**
 	 * 初始化存储源, 在调用前要设置存储的 {@link #storageId} 属性. 和 {@link #param} 属性.
@@ -219,6 +223,13 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 		}
 		this.storageId = storageId;
 	}
+	
+	public void setName(String name) {
+		if (this.name != null) {
+			throw new IllegalStateException("请勿重复初始化存储源");
+		}
+		this.name = name;
+	}
 
 	public void setParam(P param) {
 		if (this.param != null) {
@@ -253,5 +264,10 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 
 	public Integer getStorageId() {
 		return storageId;
+	}
+	
+	
+	String getStorageSimpleInfo() {
+		return StrUtil.format("存储源 [id={}, name={}, type: {}]", storageId, name, getStorageTypeEnum().getDescription());
 	}
 }
