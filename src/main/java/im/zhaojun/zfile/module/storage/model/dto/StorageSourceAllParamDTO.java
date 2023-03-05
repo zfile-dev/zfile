@@ -31,6 +31,9 @@ public class StorageSourceAllParamDTO {
     @ApiModelProperty(value = "bucket 名称", example = "zfile-test")
     private String bucketName;
 
+    @ApiModelProperty(value = "原 bucket 名称", example = "zfile-test")
+    private String originBucketName;
+
     @ApiModelProperty(value = "域名或 IP", example = "127.0.0.1")
     private String host;
 
