@@ -72,4 +72,9 @@ public @interface StorageParamItem {
 	 */
 	String linkName() default "";
 
+	/**
+	 * 是否忽略参数不传递给前端.
+	 */
+	boolean ignoreInput() default false;
+
 }

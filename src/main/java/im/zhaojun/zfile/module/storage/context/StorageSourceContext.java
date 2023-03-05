@@ -3,19 +3,19 @@ package im.zhaojun.zfile.module.storage.context;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import im.zhaojun.zfile.core.config.FlywayDbInitializer;
+import im.zhaojun.zfile.core.exception.file.InvalidStorageSourceException;
+import im.zhaojun.zfile.core.exception.file.init.InitializeStorageSourceException;
+import im.zhaojun.zfile.core.util.ClassUtils;
+import im.zhaojun.zfile.core.util.CodeMsg;
 import im.zhaojun.zfile.module.storage.annotation.StorageParamItem;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceParamDef;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSourceConfig;
+import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.IStorageParam;
 import im.zhaojun.zfile.module.storage.service.StorageSourceConfigService;
 import im.zhaojun.zfile.module.storage.service.StorageSourceService;
-import im.zhaojun.zfile.core.config.FlywayDbInitializer;
-import im.zhaojun.zfile.core.exception.file.init.InitializeStorageSourceException;
-import im.zhaojun.zfile.core.exception.file.InvalidStorageSourceException;
-import im.zhaojun.zfile.core.util.ClassUtils;
-import im.zhaojun.zfile.core.util.CodeMsg;
-import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.module.storage.service.base.RefreshTokenService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +28,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -54,8 +50,8 @@ public class StorageSourceContext implements ApplicationContextAware {
      * Map<存储源 ID, 存储源 Service>
      */
     private static final Map<Integer, AbstractBaseFileService<IStorageParam>> DRIVES_SERVICE_MAP = new ConcurrentHashMap<>();
-    
-    
+
+
     /**
      * Map<存储源类型, 存储源 Service>
      */
@@ -93,8 +89,8 @@ public class StorageSourceContext implements ApplicationContextAware {
             }
         }
     }
-    
-    
+
+
     /**
      * 根据存储源 id 获取对应的 Service.
      *
@@ -110,8 +106,8 @@ public class StorageSourceContext implements ApplicationContextAware {
         }
         return abstractBaseFileService;
     }
-    
-    
+
+
     /**
      * 根据存储源 key 获取对应的 Service.
      *
@@ -147,8 +143,8 @@ public class StorageSourceContext implements ApplicationContextAware {
                 // 如果没有找到, 则返回空列表
                 .orElse(Collections.emptyList());
     }
-    
-    
+
+
     /**
      * 初始化指定存储源的 Service, 添加到上下文环境中.
      *
@@ -158,26 +154,26 @@ public class StorageSourceContext implements ApplicationContextAware {
     public void init(StorageSource storageSource) {
         Integer storageId = storageSource.getId();
         String storageName = storageSource.getName();
-        
+
         AbstractBaseFileService<IStorageParam> baseFileService = getInitStorageBeanByStorageId(storageId);
         if (baseFileService == null) {
             throw new InvalidStorageSourceException(storageId);
         }
-        
+
         // 填充初始化参数
         baseFileService.setStorageId(storageId);
         baseFileService.setName(storageName);
         IStorageParam initParam = getInitParam(storageId, baseFileService);
         baseFileService.setParam(initParam);
-        
+
         // 进行初始化并测试连接
         baseFileService.init();
         baseFileService.testConnection();
-        
+
         DRIVES_SERVICE_MAP.put(storageId, baseFileService);
     }
-    
-    
+
+
     /**
      * 获取指定存储源初始状态的 Service.
      *
@@ -195,8 +191,8 @@ public class StorageSourceContext implements ApplicationContextAware {
         }
         return null;
     }
-    
-    
+
+
     /**
      * 获取指定存储源的初始化参数.
      *
@@ -210,16 +206,17 @@ public class StorageSourceContext implements ApplicationContextAware {
         Class<?> beanTargetClass = AopUtils.getTargetClass(baseFileService);
         // 获取存储源实现类的实际 Class 的泛型参数类型
         Class<?> paramClass = ClassUtils.getClassFirstGenericsParam(beanTargetClass);
-        
+
         // 获取存储器参数 key -> 存储器 field 对照关系，如果缓存中有，则从缓存中取.
         Map<String, Field> fieldMap = new HashMap<>();
         if (PARAM_CLASS_FIELD_NAME_MAP_CACHE.containsKey(paramClass)) {
             fieldMap = PARAM_CLASS_FIELD_NAME_MAP_CACHE.get(paramClass);
         } else {
             Field[] fields = ReflectUtil.getFieldsDirectly(paramClass, true);
+            List<String> ignoreFieldNameList = new ArrayList<>();
             for (Field field : fields) {
                 String key;
-                
+
                 StorageParamItem storageParamItem = field.getDeclaredAnnotation(StorageParamItem.class);
                 // 没有注解或注解中没有配置 key 则使用字段名.
                 if (storageParamItem == null || StrUtil.isEmpty(storageParamItem.key())) {
@@ -227,20 +224,25 @@ public class StorageSourceContext implements ApplicationContextAware {
                 } else {
                     key = storageParamItem.key();
                 }
-                
+
+                if (storageParamItem.ignoreInput()) {
+                    ignoreFieldNameList.add(key);
+                }
                 // 如果 map 中包含此 key, 则是父类的, 跳过.
                 if (fieldMap.containsKey(key)) {
                     continue;
                 }
-                
-                fieldMap.put(key, field);
+
+                if (!ignoreFieldNameList.contains(key)) {
+                    fieldMap.put(key, field);
+                }
             }
             PARAM_CLASS_FIELD_NAME_MAP_CACHE.put(paramClass, fieldMap);
         }
-        
+
         // 实例化参数对象
         IStorageParam iStorageParam = ReflectUtil.newInstance(paramClass.getName());
-        
+
         // 给所有字段填充值
         List<StorageSourceConfig> storageSourceConfigList = storageSourceConfigService.selectStorageConfigByStorageId(storageId);
         for (StorageSourceConfig storageSourceConfig : storageSourceConfigList) {
@@ -254,11 +256,11 @@ public class StorageSourceContext implements ApplicationContextAware {
                 throw new InitializeStorageSourceException(CodeMsg.STORAGE_SOURCE_INIT_STORAGE_PARAM_FIELD_FAIL, storageId, errMsg, e).setResponseExceptionMessage(true);
             }
         }
-        
+
         return iStorageParam;
     }
 
-    
+
     /**
      * 获取所有 AccessToken 机制的存储源, 这些存储源都继承类 {@link RefreshTokenService}.
      *
@@ -282,8 +284,8 @@ public class StorageSourceContext implements ApplicationContextAware {
 
         return result;
     }
-    
-    
+
+
     /**
      * 销毁指定存储源的 Service.
      *
@@ -294,6 +296,6 @@ public class StorageSourceContext implements ApplicationContextAware {
         log.info("清理存储源上下文对象, storageId: {}", storageId);
         DRIVES_SERVICE_MAP.remove(storageId);
     }
-    
-    
+
+
 }
