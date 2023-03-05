@@ -8,8 +8,6 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import im.zhaojun.zfile.module.storage.annotation.RefererCheck;
-import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.core.exception.file.InvalidStorageSourceException;
 import im.zhaojun.zfile.core.exception.file.operator.StorageSourceFileOperatorException;
 import im.zhaojun.zfile.core.util.HttpUtil;
@@ -21,6 +19,10 @@ import im.zhaojun.zfile.module.link.mapper.ShortLinkMapper;
 import im.zhaojun.zfile.module.link.model.entity.ShortLink;
 import im.zhaojun.zfile.module.log.model.entity.DownloadLog;
 import im.zhaojun.zfile.module.log.service.DownloadLogService;
+import im.zhaojun.zfile.module.storage.annotation.RefererCheck;
+import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
+import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
+import im.zhaojun.zfile.module.storage.service.StorageSourceService;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.util.EncodingUtils;
@@ -51,7 +53,7 @@ public class ShortLinkService {
 
     @Resource
     private ShortLinkMapper shortLinkMapper;
-    
+
     @Resource
     private ShortLinkService shortLinkService;
 
@@ -63,6 +65,9 @@ public class ShortLinkService {
 
     @Resource
     private DownloadLogService downloadLogService;
+
+    @Resource
+    private StorageSourceService storageSourceService;
 
     /**
      * 根据短链接 key 查询短链接
@@ -122,12 +127,12 @@ public class ShortLinkService {
         shortLink.setUrl(fullPath);
         shortLink.setCreateDate(new Date());
         shortLink.setShortKey(randomKey);
-    
+
         if (log.isDebugEnabled()) {
             log.debug("生成直/短链: 存储源 ID: {}, 文件路径: {}, 短链 key {}, 随机生成直链冲突次数: {}",
                     shortLink.getStorageId(), shortLink.getUrl(), shortLink.getShortKey(), generateCount);
         }
-        
+
         shortLinkMapper.insert(shortLink);
         return shortLink;
     }
@@ -160,6 +165,14 @@ public class ShortLinkService {
             log.error("无效的存储源，存储源 ID: {}, 文件路径: {}", e.getStorageId(), filePath, e);
             response.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
             response.getWriter().write("无效的或初始化失败的存储源, 请联系管理员!");
+            return;
+        }
+        StorageSource storageSource = storageSourceService.findByStorageKey(storageKey);
+        Boolean enable = storageSource.getEnable();
+        if (!enable) {
+            log.warn("存储源当前状态为未启用，仍然请求下载，存储源 key {}, 文件路径 {}", storageKey, filePath);
+            response.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
+            response.getWriter().write("当前存储源未启用, 无法下载，请联系管理员!");
             return;
         }
 
@@ -205,39 +218,39 @@ public class ShortLinkService {
         response.setHeader(HttpHeaders.EXPIRES, "0");
 
         // 重定向到下载链接.
-    
+
         String parameterType = request.getParameter("type");
         if (StrUtil.equals(parameterType, "preview")) {
             downloadUrl = UrlUtils.concatQueryParam(downloadUrl, "type", "preview");
         }
-        
+
         response.sendRedirect(downloadUrl);
     }
-    
-    
+
+
     @CacheEvict(allEntries = true)
     public void removeById(Integer id) {
         log.info("删除 id 为 {} 的直/短链", id);
         shortLinkMapper.deleteById(id);
     }
-    
+
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(allEntries = true)
     public void removeBatchByIds(List<Integer> ids) {
         log.info("批量删除直/短链，id 集合为 {}", ids);
         shortLinkMapper.deleteBatchIds(ids);
     }
-    
+
     @CacheEvict(allEntries = true)
     public int deleteByStorageId(Integer storageId) {
         int deleteSize = shortLinkMapper.deleteByStorageId(storageId);
         log.info("删除存储源 ID 为 {} 的直/短链 {} 条", storageId, deleteSize);
         return deleteSize;
     }
-    
+
     public Page<ShortLink> selectPage(Page<ShortLink> pages, QueryWrapper<ShortLink> queryWrapper) {
         return shortLinkMapper.selectPage(pages, queryWrapper);
     }
-    
-  
+
+
 }
