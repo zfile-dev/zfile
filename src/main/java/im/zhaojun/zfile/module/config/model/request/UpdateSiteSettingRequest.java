@@ -31,8 +31,19 @@ public class UpdateSiteSettingRequest {
 
 	@ApiModelProperty(value = "备案号", example = "冀ICP备12345678号-1")
 	private String icp;
-	
+
 	@ApiModelProperty(value = "最大同时上传文件数", example = "5")
 	private Integer maxFileUploads;
 
+	@ApiModelProperty(value = "站点 Home 名称", example = "xxx 的小站")
+	private String siteHomeName;
+
+	@ApiModelProperty(value = "站点 Home Logo", example = "true")
+	private String siteHomeLogo;
+
+	@ApiModelProperty(value = "站点 Logo 点击后链接", example = "https://www.zfile.vip")
+	private String siteHomeLogoLink;
+
+	@ApiModelProperty(value = "站点 Logo 链接打开方式", example = "_blank")
+	private String siteHomeLogoTargetMode;
 }

@@ -56,4 +56,16 @@ public class UpdateViewSettingRequest {
 	@ApiModelProperty(value = "onlyOffice 在线预览地址", example = "http://office.zfile.vip")
 	private String onlyOfficeUrl;
 
+	@ApiModelProperty(value = "默认最大显示文件数", example = "1000")
+	private Integer maxShowSize;
+
+	@ApiModelProperty(value = "每次加载更多文件数", example = "50")
+	private Integer loadMoreSize;
+
+	@ApiModelProperty(value = "默认排序字段", example = "name")
+	private String defaultSortField;
+
+	@ApiModelProperty(value = "默认排序方向", example = "asc")
+	private String defaultSortOrder;
+
 }

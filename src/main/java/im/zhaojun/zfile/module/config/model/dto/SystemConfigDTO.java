@@ -119,14 +119,38 @@ public class SystemConfigDTO {
 
     @ApiModelProperty(value = "默认文件点击习惯", example = "click")
     private FileClickModeEnum fileClickMode;
-    
+
     @ApiModelProperty(value = "最大同时上传文件数", example = "5")
     private Integer maxFileUploads;
-    
+
     @ApiModelProperty(value = "onlyOffice 在线预览地址", example = "http://office.zfile.vip")
     private String onlyOfficeUrl;
-    
+
     @ApiModelProperty(value = "是否允许路径直链可直接访问", example = "true", required = true)
     private Boolean allowPathLinkAnonAccess;
-    
+
+    @ApiModelProperty(value = "默认最大显示文件数", example = "1000")
+    private Integer maxShowSize;
+
+    @ApiModelProperty(value = "每次加载更多文件数", example = "50")
+    private Integer loadMoreSize;
+
+    @ApiModelProperty(value = "默认排序字段", example = "name")
+    private String defaultSortField;
+
+    @ApiModelProperty(value = "默认排序方向", example = "asc")
+    private String defaultSortOrder;
+
+    @ApiModelProperty(value = "站点 Home 名称", example = "xxx 的小站")
+    private String siteHomeName;
+
+    @ApiModelProperty(value = "站点 Home Logo", example = "true")
+    private String siteHomeLogo;
+
+    @ApiModelProperty(value = "站点 Logo 点击后链接", example = "https://www.zfile.vip")
+    private String siteHomeLogoLink;
+
+    @ApiModelProperty(value = "站点 Logo 链接打开方式", example = "_blank")
+    private String siteHomeLogoTargetMode;
+
 }
