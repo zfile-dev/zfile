@@ -187,6 +187,8 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
         File uploadToFileObj = new File(uploadPath);
         BufferedOutputStream outputStream = FileUtil.getOutputStream(uploadToFileObj);
         IoUtil.copy(inputStream, outputStream);
+        IoUtil.close(outputStream);
+        IoUtil.close(inputStream);
     }
 
 
