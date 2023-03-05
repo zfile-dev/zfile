@@ -28,18 +28,21 @@ public class DownloadLogService {
 	public Page<DownloadLog> selectPage(Page<DownloadLog> pages, QueryWrapper<DownloadLog> queryWrapper) {
 		return downloadLogMapper.selectPage(pages, queryWrapper);
 	}
-	
+
 	public void removeById(Integer id) {
 		downloadLogMapper.deleteById(id);
 	}
-	
+
 	@Transactional(rollbackFor = Exception.class)
 	public void removeBatchByIds(List<Integer> ids) {
 		downloadLogMapper.deleteBatchIds(ids);
 	}
-	
+
+	public void deleteByQueryWarpper(QueryWrapper<DownloadLog> queryWrapper) {
+		downloadLogMapper.delete(queryWrapper);
+	}
 	public int deleteByStorageKey(String storageKey) {
 		return downloadLogMapper.deleteByStorageKey(storageKey);
 	}
-	
+
 }

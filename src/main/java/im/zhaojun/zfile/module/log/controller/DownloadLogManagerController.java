@@ -75,17 +75,17 @@ public class DownloadLogManagerController {
                 .like(StrUtil.isNotEmpty(queryDownloadLogRequest.getUserAgent()), "user_agent", queryDownloadLogRequest.getUserAgent())
                 .ge(StrUtil.isNotEmpty(queryDownloadLogRequest.getDateFrom()), "create_time", queryDownloadLogRequest.getDateFrom())
                 .le(StrUtil.isNotEmpty(queryDownloadLogRequest.getDateTo()), "create_time", queryDownloadLogRequest.getDateTo());
-        
+
         Page<DownloadLog> selectResult = downloadLogService.selectPage(pages, queryWrapper);
 
         Map<String, StorageSource> cache = new HashMap<>();
 
         Stream<DownloadLogResult> shortLinkResultList = selectResult.getRecords().stream().map(model -> {
             String storageKey = model.getStorageKey();
-    
+
             StorageSource storageSource = cache.getOrDefault(storageKey, storageSourceService.findByStorageKey(storageKey));
             cache.put(storageKey, storageSource);
-            
+
             return downloadLogConvert.entityToResultList(model, storageSource);
         });
         return AjaxJson.getPageData(selectResult.getTotal(), shortLinkResultList);
@@ -110,6 +110,27 @@ public class DownloadLogManagerController {
     public AjaxJson<Void> batchDelete(@RequestBody BatchDeleteRequest batchDeleteRequest) {
         List<Integer> ids = batchDeleteRequest.getIds();
         downloadLogService.removeBatchByIds(ids);
+        return AjaxJson.getSuccess();
+    }
+
+    @ApiOperationSupport(order = 4)
+    @PostMapping("/delete/batch/query")
+    @ResponseBody
+    @ApiOperation(value = "根据查询条件批量删除直链")
+    public AjaxJson<Void> batchDeleteBySearchParams(@RequestBody QueryDownloadLogRequest queryDownloadLogRequest) {
+        DownloadLog downloadLog = new DownloadLog();
+        QueryWrapper<DownloadLog> queryWrapper =
+                new QueryWrapper<>(downloadLog)
+                        .eq(StrUtil.isNotEmpty(queryDownloadLogRequest.getStorageKey()), "storage_key", queryDownloadLogRequest.getStorageKey())
+                        .like(StrUtil.isNotEmpty(queryDownloadLogRequest.getPath()), "path", queryDownloadLogRequest.getPath())
+                        .like(StrUtil.isNotEmpty(queryDownloadLogRequest.getShortKey()), "short_key", queryDownloadLogRequest.getShortKey())
+                        .like(StrUtil.isNotEmpty(queryDownloadLogRequest.getIp()), "ip", queryDownloadLogRequest.getIp())
+                        .like(StrUtil.isNotEmpty(queryDownloadLogRequest.getReferer()), "referer", queryDownloadLogRequest.getReferer())
+                        .like(StrUtil.isNotEmpty(queryDownloadLogRequest.getUserAgent()), "user_agent", queryDownloadLogRequest.getUserAgent())
+                        .ge(StrUtil.isNotEmpty(queryDownloadLogRequest.getDateFrom()), "create_time", queryDownloadLogRequest.getDateFrom())
+                        .le(StrUtil.isNotEmpty(queryDownloadLogRequest.getDateTo()), "create_time", queryDownloadLogRequest.getDateTo());
+
+        downloadLogService.deleteByQueryWarpper(queryWrapper);
         return AjaxJson.getSuccess();
     }
 
