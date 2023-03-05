@@ -32,7 +32,7 @@
         select
         <include refid="Base_Column_List"/>
         from short_link
-        where url=#{url,jdbcType=LONGVARCHAR} and storage_id=#{storageId,jdbcType=INTEGER}
+        where url=#{url,jdbcType=LONGVARCHAR} and storage_id=#{storageId,jdbcType=INTEGER} limit 1
     </select>
 
     <delete id="deleteByStorageId">

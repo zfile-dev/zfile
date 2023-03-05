@@ -54,40 +54,45 @@ public class ShortLinkController {
     @Resource
     private StorageSourceService storageSourceService;
 
+    private final Object lock = new Object();
+
     @PostMapping("/api/short-link/batch/generate")
     @ResponseBody
     @ApiOperationSupport(order = 1)
     @ApiOperation(value = "生成短链", notes = "对指定存储源的某文件路径生成短链")
     public AjaxJson<List<BatchGenerateLinkResponse>> generatorShortLink(@RequestBody @Valid BatchGenerateLinkRequest batchGenerateLinkRequest) {
         List<BatchGenerateLinkResponse> result = new ArrayList<>();
-        
+
         // 获取站点域名
         SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
-    
+
         // 是否允许使用短链和短链，如果都不允许，则提示禁止生成.
         Boolean showShortLink = systemConfig.getShowShortLink();
         Boolean showPathLink = systemConfig.getShowPathLink();
         if ( BooleanUtil.isFalse(showShortLink) && BooleanUtil.isFalse(showPathLink)) {
             throw new IllegalDownloadLinkException("当前系统不允许使用直链和短链.");
         }
-        
+
         String domain = systemConfig.getDomain();
         String storageKey = batchGenerateLinkRequest.getStorageKey();
         Integer storageId = storageSourceService.findIdByKey(storageKey);
-    
+
         for (String path : batchGenerateLinkRequest.getPaths()) {
             // 拼接全路径地址.
             String fullPath = StringUtils.concat(path);
-            
-            // 如果没有短链，则生成短链
-            ShortLink shortLink = shortLinkService.findByStorageIdAndUrl(storageId, fullPath);
-            if (shortLink == null) {
-                shortLink = shortLinkService.generatorShortLink(storageId, fullPath);
+
+            ShortLink shortLink;
+            synchronized (lock) {
+                // 如果没有短链，则生成短链
+                    shortLink = shortLinkService.findByStorageIdAndUrl(storageId, fullPath);
+                if (shortLink == null) {
+                    shortLink = shortLinkService.generatorShortLink(storageId, fullPath);
+                }
             }
-    
+
             String shortUrl = StringUtils.removeDuplicateSlashes(domain + "/s/" + shortLink.getShortKey());
             String pathLink = StringUtils.generatorPathLink(storageKey, fullPath);
-    
+
             result.add(new BatchGenerateLinkResponse(shortUrl, pathLink));
         }
         return AjaxJson.getSuccessData(result);
