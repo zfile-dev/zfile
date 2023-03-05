@@ -7,6 +7,7 @@ import im.zhaojun.zfile.core.exception.file.operator.StorageSourceFileOperatorEx
 import im.zhaojun.zfile.core.util.CodeMsg;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -23,8 +24,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Order(2)
 public class FileOperatorExceptionWrapperAspect {
-	
-	
+
+
 	@AfterThrowing(throwing = "error", value = "execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.newFolder(..))")
 	public void newExceptionWrapper(JoinPoint point, Throwable error) {
 		Integer storageId = getStorageId(point);
@@ -42,8 +43,8 @@ public class FileOperatorExceptionWrapperAspect {
 		String errMsg = StrUtil.format("删除文件/文件夹失败, 文件路径: {}, 文件名: {}", path, name);
 		throw new StorageSourceFileOperatorException(CodeMsg.STORAGE_SOURCE_FILE_DELETE_FAIL, storageId, errMsg, error);
 	}
-	
-	
+
+
 	@AfterThrowing(throwing = "error", value = "execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.rename*(..))")
 	public void renameExceptionWrapper(JoinPoint point, Throwable error) {
 		Integer storageId = getStorageId(point);
@@ -53,8 +54,8 @@ public class FileOperatorExceptionWrapperAspect {
 		String errMsg = StrUtil.format("重命名文件/文件夹失败, 文件路径: {}, 原文件名: {}, 修改为: {}", path, name, newName);
 		throw new StorageSourceFileOperatorException(CodeMsg.STORAGE_SOURCE_FILE_RENAME_FAIL, storageId, errMsg, error);
 	}
-	
-	
+
+
 	@AfterThrowing(throwing = "error", value = "execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.getDownloadUrl(..))")
 	public void getDownloadUrl(JoinPoint point, Throwable error) {
 		Integer storageId = getStorageId(point);
@@ -62,7 +63,7 @@ public class FileOperatorExceptionWrapperAspect {
 		String errMsg = StrUtil.format("获取下载链接失败, 文件路径: {}", pathAndName);
 		throw new StorageSourceFileOperatorException(CodeMsg.STORAGE_SOURCE_FILE_GET_UPLOAD_FAIL, storageId, errMsg, error);
 	}
-	
+
 	@AfterThrowing(throwing = "error", value = "execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.getUploadUrl(..))")
 	public void getUploadUrlExceptionWrapper(JoinPoint point, Throwable error) {
 		Integer storageId = getStorageId(point);
@@ -72,8 +73,8 @@ public class FileOperatorExceptionWrapperAspect {
 		String errMsg = StrUtil.format("获取文件上传链接失败, 文件路径: {}, 文件名: {}, 文件大小: {}", path, name, size);
 		throw new StorageSourceFileOperatorException(CodeMsg.STORAGE_SOURCE_FILE_GET_UPLOAD_FAIL, storageId, errMsg, error);
 	}
-	
-	
+
+
 	@AfterThrowing(throwing = "error", value = "execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService.uploadFile(..))")
 	public void proxyUploadExceptionWrapper(JoinPoint point, Throwable error) {
 		Integer storageId = getStorageId(point);
@@ -81,17 +82,20 @@ public class FileOperatorExceptionWrapperAspect {
 		String errMsg = StrUtil.format("文件代理上传失败, 文件路径: {}", pathAndName);
 		throw new StorageSourceFileOperatorException(CodeMsg.STORAGE_SOURCE_FILE_PROXY_UPLOAD_FAIL, storageId, errMsg, error);
 	}
-	
-	
+
+
 	@AfterThrowing(throwing = "error", value = "execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService.downloadToStream(..))")
 	public void proxyDownloadExceptionWrapper(JoinPoint point, Throwable error) {
+		if (error instanceof ClientAbortException || error.getCause() instanceof ClientAbortException) {
+			return;
+		}
 		Integer storageId = getStorageId(point);
 		String pathAndName = getArgStr(point, 0);
 		String errMsg = StrUtil.format("文件代理下载失败, 文件路径: {}", pathAndName);
 		throw new StorageSourceFileOperatorException(CodeMsg.STORAGE_SOURCE_FILE_PROXY_DOWNLOAD_FAIL, storageId, errMsg, error);
 	}
-	
-	
+
+
 	@AfterThrowing(throwing = "error", value = "execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.getFileItem(..))")
 	public void getFileItemExceptionWrapper(JoinPoint point, Throwable error) {
 		Integer storageId = getStorageId(point);
@@ -99,8 +103,8 @@ public class FileOperatorExceptionWrapperAspect {
 		String errMsg = StrUtil.format("文件代理下载失败, 文件路径: {}", pathAndName);
 		throw new StorageSourceFileOperatorException(CodeMsg.STORAGE_SOURCE_FILE_DISABLE_PROXY_DOWNLOAD, storageId, errMsg, error);
 	}
-	
-	
+
+
 	/**
 	 * 获取存储源 id
 	 *
@@ -113,7 +117,7 @@ public class FileOperatorExceptionWrapperAspect {
 		AbstractBaseFileService<?> targetService = (AbstractBaseFileService<?>) point.getTarget();
 		return targetService.getStorageId();
 	}
-	
+
 	/**
 	 * 获取切入点方法第 n 个参数
 	 *
@@ -129,11 +133,11 @@ public class FileOperatorExceptionWrapperAspect {
 		Object[] args = point.getArgs();
 		return ArrayUtil.get(args, index);
 	}
-	
-	
+
+
 	private String getArgStr(JoinPoint point, int index) {
 		Object arg = getArg(point, index);
 		return Convert.toStr(arg);
 	}
-	
+
 }
