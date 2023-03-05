@@ -50,7 +50,7 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 	 * 存储源 ID
 	 */
 	public Integer storageId;
-	
+
 	/**
 	 * 存储源名称
 	 */
@@ -111,6 +111,8 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 
 		// 已添加的字段列表.
 		List<String> fieldNames = new ArrayList<>();
+		// 要忽略的字段名
+		List<String> ignoreFieldNames = new ArrayList<>();
 
 		for (Field field : fields) {
 			// 获取字段上的注解
@@ -145,6 +147,10 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 					continue;
 				}
 
+				if (annotation.ignoreInput()) {
+					ignoreFieldNames.add(key);
+				}
+
 				// 如果默认值不为空, 则该字段则不是必填的
 				if (StrUtil.isNotEmpty(defaultValue)) {
 					required = false;
@@ -163,7 +169,7 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 				// 从实现类中通过反射获取 options
 				Class<? extends StorageParamSelect> storageParamSelectClass = annotation.optionsClass();
 				if (ObjectUtil.isNotEmpty(storageParamSelectClass)
-						&& ObjectUtil.notEqual(storageParamSelectClass.getName(), "im.zhaojun.zfile.module.storage.annotation.StorageParamSelect")) {
+						&& ObjectUtil.notEqual(storageParamSelectClass.getName(), StorageParamSelect.class.getName())) {
 					StorageParamSelect storageParamSelect = ReflectUtil.newInstance(storageParamSelectClass);
 					List<StorageSourceParamDef.Options> storageParamSelectOptions = storageParamSelect.getOptions(annotation, param);
 					optionsList.addAll(storageParamSelectOptions);
@@ -181,7 +187,11 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 						options(optionsList).
 						order(order).
 						build();
-				result.add(storageSourceParamDef);
+
+				if (!ignoreFieldNames.contains(key)) {
+					result.add(storageSourceParamDef);
+				}
+
 				fieldNames.add(field.getName());
 			}
 		}
@@ -223,7 +233,7 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 		}
 		this.storageId = storageId;
 	}
-	
+
 	public void setName(String name) {
 		if (this.name != null) {
 			throw new IllegalStateException("请勿重复初始化存储源");
@@ -265,8 +275,8 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
 	public Integer getStorageId() {
 		return storageId;
 	}
-	
-	
+
+
 	String getStorageSimpleInfo() {
 		return StrUtil.format("存储源 [id={}, name={}, type: {}]", storageId, name, getStorageTypeEnum().getDescription());
 	}
