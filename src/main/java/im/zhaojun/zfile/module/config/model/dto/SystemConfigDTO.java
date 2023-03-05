@@ -153,4 +153,10 @@ public class SystemConfigDTO {
     @ApiModelProperty(value = "站点 Logo 链接打开方式", example = "_blank")
     private String siteHomeLogoTargetMode;
 
+    @ApiModelProperty(value = "限制直链下载秒数", example = "_blank")
+    private Integer linkLimitSecond;
+
+    @ApiModelProperty(value = "限制直链下载次数", example = "_blank")
+    private Integer linkDownloadLimit;
+
 }

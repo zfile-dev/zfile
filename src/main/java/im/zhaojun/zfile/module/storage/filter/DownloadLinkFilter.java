@@ -1,28 +1,24 @@
 package im.zhaojun.zfile.module.storage.filter;
 
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.servlet.ServletUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import im.zhaojun.zfile.module.link.model.entity.ShortLink;
-import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
-import im.zhaojun.zfile.module.log.service.DownloadLogService;
-import im.zhaojun.zfile.module.filter.service.FilterConfigService;
-import im.zhaojun.zfile.module.link.service.ShortLinkService;
-import im.zhaojun.zfile.module.storage.service.StorageSourceService;
-import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.core.constant.ZFileConstant;
-import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.module.config.service.SystemConfigService;
+import im.zhaojun.zfile.module.filter.service.FilterConfigService;
+import im.zhaojun.zfile.module.link.model.entity.ShortLink;
+import im.zhaojun.zfile.module.link.service.ShortLinkService;
+import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
+import im.zhaojun.zfile.module.storage.service.StorageSourceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,13 +39,14 @@ public class DownloadLinkFilter implements Filter {
 
 	private StorageSourceService storageSourceService;
 
-	private StorageSourceContext storageSourceContext;
-
-	private DownloadLogService downloadLogService;
 
 	private ShortLinkService shortLinkService;
 
 	private FilterConfigService filterConfigService;
+
+	private TimedCache<String, Integer> timedCache;
+
+	private static final String shortLinkPrefix = "/s/";
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -61,13 +58,6 @@ public class DownloadLinkFilter implements Filter {
 			storageSourceService = SpringUtil.getBean(StorageSourceService.class);
 		}
 
-		if (storageSourceContext == null) {
-			storageSourceContext = SpringUtil.getBean(StorageSourceContext.class);
-		}
-
-		if (downloadLogService == null) {
-			downloadLogService = SpringUtil.getBean(DownloadLogService.class);
-		}
 
 		if (shortLinkService == null) {
 			shortLinkService = SpringUtil.getBean(ShortLinkService.class);
@@ -97,8 +87,28 @@ public class DownloadLinkFilter implements Filter {
 			// 获取系统配置的直链前缀
 			SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
 			String directLinkPrefix = systemConfig.getDirectLinkPrefix();
-			if (StrUtil.equalsIgnoreCase(currentRequestPrefix, directLinkPrefix)) {
-				
+			boolean isDirectLink = StrUtil.equalsIgnoreCase(currentRequestPrefix, directLinkPrefix);
+			boolean isShortLink = StrUtil.startWith(currentRequestPrefix, shortLinkPrefix);
+			if (isDirectLink || isShortLink) {
+				synchronized (this) {
+					Integer linkLimitSecond = systemConfig.getLinkLimitSecond();
+					Integer linkDownloadLimit = systemConfig.getLinkDownloadLimit();
+					if (timedCache == null) {
+						timedCache = new TimedCache<>(linkLimitSecond * 1000);
+					}
+					String clientIp = ServletUtil.getClientIP(httpServletRequest);
+					Integer ipDownloadCount = timedCache.get(clientIp, false, () -> 1);
+					if (ipDownloadCount != null && ipDownloadCount > linkDownloadLimit) {
+						httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
+						httpServletResponse.getWriter().write("当前系统限制每 " + systemConfig.getLinkLimitSecond() + " 秒内只能访问 " + linkDownloadLimit + " 次直链.");
+						return;
+					}
+					timedCache.put(clientIp, ipDownloadCount + 1);
+				}
+
+			}
+
+			if (isDirectLink) {
 				if (BooleanUtil.isFalse(systemConfig.getShowPathLink())) {
 					httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain;charset=utf-8");
 					httpServletResponse.getWriter().write("当前系统不允许使用直链.");
@@ -153,7 +163,7 @@ public class DownloadLinkFilter implements Filter {
 
 		ShortLink shortLink = shortLinkService.findByStorageIdAndUrl(storageId, filePath);
 		SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
-		
+
 		// 如果没有短链，则生成短链
 		if (shortLink == null) {
 			if (BooleanUtil.isFalse(systemConfig.getAllowPathLinkAnonAccess())) {
@@ -162,7 +172,7 @@ public class DownloadLinkFilter implements Filter {
 				response.getWriter().write("该文件未生成直链, 无法下载，请联系管理员!");
 				return;
 			}
-			
+
 			shortLink = shortLinkService.generatorShortLink(storageId, filePath);
 		}
 

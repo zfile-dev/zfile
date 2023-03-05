@@ -37,8 +37,13 @@ public class UpdateLinkSettingRequest {
 
 	@ApiModelProperty(value = "是否显示生成路径链接功能", example = "true", required = true)
 	private Boolean showPathLink;
-	
+
 	@ApiModelProperty(value = "是否允许路径直链可直接访问", example = "true", required = true)
 	private Boolean allowPathLinkAnonAccess;
 
+	@ApiModelProperty(value = "限制直链下载秒数", example = "_blank")
+	private Integer linkLimitSecond;
+
+	@ApiModelProperty(value = "限制直链下载次数", example = "_blank")
+	private Integer linkDownloadLimit;
 }
