@@ -130,6 +130,16 @@ public class StorageSourceService {
     
     
     /**
+     * 根据存储源 key 清除 key 的缓存
+     *
+     * @param   storageKey
+     *          存储源 key
+     */
+    @CacheEvict(key = "#storageKey")
+    public void clearCacheByStorageKey(String storageKey) {}
+
+
+    /**
      * 根据存储源 key 获取存储源 id
      *
      * @param   storageKey
@@ -202,8 +212,8 @@ public class StorageSourceService {
     public boolean existByStorageKey(String storageKey) {
         return storageSourceService.findByStorageKey(storageKey) != null;
     }
-    
-    
+
+
     /**
      * 删除指定存储源设置, 会级联删除其参数设置
      *
@@ -336,6 +346,11 @@ public class StorageSourceService {
         if (storageSource.getId() == null) {
             storageSourceMapper.insert(storageSource);
         } else {
+            // 判断是否修改了存储源别名，如果修改了则清除之前存储源别名的缓存。
+            StorageSource originStorageSource = storageSourceMapper.selectById(storageSource.getId());
+            if (!StrUtil.equals(originStorageSource.getKey(), storageSource.getKey())) {
+                storageSourceService.clearCacheByStorageKey(originStorageSource.getKey());
+            }
             storageSourceMapper.updateById(storageSource);
         }
         
