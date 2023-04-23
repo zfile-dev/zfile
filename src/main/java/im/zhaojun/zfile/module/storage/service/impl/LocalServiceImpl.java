@@ -257,7 +257,7 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
     private static void checkPathSecurity(String... paths) {
         for (String path : paths) {
             // 路径中不能包含 .. 不然可能会获取到上层文件夹的内容
-            if (StrUtil.containsAny(path, "../", "..\\")) {
+            if (StrUtil.startWith(path, "/..") || StrUtil.containsAny(path, "../", "..\\")) {
                 throw new IllegalArgumentException("文件路径存在安全隐患: " + path);
             }
         }
