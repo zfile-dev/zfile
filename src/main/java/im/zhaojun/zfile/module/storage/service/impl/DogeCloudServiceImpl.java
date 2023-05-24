@@ -63,7 +63,7 @@ public class DogeCloudServiceImpl extends AbstractS3BaseFileService<DogeCloudPar
         String body = httpResponse.body();
         JSONObject resultJsonObject = JSONObject.parseObject(body);
         if (resultJsonObject.getInteger("code") != 200){
-            //TODO 根据返回ERR_CODE定义错误类型
+            //TODO 根据返回ERR_CODE定义错误类型 https://docs.dogecloud.com/oss/api-introduction?id=%e9%94%99%e8%af%af%e4%bb%a3%e7%a0%81%e5%88%97%e8%a1%a8
             throw new IllegalArgumentException(resultJsonObject.getString("msg"));
         }
         JSONObject credentials = resultJsonObject.getJSONObject("data").getJSONObject("Credentials");
