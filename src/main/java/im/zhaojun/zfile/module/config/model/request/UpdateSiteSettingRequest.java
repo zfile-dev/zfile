@@ -46,4 +46,8 @@ public class UpdateSiteSettingRequest {
 
 	@ApiModelProperty(value = "站点 Logo 链接打开方式", example = "_blank")
 	private String siteHomeLogoTargetMode;
+
+	@ApiModelProperty(value = "网站 favicon 图标地址", example = "https://www.example.com/favicon.ico")
+	private String faviconUrl;
+
 }

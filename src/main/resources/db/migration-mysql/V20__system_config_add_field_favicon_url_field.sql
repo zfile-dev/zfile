@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`) VALUES ('faviconUrl', '网站 favicon 图标地址');
