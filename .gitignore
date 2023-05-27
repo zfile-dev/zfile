@@ -18,6 +18,8 @@ target/
 *.iws
 *.iml
 *.ipr
+.fastRequest
+.murphy.yml
 
 ### NetBeans ###
 /nbproject/private/
@@ -34,4 +36,6 @@ build/
 /.mvn/wrapper/
 /mvnw
 /mvnw.cmd
-/.script/
+/result/
+/.package/**
+/.package**
