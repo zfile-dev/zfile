@@ -3,6 +3,7 @@ package im.zhaojun.zfile.module.storage.controller.base;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
+import im.zhaojun.zfile.module.storage.model.request.admin.CopyStorageSourceRequest;
 import im.zhaojun.zfile.module.storage.model.request.base.SaveStorageSourceRequest;
 import im.zhaojun.zfile.module.storage.model.result.StorageSourceAdminResult;
 import im.zhaojun.zfile.module.storage.service.StorageSourceService;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -145,5 +147,15 @@ public class StorageSourceController {
         storageSource.setCompatibilityReadme(status);
         storageSourceService.updateById(storageSource);
         return AjaxJson.getSuccess();
+    }
+
+
+    @ApiOperationSupport(order = 10)
+    @ApiOperation(value = "复制存储源", notes = "复制存储源配置")
+    @ApiImplicitParam(paramType = "path", name = "storageId", value = "存储源 id", required = true, dataTypeClass = Integer.class)
+    @PostMapping("/storage/copy")
+    public AjaxJson<Integer> copyStorage(@RequestBody @Valid CopyStorageSourceRequest copyStorageSourceRequest) {
+        Integer id = storageSourceService.copy(copyStorageSourceRequest);
+        return AjaxJson.getSuccessData(id);
     }
 }

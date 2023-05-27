@@ -6,10 +6,12 @@ import cn.hutool.core.util.StrUtil;
 import im.zhaojun.zfile.core.exception.StorageSourceException;
 import im.zhaojun.zfile.core.exception.file.InvalidStorageSourceException;
 import im.zhaojun.zfile.core.util.CodeMsg;
+import im.zhaojun.zfile.module.filter.model.entity.FilterConfig;
 import im.zhaojun.zfile.module.filter.service.FilterConfigService;
 import im.zhaojun.zfile.module.link.service.ShortLinkService;
 import im.zhaojun.zfile.module.log.service.DownloadLogService;
 import im.zhaojun.zfile.module.password.model.dto.VerifyResultDTO;
+import im.zhaojun.zfile.module.password.model.entity.PasswordConfig;
 import im.zhaojun.zfile.module.password.service.PasswordConfigService;
 import im.zhaojun.zfile.module.readme.model.entity.ReadmeConfig;
 import im.zhaojun.zfile.module.readme.service.ReadmeConfigService;
@@ -21,11 +23,13 @@ import im.zhaojun.zfile.module.storage.model.dto.StorageSourceDTO;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSourceConfig;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
+import im.zhaojun.zfile.module.storage.model.request.admin.CopyStorageSourceRequest;
 import im.zhaojun.zfile.module.storage.model.request.admin.UpdateStorageSortRequest;
 import im.zhaojun.zfile.module.storage.model.request.base.FileListConfigRequest;
 import im.zhaojun.zfile.module.storage.model.request.base.SaveStorageSourceRequest;
 import im.zhaojun.zfile.module.storage.model.result.StorageSourceConfigResult;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -389,6 +393,77 @@ public class StorageSourceService {
         // 获取指定存储源路径下的 readme 信息
         return storageSourceConvert.entityToConfigResult(storageSource, readmeByPath);
     }
-    
+
+    @Transactional(rollbackFor = Exception.class)
+    public Integer copy(CopyStorageSourceRequest copyStorageSourceRequest) {
+        String toKey = copyStorageSourceRequest.getToKey();
+        boolean existByStorageKey = storageSourceService.existByStorageKey(toKey);
+        if (existByStorageKey) {
+            throw new RuntimeException("存储源别名已存在: " + toKey);
+        }
+        Integer fromStorageId = copyStorageSourceRequest.getFromId();
+        // 复制存储源
+        StorageSource storageSource = storageSourceService.findById(fromStorageId);
+        if (storageSource == null) {
+            throw new InvalidStorageSourceException("通过存储源 id 未找到存储源, id: " + fromStorageId);
+        }
+        StorageSource newStorageSource = new StorageSource();
+        BeanUtils.copyProperties(storageSource, newStorageSource);
+        newStorageSource.setId(null);
+        newStorageSource.setKey(copyStorageSourceRequest.getToKey());
+        newStorageSource.setName(copyStorageSourceRequest.getToName());
+        StorageSource dbSaveResult = storageSourceService.saveOrUpdate(newStorageSource);
+        log.info("复制存储源成功，复制后 id: {}, name: {}, key: {}, type: {}",
+                dbSaveResult.getId(), dbSaveResult.getName(),
+                dbSaveResult.getKey(), dbSaveResult.getType().getDescription());
+
+        // 复制存储源基础参数
+        Integer newStorageId = dbSaveResult.getId();
+        List<StorageSourceConfig> storageSourceConfigList = storageSourceConfigService.selectStorageConfigByStorageId(fromStorageId);
+        storageSourceConfigList.forEach(storageSourceConfig -> {
+            storageSourceConfig.setId(null);
+            storageSourceConfig.setStorageId(newStorageId);
+        });
+        storageSourceConfigService.saveBatch(newStorageId, storageSourceConfigList);
+        log.info("保存复制后的存储源参数成功，尝试根据参数初始化存储源, id: {}, name: {}, config size: {}",
+                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
+
+        // 初始化存储源
+        storageSourceContext.init(dbSaveResult);
+        log.info("初始化存储源成功, id: {}, name: {}, config size: {}",
+                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
+
+        // 复制存储源过滤配置
+        List<FilterConfig> filterConfigList = filterConfigService.findByStorageId(fromStorageId);
+        filterConfigList.forEach(filterConfig -> {
+            filterConfig.setId(null);
+            filterConfig.setStorageId(newStorageId);
+        });
+        filterConfigService.batchSave(newStorageId, filterConfigList);
+        log.info("复制存储源过滤配置成功, id: {}, name: {}, config size: {}",
+                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
+
+        // 复制存储源密码配置
+        List<PasswordConfig> passwordConfigList = passwordConfigService.findByStorageId(fromStorageId);
+        passwordConfigList.forEach(passwordConfig -> {
+            passwordConfig.setId(null);
+            passwordConfig.setStorageId(newStorageId);
+        });
+        passwordConfigService.batchSave(newStorageId, passwordConfigList);
+        log.info("复制存储源密码配置成功, id: {}, name: {}, config size: {}",
+                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
+
+        // 复制存储源 readme 配置
+        List<ReadmeConfig> readmeConfigList = readmeConfigService.findByStorageId(fromStorageId);
+        readmeConfigList.forEach(readmeConfig -> {
+            readmeConfig.setId(null);
+            readmeConfig.setStorageId(newStorageId);
+        });
+        readmeConfigService.batchSave(newStorageId, readmeConfigList);
+        log.info("复制存储源 readme 配置成功, id: {}, name: {}, config size: {}",
+                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
+
+        return dbSaveResult.getId();
+    }
     
 }
