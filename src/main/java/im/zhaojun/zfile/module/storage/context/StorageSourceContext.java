@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.module.storage.context;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -18,6 +19,7 @@ import im.zhaojun.zfile.module.storage.service.StorageSourceConfigService;
 import im.zhaojun.zfile.module.storage.service.StorageSourceService;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.module.storage.service.base.RefreshTokenService;
+import im.zhaojun.zfile.module.storage.support.StorageSourceSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
@@ -30,7 +32,6 @@ import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 /**
  * 每个存储源对应一个 Service, 其中初始化好了与对象存储的配置信息.
@@ -131,7 +132,7 @@ public class StorageSourceContext implements ApplicationContextAware {
      * @param   type
      *          存储类型: {@link StorageTypeEnum}
      *
-     * @return  指定类型存储源的参数列表. {@link AbstractBaseFileService#getStorageSourceParamList()}
+     * @return  指定类型存储源的参数列表. {@link StorageSourceSupport#getStorageSourceParamList(AbstractBaseFileService)} )}}
      */
     public static List<StorageSourceParamDef> getStorageSourceParamListByType(StorageTypeEnum type) {
         return storageTypeEnumFileServiceMap.values().stream()
@@ -139,7 +140,7 @@ public class StorageSourceContext implements ApplicationContextAware {
                 .filter(fileService -> fileService.getStorageTypeEnum() == type)
                 .findFirst()
                 // 获取该 Service 的参数列表
-                .map((Function<AbstractBaseFileService, List<StorageSourceParamDef>>) AbstractBaseFileService::getStorageSourceParamList)
+                .map(StorageSourceSupport::getStorageSourceParamList)
                 // 如果没有找到, 则返回空列表
                 .orElse(Collections.emptyList());
     }
@@ -161,13 +162,10 @@ public class StorageSourceContext implements ApplicationContextAware {
         }
 
         // 填充初始化参数
-        baseFileService.setStorageId(storageId);
-        baseFileService.setName(storageName);
         IStorageParam initParam = getInitParam(storageId, baseFileService);
-        baseFileService.setParam(initParam);
 
         // 进行初始化并测试连接
-        baseFileService.init();
+        baseFileService.init(storageName, storageId, initParam);
         baseFileService.testConnection();
 
         DRIVES_SERVICE_MAP.put(storageId, baseFileService);
@@ -228,6 +226,7 @@ public class StorageSourceContext implements ApplicationContextAware {
                 if (storageParamItem.ignoreInput()) {
                     ignoreFieldNameList.add(key);
                 }
+
                 // 如果 map 中包含此 key, 则是父类的, 跳过.
                 if (fieldMap.containsKey(key)) {
                     continue;
@@ -273,7 +272,7 @@ public class StorageSourceContext implements ApplicationContextAware {
             Integer storageId = baseFileServiceEntry.getKey();
             AbstractBaseFileService<?> baseFileService = baseFileServiceEntry.getValue();
             // 如果未初始化成功, 则直接跳过
-            if (baseFileService.getIsUnInitialized()) {
+            if (BooleanUtil.isFalse(baseFileService.isInitialized())) {
                 continue;
             }
 

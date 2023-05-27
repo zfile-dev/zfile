@@ -1,21 +1,24 @@
 package im.zhaojun.zfile.module.config.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.convert.ConvertException;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import im.zhaojun.zfile.module.config.constant.SystemConfigConstant;
-import im.zhaojun.zfile.module.config.mapper.SystemConfigMapper;
-import im.zhaojun.zfile.module.config.model.entity.SystemConfig;
-import im.zhaojun.zfile.module.login.model.enums.LoginVerifyModeEnum;
 import im.zhaojun.zfile.core.config.ZFileProperties;
 import im.zhaojun.zfile.core.exception.ServiceException;
 import im.zhaojun.zfile.core.util.CodeMsg;
 import im.zhaojun.zfile.core.util.EnumConvertUtils;
+import im.zhaojun.zfile.module.config.constant.SystemConfigConstant;
+import im.zhaojun.zfile.module.config.event.ISystemConfigModifyHandler;
+import im.zhaojun.zfile.module.config.mapper.SystemConfigMapper;
 import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.module.config.model.entity.SystemConfig;
+import im.zhaojun.zfile.module.login.model.enums.LoginVerifyModeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -29,6 +32,7 @@ import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static im.zhaojun.zfile.module.config.service.SystemConfigService.CACHE_NAME;
@@ -62,6 +66,9 @@ public class SystemConfigService {
     
     @Resource
     private CacheManager cacheManager;
+
+    @Resource
+    private ISystemConfigModifyHandler systemConfigModifyHandler;
     
     private final Class<SystemConfigDTO> systemConfigClazz = SystemConfigDTO.class;
 
@@ -110,12 +117,18 @@ public class SystemConfigService {
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(allEntries = true)
     public void updateSystemConfig(SystemConfigDTO systemConfigDTO) {
-        List<SystemConfig> systemConfigList = new ArrayList<>();
+        // 获取更新前的值
+        List<SystemConfig> systemConfigListInDb = systemConfigMapper.findAll();
+        Map<String, SystemConfig> systemConfigMapInDb = CollUtil.toMap(systemConfigListInDb, null, SystemConfig::getName);
+
+        // 存储更新后的值
+        List<SystemConfig> updateSystemConfigList = new ArrayList<>();
 
         Field[] fields = systemConfigClazz.getDeclaredFields();
         for (Field field : fields) {
+            // 获取数据库中的值对象
             String key = field.getName();
-            SystemConfig systemConfig = systemConfigMapper.findByName(key);
+            SystemConfig systemConfig = systemConfigMapInDb.get(key);
             if (systemConfig != null) {
                 field.setAccessible(true);
                 Object val = null;
@@ -131,15 +144,28 @@ public class SystemConfigService {
                     if (EnumUtil.isEnum(val)) {
                         val = EnumConvertUtils.convertEnumToStr(val);
                     }
-                    systemConfig.setValue(Convert.toStr(val));
-                    systemConfigList.add(systemConfig);
+                    // 如果和原来的值一样, 则跳过
+                    String originVal = systemConfig.getValue();
+                    if (ObjUtil.equals(originVal, val)) {
+                        continue;
+                    }
+                    // 将更新后的值存到更新列表中
+                    SystemConfig updateSystemConfig = new SystemConfig();
+                    updateSystemConfig.setId(systemConfig.getId());
+                    updateSystemConfig.setName(systemConfig.getName());
+                    updateSystemConfig.setValue(Convert.toStr(val));
+                    updateSystemConfig.setTitle(systemConfig.getTitle());
+                    updateSystemConfigList.add(updateSystemConfig);
                 }
             }
         }
 
-        systemConfigList.forEach(systemConfig -> systemConfigMapper.updateById(systemConfig));
+        updateSystemConfigList.forEach(systemConfigInForm -> {
+            SystemConfig systemConfigInDb = systemConfigMapInDb.get(systemConfigInForm.getName());
+            systemConfigModifyHandler.modify(systemConfigInDb, systemConfigInForm);
+            systemConfigMapper.updateById(systemConfigInForm);
+        });
     }
-
 
     /**
      * 重置管理员登录信息, 重置登录账号为 admin, 密码为 123456, 登录校验方式为 图形验证码.
