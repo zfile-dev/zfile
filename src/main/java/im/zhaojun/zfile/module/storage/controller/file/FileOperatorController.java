@@ -10,11 +10,7 @@ import im.zhaojun.zfile.module.password.service.PasswordConfigService;
 import im.zhaojun.zfile.module.storage.annotation.CheckPassword;
 import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
-import im.zhaojun.zfile.module.storage.model.request.operator.BatchDeleteRequest;
-import im.zhaojun.zfile.module.storage.model.request.operator.NewFolderRequest;
-import im.zhaojun.zfile.module.storage.model.request.operator.RenameFileRequest;
-import im.zhaojun.zfile.module.storage.model.request.operator.RenameFolderRequest;
-import im.zhaojun.zfile.module.storage.model.request.operator.UploadFileRequest;
+import im.zhaojun.zfile.module.storage.model.request.operator.*;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -160,7 +156,6 @@ public class FileOperatorController {
 		}
 	}
 
-
 	@ApiOperationSupport(order = 5)
 	@ApiOperation(value = "上传文件")
 	@PostMapping("/upload/file")
@@ -174,4 +169,67 @@ public class FileOperatorController {
 		return AjaxJson.getSuccessData(uploadUrl);
 	}
 
+	//@ApiOperationSupport(order = 6)
+	//@ApiOperation(value = "移动文件")
+	//@PostMapping("/move/file")
+	//@CheckPassword(storageKeyFieldExpression = "[0].storageKey",
+	//		pathFieldExpression = "[0].path",
+	//		passwordFieldExpression = "[0].password")
+	//public AjaxJson<?> moveFile(@Valid @RequestBody MoveFileRequest moveFileRequest) {
+	//	AbstractBaseFileService<?> fileService = storageSourceContext.getByStorageKey(moveFileRequest.getStorageKey());
+	//	boolean flag = fileService.moveFile(moveFileRequest.getPath(), moveFileRequest.getName(), moveFileRequest.getTargetPath(), moveFileRequest.getTargetName());
+	//	if (flag) {
+	//		return AjaxJson.getSuccess("移动成功");
+	//	} else {
+	//		return AjaxJson.getError("移动失败");
+	//	}
+	//}
+	//
+	//@ApiOperationSupport(order = 7)
+	//@ApiOperation(value = "移动文件夹")
+	//@PostMapping("/move/folder")
+	//@CheckPassword(storageKeyFieldExpression = "[0].storageKey",
+	//		pathFieldExpression = "[0].path",
+	//		passwordFieldExpression = "[0].password")
+	//public AjaxJson<?> moveFolder(@Valid @RequestBody MoveFolderRequest moveFolderRequest) {
+	//	AbstractBaseFileService<?> fileService = storageSourceContext.getByStorageKey(moveFolderRequest.getStorageKey());
+	//	boolean flag = fileService.moveFolder(moveFolderRequest.getPath(), moveFolderRequest.getName(), moveFolderRequest.getTargetPath(), moveFolderRequest.getTargetName());
+	//	if (flag) {
+	//		return AjaxJson.getSuccess("移动成功");
+	//	} else {
+	//		return AjaxJson.getError("移动失败");
+	//	}
+	//}
+	//
+	//@ApiOperationSupport(order = 8)
+	//@ApiOperation(value = "复制文件")
+	//@PostMapping("/copy/file")
+	//@CheckPassword(storageKeyFieldExpression = "[0].storageKey",
+	//		pathFieldExpression = "[0].path",
+	//		passwordFieldExpression = "[0].password")
+	//public AjaxJson<?> copyFile(@Valid @RequestBody CopyFileRequest copyFileRequest) {
+	//	AbstractBaseFileService<?> fileService = storageSourceContext.getByStorageKey(copyFileRequest.getStorageKey());
+	//	boolean flag = fileService.copyFile(copyFileRequest.getPath(), copyFileRequest.getName(), copyFileRequest.getTargetPath(), copyFileRequest.getTargetName());
+	//	if (flag) {
+	//		return AjaxJson.getSuccess("复制成功");
+	//	} else {
+	//		return AjaxJson.getError("复制失败");
+	//	}
+	//}
+	//
+	//@ApiOperationSupport(order = 9)
+	//@ApiOperation(value = "复制文件夹")
+	//@PostMapping("/copy/folder")
+	//@CheckPassword(storageKeyFieldExpression = "[0].storageKey",
+	//		pathFieldExpression = "[0].path",
+	//		passwordFieldExpression = "[0].password")
+	//public AjaxJson<?> copyFolder(@Valid @RequestBody CopyFolderRequest copyFolderRequest) {
+	//	AbstractBaseFileService<?> fileService = storageSourceContext.getByStorageKey(copyFolderRequest.getStorageKey());
+	//	boolean flag = fileService.copyFolder(copyFolderRequest.getPath(), copyFolderRequest.getName(), copyFolderRequest.getTargetPath(), copyFolderRequest.getTargetName());
+	//	if (flag) {
+	//		return AjaxJson.getSuccess("复制成功");
+	//	} else {
+	//		return AjaxJson.getError("复制失败");
+	//	}
+	//}
 }
