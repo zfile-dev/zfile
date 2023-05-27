@@ -18,50 +18,6 @@
     `id`, `path`, `storage_key`, `create_time`, `ip`, `user_agent`, `referer`, `short_key`
   </sql>
 
-  <select id="getDownloadTopFile" resultType="im.zhaojun.zfile.module.log.model.dto.DownloadTopFileDTO">
-      select short_key, storage_key, path, count(1) count from download_log
-      <where>
-          <if test="startTime != null and startTime != ''">
-              and create_time &gt;= #{startTime}
-          </if>
-          <if test="endTime != null and endTime != ''">
-              and create_time &lt;= #{endTime}
-          </if>
-      </where>
-      group by short_key, storage_key, path
-      order by count desc limit #{top}
-  </select>
-
-
-    <select id="getDownloadIpFile" resultType="im.zhaojun.zfile.module.log.model.dto.DownloadTopIpDTO">
-        select ip, count(1) count from download_log
-        <where>
-            <if test="startTime != null and startTime != ''">
-                and create_time &gt;= #{startTime}
-            </if>
-            <if test="endTime != null and endTime != ''">
-                and create_time &lt;= #{endTime}
-            </if>
-        </where>
-        group by ip
-        order by count desc limit #{top}
-    </select>
-
-
-    <select id="getDownloadRefererFile" resultType="im.zhaojun.zfile.module.log.model.dto.DownloadTopRefererDTO">
-        select referer, count(1) count from download_log
-        <where>
-            <if test="startTime != null and startTime != ''">
-                and create_time &gt;= #{startTime}
-            </if>
-            <if test="endTime != null and endTime != ''">
-                and create_time &lt;= #{endTime}
-            </if>
-        </where>
-        group by referer
-        order by count desc limit #{top}
-    </select>
-
   <delete id="deleteByStorageKey">
       delete from download_log where storage_key = #{storageKey}
     </delete>
