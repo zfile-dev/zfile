@@ -130,7 +130,7 @@ public class DownloadLogManagerController {
                         .ge(StrUtil.isNotEmpty(queryDownloadLogRequest.getDateFrom()), "create_time", queryDownloadLogRequest.getDateFrom())
                         .le(StrUtil.isNotEmpty(queryDownloadLogRequest.getDateTo()), "create_time", queryDownloadLogRequest.getDateTo());
 
-        downloadLogService.deleteByQueryWarpper(queryWrapper);
+        downloadLogService.deleteByQueryWrapper(queryWrapper);
         return AjaxJson.getSuccess();
     }
 

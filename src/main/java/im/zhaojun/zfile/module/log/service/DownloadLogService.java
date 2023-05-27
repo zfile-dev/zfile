@@ -38,9 +38,10 @@ public class DownloadLogService {
 		downloadLogMapper.deleteBatchIds(ids);
 	}
 
-	public void deleteByQueryWarpper(QueryWrapper<DownloadLog> queryWrapper) {
+	public void deleteByQueryWrapper(QueryWrapper<DownloadLog> queryWrapper) {
 		downloadLogMapper.delete(queryWrapper);
 	}
+
 	public int deleteByStorageKey(String storageKey) {
 		return downloadLogMapper.deleteByStorageKey(storageKey);
 	}
