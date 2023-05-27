@@ -1,1 +1,1 @@
-INSERT INTO system_config (`name`, `title`, `value`) VALUES ('defaultSavePwd', '是否默认记住密码', 'true');
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('defaultSavePwd', '是否默认记住密码', 'false');
