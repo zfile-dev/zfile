@@ -1,18 +1,13 @@
 package im.zhaojun.zfile.module.storage.controller.proxy;
 
-import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.core.util.AjaxJson;
+import im.zhaojun.zfile.module.config.utils.SpringMvcUtils;
+import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService;
 import io.swagger.annotations.Api;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.HandlerMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -43,10 +38,7 @@ public class ProxyUploadController {
 		}
 
 		// 获取上传路径
-		String path = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		String bestMatchPattern = (String) httpServletRequest.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-		AntPathMatcher apm = new AntPathMatcher();
-		String filePath = apm.extractPathWithinPattern(bestMatchPattern, path);
+		String filePath = SpringMvcUtils.getExtractPathWithinPattern();
 
 		AbstractBaseFileService<?> storageServiceByKey = storageSourceContext.getByStorageKey(storageKey);
 

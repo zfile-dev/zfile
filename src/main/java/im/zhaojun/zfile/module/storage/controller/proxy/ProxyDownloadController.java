@@ -2,9 +2,10 @@ package im.zhaojun.zfile.module.storage.controller.proxy;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
-import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.core.exception.StorageSourceNotSupportProxyUploadException;
 import im.zhaojun.zfile.core.util.ProxyDownloadUrlUtils;
+import im.zhaojun.zfile.module.config.utils.SpringMvcUtils;
+import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService;
 import io.swagger.annotations.Api;
@@ -13,11 +14,9 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.HandlerMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -54,10 +53,7 @@ public class ProxyDownloadController {
     @ResponseBody
     public ResponseEntity<org.springframework.core.io.Resource> downAttachment(@PathVariable("storageKey") String storageKey, String signature) throws IOException {
         // 获取下载文件路径
-        String path = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String bestMatchPattern = (String) httpServletRequest.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-        AntPathMatcher apm = new AntPathMatcher();
-        String filePath = apm.extractPathWithinPattern(bestMatchPattern, path);
+        String filePath = SpringMvcUtils.getExtractPathWithinPattern();
 
         AbstractBaseFileService<?> storageServiceByKey = storageSourceContext.getByStorageKey(storageKey);
 
