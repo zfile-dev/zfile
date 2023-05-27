@@ -1,0 +1,1 @@
+alter table download_log add download_type varchar(32);

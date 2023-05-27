@@ -12,10 +12,11 @@
     <result column="ip" jdbcType="VARCHAR" property="ip" />
     <result column="user_agent" jdbcType="VARCHAR" property="userAgent" />
     <result column="referer" jdbcType="VARCHAR" property="referer" />
+    <result column="download_type" jdbcType="VARCHAR" property="downloadType" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    `id`, `path`, `storage_key`, `create_time`, `ip`, `user_agent`, `referer`, `short_key`
+    `id`, `path`, `storage_key`, `create_time`, `ip`, `user_agent`, `referer`, `short_key`, `download_type`
   </sql>
 
   <delete id="deleteByStorageKey">

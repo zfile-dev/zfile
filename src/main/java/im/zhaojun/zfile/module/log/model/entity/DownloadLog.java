@@ -27,11 +27,20 @@ import java.util.Date;
 @NoArgsConstructor
 public class DownloadLog implements Serializable {
 
+    public static final String DOWNLOAD_TYPE_DIRECT_LINK = "directLink";
+
+    public static final String DOWNLOAD_TYPE_SHORT_LINK = "shortLink";
+
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.INPUT)
     @ApiModelProperty(value = "ID, 新增无需填写", example = "1")
     private Integer id;
+
+
+    @TableField(value = "`download_type`")
+    @ApiModelProperty(value="下载类型", example = "directLink", allowableValues = "directLink, shortLink")
+    private String downloadType;
 
 
     @TableField(value = "`path`")
@@ -68,7 +77,8 @@ public class DownloadLog implements Serializable {
     @ApiModelProperty(value="访问 referer")
     private String referer;
 
-    public DownloadLog(String path, String storageKey, String shortKey) {
+    public DownloadLog(String downloadType, String path, String storageKey, String shortKey) {
+        this.downloadType = downloadType;
         this.path = path;
         this.storageKey = storageKey;
         this.shortKey = shortKey;
