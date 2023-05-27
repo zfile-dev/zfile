@@ -11,6 +11,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.util.ValidationUtils;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.DogeCloudParam;
 import im.zhaojun.zfile.module.storage.service.base.AbstractS3BaseFileService;
@@ -20,6 +21,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Supplier;
+
 /**
  * @author zhaojun
  */
@@ -28,13 +31,18 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DogeCloudServiceImpl extends AbstractS3BaseFileService<DogeCloudParam> implements RefreshTokenService {
 
+    private BasicSessionCredentials awsCredentials;
+
+    public void updateAwsCredentials() {
+        awsCredentials = new BasicSessionCredentials(param.getS3AccessKey(), param.getS3SecretKey(), param.getS3SessionToken());
+    }
+
     @Override
     public void init() {
         refreshAccessToken();
-
-        BasicSessionCredentials awsCredentials = new BasicSessionCredentials(param.getS3AccessKey(), param.getS3SecretKey(), param.getS3SessionToken());
+        updateAwsCredentials();
         s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                .withCredentials(new DynamicAWSCredentialsProvider(() -> awsCredentials))
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(
                         param.getEndPoint(),
                         "automatic"))
@@ -83,7 +91,7 @@ public class DogeCloudServiceImpl extends AbstractS3BaseFileService<DogeCloudPar
         param.setBucketName(buckets.getString("s3Bucket"));
         param.setEndPoint(buckets.getString("s3Endpoint"));
 
-
+        updateAwsCredentials();
     }
 
 
@@ -92,5 +100,27 @@ public class DogeCloudServiceImpl extends AbstractS3BaseFileService<DogeCloudPar
         return SecureUtil.hmacSha1(param.getSecretKey()).digestHex(signStr);
     }
 
+
+}
+
+
+
+class DynamicAWSCredentialsProvider implements AWSCredentialsProvider {
+
+    private final Supplier<AWSCredentials> supplier;
+
+    public DynamicAWSCredentialsProvider(Supplier<AWSCredentials> supplier) {
+        this.supplier = supplier;
+    }
+
+    @Override
+    public AWSCredentials getCredentials() {
+        return ValidationUtils.assertNotNull(supplier.get(), "credentials");
+    }
+
+    @Override
+    public void refresh() {
+
+    }
 
 }
