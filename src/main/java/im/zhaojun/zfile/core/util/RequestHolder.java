@@ -57,7 +57,7 @@ public class RequestHolder {
             String fileName = FileUtil.getName(path);
 
             response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + StringUtils.encodeAllIgnoreSlashes(fileName));
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM.getType());
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
             OutputStream outputStream = response.getOutputStream();
 
