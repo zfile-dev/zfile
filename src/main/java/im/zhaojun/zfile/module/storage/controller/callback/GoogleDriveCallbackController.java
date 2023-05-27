@@ -2,7 +2,7 @@ package im.zhaojun.zfile.module.storage.controller.callback;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import im.zhaojun.zfile.module.storage.model.dto.OAuth2TokenDTO;
 import io.swagger.annotations.Api;

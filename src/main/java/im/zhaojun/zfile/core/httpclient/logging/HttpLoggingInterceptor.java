@@ -118,7 +118,7 @@ public final class HttpLoggingInterceptor implements Interceptor {
 		void log(String message);
 		
 		/** A {@link Logger} defaults output appropriate for the current platform. */
-		Logger DEFAULT = message -> Platform.get().log(INFO, message, null);
+		Logger DEFAULT = message -> Platform.get().log(message, INFO, null);
 		
 		Logger DEBUG = log::debug;
 		Logger TRACE = log::trace;
