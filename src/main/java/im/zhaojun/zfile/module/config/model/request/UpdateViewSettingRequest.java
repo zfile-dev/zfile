@@ -68,4 +68,7 @@ public class UpdateViewSettingRequest {
 	@ApiModelProperty(value = "默认排序方向", example = "asc")
 	private String defaultSortOrder;
 
+	@ApiModelProperty(value = "是否默认记住密码", example = "true")
+	private Boolean defaultSavePwd;
+
 }
