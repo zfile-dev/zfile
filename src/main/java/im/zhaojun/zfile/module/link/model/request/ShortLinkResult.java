@@ -32,4 +32,7 @@ public class ShortLinkResult {
 	@ApiModelProperty(value = "创建时间", example = "2021-11-22 10:05")
 	private Date createDate;
 
+	@ApiModelProperty(value = "过期时间", example = "2021-11-23 10:05")
+	private Date expireDate;
+
 }

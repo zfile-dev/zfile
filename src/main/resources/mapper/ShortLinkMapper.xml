@@ -8,11 +8,12 @@
         <result column="short_key" jdbcType="VARCHAR" property="shortKey"/>
         <result column="url" jdbcType="LONGVARCHAR" property="url"/>
         <result column="create_date" jdbcType="DATE" property="createDate"/>
-        <result column="storage_id" jdbcType="DATE" property="storageId"/>
+        <result column="storage_id" jdbcType="INTEGER" property="storageId"/>
+        <result column="expire_date" jdbcType="DATE" property="expireDate"/>
     </resultMap>
     <sql id="Base_Column_List">
         <!--@mbg.generated-->
-        id, short_key, url, create_date, storage_id
+        id, short_key, url, create_date, storage_id, expire_date
     </sql>
 
     <update id="updateUrlStorageId">

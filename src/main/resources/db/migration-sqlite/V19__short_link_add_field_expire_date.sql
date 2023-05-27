@@ -1,0 +1,1 @@
+alter table short_link add expire_date datetime;

@@ -115,4 +115,11 @@ public class SiteConfigResult {
 
 	@ApiModelProperty(value = "站点 Logo 链接打开方式", example = "_blank")
 	private String siteHomeLogoTargetMode;
+
+	@ApiModelProperty(value = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
+	private String linkExpireTimes;
+
+	@ApiModelProperty(value = "是否默认记住密码", example = "true")
+	private Boolean defaultSavePwd;
+
 }

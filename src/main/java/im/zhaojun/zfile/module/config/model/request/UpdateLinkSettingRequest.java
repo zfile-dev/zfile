@@ -46,4 +46,8 @@ public class UpdateLinkSettingRequest {
 
 	@ApiModelProperty(value = "限制直链下载次数", example = "_blank")
 	private Integer linkDownloadLimit;
+
+	@ApiModelProperty(value = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
+	private String linkExpireTimes;
+
 }

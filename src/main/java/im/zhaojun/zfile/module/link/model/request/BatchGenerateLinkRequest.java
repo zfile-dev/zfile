@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -20,5 +21,10 @@ public class BatchGenerateLinkRequest {
 	
 	@NotEmpty(message = "生成的文件路径不能为空")
 	private List<String> paths;
-	
+
+	/**
+	 * 有效期, 单位: 秒
+	 */
+	@NotNull(message = "过期时间不能为空")
+	private Long expireTime;
 }

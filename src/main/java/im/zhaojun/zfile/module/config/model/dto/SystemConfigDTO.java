@@ -159,4 +159,12 @@ public class SystemConfigDTO {
     @ApiModelProperty(value = "限制直链下载次数", example = "_blank")
     private Integer linkDownloadLimit;
 
+    @ApiModelProperty(value = "网站 favicon 图标地址", example = "https://www.example.com/favicon.ico")
+    private String faviconUrl;
+
+    @ApiModelProperty(value = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
+    private String linkExpireTimes;
+
+    @ApiModelProperty(value = "是否默认记住密码", example = "true")
+    private Boolean defaultSavePwd;
 }
