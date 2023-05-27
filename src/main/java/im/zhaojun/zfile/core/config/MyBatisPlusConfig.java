@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import java.sql.SQLException;
  *
  * @author zhaojun
  */
+@Slf4j
 @Configuration
 public class MyBatisPlusConfig {
 
@@ -39,8 +41,12 @@ public class MyBatisPlusConfig {
         if (StrUtil.equals(datasourceDriveClassName, "org.sqlite.JDBC")) {
             String path = datasourceUrl.replace("jdbc:sqlite:", "");
             String folderPath = FileUtil.getParent(path, 1);
+            log.info("SQLite 数据库文件所在目录: [{}]", folderPath);
             if (!FileUtil.exist(folderPath)) {
                 FileUtil.mkdir(folderPath);
+                log.info("检测到 SQLite 数据库文件所在目录不存在, 已自动创建.");
+            } else {
+                log.info("检测到 SQLite 数据库文件所在目录已存在, 无需自动创建.");
             }
         }
     }
