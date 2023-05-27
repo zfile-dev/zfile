@@ -25,7 +25,10 @@ public class DownloadLogResult {
 	
 	@ApiModelProperty(value = "存储源名称", example = "我的本地存储")
 	private String storageName;
-	
+
+	@ApiModelProperty(value = "存储源Key", example = "local")
+	private String storageKey;
+
 	@ApiModelProperty(value="访问时间")
 	private Date createTime;
 
