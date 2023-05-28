@@ -85,7 +85,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.463</version>
+            <version>1.12.470</version>
         </dependency>
         <dependency>
             <groupId>com.qiniu</groupId>
