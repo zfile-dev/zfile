@@ -1,1 +1,0 @@
-System.register(["./plugin-vue_export-helper-legacy.7bb61c33.js","./index-legacy.80d3f8d7.js"],(function(e){"use strict";var t,r,n,u;return{setters:[function(e){t=e._},function(e){r=e.a8,n=e.a,u=e.b}],execute:function(){e("default",t({},[["render",function(e,t){var c=r("router-view");return n(),u(c)}]]))}}}));

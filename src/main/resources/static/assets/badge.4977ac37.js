@@ -1,1 +1,0 @@
-import{a as e,b as o,j as r}from"./index.f20a2340.js";function l(a,n){return e(),o("svg",{xmlns:"http://www.w3.org/2000/svg",fill:"none",viewBox:"0 0 24 24","stroke-width":"2",stroke:"currentColor","aria-hidden":"true"},[r("path",{"stroke-linecap":"round","stroke-linejoin":"round",d:"M4 6h16M4 12h16M4 18h16"})])}export{l as r};
