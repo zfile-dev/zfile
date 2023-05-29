@@ -6,7 +6,7 @@
     <artifactId>zfile</artifactId>
     <version>4.1.5</version>
     <name>zfile</name>
-    <packaging>jar</packaging>
+    <packaging>${packaging}</packaging>
     <description>一个在线的文件浏览系统</description>
 
     <parent>
@@ -22,6 +22,7 @@
         <snakeyaml.version>2.0</snakeyaml.version>
         <jackson-bom.version>2.14.1</jackson-bom.version>
         <sqlite-jdbc.version>3.41.2.2</sqlite-jdbc.version>
+        <packaging>jar</packaging>
     </properties>
 
     <dependencies>
@@ -253,30 +254,54 @@
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>com.uyoqu.framework</groupId>
-                <artifactId>maven-plugin-starter</artifactId>
-                <version>1.0.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>bin</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvms>
-                        <jvm>-Djava.security.egd=file:/dev/./urandom</jvm>
-                        <jvm>-Dfile.encoding=utf-8</jvm>
-                        <jvm>-Djava.net.preferIPv4Stack=false</jvm>
-                        <jvm>-Djava.net.preferIPv4Addresses=true</jvm>
-                        <jvm>-Djava.awt.headless=true</jvm>
-                    </jvms>
-                </configuration>
-            </plugin>
         </plugins>
-
-
     </build>
+
+    <profiles>
+        <profile>
+            <id>enable-war-packaging</id>
+            <activation>
+                <property>
+                    <name>packaging</name>
+                    <value>war</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.uyoqu.framework</groupId>
+                        <artifactId>maven-plugin-starter</artifactId>
+                        <version>1.0.0</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>bin</goal>
+                                </goals>
+                                <configuration>
+                                    <jvms>
+                                        <jvm>-Djava.security.egd=file:/dev/./urandom</jvm>
+                                        <jvm>-Dfile.encoding=utf-8</jvm>
+                                        <jvm>-Djava.net.preferIPv4Stack=false</jvm>
+                                        <jvm>-Djava.net.preferIPv4Addresses=true</jvm>
+                                        <jvm>-Djava.awt.headless=true</jvm>
+                                    </jvms>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>enable-jar-packaging</id>
+            <activation>
+                <property>
+                    <name>packaging</name>
+                    <value>jar</value>
+                </property>
+            </activation>
+        </profile>
+    </profiles>
+
 </project>
