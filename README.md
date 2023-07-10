@@ -1,22 +1,24 @@
+# ZFile
+
+[![ZFile License](https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square)](https://github.com/zfile-dev/zfile/blob/main/LICENSE)
+[![GitHub release](https://shields.io/github/v/release/zhaojun1998/zfile?style=flat-square)](https://github.com/zfile-dev/zfile/releases)
+<img src="https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a"/>
+
+<h3 align="center">Special Sponsors</h3>
+
 <p align="center">
-
-![zfile](https://cdn.jun6.net/uPic/2022/09/04/zfile-header.png)
-
-基于 Java 的在线网盘程序，支持对接 S3、OneDrive、SharePoint、Google Drive、多吉云、又拍云、本地存储、FTP、SFTP 等存储源，支持在线浏览图片、播放音视频，文本文件、Office、obj（3d）等文件类型。
-<br><br>
-<img src="https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square" alt="license">
-<img src="https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a" alt="codady">
-<img src="https://img.shields.io/github/last-commit/zhaojun1998/zfile.svg?style=flat-square" alt="last commit">
-<img src="https://img.shields.io/github/downloads/zhaojun1998/zfile/total?style=flat-square" alt="downloads">
-<img src="https://img.shields.io/github/v/release/zhaojun1998/zfile?style=flat-square" alt="release">
-<img src="https://img.shields.io/github/commit-activity/y/zhaojun1998/zfile?style=flat-square" alt="commit activity">
-<br>
-<img src="https://img.shields.io/github/issues/zhaojun1998/zfile?style=flat-square" alt="issues">
-<img src="https://img.shields.io/github/issues-closed-raw/zhaojun1998/zfile?style=flat-square" alt="closed issues">
-<img src="https://img.shields.io/github/forks/zhaojun1998/zfile?style=flat-square" alt="forks">
-<img src="https://img.shields.io/github/stars/zhaojun1998/zfile?style=flat-square" alt="stars">
-<img src="https://img.shields.io/github/watchers/zhaojun1998/zfile?style=flat-square" alt="watchers">
+  <a href="https://www.horain.net/aff.php?aff=247" target="_blank">
+    <img width="350px" src="https://www.horain.net/logo/HoRain-Blue.png">
+  </a>
 </p>
+<!--gold sponsors end-->
+
+## ZFile 是什么？
+
+ZFile 是一个适用于个人的在线网盘(列目录)程序，可以将你各个存储类型的存储源，统一到一个网页中查看、预览、维护，再也不用去登录各种各样的网页登录后管理文件，现在你只需要在 ZFile 中使用。你只需要填写存储源相关信息，其他的令牌刷新，授权都是尽量自动化的，且有完善的文档帮助你使用。
+
+- 支持对接 S3、OneDrive、SharePoint、Google Drive、多吉云、又拍云、本地存储、FTP、SFTP 等存储源
+- 支持在线浏览图片、播放音视频，文本文件、Office、obj（3d）等文件类型。
 
 ## 快速开始
 
