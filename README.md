@@ -7,7 +7,7 @@
 <h3 align="center">Special Sponsors</h3>
 
 <p align="center">
-  <a href="https://www.horain.net/aff.php?aff=247" target="_blank">
+  <a href="https://www.horain.net" target="_blank">
     <img width="350px" src="https://www.horain.net/logo/HoRain-Blue.png">
   </a>
 </p>
