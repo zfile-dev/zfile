@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 创建 Issue
+    url: https://issue.zfile.vip/
+    about: 未通过 https://issue.zfile.vip/ 创建的问题可能会被立即关闭。
