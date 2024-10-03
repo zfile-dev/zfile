@@ -4,15 +4,6 @@
 [![GitHub release](https://shields.io/github/v/release/zhaojun1998/zfile?style=flat-square)](https://github.com/zfile-dev/zfile/releases)
 <img src="https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a"/>
 
-<h3 align="center">Special Sponsors</h3>
-
-<p align="center">
-  <a href="https://neo.horain.net/aff/ENRTPIGB" target="_blank">
-    <img width="350px" src="https://www.horain.net/logo/HoRain-Blue.png">
-  </a>
-</p>
-<!--gold sponsors end-->
-
 ## ZFile 是什么？
 
 ZFile 是一个适用于个人的在线网盘(列目录)程序，可以将你各个存储类型的存储源，统一到一个网页中查看、预览、维护，再也不用去登录各种各样的网页登录后管理文件，现在你只需要在 ZFile 中使用。你只需要填写存储源相关信息，其他的令牌刷新，授权都是尽量自动化的，且有完善的文档帮助你使用。
