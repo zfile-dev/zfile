@@ -3,6 +3,8 @@
 [![ZFile License](https://img.shields.io/badge/license-MIT-blue.svg?longCache=true&style=flat-square)](https://github.com/zfile-dev/zfile/blob/main/LICENSE)
 [![GitHub release](https://shields.io/github/v/release/zhaojun1998/zfile?style=flat-square)](https://github.com/zfile-dev/zfile/releases)
 <img src="https://api.codacy.com/project/badge/Grade/70b793267f7941d58cbd93f50c9a8e0a"/>
+[![Docker Pulls](https://img.shields.io/docker/pulls/zhaojun1998/zfile)](https://hub.docker.com/r/zhaojun1998/zfile)
+[![宝塔服务器面板，一键全能部署及管理](https://img.shields.io/badge/BT_Deploy-Install-20a53a)](https://www.bt.cn/u/WYVNdM)
 
 ## ZFile 是什么？
 
