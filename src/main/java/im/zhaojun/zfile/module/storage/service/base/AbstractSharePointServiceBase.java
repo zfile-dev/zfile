@@ -17,9 +17,4 @@ public abstract class AbstractSharePointServiceBase<P extends SharePointParam> e
         return "sites/" + param.getSiteId();
     }
 
-    @Override
-    public String getDownloadUrl(String pathAndName) {
-        return getFileItem(pathAndName).getUrl();
-    }
-
 }

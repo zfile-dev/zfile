@@ -1,0 +1,1 @@
+INSERT INTO storage_source_config (name, type, title, storage_id, value) select 'proxyLinkForceDownload', type, '下载链接强制下载', id, 'true' from storage_source;

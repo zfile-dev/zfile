@@ -22,9 +22,4 @@ public abstract class AbstractOneDriveServiceBase<P extends OneDriveParam> exten
         return "me";
     }
 
-    @Override
-    public String getDownloadUrl(String pathAndName) {
-        return getFileItem(pathAndName).getUrl();
-    }
-
 }

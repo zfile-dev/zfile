@@ -1,9 +1,14 @@
 package im.zhaojun.zfile.module.link.model.request;
 
+import cn.hutool.core.date.DateUtil;
 import im.zhaojun.zfile.core.model.request.PageQueryRequest;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 查询下载日志请求参数
@@ -14,31 +19,46 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class QueryDownloadLogRequest extends PageQueryRequest {
 
-	@ApiModelProperty(value="文件路径")
+	@Schema(name="文件路径")
 	private String path;
 
-	@ApiModelProperty(value="存储源 key")
+	@Schema(name="存储源 key")
 	private String storageKey;
 
-	@ApiModelProperty(value="短链 key")
+	@Schema(name="链接类型")
+	private String linkType;
+
+	@Schema(name="短链 key")
 	private String shortKey;
 
-	@ApiModelProperty(value="访问时间从")
-	private String dateFrom;
+	@Schema(name="访问时间")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private List<Date> searchDate;
 
-	@ApiModelProperty(value="访问时间至")
-	private String dateTo;
-
-	@ApiModelProperty(value="访问 ip")
+	@Schema(name="访问 ip")
 	private String ip;
 
-	@ApiModelProperty(value="访问 user_agent")
+	@Schema(name="访问 user_agent")
 	private String userAgent;
 
-	@ApiModelProperty(value="访问 referer")
+	@Schema(name="访问 referer")
 	private String referer;
 	
-	@ApiModelProperty(value="排序字段")
+	@Schema(name="排序字段")
 	private String orderBy = "create_time";
-	
+
+	public Date getDateFrom() {
+		if (searchDate == null) {
+			return null;
+		}
+		return DateUtil.beginOfDay(searchDate.getFirst());
+	}
+
+	public Date getDateTo() {
+		if (searchDate == null) {
+			return null;
+		}
+		return DateUtil.endOfDay(searchDate.getLast());
+	}
+
 }

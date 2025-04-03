@@ -13,6 +13,7 @@ public class SystemConfigConstant {
 
     public static final String LOGIN_VERIFY_MODE = "loginVerifyMode";
 
-    public static final String RSA_HEX_KEY = "rsaHexKey";
+    // 这里名称和值不一样是历史遗留问题，最开始设计时弄混了名称，实际使用的是 aes
+    public static final String AES_HEX_KEY = "rsaHexKey";
 
 }

@@ -2,30 +2,27 @@ package im.zhaojun.zfile.module.storage.controller.base;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
+import im.zhaojun.zfile.core.annotation.DemoDisable;
+import im.zhaojun.zfile.core.util.AjaxJson;
+import im.zhaojun.zfile.module.storage.convert.StorageSourceConvert;
+import im.zhaojun.zfile.module.storage.model.bo.RefreshTokenCacheBO;
+import im.zhaojun.zfile.module.storage.model.dto.StorageSourceDTO;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
 import im.zhaojun.zfile.module.storage.model.request.admin.CopyStorageSourceRequest;
+import im.zhaojun.zfile.module.storage.model.request.admin.UpdateStorageSortRequest;
 import im.zhaojun.zfile.module.storage.model.request.base.SaveStorageSourceRequest;
 import im.zhaojun.zfile.module.storage.model.result.StorageSourceAdminResult;
 import im.zhaojun.zfile.module.storage.service.StorageSourceService;
-import im.zhaojun.zfile.module.storage.model.bo.RefreshTokenCacheBO;
-import im.zhaojun.zfile.core.util.AjaxJson;
-import im.zhaojun.zfile.module.storage.convert.StorageSourceConvert;
-import im.zhaojun.zfile.module.storage.model.dto.StorageSourceDTO;
-import im.zhaojun.zfile.module.storage.model.request.admin.UpdateStorageSortRequest;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -33,7 +30,7 @@ import java.util.List;
  *
  * @author zhaojun
  */
-@Api(tags = "存储源模块-基础")
+@Tag(name = "存储源模块-基础")
 @ApiSort(3)
 @RestController
 @RequestMapping("/admin")
@@ -47,7 +44,7 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 1)
-    @ApiOperation(value = "获取所有存储源列表", notes = "获取所有添加的存储源列表，按照排序值由小到大排序")
+    @Operation(summary = "获取所有存储源列表", description ="获取所有添加的存储源列表，按照排序值由小到大排序")
     @GetMapping("/storages")
     public AjaxJson<List<StorageSourceAdminResult>> storageList() {
         List<StorageSource> list = storageSourceService.findAllOrderByOrderNum();
@@ -64,8 +61,8 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 2)
-    @ApiOperation(value = "获取指定存储源参数", notes = "获取指定存储源基本信息及其参数")
-    @ApiImplicitParam(paramType = "path", name = "storageId", value = "存储源 id", required = true, dataTypeClass = Integer.class)
+    @Operation(summary = "获取指定存储源参数", description ="获取指定存储源基本信息及其参数")
+    @Parameter(in = ParameterIn.PATH, name = "storageId", description = "存储源 id", required = true, schema = @Schema(type = "integer"))
     @GetMapping("/storage/{storageId}")
     public AjaxJson<StorageSourceDTO> storageItem(@PathVariable Integer storageId) {
         StorageSourceDTO storageSourceDTO = storageSourceService.findDTOById(storageId);
@@ -74,8 +71,9 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 3)
-    @ApiOperation(value = "保存存储源参数", notes = "保存存储源的所有参数")
+    @Operation(summary = "保存存储源参数", description ="保存存储源的所有参数")
     @PostMapping("/storage")
+    @DemoDisable
     public AjaxJson<Integer> saveStorageItem(@RequestBody SaveStorageSourceRequest saveStorageSourceRequest) {
         Integer id = storageSourceService.saveStorageSource(saveStorageSourceRequest);
         return AjaxJson.getSuccessData(id);
@@ -83,9 +81,10 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 4)
-    @ApiOperation(value = "删除存储源", notes = "删除存储源基本设置和拓展设置")
-    @ApiImplicitParam(paramType = "path", name = "storageId", value = "存储源 id", required = true, dataTypeClass = Integer.class)
+    @Operation(summary = "删除存储源", description ="删除存储源基本设置和拓展设置")
+    @Parameter(in = ParameterIn.PATH, name = "storageId", description = "存储源 id", required = true, schema = @Schema(type = "integer"))
     @DeleteMapping("/storage/{storageId}")
+    @DemoDisable
     public AjaxJson<Void> deleteStorageItem(@PathVariable Integer storageId) {
         storageSourceService.deleteById(storageId);
         return AjaxJson.getSuccess();
@@ -93,9 +92,10 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 5)
-    @ApiOperation(value = "启用存储源", notes = "开启存储源后可在前台显示")
-    @ApiImplicitParam(paramType = "path", name = "storageId", value = "存储源 id", required = true, dataTypeClass = Integer.class)
+    @Operation(summary = "启用存储源", description ="开启存储源后可在前台显示")
+    @Parameter(in = ParameterIn.PATH, name = "storageId", description = "存储源 id", required = true, schema = @Schema(type = "integer"))
     @PostMapping("/storage/{storageId}/enable")
+    @DemoDisable
     public AjaxJson<Void> enable(@PathVariable Integer storageId) {
         StorageSource storageSource = storageSourceService.findById(storageId);
         storageSource.setEnable(true);
@@ -105,9 +105,10 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 6)
-    @ApiOperation(value = "停止存储源", notes = "停用存储源后不在前台显示")
-    @ApiImplicitParam(paramType = "path", name = "storageId", value = "存储源 id", required = true, dataTypeClass = Integer.class)
+    @Operation(summary = "停止存储源", description ="停用存储源后不在前台显示")
+    @Parameter(in = ParameterIn.PATH, name = "storageId", description = "存储源 id", required = true, schema = @Schema(type = "integer"))
     @PostMapping("/storage/{storageId}/disable")
+    @DemoDisable
     public AjaxJson<Void> disable(@PathVariable Integer storageId) {
         StorageSource storageSource = storageSourceService.findById(storageId);
         storageSource.setEnable(false);
@@ -117,7 +118,7 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 7)
-    @ApiOperation(value = "更新存储源顺序")
+    @Operation(summary = "更新存储源顺序")
     @PostMapping("/storage/sort")
     public AjaxJson<Void> updateStorageSort(@RequestBody List<UpdateStorageSortRequest> updateStorageSortRequestList) {
         storageSourceService.updateStorageSort(updateStorageSortRequestList);
@@ -126,20 +127,20 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 8)
-    @ApiOperation(value = "校验存储源 key 是否重复")
-    @ApiImplicitParam(paramType = "query", name = "storageKey", value = "存储源 key", required = true, dataTypeClass = String.class)
+    @Operation(summary = "校验存储源 key 是否重复")
+    @Parameter(in = ParameterIn.QUERY, name = "storageKey", description = "存储源 key", required = true, schema = @Schema(type = "string"))
     @GetMapping("/storage/exist/key")
     public AjaxJson<Boolean> existKey(String storageKey) {
         boolean exist = storageSourceService.existByStorageKey(storageKey);
         return AjaxJson.getSuccessData(exist);
     }
-    
-    
+
+
     @ApiOperationSupport(order = 9)
-    @ApiOperation(value = "修改 readme 兼容模式", notes = "修改 readme 兼容模式是否启用")
-    @ApiImplicitParams({
-        @ApiImplicitParam(paramType = "path", name = "storageId", value = "存储源 id", required = true, dataTypeClass = Integer.class),
-        @ApiImplicitParam(paramType = "path", name = "status", value = "存储源兼容模式状态", required = true, dataTypeClass = Boolean.class)
+    @Operation(summary = "修改 readme 兼容模式", description ="修改 readme 兼容模式是否启用")
+    @Parameters({
+        @Parameter(in = ParameterIn.PATH, name = "storageId", description = "存储源 id", required = true, schema = @Schema(type = "integer")),
+        @Parameter(in = ParameterIn.PATH, name = "status", description = "存储源兼容模式状态", required = true, schema = @Schema(type = "boolean"))
     })
     @PostMapping("/storage/{storageId}/compatibility_readme/{status}")
     public AjaxJson<Void> changeCompatibilityReadme(@PathVariable Integer storageId, @PathVariable Boolean status) {
@@ -151,9 +152,9 @@ public class StorageSourceController {
 
 
     @ApiOperationSupport(order = 10)
-    @ApiOperation(value = "复制存储源", notes = "复制存储源配置")
-    @ApiImplicitParam(paramType = "path", name = "storageId", value = "存储源 id", required = true, dataTypeClass = Integer.class)
+    @Operation(summary = "复制存储源", description ="复制存储源配置")
     @PostMapping("/storage/copy")
+    @DemoDisable
     public AjaxJson<Integer> copyStorage(@RequestBody @Valid CopyStorageSourceRequest copyStorageSourceRequest) {
         Integer id = storageSourceService.copy(copyStorageSourceRequest);
         return AjaxJson.getSuccessData(id);

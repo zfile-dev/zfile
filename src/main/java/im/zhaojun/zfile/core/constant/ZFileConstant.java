@@ -12,10 +12,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ZFileConstant {
 
-    public static final Character PATH_SEPARATOR_CHAR = '/';
-
-    public static final String PATH_SEPARATOR = "/";
-
     /**
      * 最大支持文本文件大小为 ? KB 的文件内容.
      */

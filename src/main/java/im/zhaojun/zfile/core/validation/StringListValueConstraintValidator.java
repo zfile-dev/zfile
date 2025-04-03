@@ -1,9 +1,9 @@
 package im.zhaojun.zfile.core.validation;
 
-import cn.hutool.core.util.StrUtil;
+import im.zhaojun.zfile.core.util.StringUtils;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,7 +44,7 @@ public class StringListValueConstraintValidator implements ConstraintValidator<S
 	 */
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
-		if (StrUtil.isEmpty(value)) {
+		if (StringUtils.isEmpty(value)) {
 			return true;
 		}
 		return set.contains(value);

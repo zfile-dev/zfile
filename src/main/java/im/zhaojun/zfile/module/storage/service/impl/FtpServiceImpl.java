@@ -1,41 +1,40 @@
 package im.zhaojun.zfile.module.storage.service.impl;
 
-import cn.hutool.core.exceptions.ExceptionUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.extra.ftp.Ftp;
-import cn.hutool.extra.ftp.FtpMode;
-import im.zhaojun.zfile.core.exception.file.operator.DisableProxyDownloadException;
-import im.zhaojun.zfile.core.util.CodeMsg;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.exception.core.SystemException;
+import im.zhaojun.zfile.core.util.ArrayUtils;
+import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.RequestHolder;
 import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.module.storage.support.ftp.FtpClientFactory;
+import im.zhaojun.zfile.module.storage.support.ftp.FtpClientPool;
+import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.FtpParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
 import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService;
-import lombok.SneakyThrows;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * @author zhaojun
@@ -45,104 +44,130 @@ import java.util.List;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class FtpServiceImpl extends AbstractProxyTransferService<FtpParam> {
 
-    private Ftp ftp;
+    private FtpClientPool ftpClientPool;
 
-    @SneakyThrows(IOException.class)
+    public static final String FTP_MODE_ACTIVE = "active";
+
+    public static final String FTP_MODE_PASSIVE = "passive";
+
     @Override
     public void init() {
         Charset charset = Charset.forName(param.getEncoding());
-        ftp = new Ftp(param.getHost(), param.getPort(), param.getUsername(),
-                        param.getPassword(), charset);
-        ftp.getClient().type(FTP.BINARY_FILE_TYPE);
-        ftp.setMode(FtpMode.Passive);
+        FtpClientFactory factory = new FtpClientFactory(param.getHost(), param.getPort(), param.getUsername(), param.getPassword(), charset, param.getFtpMode());
+        GenericObjectPoolConfig<FtpClientFactory> config = new GenericObjectPoolConfig<>();
+        config.setTestOnBorrow(true);
+        config.setMaxWait(Duration.ofSeconds(15));
+        ftpClientPool = new FtpClientPool(factory, config);
     }
 
-
-    @Override
-    public synchronized List<FileItemResult> fileList(String folderPath) {
-        ftp.reconnectIfTimeout();
-        String fullPath = StringUtils.concat(param.getBasePath(), folderPath);
-        ftp.cd(fullPath);
-        FTPFile[] ftpFiles;
+    public Ftp getClientFromPool() {
         try {
-            ftp.getClient().changeWorkingDirectory("/");
-            ftpFiles = ftp.getClient().listFiles(fullPath);
+            return ftpClientPool.borrowObject();
+        } catch (NoSuchElementException e) {
+            throw new BizException(ErrorCode.BIZ_FTP_CLIENT_POOL_FULL);
         } catch (Exception e) {
-            throw ExceptionUtil.wrapRuntime(e);
+            throw new SystemException(e);
         }
-
-        List<FileItemResult> fileItemList = new ArrayList<>();
-
-        for (FTPFile ftpFile : ftpFiles) {
-            // 跳过 ftp 的本目录和上级目录
-            if (Arrays.asList(".", "..").contains(ftpFile.getName())) {
-                continue;
-            }
-            FileItemResult fileItemResult = ftpFileToFileItem(ftpFile, folderPath);
-            fileItemList.add(fileItemResult);
-        }
-        return fileItemList;
     }
 
-
     @Override
-    public StorageTypeEnum getStorageTypeEnum() {
-        return StorageTypeEnum.FTP;
+    public List<FileItemResult> fileList(String folderPath) throws IOException {
+        Ftp ftp = null;
+        try {
+            ftp = getClientFromPool();
+            String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), folderPath);
+            FTPFile[] ftpFiles = ftp.lsFiles(fullPath);
+            List<FileItemResult> fileItemList = new ArrayList<>();
+
+            for (FTPFile ftpFile : ftpFiles) {
+                // 跳过 ftp 的本目录和上级目录
+                if (Arrays.asList(".", "..").contains(ftpFile.getName())) {
+                    continue;
+                }
+                FileItemResult fileItemResult = ftpFileToFileItem(ftpFile, folderPath);
+                fileItemList.add(fileItemResult);
+            }
+            return fileItemList;
+        } finally {
+            if (ftp != null) {
+                ftpClientPool.returnObject(ftp);
+            }
+        }
     }
 
 
     @Override
     public FileItemResult getFileItem(String pathAndName) {
-        FTPFile[] ftpFiles;
+        Ftp ftp = null;
         try {
-            ftpFiles = ftp.getClient().listFiles(pathAndName);
-        } catch (IOException e) {
-            throw ExceptionUtil.wrapRuntime(e);
+            ftp = getClientFromPool();
+            String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
+            FTPFile[] ftpFiles = ftp.lsFiles(fullPath);
+
+            if (ArrayUtils.isEmpty(ftpFiles)) {
+                return null;
+            }
+
+            FTPFile ftpFile = ftpFiles[0];
+
+            String folderPath = FileUtils.getParentPath(pathAndName);
+            return ftpFileToFileItem(ftpFile, folderPath);
+        } finally {
+            if (ftp != null) {
+                ftpClientPool.returnObject(ftp);
+            }
         }
-    
-        if (ArrayUtil.isEmpty(ftpFiles)) {
-            throw ExceptionUtil.wrapRuntime(new FileNotFoundException());
-        }
-
-        FTPFile ftpFile = ftpFiles[0];
-
-        String folderPath = StringUtils.getParentPath(pathAndName);
-        return ftpFileToFileItem(ftpFile, folderPath);
     }
 
 
     @Override
-    public synchronized boolean newFolder(String path, String name) {
-        String fullPath = StringUtils.concat(param.getBasePath(), path, name);
-        return ftp.mkdir(fullPath);
-    }
-
-
-    @Override
-    public synchronized boolean deleteFile(String path, String name) {
-        String fullPath = StringUtils.concat(param.getBasePath(), path, name);
-        return ftp.delFile(fullPath);
-    }
-
-
-    @Override
-    public synchronized boolean deleteFolder(String path, String name) {
-        String fullPath = StringUtils.concat(param.getBasePath(), path, name);
-        return ftp.delDir(fullPath);
-    }
-
-
-    @Override
-    public synchronized boolean renameFile(String path, String name, String newName) {
-        ftp.reconnectIfTimeout();
-        String srcPath = StringUtils.concat(param.getBasePath(), path, name);
-        String distPath = StringUtils.concat(param.getBasePath(), path, newName);
-        
+    public boolean newFolder(String path, String name) {
+        String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path, name);
+        Ftp ftp = null;
         try {
-            return ftp.getClient().rename(srcPath, distPath);
-        } catch (IOException e) {
-            throw ExceptionUtil.wrapRuntime(e);
+            ftp = getClientFromPool();
+            return ftp.mkdir(fullPath);
+        } finally {
+            if (ftp != null) {
+                ftpClientPool.returnObject(ftp);
+            }
         }
+    }
+
+
+    @Override
+    public boolean deleteFile(String path, String name) {
+        String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path, name);
+        Ftp ftp = null;
+        try {
+            ftp = getClientFromPool();
+            return ftp.delFile(fullPath);
+        } finally {
+            if (ftp != null) {
+                ftpClientPool.returnObject(ftp);
+            }
+        }
+    }
+
+
+    @Override
+    public boolean deleteFolder(String path, String name) {
+        String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path, name);
+        Ftp ftp = null;
+        try {
+            ftp = getClientFromPool();
+            return ftp.delDir(fullPath);
+        } finally {
+            if (ftp != null) {
+                ftpClientPool.returnObject(ftp);
+            }
+        }
+    }
+
+
+    @Override
+    public boolean renameFile(String path, String name, String newName) {
+        return moveFile(path, name, path, newName);
     }
 
 
@@ -153,36 +178,95 @@ public class FtpServiceImpl extends AbstractProxyTransferService<FtpParam> {
 
 
     @Override
-    public synchronized ResponseEntity<Resource> downloadToStream(String pathAndName) throws IOException {
-        // 如果配置了域名，还访问代理下载 URL, 则抛出异常进行提示.
-        if (StrUtil.isNotEmpty(param.getDomain())) {
-            throw new DisableProxyDownloadException(CodeMsg.STORAGE_SOURCE_FILE_DISABLE_PROXY_DOWNLOAD, storageId);
+    public String getDownloadUrl(String pathAndName) {
+        if (StringUtils.isNotBlank(param.getDomain())) {
+            return StringUtils.concat(param.getDomain(), StringUtils.encodeAllIgnoreSlashes(pathAndName));
         }
+        return super.getProxyDownloadUrl(pathAndName);
+    }
 
-        ftp.reconnectIfTimeout();
-        HttpServletResponse response = RequestHolder.getResponse();
-        pathAndName = StringUtils.concat(param.getBasePath(), pathAndName);
-        String fileName = FileUtil.getName(pathAndName);
-        String folderName = FileUtil.getParent(pathAndName, 1);
-        
-        OutputStream outputStream = response.getOutputStream();
 
-        response.setContentType(MediaType.APPLICATION_OCTET_STREAM.getType());
-        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + StringUtils.encodeAllIgnoreSlashes(fileName));
-    
-        ftp.download(folderName, fileName, outputStream);
+
+    @Override
+    public ResponseEntity<Resource> downloadToStream(String pathAndName) throws IOException {
+        Ftp ftp = null;
+        try {
+            ftp = getClientFromPool();
+            // 如果配置了域名，还访问代理下载 URL, 则抛出异常进行提示.
+            if (StringUtils.isNotEmpty(param.getDomain())) {
+                throw new BizException(ErrorCode.BIZ_UNSUPPORTED_PROXY_DOWNLOAD);
+            }
+
+            pathAndName = StringUtils.concat(param.getBasePath(), pathAndName);
+            String fileName = FileUtils.getName(pathAndName);
+            Long fileSize = param.isEnableRange() ? Convert.toLong(ftp.getClient().getSize(pathAndName),0L) : null;
+
+            InputStream inputStream = ftp.getClient().retrieveFileStream(pathAndName);
+            RequestHolder.writeFile(inputStream, fileName, fileSize, false, param.isProxyLinkForceDownload());
+        } finally {
+            if (ftp != null) {
+                ftpClientPool.returnObject(ftp);
+            }
+        }
         return null;
     }
 
 
     @Override
-    public synchronized void uploadFile(String pathAndName, InputStream inputStream) {
-        String fullPath = StringUtils.concat(param.getBasePath(), pathAndName);
-        String fileName = FileUtil.getName(pathAndName);
-        String folderName = FileUtil.getParent(fullPath, 1);
-        ftp.upload(folderName, fileName, inputStream);
+    public String getUploadUrl(String path, String name, Long size) {
+        return super.getProxyUploadUrl(path, name);
     }
 
+
+    @Override
+    public void uploadFile(String pathAndName, InputStream inputStream) {
+        String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
+        String fileName = FileUtils.getName(pathAndName);
+        String folderName = FileUtils.getParentPath(fullPath);
+
+        Ftp ftp = null;
+        try {
+            ftp = getClientFromPool();
+            ftp.upload(folderName, fileName, inputStream);
+        } finally {
+            if (ftp != null) {
+                ftpClientPool.returnObject(ftp);
+            }
+        }
+    }
+
+    @Override
+    public boolean copyFile(String path, String name, String targetPath, String targetName) {
+        throw new BizException(ErrorCode.BIZ_UNSUPPORTED_OPERATION);
+    }
+
+    @Override
+    public boolean copyFolder(String path, String name, String targetPath, String targetName) {
+        throw new BizException(ErrorCode.BIZ_UNSUPPORTED_OPERATION);
+    }
+
+    @Override
+    public boolean moveFile(String path, String name, String targetPath, String targetName) {
+        String srcPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path, name);
+        String distPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), targetPath, targetName);
+
+        Ftp ftp = null;
+        try {
+            ftp = getClientFromPool();
+            return ftp.getClient().rename(srcPath, distPath);
+        } catch (IOException e) {
+            throw new SystemException(e);
+        } finally {
+            if (ftp != null) {
+                ftpClientPool.returnObject(ftp);
+            }
+        }
+    }
+
+    @Override
+    public boolean moveFolder(String path, String name, String targetPath, String targetName) {
+        return moveFile(path, name, targetPath, targetName);
+    }
 
     private FileItemResult ftpFileToFileItem(FTPFile ftpFile, String folderPath) {
         FileItemResult fileItemResult = new FileItemResult();
@@ -193,9 +277,27 @@ public class FtpServiceImpl extends AbstractProxyTransferService<FtpParam> {
         fileItemResult.setPath(folderPath);
 
         if (fileItemResult.getType() == FileTypeEnum.FILE) {
-            fileItemResult.setUrl(getDownloadUrl(StringUtils.concat(folderPath, fileItemResult.getName())));
+            fileItemResult.setUrl(getDownloadUrl(StringUtils.concat(getCurrentUserBasePath(), folderPath, fileItemResult.getName())));
         }
         return fileItemResult;
+    }
+
+    @Override
+    public StorageSourceMetadata getStorageSourceMetadata() {
+        StorageSourceMetadata storageSourceMetadata = new StorageSourceMetadata();
+        storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.PROXY);
+        return storageSourceMetadata;
+    }
+
+    public StorageTypeEnum getStorageTypeEnum() {
+        return StorageTypeEnum.FTP;
+    }
+
+    @Override
+    public void destroy() {
+        if (ftpClientPool != null) {
+            ftpClientPool.close();
+        }
     }
 
 }

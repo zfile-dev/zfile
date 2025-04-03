@@ -1,15 +1,15 @@
 package im.zhaojun.zfile.module.storage.chain.command;
 
+import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.module.password.model.dto.VerifyResultDTO;
 import im.zhaojun.zfile.module.password.service.PasswordConfigService;
-import im.zhaojun.zfile.core.exception.PasswordVerifyException;
 import im.zhaojun.zfile.module.storage.chain.FileContext;
 import im.zhaojun.zfile.module.storage.model.request.base.FileListRequest;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * 校验文件夹密码责任链 command 命令
@@ -43,7 +43,7 @@ public class FolderPasswordVerifyCommand implements Command {
 		// 校验密码, 如果校验不通过, 则返回错误消息
 		VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(storageId, path, password);
 		if (!verifyResultDTO.isPassed()) {
-			throw new PasswordVerifyException(verifyResultDTO.getCode(), verifyResultDTO.getMsg());
+			throw new BizException(verifyResultDTO.getErrorCode());
 		}
 
 		// 设置当前文件夹所对应的文件夹路径表达式.

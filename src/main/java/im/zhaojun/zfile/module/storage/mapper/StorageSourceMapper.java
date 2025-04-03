@@ -21,7 +21,7 @@ public interface StorageSourceMapper extends BaseMapper<StorageSource> {
      *
      * @return  存储源列表
      */
-    List<StorageSource> findListByEnableOrderByOrderNum();
+    List<StorageSource> findUserEnableList(Integer userId);
 
 
     /**

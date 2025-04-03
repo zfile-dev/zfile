@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.zfile.module.user.mapper.UserStorageSourceMapper">
+    <resultMap id="BaseResultMap" type="im.zhaojun.zfile.module.user.model.entity.UserStorageSource">
+        <!--@mbg.generated-->
+        <!--@Table user_storage_source-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="storage_source_id" jdbcType="INTEGER" property="storageSourceId"/>
+        <result column="root_path" jdbcType="LONGVARCHAR" property="rootPath"/>
+        <result column="enable" jdbcType="BIT" property="enable"/>
+        <result column="permissions" jdbcType="VARCHAR" property="permissions"
+                typeHandler="im.zhaojun.zfile.core.config.mybatis.CollectionStrTypeHandler"/>
+    </resultMap>
+
+    <resultMap id="UserStorageSourceDetailDTOResultMap"
+               type="im.zhaojun.zfile.module.user.model.dto.UserStorageSourceDetailDTO">
+        <!--@mbg.generated-->
+        <!--@Table user_storage_source-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="storage_source_id" jdbcType="INTEGER" property="storageSourceId"/>
+        <result column="root_path" jdbcType="LONGVARCHAR" property="rootPath"/>
+        <result column="enable" jdbcType="BIT" property="enable"/>
+        <result column="storage_source_name" jdbcType="VARCHAR" property="storageSourceName"/>
+        <result column="storage_source_type" jdbcType="VARCHAR" property="storageSourceType"/>
+        <result column="permissions" jdbcType="VARCHAR" property="permissions"
+                typeHandler="im.zhaojun.zfile.core.config.mybatis.CollectionStrTypeHandler"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, user_id, storage_source_id, root_path, `enable`, permissions
+    </sql>
+
+    <delete id="deleteByUserId">
+        <!--@mbg.generated-->
+        delete
+        from user_storage_source
+        where user_id = #{userId,jdbcType=INTEGER}
+    </delete>
+
+    <delete id="deleteByStorageId">
+        <!--@mbg.generated-->
+        delete
+        from user_storage_source
+        where storage_source_id = #{storageId,jdbcType=INTEGER}
+    </delete>
+
+    <select id="getDTOListByUserId" resultMap="UserStorageSourceDetailDTOResultMap">
+        <!--@mbg.generated-->
+        select uss.id,
+               uss.user_id,
+               uss.storage_source_id,
+               uss.root_path,
+               uss.enable,
+               ss.name as storage_source_name,
+               ss.type as storage_source_type,
+               uss.permissions
+        from
+            user_storage_source uss
+        left join
+            storage_source ss
+        on
+            uss.storage_source_id = ss.id
+        where
+            user_id = #{userId,jdbcType=INTEGER}
+    </select>
+
+    <select id="getByUserIdAndStorageId" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from user_storage_source
+        where user_id = #{userId,jdbcType=INTEGER}
+          and storage_source_id = #{storageId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByStorageId" resultMap="BaseResultMap">
+        select *
+        from user_storage_source
+        where storage_source_id = #{storageId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        select *
+        from user_storage_source
+        where user_id = #{userId,jdbcType=INTEGER}
+    </select>
+</mapper>

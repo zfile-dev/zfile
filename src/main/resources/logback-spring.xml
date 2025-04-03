@@ -7,6 +7,8 @@
 -->
 <configuration scan="false" scanPeriod="60 seconds" debug="false">
 
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"
                     converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
@@ -35,16 +37,13 @@
     <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <!-- 生产模式控制台最低只输出 INFO 级别日志 -->
-        <springProfile name="prod">
-            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-                <level>INFO</level>
-            </filter>
-        </springProfile>
-
         <encoder>
             <pattern>%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} [%36.36X{traceId}] [%10.10X{user}] [%15.15X{ip}] %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(%-6L){yellow} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
             <charset>${LOG_ENCODER}</charset>
         </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
     </appender>
 
     <!-- 只记录 debug 日志，每天滚动一次，最多保留 ${debugMaxHistory} 天，文件最大 ${maxFileSize}，总文件最大 1GB -->
@@ -52,13 +51,11 @@
         <!-- 指定日志文件的名称 -->
         <file>${LOG_HOME}/${appName}-debug.log</file>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${appName}-debug-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <MaxHistory>${debugMaxHistory}</MaxHistory>
             <totalSizeCap>1GB</totalSizeCap>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>${maxFileSize}</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>${maxFileSize}</maxFileSize>
         </rollingPolicy>
 
         <encoder>
@@ -77,12 +74,10 @@
         <!-- 指定日志文件的名称 -->
         <file>${LOG_HOME}/${appName}.log</file>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${appName}-info-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <MaxHistory>${maxHistory}</MaxHistory>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>${maxFileSize}</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>${maxFileSize}</maxFileSize>
         </rollingPolicy>
 
         <encoder>
@@ -99,12 +94,10 @@
         <!-- 指定日志文件的名称 -->
         <file>${LOG_HOME}/${appName}-warn.log</file>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${appName}-warn-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <MaxHistory>${maxHistory}</MaxHistory>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>${maxFileSize}</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>${maxFileSize}</maxFileSize>
         </rollingPolicy>
 
         <encoder>
@@ -123,12 +116,10 @@
         <!-- 指定日志文件的名称 -->
         <file>${LOG_HOME}/${appName}-error.log</file>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}/${appName}-error-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
             <MaxHistory>${maxHistory}</MaxHistory>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>${maxFileSize}</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>${maxFileSize}</maxFileSize>
         </rollingPolicy>
 
         <encoder>
@@ -160,12 +151,14 @@
      -->
 
     <!-- 指定 ZFile 输出的日志到文件中 -->
-    <logger name="im.zhaojun.zfile" level="DEBUG" >
+    <logger name="im.zhaojun.zfile" level="DEBUG" additivity="true">
         <appender-ref ref="debug_file"/>
     </logger>
 
     <logger name="springfox" level="info" />
     <logger name="org.springframework" level="info" />
     <logger name="com.zaxxer" level="info" />
+
+    <logger name="com.github.sardine.impl.io.HttpMethodReleaseInputStream" level="error" />
 
 </configuration>

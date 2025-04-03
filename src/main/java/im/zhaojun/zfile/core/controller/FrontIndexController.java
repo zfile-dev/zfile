@@ -1,17 +1,17 @@
 package im.zhaojun.zfile.core.controller;
 
-import cn.hutool.core.util.StrUtil;
+import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.module.config.service.SystemConfigService;
-import org.apache.commons.io.IOUtils;
-import org.springframework.core.io.ClassPathResource;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.web.WebProperties;
+import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -19,12 +19,15 @@ import java.nio.charset.StandardCharsets;
  *
  * @author zhaojun
  */
+@Slf4j
 @Controller
 public class FrontIndexController {
 
 	@Resource
 	private SystemConfigService systemConfigService;
 
+	@Resource
+	private WebProperties webProperties;
 
 	/**
 	 * 所有未找到的页面都跳转到首页, 用户解决 vue history 直接访问 404 的问题
@@ -32,26 +35,64 @@ public class FrontIndexController {
 	 *
 	 * @return  转发到 /index.html
 	 */
-	@RequestMapping(value = {"/**/{[path:[^\\.]*}", "/"})
+	@RequestMapping(value = { "/"})
 	@ResponseBody
-	public String redirect() throws IOException {
+	public String redirect() {
 		// 读取 resources/static/index.html 文件修改 title 和 favicon 后返回
-		ClassPathResource resource = new ClassPathResource("static/index.html");
-		InputStream inputStream = resource.getInputStream();
-		String content = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+		ResourceLoader resourceLoader = new FileSystemResourceLoader();
+		String[] staticLocations = webProperties.getResources().getStaticLocations();
 
+		// 如果 staticLocations 里没有包含 file:static/, 则手动添加
+		boolean fileStaticExist = false;
+		for (String staticLocation : staticLocations) {
+			if (staticLocation.startsWith("file:")) {
+				fileStaticExist = true;
+				break;
+			}
+		}
+		if (!fileStaticExist) {
+			staticLocations = org.apache.commons.lang3.ArrayUtils.add(staticLocations, "file:static/");
+		}
+
+		for (String staticLocation : staticLocations) {
+			org.springframework.core.io.Resource resource = resourceLoader.getResource(staticLocation + "/index.html");
+			boolean exists = resource.exists();
+			if (exists) {
+				String content;
+				try {
+					content = resource.getContentAsString(StandardCharsets.UTF_8);
+					log.debug("读取 index.html 文件成功, 文件路径: {}", staticLocation);
+				} catch (Exception e) {
+					log.error("{} 资源存在但读取 index.html 文件失败.", staticLocation);
+					return "static index.html read error";
+				}
+
+				SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
+
+				// 替换为系统设置中的站点名称
+				String siteName = systemConfig.getSiteName();
+				if (StringUtils.isNotBlank(siteName)) {
+					content = content.replace("<title>ZFile</title>", "<title>" + siteName + "</title>");
+				}
+
+				// 替换为系统设置中的 favicon 地址
+				String faviconUrl = systemConfig.getFaviconUrl();
+				if (StringUtils.isNotBlank(faviconUrl)) {
+					content = content.replace("/favicon.svg", faviconUrl);
+				}
+
+				return content;
+			}
+		}
+
+		return "static index.html not found";
+	}
+
+	@RequestMapping(value = { "/guest"})
+	@ResponseBody
+	public String guest() {
 		SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
-		String siteName = systemConfig.getSiteName();
-		if (StrUtil.isNotBlank(siteName)) {
-			content = content.replace("<title>ZFile</title>", "<title>" + siteName + "</title>");
-		}
-
-		String faviconUrl = systemConfig.getFaviconUrl();
-		if (StrUtil.isNotBlank(faviconUrl)) {
-			content = content.replace("/favicon.svg", faviconUrl);
-		}
-
-		return content;
+		return systemConfig.getGuestIndexHtml();
 	}
 
 }

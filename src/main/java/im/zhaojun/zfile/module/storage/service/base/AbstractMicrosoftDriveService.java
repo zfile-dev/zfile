@@ -1,48 +1,57 @@
 package im.zhaojun.zfile.module.storage.service.base;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import im.zhaojun.zfile.core.constant.ZFileConstant;
-import im.zhaojun.zfile.core.exception.StorageSourceRefreshTokenException;
-import im.zhaojun.zfile.core.exception.ZFileRetryException;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.exception.core.SystemException;
+import im.zhaojun.zfile.core.exception.status.NotFoundAccessException;
+import im.zhaojun.zfile.core.exception.system.UploadFileFailSystemException;
+import im.zhaojun.zfile.core.util.FileUtils;
+import im.zhaojun.zfile.core.util.RequestHolder;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.storage.constant.StorageConfigConstant;
 import im.zhaojun.zfile.module.storage.model.bo.RefreshTokenCacheBO;
+import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.dto.OAuth2TokenDTO;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSourceConfig;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.MicrosoftDriveParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
 import im.zhaojun.zfile.module.storage.service.StorageSourceConfigService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.util.Timeout;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.http.*;
+import org.springframework.http.client.*;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * @author zhaojun
  */
 @Slf4j
-public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDriveParam> extends AbstractBaseFileService<P> implements RefreshTokenService {
+public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDriveParam> extends AbstractProxyTransferService<P> implements RefreshTokenService {
+
+    @Resource
+    private StorageSourceConfigService storageSourceConfigService;
 
     /**
      * 获取根文件 API URI
@@ -57,7 +66,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
     /**
      * 获取单文件 API URI
      */
-    protected static final String DRIVER_ITEM_URL = "https://{graphEndPoint}/v1.0/{type}/drive/root:{path}?select=name,size,lastModifiedDateTime,file,@microsoft.graph.downloadUrl";
+    protected static final String DRIVER_ITEM_URL = "https://{graphEndPoint}/v1.0/{type}/drive/root:{path}?select=name,size,lastModifiedDateTime,file,@microsoft.graph.downloadUrl,id";
 
     /**
      * 操作单文件 API URI
@@ -70,14 +79,14 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
     protected static final String AUTHENTICATE_URL = "https://{authenticateEndPoint}/common/oauth2/v2.0/token";
 
     /**
-     * 搜索文件 API URI
-     */
-    protected static final String DRIVER_SEARCH_URL = "https://{graphEndPoint}/v1.0/{type}/drive/root/search(q='{path}')";
-
-    /**
      * 创建上传文件回话 API
      */
     protected static final String CREATE_UPLOAD_SESSION_URL = "https://{graphEndPoint}/v1.0/{type}/drive/root:{path}:/createUploadSession";
+
+    /**
+     * 复制文件 API
+     */
+    private static final String DRIVER_COPY_URL = "https://{graphEndPoint}/v1.0/{type}/drive/root:{path}:/copy";
 
     /**
      * OneDrive 文件类型
@@ -93,98 +102,33 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
      * 刷新令牌字段名称
      */
     public static final String REFRESH_TOKEN_FIELD_NAME = "refresh_token";
-    
-    
-    @Resource
-    @Lazy
-    private RestTemplate oneDriveRestTemplate;
 
-    @Resource
-    private StorageSourceConfigService storageSourceConfigService;
-
-    /**
-     * 根据 RefreshToken 刷新 AccessToken, 返回刷新后的 Token.
-     *
-     * @return  刷新后的 Token
+    /*
+     * 设置 RestTemplate 使用 Netty 底层实现，默认的实现不支持 PATCH 请求
      */
-    public OAuth2TokenDTO getAndRefreshToken() {
-        StorageSourceConfig refreshStorageSourceConfig =
-                storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_KEY);
+    private volatile RestTemplate restTemplate;
 
-        String param = "client_id=" + getClientId() +
-                "&redirect_uri=" + getRedirectUri() +
-                "&client_secret=" + getClientSecret() +
-                "&refresh_token=" + refreshStorageSourceConfig.getValue() +
-                "&grant_type=refresh_token";
-    
-        if (log.isDebugEnabled()) {
-            log.debug("{} 尝试刷新令牌, 请求参数: [{}]", getStorageSimpleInfo(), param);
+    public RestTemplate getRestTemplate() {
+        // 双重检查锁，避免重复创建 RestTemplate 实例的同时减少锁的开销
+        if (restTemplate == null) {
+            synchronized (this) {
+                if (restTemplate == null) {
+                    restTemplate = new RestTemplate();
+                    int timeoutSecond = param.getProxyUploadTimeoutSecond() == null ? 0 : param.getProxyUploadTimeoutSecond();
+                    RequestConfig requestConfig = RequestConfig.custom().setResponseTimeout(Timeout.ofSeconds(timeoutSecond)).build();
+                    HttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig((requestConfig)).build();
+                    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+                    restTemplate.setRequestFactory(requestFactory);
+                }
+            }
         }
-    
-        String authenticateUrl = AUTHENTICATE_URL.replace("{authenticateEndPoint}", getAuthenticateEndPoint());
-        HttpResponse response = HttpUtil.createPost(authenticateUrl)
-                .body(param, ContentType.FORM_URLENCODED.getValue())
-                .execute();
-    
-        String responseBody = response.body();
-        int responseStatus = response.getStatus();
-    
-        log.info("{} 刷新令牌完成. [httpStatus: {}]", getStorageSimpleInfo(), responseStatus);
-        
-        if (responseStatus != HttpStatus.OK.value()) {
-            return OAuth2TokenDTO.fail(getClientId(), getClientSecret(), getRedirectUri(), responseBody);
-        }
-    
-        JSONObject jsonBody = JSONObject.parseObject(responseBody);
-        String accessToken = jsonBody.getString(ACCESS_TOKEN_FIELD_NAME);
-        String refreshToken = jsonBody.getString(REFRESH_TOKEN_FIELD_NAME);
-        return OAuth2TokenDTO.success(getClientId(), getClientSecret(), getRedirectUri(), accessToken, refreshToken, responseBody);
+        return restTemplate;
     }
 
-    /**
-     * OAuth2 协议中, 根据 code 换取 access_token 和 refresh_token.
-     *
-     * @param   code
-     *          代码
-     *
-     * @return  获取的 Token 信息.
-     */
-    public OAuth2TokenDTO getTokenByCode(String code, String clientId, String clientSecret, String redirectUri) {
-        String param = "client_id=" + clientId +
-                "&redirect_uri=" + redirectUri +
-                "&client_secret=" + clientSecret +
-                "&code=" + code +
-                "&scope=" + getScope() +
-                "&grant_type=authorization_code";
-    
-        if (log.isDebugEnabled()) {
-            log.debug("根据授权回调 code 获取存储源类型为 [{}] 的令牌, 请求参数: [{}]", this.getStorageTypeEnum().getDescription(), param);
-        }
-    
-        String fullAuthenticateUrl = AUTHENTICATE_URL.replace("{authenticateEndPoint}", getAuthenticateEndPoint());
-        HttpResponse response = HttpUtil.createPost(fullAuthenticateUrl)
-                .body(param, "application/x-www-form-urlencoded")
-                .execute();
-
-        String responseBody = response.body();
-        int responseStatus = response.getStatus();
-        
-        log.info("根据授权回调 code 获取存储源类型为 [{}] 的令牌完成. [httpStatus: {}]", this.getStorageTypeEnum().getDescription(), responseStatus);
-    
-        if (responseStatus != HttpStatus.OK.value()) {
-            return OAuth2TokenDTO.fail(clientId, clientSecret, redirectUri, responseBody);
-        }
-    
-        JSONObject jsonBody = JSONObject.parseObject(responseBody);
-        String accessToken = jsonBody.getString(ACCESS_TOKEN_FIELD_NAME);
-        String refreshToken = jsonBody.getString(REFRESH_TOKEN_FIELD_NAME);
-        return OAuth2TokenDTO.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, responseBody);
-    }
 
     @Override
     public List<FileItemResult> fileList(String folderPath) {
-        folderPath = StringUtils.trimStartSlashes(folderPath);
-        String fullPath = StringUtils.concatTrimEndSlashes(param.getBasePath(), folderPath);
+        String fullPath = StringUtils.concatTrimEndSlashes(param.getBasePath(), getCurrentUserBasePath(), folderPath);
 
         List<FileItemResult> result = new ArrayList<>();
         String nextPageLink = null;
@@ -197,7 +141,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
             if (nextPageLink != null) {
                 nextPageLink = nextPageLink.replace("+", "%2B");
                 requestUrl = URLUtil.decode(nextPageLink);
-            } else if (ZFileConstant.PATH_SEPARATOR.equalsIgnoreCase(fullPath) || "".equalsIgnoreCase(fullPath)) {
+            } else if (StringUtils.SLASH.equalsIgnoreCase(fullPath) || "".equalsIgnoreCase(fullPath)) {
                 requestUrl = DRIVER_ROOT_URL;
             } else {
                 requestUrl = DRIVER_ITEMS_URL;
@@ -213,7 +157,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
                 }
     
                 HttpEntity<Object> entity = getAuthorizationHttpEntity();
-                return oneDriveRestTemplate.exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
+                return getRestTemplate().exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
             });
     
             if (root == null) {
@@ -224,6 +168,9 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
             for (int i = 0; i < fileList.size(); i++) {
                 JSONObject fileItem = fileList.getJSONObject(i);
                 FileItemResult fileItemResult = jsonToFileItem(fileItem, folderPath);
+                if (param.isEnableProxyDownload() && StringUtils.isEmpty(param.getProxyDomain())) {
+                    fileItemResult.setUrl(getProxyDownloadUrl(StringUtils.concat(getCurrentUserBasePath(), folderPath, fileItemResult.getName())));
+                }
                 result.add(fileItemResult);
             }
     
@@ -235,39 +182,54 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
     
     @Override
     public FileItemResult getFileItem(String pathAndName) {
+        return getOriginFileItem(pathAndName);
+    }
+
+
+    /**
+     * 获取原始的 FileItem 信息，尚未按照存储源参数设置代理下载地址
+     */
+    public FileItemResult getOriginFileItem(String pathAndName) {
+        JSONObject fileItem = getFileOriginInfo(pathAndName);
+        if (fileItem == null) return null;
+
+        String folderPath = FileUtils.getParentPath(pathAndName);
+        return jsonToFileItem(fileItem, folderPath);
+    }
+
+    @Nullable
+    private JSONObject getFileOriginInfo(String pathAndName) {
         String fullPath = StringUtils.concat(param.getBasePath(), pathAndName);
 
-        JSONObject fileItem = executeRetryableRequest(context -> {
+        // 404 代表文件不存在, 直接返回 null
+        return executeRetryableRequest(context -> {
             int retryCount = context.getRetryCount();
             if (retryCount > 0) {
                 refreshAccessToken();
                 HttpClientErrorException ex = (HttpClientErrorException) context.getLastThrowable();
+                // 404 代表文件不存在, 直接返回 null
+                if (ex instanceof HttpClientErrorException.NotFound) {
+                    return null;
+                }
                 log.warn("{} 调用 OneDrive 获取文件信息时出现了网络异常, 响应信息: [{}], 将尝试重新刷新 token 后再试. 获取文件路径为: {}",
                         getStorageSimpleInfo(), ex.getResponseBodyAsString(), fullPath, ex);
-        
+
             }
-    
+
             HttpEntity<Object> entity = getAuthorizationHttpEntity();
-            return oneDriveRestTemplate.exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
+            return getRestTemplate().exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
         });
-
-        if (fileItem == null) {
-            return null;
-        }
-
-        String folderPath = StringUtils.getParentPath(pathAndName);
-        return jsonToFileItem(fileItem, folderPath);
     }
 
 
     @Override
     public boolean newFolder(String path, String name) {
         path = StringUtils.trimStartSlashes(path);
-        String fullPath = StringUtils.concatTrimEndSlashes(param.getBasePath(), path);
+        String fullPath = StringUtils.concatTrimEndSlashes(param.getBasePath(), getCurrentUserBasePath(), path);
 
         String requestUrl;
 
-        if (ZFileConstant.PATH_SEPARATOR.equalsIgnoreCase(fullPath) || "".equalsIgnoreCase(fullPath)) {
+        if (StringUtils.SLASH.equalsIgnoreCase(fullPath) || "".equalsIgnoreCase(fullPath)) {
             requestUrl = DRIVER_ROOT_URL;
         } else {
             requestUrl = DRIVER_ITEMS_URL;
@@ -277,9 +239,9 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
         data.put("name", name);
         data.put("folder", new HashMap<>());
         data.put("@microsoft.graph.conflictBehavior", "replace");
-    
+
         HttpEntity<HashMap<Object, Object>> entity = getAuthorizationHttpEntity(data);
-        ResponseEntity<JSONObject> responseEntity = oneDriveRestTemplate.exchange(requestUrl, HttpMethod.POST, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath);
+        ResponseEntity<JSONObject> responseEntity = getRestTemplate().exchange(requestUrl, HttpMethod.POST, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath);
         return responseEntity.getStatusCode().is2xxSuccessful();
     }
 
@@ -290,21 +252,21 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
 
     @Override
     public boolean deleteFile(String path, String name) {
-        String fullPath = StringUtils.concat(param.getBasePath(), path, name);
+        String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path, name);
 
         HttpEntity<Object> entity = getAuthorizationHttpEntity();
-        ResponseEntity<JSONObject> responseEntity = oneDriveRestTemplate.exchange(DRIVER_ITEM_OPERATOR_URL, HttpMethod.DELETE, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath);
+        ResponseEntity<JSONObject> responseEntity = getRestTemplate().exchange(DRIVER_ITEM_OPERATOR_URL, HttpMethod.DELETE, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath);
         return responseEntity.getStatusCode().is2xxSuccessful();
     }
 
     @Override
     public boolean renameFile(String path, String name, String newName) {
-        String fullPath = StringUtils.concat(param.getBasePath(), path, name);
+        String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path, name);
 
         JSONObject jsonObject = new JSONObject().fluentPut("name", newName);
-    
+
         HttpEntity<Object> entity = getAuthorizationHttpEntity(jsonObject);
-        ResponseEntity<JSONObject> responseEntity = oneDriveRestTemplate.exchange(DRIVER_ITEM_OPERATOR_URL, HttpMethod.PATCH, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath);
+        ResponseEntity<JSONObject> responseEntity = getRestTemplate().exchange(DRIVER_ITEM_OPERATOR_URL, HttpMethod.PATCH, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath);
         return responseEntity.getStatusCode().is2xxSuccessful();
     }
 
@@ -315,15 +277,148 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
 
     @Override
     public String getUploadUrl(String path, String name, Long size) {
+        if (param.isEnableProxyUpload()) {
+            return super.getProxyUploadUrl(path, name);
+        }
+        return getOneDriveUploadUrl(StringUtils.concat(getCurrentUserBasePath(), path), name);
+    }
+
+    private String getOneDriveUploadUrl(String path, String name) {
         String fullPath = StringUtils.concat(param.getBasePath(), path, name);
 
         HttpEntity<Object> entity = getAuthorizationHttpEntity();
-        ResponseEntity<JSONObject> responseEntity = oneDriveRestTemplate.exchange(CREATE_UPLOAD_SESSION_URL,
-                    HttpMethod.POST, entity, JSONObject.class,
-                    getGraphEndPoint(), getType(), fullPath);
-       
+        ResponseEntity<JSONObject> responseEntity = getRestTemplate().exchange(CREATE_UPLOAD_SESSION_URL,
+                HttpMethod.POST, entity, JSONObject.class,
+                getGraphEndPoint(), getType(), fullPath);
+
         JSONObject responseEntityBody = responseEntity.getBody();
+        if (responseEntityBody == null) {
+            throw new SystemException("获取上传地址失败, 返回值为空.");
+        }
         return responseEntityBody.getString("uploadUrl");
+    }
+
+    @Override
+    public void uploadFile(String pathAndName, InputStream inputStream) throws IOException {
+        String fullPath = StringUtils.concat(getCurrentUserBasePath(), pathAndName);
+        String folderPath = FileUtils.getParentPath(fullPath);
+        String fileName = FileUtils.getName(fullPath);
+        String uploadUrl = getOneDriveUploadUrl(folderPath, fileName);
+
+        int available = inputStream.available();
+
+        try {
+            getRestTemplate().execute(uploadUrl, HttpMethod.PUT, request -> {
+                HttpHeaders headers = request.getHeaders();
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                headers.setContentLength(available);
+                headers.set(HttpHeaders.CONTENT_RANGE, "bytes 0-" + (available - 1) + StringUtils.SLASH + available);
+                StreamUtils.copy(inputStream, request.getBody());
+            }, clientHttpResponse -> {
+                if (!clientHttpResponse.getStatusCode().is2xxSuccessful()) {
+                    throw new UploadFileFailSystemException(this.getStorageTypeEnum(), pathAndName, available,
+                            clientHttpResponse.getStatusCode().value(), clientHttpResponse.getStatusText());
+                }
+                return null;
+            });
+        } catch (Exception e) {
+            if (e instanceof ResourceAccessException && e.getMessage().contains("Timeout on")) {
+                throw new BizException(ErrorCode.BIZ_UPLOAD_FILE_TIMEOUT_ERROR);
+            }
+            throw new UploadFileFailSystemException(this.getStorageTypeEnum(), pathAndName, available, 500, e.getMessage());
+        }
+    }
+    @Override
+    public String getDownloadUrl(String pathAndName) {
+        if (param.isEnableProxyDownload() && StringUtils.isEmpty(param.getProxyDomain())) {
+            return getProxyDownloadUrl(pathAndName);
+        }
+        FileItemResult fileItem = getFileItem(pathAndName);
+        if (fileItem == null) {
+            throw new NotFoundAccessException(ErrorCode.BIZ_FILE_NOT_EXIST);
+        }
+        return fileItem.getUrl();
+    }
+
+    @Override
+    public ResponseEntity<org.springframework.core.io.Resource> downloadToStream(String pathAndName) throws IOException {
+        FileItemResult fileItem = getOriginFileItem(pathAndName);
+        if (fileItem == null) {
+            throw new NotFoundAccessException(ErrorCode.BIZ_FILE_NOT_EXIST);
+        }
+        Long fileSize = fileItem.getSize();
+        String fileName = fileItem.getName();
+        String url = fileItem.getUrl();
+
+        // url 转换为 inputStream
+        InputStream inputStream = HttpUtil.createGet(url).execute().bodyStream();
+        RequestHolder.writeFile(inputStream, fileName, fileSize, false, param.isProxyLinkForceDownload());
+        return null;
+    }
+
+    @Override
+    public boolean copyFile(String path, String name, String targetPath, String targetName) {
+        String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path, name);
+        String targetFullPath = StringUtils.concat(getCurrentUserBasePath(), targetPath);
+
+        JSONObject fileOriginInfo = getFileOriginInfo(targetFullPath);
+        if (fileOriginInfo == null) {
+            throw new BizException(ErrorCode.BIZ_FOLDER_NOT_EXIST);
+        }
+
+        String targetPathId = fileOriginInfo.getString("id");
+        JSONObject jsonObject = new JSONObject()
+                .fluentPut("name", targetName)
+                .fluentPut("parentReference", new JSONObject().fluentPut("id", targetPathId))
+                .fluentPut("@microsoft.graph.conflictBehavior", "replace");
+
+        HttpEntity<Object> entity = getAuthorizationHttpEntity(jsonObject);
+        ResponseEntity<JSONObject> responseEntity = getRestTemplate().exchange(DRIVER_COPY_URL,
+                                                                                    HttpMethod.POST,
+                                                                                    entity,
+                                                                                    JSONObject.class,
+                                                                                    getGraphEndPoint(),
+                                                                                    getType(),
+                                                                                    fullPath);
+        return responseEntity.getStatusCode().is2xxSuccessful();
+    }
+
+    @Override
+    public boolean copyFolder(String path, String name, String targetPath, String targetName) {
+        return copyFile(path, name, targetPath, targetName);
+    }
+
+    @Override
+    public boolean moveFile(String path, String name, String targetPath, String targetName) {
+        String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path, name);
+        String targetFullPath = StringUtils.concat(getCurrentUserBasePath(), targetPath);
+
+        JSONObject fileOriginInfo = getFileOriginInfo(targetFullPath);
+        if (fileOriginInfo == null) {
+            throw new BizException(ErrorCode.BIZ_FOLDER_NOT_EXIST);
+        }
+
+        String targetPathId = fileOriginInfo.getString("id");
+
+        JSONObject jsonObject = new JSONObject()
+                .fluentPut("name", targetName)
+                .fluentPut("parentReference", new JSONObject().fluentPut("id", targetPathId))
+                .fluentPut("@microsoft.graph.conflictBehavior", "replace");
+
+        HttpEntity<Object> entity = getAuthorizationHttpEntity(jsonObject);
+        ResponseEntity<JSONObject> responseEntity = getRestTemplate().exchange(DRIVER_ITEM_OPERATOR_URL,
+                                                                                    HttpMethod.PATCH,
+                                                                                    entity,
+                                                                                    JSONObject.class,
+                                                                                    getGraphEndPoint(),
+                                                                                    getType(),
+                                                                                    fullPath);
+        return responseEntity.getStatusCode().is2xxSuccessful();
+    }
+
+    @Override
+    public boolean moveFolder(String path, String name, String targetPath, String targetName) {
+        return moveFile(path, name, targetPath, targetName);
     }
 
     /**
@@ -379,7 +474,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
             OAuth2TokenDTO refreshToken = getAndRefreshToken();
 
             if (refreshToken.getAccessToken() == null || refreshToken.getRefreshToken() == null) {
-                throw new StorageSourceRefreshTokenException("存储源刷新令牌失败, 获取到令牌为空.", storageId);
+                throw new SystemException("存储源 " + storageId + " 刷新令牌失败, 获取到令牌为空.");
             }
 
             StorageSourceConfig accessTokenConfig =
@@ -393,11 +488,19 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
             RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.success());
         } catch (Exception e) {
             RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.fail(getStorageTypeEnum().getDescription() + " AccessToken 刷新失败: " + e.getMessage()));
-            throw new StorageSourceRefreshTokenException("存储源刷新令牌失败，获取时发生异常", e, storageId);
+            throw new SystemException("存储源 " + storageId + " 刷新令牌失败, 获取时发生异常.", e);
+
         }
     }
 
 
+    /**
+     * 将微软接口返回的 JSON 对象转为 FileItemResult 对象
+     *
+     * @param jsonObject    JSON 对象
+     * @param folderPath    文件夹路径
+     * @return              FileItemResult 对象
+     */
     private FileItemResult jsonToFileItem(JSONObject jsonObject, String folderPath) {
         FileItemResult fileItemResult = new FileItemResult();
         fileItemResult.setName(jsonObject.getString("name"));
@@ -406,9 +509,10 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
 
         if (jsonObject.containsKey(ONE_DRIVE_FILE_FLAG)) {
             String originUrl = jsonObject.getString("@microsoft.graph.downloadUrl");
-            if (StrUtil.isNotEmpty(param.getProxyDomain())) {
+            if (StringUtils.isNotEmpty(param.getProxyDomain())) {
                 originUrl = StringUtils.replaceHost(originUrl, param.getProxyDomain());
             }
+
             fileItemResult.setUrl(originUrl);
             fileItemResult.setType(FileTypeEnum.FILE);
         } else {
@@ -464,10 +568,70 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
         try {
             result = retryTemplate.execute(retryCallback);
         } catch (Throwable e) {
-            throw new ZFileRetryException("请求失败", e);
+            throw new SystemException("请求失败", e);
         }
         
         return result;
     }
 
+    @Override
+    public StorageSourceMetadata getStorageSourceMetadata() {
+        StorageSourceMetadata storageSourceMetadata = new StorageSourceMetadata();
+        if (param.isEnableProxyUpload()) {
+            storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.PROXY);
+        } else {
+            storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.MICROSOFT);
+        }
+        return storageSourceMetadata;
+    }
+
+    /**
+     * 根据 RefreshToken 刷新 AccessToken, 返回刷新后的 Token.
+     *
+     * @return  刷新后的 Token
+     */
+    private OAuth2TokenDTO getAndRefreshToken() {
+        StorageSourceConfig refreshStorageSourceConfig =
+                storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_KEY);
+
+        String param = "client_id=" + getClientId() +
+                "&redirect_uri=" + getRedirectUri() +
+                "&client_secret=" + getClientSecret() +
+                "&refresh_token=" + refreshStorageSourceConfig.getValue() +
+                "&grant_type=refresh_token";
+
+        if (log.isDebugEnabled()) {
+            log.debug("{} 尝试刷新令牌, 请求参数: [{}]", getStorageSimpleInfo(), param);
+        }
+
+        String authenticateUrl = AUTHENTICATE_URL.replace("{authenticateEndPoint}", getAuthenticateEndPoint());
+        HttpResponse response = HttpUtil.createPost(authenticateUrl)
+                .body(param, ContentType.FORM_URLENCODED.getValue())
+                .execute();
+
+        String responseBody = response.body();
+        int responseStatus = response.getStatus();
+
+        log.info("{} 刷新令牌完成. [httpStatus: {}]", getStorageSimpleInfo(), responseStatus);
+
+        if (responseStatus != HttpStatus.OK.value()) {
+            return OAuth2TokenDTO.fail(getClientId(), getClientSecret(), getRedirectUri(), responseBody);
+        }
+
+        JSONObject jsonBody = JSONObject.parseObject(responseBody);
+        String accessToken = jsonBody.getString(ACCESS_TOKEN_FIELD_NAME);
+        String refreshToken = jsonBody.getString(REFRESH_TOKEN_FIELD_NAME);
+        return OAuth2TokenDTO.success(getClientId(), getClientSecret(), getRedirectUri(), accessToken, refreshToken, responseBody);
+    }
+
+    @Override
+    public void destroy() {
+        if (restTemplate != null && restTemplate.getRequestFactory() instanceof CloseableHttpClient) {
+            try {
+                ((CloseableHttpClient) restTemplate.getRequestFactory()).close();
+            } catch (IOException e) {
+                log.error("关闭 {} 的 HTTP 客户端失败.", getStorageSimpleInfo(), e);
+            }
+        }
+    }
 }

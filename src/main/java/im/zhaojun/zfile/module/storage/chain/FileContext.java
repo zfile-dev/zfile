@@ -2,6 +2,7 @@ package im.zhaojun.zfile.module.storage.chain;
 
 import im.zhaojun.zfile.module.storage.model.request.base.FileListRequest;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
+import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,5 +41,10 @@ public class FileContext extends ContextBase {
 	 * 当前目录密码路径表达式
 	 */
 	private String passwordPattern;
+
+	/**
+	 * 存储源 Service
+	 */
+	private AbstractBaseFileService<?> fileService;
 
 }

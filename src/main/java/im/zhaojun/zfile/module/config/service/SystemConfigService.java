@@ -1,25 +1,26 @@
 package im.zhaojun.zfile.module.config.service;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.convert.ConvertException;
+import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import im.zhaojun.zfile.core.config.ZFileProperties;
-import im.zhaojun.zfile.core.exception.ServiceException;
-import im.zhaojun.zfile.core.util.CodeMsg;
-import im.zhaojun.zfile.core.util.EnumConvertUtils;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import im.zhaojun.zfile.core.util.*;
+import im.zhaojun.zfile.module.config.annotation.JSONStringParse;
 import im.zhaojun.zfile.module.config.constant.SystemConfigConstant;
-import im.zhaojun.zfile.module.config.event.ISystemConfigModifyHandler;
+import im.zhaojun.zfile.module.config.event.SystemConfigModifyHandlerChain;
 import im.zhaojun.zfile.module.config.mapper.SystemConfigMapper;
 import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.module.config.model.entity.SystemConfig;
-import im.zhaojun.zfile.module.login.model.enums.LoginVerifyModeEnum;
+import im.zhaojun.zfile.module.user.model.enums.LoginVerifyModeEnum;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
@@ -28,14 +29,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static im.zhaojun.zfile.module.config.service.SystemConfigService.CACHE_NAME;
+
 
 /**
  * 系统设置 Service
@@ -46,33 +44,24 @@ import static im.zhaojun.zfile.module.config.service.SystemConfigService.CACHE_N
 @Service
 @CacheConfig(cacheNames = CACHE_NAME)
 public class SystemConfigService {
-    
+
     public static final String CACHE_NAME = "systemConfig";
-    
-    private static final String DEFAULT_USERNAME = "admin";
 
-    private static final String DEFAULT_PASSWORD = "123456";
-
-    private static final LoginVerifyModeEnum DEFAULT_LOGIN_VERIFY_MODE = LoginVerifyModeEnum.IMG_VERIFY_MODE;
+    private static final String SERIAL_VERSION_UID_FIELD_NAME = "serialVersionUID";
 
     @Resource
     private SystemConfigMapper systemConfigMapper;
-    
-    @Resource
-    private SystemConfigService systemConfigService;
-    
-    @Resource
-    private ZFileProperties zFileProperties;
-    
+
     @Resource
     private CacheManager cacheManager;
 
     @Resource
-    private ISystemConfigModifyHandler systemConfigModifyHandler;
-    
+    private SystemConfigModifyHandlerChain systemConfigModifyHandlerChain;
+
     private final Class<SystemConfigDTO> systemConfigClazz = SystemConfigDTO.class;
 
-    
+    public static final List<String> ignoreFieldList = Arrays.asList("domain");
+
     /**
      * 获取系统设置, 如果缓存中有, 则去缓存取, 没有则查询数据库并写入到缓存中.
      *
@@ -85,7 +74,10 @@ public class SystemConfigService {
 
         for (SystemConfig systemConfig : systemConfigList) {
             String key = systemConfig.getName();
-
+            if (ignoreFieldList.contains(key)) {
+                log.debug("从数据库加载字段填充到 DTO 时，忽略字段: {}", key);
+                continue;
+            }
             try {
                 Field field = systemConfigClazz.getDeclaredField(key);
                 field.setAccessible(true);
@@ -95,6 +87,15 @@ public class SystemConfigService {
                 Object convertVal;
                 if (EnumUtil.isEnum(fieldType)) {
                     convertVal = EnumConvertUtils.convertStrToEnum(fieldType, strVal);
+                } else if (field.isAnnotationPresent(JSONStringParse.class)) {
+                    // 如果类是 Collection 类型, 则需要将 JSON 字符串转换为 List
+                    if (Collection.class.isAssignableFrom(fieldType)) {
+                        Class<?> genericType = ClassUtils.getGenericType(field);
+                        convertVal = JSONArray.parseArray(strVal, genericType);
+                    } else {
+                        // 否则转换为普通对象
+                        convertVal = JSONObject.parseObject(strVal, fieldType);
+                    }
                 } else {
                     convertVal = Convert.convert(fieldType, strVal);
                 }
@@ -116,10 +117,10 @@ public class SystemConfigService {
      */
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(allEntries = true)
-    public void updateSystemConfig(SystemConfigDTO systemConfigDTO) {
+    public synchronized void updateSystemConfig(SystemConfigDTO systemConfigDTO) {
         // 获取更新前的值
         List<SystemConfig> systemConfigListInDb = systemConfigMapper.findAll();
-        Map<String, SystemConfig> systemConfigMapInDb = CollUtil.toMap(systemConfigListInDb, null, SystemConfig::getName);
+        Map<String, SystemConfig> systemConfigMapInDb = CollectionUtils.toMap(systemConfigListInDb, null, SystemConfig::getName);
 
         // 存储更新后的值
         List<SystemConfig> updateSystemConfigList = new ArrayList<>();
@@ -128,6 +129,9 @@ public class SystemConfigService {
         for (Field field : fields) {
             // 获取数据库中的值对象
             String key = field.getName();
+            if (SERIAL_VERSION_UID_FIELD_NAME.equals(key)) {
+                continue;
+            }
             SystemConfig systemConfig = systemConfigMapInDb.get(key);
             if (systemConfig != null) {
                 field.setAccessible(true);
@@ -143,6 +147,8 @@ public class SystemConfigService {
                     // 如果是枚举类型, 则取 value 值.
                     if (EnumUtil.isEnum(val)) {
                         val = EnumConvertUtils.convertEnumToStr(val);
+                    } else if (field.isAnnotationPresent(JSONStringParse.class)) {
+                        val = JSONObject.toJSONString(val);
                     }
                     // 如果和原来的值一样, 则跳过
                     String originVal = systemConfig.getValue();
@@ -157,111 +163,111 @@ public class SystemConfigService {
                     updateSystemConfig.setTitle(systemConfig.getTitle());
                     updateSystemConfigList.add(updateSystemConfig);
                 }
+            } else {
+                log.warn("尝试保存系统配置表中不存在字段: {}", key);
             }
         }
 
         updateSystemConfigList.forEach(systemConfigInForm -> {
             SystemConfig systemConfigInDb = systemConfigMapInDb.get(systemConfigInForm.getName());
-            systemConfigModifyHandler.modify(systemConfigInDb, systemConfigInForm);
+            systemConfigModifyHandlerChain.execute(systemConfigInDb, systemConfigInForm);
             systemConfigMapper.updateById(systemConfigInForm);
         });
     }
 
+
     /**
-     * 重置管理员登录信息, 重置登录账号为 admin, 密码为 123456, 登录校验方式为 图形验证码.
-     */
-    @Transactional(rollbackFor = Exception.class)
-    @CacheEvict(allEntries = true)
-    public void resetAdminLoginInfo() {
-        if (!zFileProperties.isDebug()) {
-            log.warn("当前为非调试模式, 无法重置管理员登录信息");
-            throw new ServiceException(CodeMsg.BAD_REQUEST);
-        }
-        
-        SystemConfig usernameConfig = systemConfigMapper.findByName(SystemConfigConstant.USERNAME);
-        usernameConfig.setValue(DEFAULT_USERNAME);
-        systemConfigMapper.updateById(usernameConfig);
-
-        String encryptionPassword = SecureUtil.md5(DEFAULT_PASSWORD);
-        SystemConfig passwordConfig = systemConfigMapper.findByName(SystemConfigConstant.PASSWORD);
-        passwordConfig.setValue(encryptionPassword);
-        systemConfigMapper.updateById(passwordConfig);
-
-        SystemConfig loginVerifyModeConfig = systemConfigMapper.findByName(SystemConfigConstant.LOGIN_VERIFY_MODE);
-        loginVerifyModeConfig.setValue(DEFAULT_LOGIN_VERIFY_MODE.getValue());
-        systemConfigMapper.updateById(loginVerifyModeConfig);
-    
-        log.info("重置管理员登录信息成功, 账号: {}, 密码: {}, 登录校验方式: {}", DEFAULT_USERNAME, DEFAULT_PASSWORD, DEFAULT_LOGIN_VERIFY_MODE);
-    }
-
-    
-    /**
-     * 获取 RSA Hex 格式密钥
+     * 获取 AES Hex 格式密钥
      *
-     * @return  RSA Hex 格式密钥
+     * @return  AES Hex 格式密钥
      */
-    public synchronized String getRsaHexKeyOrGenerate() {
-        SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
-        String rsaHexKey = systemConfigDTO.getRsaHexKey();
-        if (StrUtil.isEmpty(rsaHexKey)) {
+    public synchronized String getAesHexKeyOrGenerate() {
+        SystemConfigDTO systemConfigDTO = ((SystemConfigService)AopContext.currentProxy()).getSystemConfig();
+        String aesHexKey = systemConfigDTO.getRsaHexKey();
+        if (StringUtils.isEmpty(aesHexKey)) {
             byte[] key = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue()).getEncoded();
-            rsaHexKey = HexUtil.encodeHexStr(key);
-            
-            SystemConfig loginVerifyModeConfig = systemConfigMapper.findByName(SystemConfigConstant.RSA_HEX_KEY);
-            loginVerifyModeConfig.setValue(rsaHexKey);
+            aesHexKey = HexUtil.encodeHexStr(key);
+
+            SystemConfig loginVerifyModeConfig = systemConfigMapper.findByName(SystemConfigConstant.AES_HEX_KEY);
+            loginVerifyModeConfig.setValue(aesHexKey);
             systemConfigMapper.updateById(loginVerifyModeConfig);
-            systemConfigDTO.setRsaHexKey(rsaHexKey);
-            
+            systemConfigDTO.setRsaHexKey(aesHexKey);
+
             Cache cache = cacheManager.getCache(CACHE_NAME);
             Optional.ofNullable(cache).ifPresent(cache1 -> cache1.put("dto", systemConfigDTO));
         }
-        return rsaHexKey;
+        return aesHexKey;
     }
-    
-    
-    /**
-     * 获取系统是否已初始化
-     *
-     * @return  管理员名称
-     */
-    public Boolean getSystemIsInstalled() {
-        return systemConfigService.getSystemConfig().getInstalled();
-    }
-    
-    
-    /**
-     * 获取后端站点域名
-     *
-     * @return  后端站点域名
-     */
-    public String getDomain() {
-        SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
-        return systemConfigDTO.getDomain();
-    }
-    
-    
+
+
     /**
      * 获取前端站点域名
      *
      * @return  前端站点域名
      */
     public String getFrontDomain() {
-        SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
+        SystemConfigDTO systemConfigDTO = ((SystemConfigService)AopContext.currentProxy()).getSystemConfig();
         return systemConfigDTO.getFrontDomain();
     }
-    
-    
+
+
     /**
      * 获取实际的前端站点域名
      *
      * @return  实际的前端站点域名
      */
     public String getRealFrontDomain() {
-        SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
-        return StrUtil.firstNonNull(systemConfigDTO.getFrontDomain(), systemConfigDTO.getDomain());
+        SystemConfigDTO systemConfigDTO = ((SystemConfigService)AopContext.currentProxy()).getSystemConfig();
+        return StringUtils.firstNonNull(systemConfigDTO.getFrontDomain(), getAxiosFromDomainOrSetting(), RequestHolder.getOriginAddress());
     }
-    
-    
+
+
+    /**
+     * 优先使用请求中的 axios-from 参数, 如果没有则使用系统设置中的域名.(用来避免网络环境变化但是系统设置中未及时修改导致的问题)
+     *
+     * @return  axios-from 参数或者系统设置中的域名
+     */
+    public String getAxiosFromDomainOrSetting() {
+        if (StringUtils.isNotEmpty(RequestHolder.getAxiosFrom())) {
+            return RequestHolder.getAxiosFrom();
+        } else {
+            return RequestHolder.getRequestServerAddress();
+        }
+    }
+
+    /**
+     * 获取前端地址下的 401 页面地址.
+     *
+     * @return 前端地址下的 401 页面地址.
+     *
+     */
+    public String getUnauthorizedUrl() {
+        return getUnauthorizedUrl(null, null);
+    }
+
+    /**
+     * 获取前端地址下的 401 页面地址. 可以指定 code 和 message.
+     *
+     * @param   code
+     *          指定错误码
+     *
+     * @param   message
+     *          指定错误信息
+     *
+     * @return 前端地址下的 401 页面地址.
+     */
+    public String getUnauthorizedUrl(String code, String message) {
+        String url = StringUtils.concat(getRealFrontDomain(), "/401");
+        UrlBuilder urlBuilder = UrlBuilder.of(url);
+        if (StringUtils.isNotBlank(code)) {
+            urlBuilder.addQuery("code", code);
+        }
+        if (StringUtils.isNotBlank(message)) {
+            urlBuilder.addQuery("message", message);
+        }
+        return urlBuilder.build();
+    }
+
     /**
      * 获取前端地址下的 403 页面地址.
      *
@@ -269,7 +275,99 @@ public class SystemConfigService {
      *
      */
     public String getForbiddenUrl() {
-        return getRealFrontDomain() + "/403";
+        return getForbiddenUrl(null, null);
+    }
+
+    /**
+     * 获取前端地址下的 403 页面地址. 可以指定 code 和 message.
+     *
+     * @param   code
+     *          指定错误码
+     *
+     * @param   message
+     *          指定错误信息
+     *
+     * @return 前端地址下的 403 页面地址.
+     */
+    public String getForbiddenUrl(String code, String message) {
+        String url = StringUtils.concat(getRealFrontDomain(), "/403");
+        UrlBuilder urlBuilder = UrlBuilder.of(url);
+        if (StringUtils.isNotBlank(code)) {
+            urlBuilder.addQuery("code", code);
+        }
+        if (StringUtils.isNotBlank(message)) {
+            urlBuilder.addQuery("message", message);
+        }
+        return urlBuilder.build();
+    }
+
+    /**
+     * 获取前端地址下的 404 页面地址.
+     *
+     * @return 前端地址下的 404 页面地址.
+     *
+     */
+    public String getNotFoundUrl() {
+        return getNotFoundUrl(null, null);
+    }
+
+    /**
+     * 获取前端地址下的 404 页面地址. 可以指定 code 和 message.
+     *
+     * @param   code
+     *          指定错误码
+     *
+     * @param   message
+     *          指定错误信息
+     *
+     * @return 前端地址下的 404 页面地址.
+     */
+    public String getNotFoundUrl(String code, String message) {
+        String url = StringUtils.concat(getRealFrontDomain(), "/404");
+        UrlBuilder urlBuilder = UrlBuilder.of(url);
+        if (StringUtils.isNotBlank(code)) {
+            urlBuilder.addQuery("code", code);
+        }
+        if (StringUtils.isNotBlank(message)) {
+            urlBuilder.addQuery("message", message);
+        }
+        return urlBuilder.build();
+    }
+
+    /**
+     * 获取前端地址下的 500 页面地址. 可以指定 code 和 message.
+     *
+     * @param   code
+     *          指定错误码
+     *
+     * @param   message
+     *          指定错误信息
+     *
+     * @return 前端地址下的 500 页面地址.
+     */
+    public String getErrorPageUrl(String code, String message) {
+        String url = StringUtils.concat(getRealFrontDomain(), "/500");
+        UrlBuilder urlBuilder = UrlBuilder.of(url);
+        if (StringUtils.isNotBlank(code)) {
+            urlBuilder.addQuery("code", code);
+        }
+        if (StringUtils.isNotBlank(message)) {
+            urlBuilder.addQuery("message", message);
+        }
+        return urlBuilder.build();
+    }
+
+
+    /**
+     * 重置登录验证模式，去除所有登录额外验证方式.
+     */
+    public void resetLoginVerifyMode() {
+        SystemConfigDTO systemConfigDTO = ((SystemConfigService)AopContext.currentProxy()).getSystemConfig();
+        systemConfigDTO.setLoginImgVerify(false);
+        systemConfigDTO.setAdminTwoFactorVerify(false);
+        systemConfigDTO.setLoginVerifySecret("");
+        systemConfigDTO.setLoginVerifyMode(LoginVerifyModeEnum.OFF_MODE);
+        ((SystemConfigService)AopContext.currentProxy()).updateSystemConfig(systemConfigDTO);
     }
 
 }

@@ -1,0 +1,1 @@
+alter table login_log modify ip varchar(64) null comment '登录 ip';

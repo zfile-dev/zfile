@@ -1,0 +1,1 @@
+UPDATE system_config SET value = 'ignoreAllPwd' WHERE name = 'loginLogMode';

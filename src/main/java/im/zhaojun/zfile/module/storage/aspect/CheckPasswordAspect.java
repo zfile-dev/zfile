@@ -1,14 +1,15 @@
 package im.zhaojun.zfile.module.storage.aspect;
 
-import cn.hutool.core.util.StrUtil;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.util.CollectionUtils;
+import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.module.password.model.dto.VerifyResultDTO;
 import im.zhaojun.zfile.module.password.service.PasswordConfigService;
-import im.zhaojun.zfile.module.storage.service.StorageSourceService;
-import im.zhaojun.zfile.core.exception.PasswordVerifyException;
-import im.zhaojun.zfile.core.exception.StorageSourceException;
-import im.zhaojun.zfile.core.util.CodeMsg;
-import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.storage.annotation.CheckPassword;
+import im.zhaojun.zfile.module.storage.annotation.CheckPasswords;
+import im.zhaojun.zfile.module.storage.service.StorageSourceService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -19,8 +20,9 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 检查密码切面
@@ -46,40 +48,52 @@ public class CheckPasswordAspect {
 	 *
 	 * @return  方法运行结果
 	 */
-	@Around(value = "@annotation(im.zhaojun.zfile.module.storage.annotation.CheckPassword)")
+	@Around(value = "@annotation(im.zhaojun.zfile.module.storage.annotation.CheckPassword) || @annotation(im.zhaojun.zfile.module.storage.annotation.CheckPasswords)")
 	public Object around(ProceedingJoinPoint point) throws Throwable {
 		Signature s = point.getSignature();
 		MethodSignature ms = (MethodSignature) s;
 		Method method = ms.getMethod();
+		List<CheckPassword> checkPasswordList = new ArrayList<>();
+
+		CheckPasswords checkPasswords = method.getAnnotation(CheckPasswords.class);
 		CheckPassword checkPassword = method.getAnnotation(CheckPassword.class);
-		boolean pathIsDirectory = checkPassword.pathIsDirectory();
-		String storageKeyFieldExpression = checkPassword.storageKeyFieldExpression();
-		String passwordFieldExpression = checkPassword.passwordFieldExpression();
-		String pathFieldExpression = checkPassword.pathFieldExpression();
-		
-		Object[] args = point.getArgs();
-		
-		String storageKeyFieldValue = getFieldValue(args, storageKeyFieldExpression);
-		String passwordFieldValue = getFieldValue(args, passwordFieldExpression);
-		String pathFieldValue = getFieldValue(args, pathFieldExpression);
-		
-		if (!pathIsDirectory) {
-			pathFieldValue = StringUtils.getParentPath(pathFieldValue);
-		}
-		
-		Integer storageId = storageSourceService.findIdByKey(storageKeyFieldValue);
-		
-		if (storageId == null) {
-			String message = StrUtil.format("执行文件操作「{}」时检测到存储源不存在", storageKeyFieldValue);
-			throw new StorageSourceException(CodeMsg.STORAGE_SOURCE_NOT_FOUND, storageId, message);
-		}
-		
-		VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(storageId, pathFieldValue, passwordFieldValue);
-		if (verifyResultDTO.isPassed()) {
-			return point.proceed();
+		if (checkPasswords != null) {
+			CollectionUtils.addAll(checkPasswordList, checkPasswords.value());
+		} else if (checkPassword != null) {
+			checkPasswordList.add(checkPassword);
 		} else {
-			throw new PasswordVerifyException(verifyResultDTO.getCode(), verifyResultDTO.getMsg());
+			return point.proceed();
 		}
+
+
+		for (CheckPassword item : checkPasswordList) {
+			boolean pathIsDirectory = item.pathIsDirectory();
+			String storageKeyFieldExpression = item.storageKeyFieldExpression();
+			String passwordFieldExpression = item.passwordFieldExpression();
+			String pathFieldExpression = item.pathFieldExpression();
+
+			Object[] args = point.getArgs();
+
+			String storageKeyFieldValue = getFieldValue(args, storageKeyFieldExpression);
+			String passwordFieldValue = getFieldValue(args, passwordFieldExpression);
+			String pathFieldValue = getFieldValue(args, pathFieldExpression);
+
+			if (!pathIsDirectory) {
+				pathFieldValue = FileUtils.getParentPath(pathFieldValue);
+			}
+
+			Integer storageId = storageSourceService.findIdByKey(storageKeyFieldValue);
+
+			if (storageId == null) {
+				throw new BizException(ErrorCode.BIZ_STORAGE_NOT_FOUND);
+			}
+
+			VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(storageId, pathFieldValue, passwordFieldValue);
+			if (!verifyResultDTO.isPassed()) {
+				throw new BizException(verifyResultDTO.getErrorCode());
+			}
+		}
+		return point.proceed();
 	}
 	
 	

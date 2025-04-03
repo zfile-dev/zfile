@@ -1,24 +1,26 @@
 package im.zhaojun.zfile.core.model.request;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
+ * 通用分页请求对象，可继承该类增加业务字段.
+ *
  * @author zhaojun
  */
 @Data
 public class PageQueryRequest {
 	
-	@ApiModelProperty(value="分页页数")
+	@Schema(name="分页页数")
 	private Integer page = 1;
 	
-	@ApiModelProperty(value="每页条数")
+	@Schema(name="每页条数")
 	private Integer limit = 10;
 	
-	@ApiModelProperty(value="排序字段")
+	@Schema(name="排序字段")
 	private String orderBy = "create_date";
 	
-	@ApiModelProperty(value="排序顺序")
+	@Schema(name="排序顺序")
 	private String orderDirection = "desc";
 	
 }

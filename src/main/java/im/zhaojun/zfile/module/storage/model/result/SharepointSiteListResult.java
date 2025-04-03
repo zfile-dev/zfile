@@ -1,7 +1,6 @@
 package im.zhaojun.zfile.module.storage.model.result;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
@@ -12,19 +11,19 @@ import java.util.Date;
  * @author zhaojun
  */
 @Data
-@ApiModel(description = "Sharepoint 网站 list 列表")
+@Schema(description = "Sharepoint 网站 list 列表")
 public class SharepointSiteListResult {
 
-	@ApiModelProperty(value="站点目录 id")
+	@Schema(name="站点目录 id")
 	private String id;
 
-	@ApiModelProperty(value="站点目录名称")
+	@Schema(name="站点目录名称")
 	private String displayName;
 
-	@ApiModelProperty(value="站点目录创建时间")
+	@Schema(name="站点目录创建时间")
 	private Date createdDateTime;
 
-	@ApiModelProperty(value="站点目录地址")
+	@Schema(name="站点目录地址")
 	private String webUrl;
 
 }

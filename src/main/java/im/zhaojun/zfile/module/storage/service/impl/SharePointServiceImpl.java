@@ -1,13 +1,15 @@
 package im.zhaojun.zfile.module.storage.service.impl;
 
-import im.zhaojun.zfile.module.storage.model.param.SharePointParam;
+import im.zhaojun.zfile.core.config.ZFileProperties;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
+import im.zhaojun.zfile.module.storage.model.param.SharePointParam;
 import im.zhaojun.zfile.module.storage.service.base.AbstractSharePointServiceBase;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+
+import jakarta.annotation.Resource;
 
 /**
  * @author zhaojun
@@ -17,17 +19,8 @@ import org.springframework.stereotype.Service;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class SharePointServiceImpl extends AbstractSharePointServiceBase<SharePointParam> {
 
-    @Value("${zfile.onedrive.clientId}")
-    protected String clientId;
-
-    @Value("${zfile.onedrive.redirectUri}")
-    protected String redirectUri;
-
-    @Value("${zfile.onedrive.clientSecret}")
-    protected String clientSecret;
-
-    @Value("${zfile.onedrive.scope}")
-    protected String scope;
+    @Resource
+    private ZFileProperties zFileProperties;
 
     @Override
     public StorageTypeEnum getStorageTypeEnum() {
@@ -47,7 +40,7 @@ public class SharePointServiceImpl extends AbstractSharePointServiceBase<SharePo
     @Override
     public String getClientId() {
         if (param == null || param.getClientId() == null) {
-            return clientId;
+            return zFileProperties.getOnedrive().getClientId();
         }
         return param.getClientId();
     }
@@ -55,7 +48,7 @@ public class SharePointServiceImpl extends AbstractSharePointServiceBase<SharePo
     @Override
     public String getRedirectUri() {
         if (param == null || param.getRedirectUri() == null) {
-            return redirectUri;
+            return zFileProperties.getOnedrive().getRedirectUri();
         }
         return param.getRedirectUri();
     }
@@ -63,14 +56,14 @@ public class SharePointServiceImpl extends AbstractSharePointServiceBase<SharePo
     @Override
     public String getClientSecret() {
         if (param == null || param.getClientSecret() == null) {
-            return clientSecret;
+            return zFileProperties.getOnedrive().getClientSecret();
         }
         return param.getClientSecret();
     }
     
     @Override
     public String getScope() {
-        return scope;
+        return zFileProperties.getOnedrive().getScope();
     }
 
 }

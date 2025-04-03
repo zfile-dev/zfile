@@ -3,9 +3,10 @@ package im.zhaojun.zfile.core.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ZipUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiSort;
+import im.zhaojun.zfile.core.annotation.DemoDisable;
 import im.zhaojun.zfile.core.util.FileResponseUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -22,7 +23,7 @@ import java.util.Date;
  *
  * @author zhaojun
  */
-@Api(tags = "日志")
+@Tag(name = "日志")
 @ApiSort(8)
 @Slf4j
 @RestController
@@ -33,7 +34,8 @@ public class LogController {
     private String zfileLogPath;
 
     @GetMapping("/log/download")
-    @ApiOperation(value = "下载系统日志")
+    @Operation(summary = "下载系统日志")
+    @DemoDisable
     public ResponseEntity<Resource> downloadLog() {
         if (log.isDebugEnabled()) {
             log.debug("下载诊断日志");

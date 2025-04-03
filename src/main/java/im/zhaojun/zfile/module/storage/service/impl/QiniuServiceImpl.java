@@ -1,25 +1,27 @@
 package im.zhaojun.zfile.module.storage.service.impl;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
-import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.StrUtil;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.util.Auth;
 import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.core.util.UrlUtils;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.QiniuParam;
 import im.zhaojun.zfile.module.storage.service.base.AbstractS3BaseFileService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
+import java.net.URI;
 
 /**
  * @author zhaojun
@@ -35,10 +37,30 @@ public class QiniuServiceImpl extends AbstractS3BaseFileService<QiniuParam> {
 
     @Override
     public void init() {
-        BasicAWSCredentials credentials = new BasicAWSCredentials(param.getAccessKey(), param.getSecretKey());
-        s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(param.getEndPoint(), "kodo")).build();
+        String endPoint = param.getEndPoint();
+        String endPointScheme = param.getEndPointScheme();
+        // 如果 endPoint 不包含协议部分, 且配置了 endPointScheme, 则手动拼接协议部分.
+        if (!UrlUtils.hasScheme(endPoint) && StringUtils.isNotBlank(endPointScheme)) {
+            endPoint = endPointScheme + "://" + endPoint;
+        }
+
+        software.amazon.awssdk.regions.Region oss = software.amazon.awssdk.regions.Region.of("kodo");
+        URI endpointOverride = URI.create(endPoint);
+        StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(AwsBasicCredentials.create(param.getAccessKey(), param.getSecretKey()));
+
+        super.s3ClientNew = S3Client.builder()
+                .overrideConfiguration(getClientConfiguration())
+                .region(oss)
+                .endpointOverride(endpointOverride)
+                .credentialsProvider(credentialsProvider)
+                .build();
+
+        super.s3Presigner = S3Presigner.builder()
+                .region(oss)
+                .endpointOverride(endpointOverride)
+                .credentialsProvider(credentialsProvider)
+                .build();
+
 
         Configuration cfg = new Configuration(Region.autoRegion());
         auth = Auth.create(param.getAccessKey(), param.getSecretKey());
@@ -57,10 +79,10 @@ public class QiniuServiceImpl extends AbstractS3BaseFileService<QiniuParam> {
         String bucketName = param.getBucketName();
         String basePath = param.getBasePath();
 
-        String srcPath = StringUtils.concat(basePath, path, name);
+        String srcPath = StringUtils.concat(basePath, getCurrentUserBasePath(), path, name);
         srcPath = StringUtils.trimStartSlashes(srcPath);
 
-        String distPath = StringUtils.concat(basePath, path, newName);
+        String distPath = StringUtils.concat(basePath, getCurrentUserBasePath(), path, newName);
         distPath = StringUtils.trimStartSlashes(distPath);
 
         try {
@@ -74,6 +96,9 @@ public class QiniuServiceImpl extends AbstractS3BaseFileService<QiniuParam> {
 
     @Override
     public String getDownloadUrl(String pathAndName) {
+        if (param.isEnableProxyDownload() && StringUtils.isEmpty(param.getDomain())) {
+            return getProxyDownloadUrl(pathAndName, false);
+        }
         String domain = param.getDomain();
 
         Integer tokenTime = param.getTokenTime();
@@ -81,11 +106,11 @@ public class QiniuServiceImpl extends AbstractS3BaseFileService<QiniuParam> {
             tokenTime = 1800;
         }
 
-        String fullPath = StringUtils.concatTrimStartSlashes(param.getBasePath() + pathAndName);
+        String fullPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), pathAndName);
         // 如果不是私有空间, 且指定了加速域名, 则使用 qiniu 的 sdk 获取下载链接
         // (使用 s3 sdk 获取到的下载链接替换自动加速域名后无法访问, 故这里使用 qiniu sdk).
-        if (BooleanUtil.isTrue(param.isPrivate()) && StrUtil.isNotEmpty(domain)) {
-            String customDomainFullPath = StringUtils.removeDuplicateSlashes(domain + "/" + StringUtils.encodeAllIgnoreSlashes(fullPath));
+        if (BooleanUtils.isTrue(param.isPrivate()) && StringUtils.isNotEmpty(domain)) {
+            String customDomainFullPath = StringUtils.removeDuplicateSlashes(domain + StringUtils.SLASH + StringUtils.encodeAllIgnoreSlashes(fullPath));
             return auth.privateDownloadUrl(customDomainFullPath, tokenTime);
         }
 

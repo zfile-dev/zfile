@@ -5,6 +5,7 @@ import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
 import im.zhaojun.zfile.module.link.model.request.ShortLinkResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @author zhaojun
  */
 @Component
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ShortLinkConvert {
 
 	@Mapping(source = "shortLink.id", target = "id")

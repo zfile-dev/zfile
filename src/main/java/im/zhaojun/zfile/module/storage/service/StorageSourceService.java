@@ -1,43 +1,52 @@
 package im.zhaojun.zfile.module.storage.service;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.core.exception.StorageSourceException;
-import im.zhaojun.zfile.core.exception.file.InvalidStorageSourceException;
-import im.zhaojun.zfile.core.util.CodeMsg;
-import im.zhaojun.zfile.module.filter.model.entity.FilterConfig;
-import im.zhaojun.zfile.module.filter.service.FilterConfigService;
-import im.zhaojun.zfile.module.link.service.ShortLinkService;
-import im.zhaojun.zfile.module.log.service.DownloadLogService;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.biz.InvalidStorageSourceBizException;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.util.StrPool;
+import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.core.util.ZFileAuthUtil;
 import im.zhaojun.zfile.module.password.model.dto.VerifyResultDTO;
-import im.zhaojun.zfile.module.password.model.entity.PasswordConfig;
 import im.zhaojun.zfile.module.password.service.PasswordConfigService;
 import im.zhaojun.zfile.module.readme.model.entity.ReadmeConfig;
 import im.zhaojun.zfile.module.readme.service.ReadmeConfigService;
 import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.module.storage.convert.StorageSourceConvert;
+import im.zhaojun.zfile.module.storage.event.StorageSourceCopyEvent;
+import im.zhaojun.zfile.module.storage.event.StorageSourceDeleteEvent;
 import im.zhaojun.zfile.module.storage.mapper.StorageSourceMapper;
 import im.zhaojun.zfile.module.storage.model.dto.StorageSourceAllParamDTO;
 import im.zhaojun.zfile.module.storage.model.dto.StorageSourceDTO;
+import im.zhaojun.zfile.module.storage.model.dto.StorageSourceInitDTO;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSourceConfig;
+import im.zhaojun.zfile.module.storage.model.enums.SearchModeEnum;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
+import im.zhaojun.zfile.module.storage.model.param.IStorageParam;
 import im.zhaojun.zfile.module.storage.model.request.admin.CopyStorageSourceRequest;
 import im.zhaojun.zfile.module.storage.model.request.admin.UpdateStorageSortRequest;
 import im.zhaojun.zfile.module.storage.model.request.base.FileListConfigRequest;
 import im.zhaojun.zfile.module.storage.model.request.base.SaveStorageSourceRequest;
 import im.zhaojun.zfile.module.storage.model.result.StorageSourceConfigResult;
+import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
+import im.zhaojun.zfile.module.user.model.entity.UserStorageSource;
+import im.zhaojun.zfile.module.user.service.UserStorageSourceService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,33 +63,24 @@ public class StorageSourceService {
 
     @Resource
     private StorageSourceMapper storageSourceMapper;
-    
-    @Resource
-    private StorageSourceService storageSourceService;
-    
-    @Resource
-    private StorageSourceContext storageSourceContext;
-    
+
     @Resource
     private StorageSourceConvert storageSourceConvert;
-    
+
     @Resource
     private StorageSourceConfigService storageSourceConfigService;
-    
-    @Resource
-    private FilterConfigService filterConfigService;
-    
+
     @Resource
     private PasswordConfigService passwordConfigService;
-    
+
+    @Resource
+    private UserStorageSourceService userStorageSourceService;
+
     @Resource
     private ReadmeConfigService readmeConfigService;
-    
+
     @Resource
-    private ShortLinkService shortLinkService;
-    
-    @Resource
-    private DownloadLogService downloadLogService;
+    private ApplicationEventPublisher applicationEventPublisher;
 
 
     /**
@@ -94,15 +94,15 @@ public class StorageSourceService {
 
 
     /**
-     * 获取所有已启用的存储源列表，按照存储源的排序号排序
+     * 获取当前登录用户可访问的存储源列表
      *
-     * @return 已启用的存储源列表
+     * @return 存储源列表
      */
     public List<StorageSource> findAllEnableOrderByOrderNum() {
-        return storageSourceMapper.findListByEnableOrderByOrderNum();
+        return storageSourceMapper.findUserEnableList(ZFileAuthUtil.getCurrentUserId());
     }
-    
-    
+
+
     /**
      * 获取指定存储源设置
      *
@@ -111,28 +111,28 @@ public class StorageSourceService {
      *
      * @return  存储源设置
      */
-    @Cacheable(key = "#id", unless = "#result == null")
+    @Cacheable(key = "#id", unless = "#result == null", condition = "#id != null")
     public StorageSource findById(Integer id) {
         return storageSourceMapper.selectById(id);
     }
-    
-    
+
+
     /**
      * 根据存储源 key 获取存储源
      *
      * @param   storageKey
      *          存储源 key
      *
-     * @throws  InvalidStorageSourceException   存储源不存在时, 抛出异常.
+     * @throws InvalidStorageSourceBizException   存储源不存在时, 抛出异常.
      *
      * @return  存储源信息
      */
-    @Cacheable(key = "#storageKey", unless = "#result == null")
+    @Cacheable(key = "#storageKey", unless = "#result == null", condition = "#storageKey != null")
     public StorageSource findByStorageKey(String storageKey) {
         return storageSourceMapper.findByStorageKey(storageKey);
     }
-    
-    
+
+
     /**
      * 根据存储源 key 清除 key 的缓存
      *
@@ -152,10 +152,10 @@ public class StorageSourceService {
      * @return  存储源信息
      */
     public Integer findIdByKey(String storageKey) {
-        return Optional.ofNullable(storageSourceService.findByStorageKey(storageKey)).map(StorageSource::getId).orElse(null);
+        return Optional.ofNullable(((StorageSourceService) AopContext.currentProxy()).findByStorageKey(storageKey)).map(StorageSource::getId).orElse(null);
     }
-    
-    
+
+
     /**
      * 根据存储源 id 获取存储源 key
      *
@@ -165,10 +165,10 @@ public class StorageSourceService {
      * @return  存储源 key
      */
     public String findStorageKeyById(Integer id){
-        return Optional.ofNullable(storageSourceService.findById(id)).map(StorageSource::getKey).orElse(null);
+        return Optional.ofNullable(((StorageSourceService)AopContext.currentProxy()).findById(id)).map(StorageSource::getKey).orElse(null);
     }
-    
-    
+
+
     /**
      * 根据 id 获取指定存储源的类型.
      *
@@ -178,10 +178,10 @@ public class StorageSourceService {
      * @return  存储源对应的类型.
      */
     public StorageTypeEnum findStorageTypeById(Integer id) {
-        return Optional.ofNullable(storageSourceService.findById(id)).map(StorageSource::getType).orElse(null);
+        return Optional.ofNullable(((StorageSourceService)AopContext.currentProxy()).findById(id)).map(StorageSource::getType).orElse(null);
     }
-    
-    
+
+
     /**
      * 获取指定存储源 DTO 对象, 此对象包含详细的参数设置.
      *
@@ -190,21 +190,23 @@ public class StorageSourceService {
      *
      * @return  存储源 DTO
      */
-    @Cacheable(key = "'dto-' + #id", unless = "#result == null")
+    @Cacheable(key = "'dto-' + #id", unless = "#result == null", condition = "#id != null")
     public StorageSourceDTO findDTOById(Integer id) {
         // 将参数列表通过反射写入到 StorageSourceAllParam 中.
         StorageSourceAllParamDTO storageSourceAllParam = new StorageSourceAllParamDTO();
-        storageSourceConfigService.selectStorageConfigByStorageId(id)
-                .forEach(storageSourceConfig ->
-                        ReflectUtil.setFieldValue(storageSourceAllParam, storageSourceConfig.getName(), storageSourceConfig.getValue())
-                );
-        
+        for (StorageSourceConfig storageSourceConfig : storageSourceConfigService.selectStorageConfigByStorageId(id)) {
+            if (ReflectUtil.hasField(StorageSourceAllParamDTO.class, storageSourceConfig.getName())) {
+                ReflectUtil.setFieldValue(storageSourceAllParam, storageSourceConfig.getName(), storageSourceConfig.getValue());
+            } else {
+                log.warn("数据库中存储源 {} 参数 {} 不存在于存储源参数 DTO 中, 请检查参数名是否正确.", id, storageSourceConfig.getName());
+            }
+        }
         // 获取数据库对象，转为 dto 对象返回
         StorageSource storageSource = findById(id);
         return storageSourceConvert.entityToDTO(storageSource, storageSourceAllParam);
     }
-    
-    
+
+
     /**
      * 判断存储源 key 是否已存在 (不读取缓存)
      *
@@ -214,7 +216,7 @@ public class StorageSourceService {
      * @return  是否已存在
      */
     public boolean existByStorageKey(String storageKey) {
-        return storageSourceService.findByStorageKey(storageKey) != null;
+        return ((StorageSourceService)AopContext.currentProxy()).findByStorageKey(storageKey) != null;
     }
 
 
@@ -232,34 +234,23 @@ public class StorageSourceService {
     })
     public StorageSource deleteById(Integer id) {
         log.info("删除 id 为 {} 的存储源", id);
-        StorageSource storageSource = findById(id);
-        
+        StorageSource storageSource = ((StorageSourceService)AopContext.currentProxy()).findById(id);
+
         if (storageSource == null) {
-            String msg = StrUtil.format("删除存储源时检测到 id 为 {} 的存储源不存在", id);
-            throw new StorageSourceException(CodeMsg.STORAGE_SOURCE_NOT_FOUND, id, msg);
+            throw new BizException(ErrorCode.BIZ_STORAGE_NOT_FOUND);
         }
-        
-        String storageKey = storageSource.getKey();
-    
+
+        StorageSourceDeleteEvent storageSourceDeleteEvent = new StorageSourceDeleteEvent(storageSource);
+        applicationEventPublisher.publishEvent(storageSourceDeleteEvent);
+
         int deleteEntitySize = storageSourceMapper.deleteById(id);
-        int deleteConfigSize = storageSourceConfigService.deleteByStorageId(id);
-    
-        int clearPasswordSize = passwordConfigService.deleteByStorageId(id);
-        int clearFilterSize = filterConfigService.deleteByStorageId(id);
-        int clearReadmeSize = readmeConfigService.deleteByStorageId(id);
-    
-        int clearShortLinkSize = shortLinkService.deleteByStorageId(id);
-        int clearDownloadLogSize = downloadLogService.deleteByStorageKey(storageKey);
-    
-        storageSourceContext.destroy(id);
-        log.info("尝试删除存储源 {} 成功, 已清理相关数据及上下文环境（存储源 {} 条、存储源设置 {} 条、" +
-                "密码规则 {} 条、过滤规则 {} 条，目录文档 {} 条、直链 {} 条、直链下载日志 {} 条）",
-                id, deleteEntitySize, deleteConfigSize,
-                clearPasswordSize, clearFilterSize, clearReadmeSize, clearShortLinkSize, clearDownloadLogSize);
+
+        StorageSourceContext.destroy(storageSource);
+        log.info("删除存储源 {} 成功, 影响行数: {}", id, deleteEntitySize);
         return storageSource;
     }
 
-    
+
     /**
      * 交换存储源排序
      *
@@ -277,8 +268,8 @@ public class StorageSourceService {
             }
         }
     }
-    
-    
+
+
     @Caching(evict = {
             @CacheEvict(key = "#entity.id"),
             @CacheEvict(key = "#entity.key"),
@@ -287,8 +278,8 @@ public class StorageSourceService {
     public void updateById(StorageSource entity) {
         storageSourceMapper.updateById(entity);
     }
-    
-    
+
+
     /**
      * 保存存储源基本信息及其对应的参数设置
      *
@@ -297,41 +288,59 @@ public class StorageSourceService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Integer saveStorageSource(SaveStorageSourceRequest saveStorageSourceRequest) {
+        boolean isSave = ObjUtil.isEmpty(saveStorageSourceRequest.getId());
+
         log.info("尝试保存存储源, id: {}, name: {}, key: {}, type: {}",
                 saveStorageSourceRequest.getId(), saveStorageSourceRequest.getName(),
                 saveStorageSourceRequest.getKey(), saveStorageSourceRequest.getType().getDescription());
-        
+
         // 转换为存储源 entity 对象
         StorageSource storageSource = storageSourceConvert.saveRequestToEntity(saveStorageSourceRequest);
-        
+        storageSource.setSearchMode(SearchModeEnum.SEARCH_ALL_MODE);
+
+        // 如果是更新，则销毁之前的存储源上下文
+        if (!isSave) {
+            StorageSource dbStorageSource = ((StorageSourceService) AopContext.currentProxy()).findById(saveStorageSourceRequest.getId());
+            if (dbStorageSource != null) {
+                StorageSourceContext.destroy(dbStorageSource);
+            }
+        }
+
         // 保存或更新存储源
-        StorageSource dbSaveResult = storageSourceService.saveOrUpdate(storageSource);
-    
+        StorageSource dbSaveResult = ((StorageSourceService)AopContext.currentProxy()).saveOrUpdate(storageSource);
+
         log.info("保存存储源成功, id: {}, name: {}, key: {}, type: {}",
                 dbSaveResult.getId(), dbSaveResult.getName(),
                 dbSaveResult.getKey(), dbSaveResult.getType().getDescription());
-        
+
         // 存储源 ID
         Integer storageId = dbSaveResult.getId();
-        
+
         // 保存存储源参数
         List<StorageSourceConfig> storageSourceConfigList =
-                storageSourceConfigService.toStorageSourceConfigList(storageId,
+                storageSourceConfigService.storageSourceAllParamToConfigList(storageId,
                                                                     dbSaveResult.getType(),
                                                                     saveStorageSourceRequest.getStorageSourceAllParam());
         storageSourceConfigService.saveBatch(storageId, storageSourceConfigList);
         log.info("保存存储源参数成功，尝试根据参数初始化存储源, id: {}, name: {}, config size: {}",
                 dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
-    
+
         // 初始化并检查是否可用
-        storageSourceContext.init(storageSource);
+        StorageSourceInitDTO storageSourceInitDTO = StorageSourceInitDTO.convert(dbSaveResult, storageSourceConfigList);
+        StorageSourceContext.init(storageSourceInitDTO);
         log.info("根据参数初始化存储源成功, id: {}, name: {}, config size: {}",
                 dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
-        
+
+
+        // 如果是新增存储源，根据用户设置为用户添加默认权限
+        if (isSave) {
+            userStorageSourceService.addDefaultPermissionsForAllUsersInStorageSource(storageId);
+        }
+
         return storageId;
     }
-    
-    
+
+
     /**
      * 保存或修改存储源设置，如果没有 id 则新增，有则更新，且会检测是否填写 key，如果没写，则自动将 id 设置为 key 并保存。
      *
@@ -352,36 +361,36 @@ public class StorageSourceService {
         } else {
             // 判断是否修改了存储源别名，如果修改了则清除之前存储源别名的缓存。
             StorageSource originStorageSource = storageSourceMapper.selectById(storageSource.getId());
-            if (!StrUtil.equals(originStorageSource.getKey(), storageSource.getKey())) {
-                storageSourceService.clearCacheByStorageKey(originStorageSource.getKey());
+            if (!StringUtils.equals(originStorageSource.getKey(), storageSource.getKey())) {
+                ((StorageSourceService)AopContext.currentProxy()).clearCacheByStorageKey(originStorageSource.getKey());
             }
             storageSourceMapper.updateById(storageSource);
         }
-        
+
         // 如果没输入存储源 key, 则自动将 id 设置为 key
-        if (StrUtil.isEmpty(storageSource.getKey()) && !StrUtil.equals(storageSource.getId().toString(), storageSource.getKey())) {
+        if (StringUtils.isEmpty(storageSource.getKey()) && !StringUtils.equals(storageSource.getId().toString(), storageSource.getKey())) {
             storageSource.setKey(Convert.toStr(storageSource.getId()));
             storageSourceMapper.updateById(storageSource);
         }
         return storageSource;
     }
-    
-    
+
+
     public StorageSourceConfigResult getStorageConfigSource(FileListConfigRequest fileListConfigRequest) {
         String storageKey = fileListConfigRequest.getStorageKey();
         String path = fileListConfigRequest.getPath();
-        
+
         // 判断存储源是否存在.
-        StorageSource storageSource = storageSourceService.findByStorageKey(storageKey);
+        StorageSource storageSource = ((StorageSourceService)AopContext.currentProxy()).findByStorageKey(storageKey);
         if (storageSource == null) {
-            throw new InvalidStorageSourceException("通过存储源 key 未找到存储源, key: " + storageKey);
+            throw new InvalidStorageSourceBizException(storageKey);
         }
-        
+
         // 根据存储源 key 获取存储源 id
         Integer storageId = storageSource.getId();
-    
+
         VerifyResultDTO verifyPassword = passwordConfigService.verifyPassword(storageId, path, fileListConfigRequest.getPassword());
-    
+
         ReadmeConfig readmeByPath = null;
         if (verifyPassword.isPassed()) {
             // 获取指定存储源路径下的 readme 信息
@@ -389,81 +398,65 @@ public class StorageSourceService {
         } else {
             log.info("文件夹密码验证失败，不获取 readme 信息, storageId: {}, path: {}, password: {}", storageId, path, fileListConfigRequest.getPassword());
         }
-    
-        // 获取指定存储源路径下的 readme 信息
-        return storageSourceConvert.entityToConfigResult(storageSource, readmeByPath);
+
+        StorageSourceConfigResult storageSourceConfigResult = storageSourceConvert.entityToConfigResult(storageSource, readmeByPath);
+
+        // 获取当前用户对该存储源的权限
+        HashMap<String, Boolean> permissionMap = userStorageSourceService.getCurrentUserPermissionMapByStorageId(storageId);
+        storageSourceConfigResult.setPermission(permissionMap);
+
+        // 获取存储源元数据
+        AbstractBaseFileService<IStorageParam> baseFileService = StorageSourceContext.getByStorageId(storageId);
+        storageSourceConfigResult.setMetadata(baseFileService.getStorageSourceMetadata());
+
+        UserStorageSource userStorageSource = userStorageSourceService.getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
+        if (userStorageSource == null) {
+            storageSourceConfigResult.setRootPath(StrPool.SLASH);
+        } else {
+            storageSourceConfigResult.setRootPath(userStorageSource.getRootPath());
+        }
+        return storageSourceConfigResult;
     }
 
     @Transactional(rollbackFor = Exception.class)
     public Integer copy(CopyStorageSourceRequest copyStorageSourceRequest) {
+        // 检查目标存储源别名是否已存在
         String toKey = copyStorageSourceRequest.getToKey();
-        boolean existByStorageKey = storageSourceService.existByStorageKey(toKey);
+        boolean existByStorageKey = ((StorageSourceService)AopContext.currentProxy()).existByStorageKey(toKey);
         if (existByStorageKey) {
-            throw new RuntimeException("存储源别名已存在: " + toKey);
+            throw new BizException(ErrorCode.BIZ_STORAGE_KEY_EXIST);
         }
+
+        // 检查复制源是否存在
         Integer fromStorageId = copyStorageSourceRequest.getFromId();
-        // 复制存储源
-        StorageSource storageSource = storageSourceService.findById(fromStorageId);
+        StorageSource storageSource = ((StorageSourceService)AopContext.currentProxy()).findById(fromStorageId);
         if (storageSource == null) {
-            throw new InvalidStorageSourceException("通过存储源 id 未找到存储源, id: " + fromStorageId);
+            throw new InvalidStorageSourceBizException(fromStorageId);
         }
+
         StorageSource newStorageSource = new StorageSource();
         BeanUtils.copyProperties(storageSource, newStorageSource);
         newStorageSource.setId(null);
         newStorageSource.setKey(copyStorageSourceRequest.getToKey());
         newStorageSource.setName(copyStorageSourceRequest.getToName());
-        StorageSource dbSaveResult = storageSourceService.saveOrUpdate(newStorageSource);
-        log.info("复制存储源成功，复制后 id: {}, name: {}, key: {}, type: {}",
-                dbSaveResult.getId(), dbSaveResult.getName(),
+        StorageSource dbSaveResult = ((StorageSourceService)AopContext.currentProxy()).saveOrUpdate(newStorageSource);
+        Integer newStorageId = dbSaveResult.getId();
+        log.info("复制存储源成功，源 [id: {}, name: {}, key: {}], 复制后 [id: {}, name: {}, key: {}, type: {}]",
+                fromStorageId, storageSource.getName(), storageSource.getKey(),
+                newStorageId, dbSaveResult.getName(),
                 dbSaveResult.getKey(), dbSaveResult.getType().getDescription());
 
-        // 复制存储源基础参数
-        Integer newStorageId = dbSaveResult.getId();
-        List<StorageSourceConfig> storageSourceConfigList = storageSourceConfigService.selectStorageConfigByStorageId(fromStorageId);
-        storageSourceConfigList.forEach(storageSourceConfig -> {
-            storageSourceConfig.setId(null);
-            storageSourceConfig.setStorageId(newStorageId);
-        });
-        storageSourceConfigService.saveBatch(newStorageId, storageSourceConfigList);
-        log.info("保存复制后的存储源参数成功，尝试根据参数初始化存储源, id: {}, name: {}, config size: {}",
-                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
+        StorageSourceCopyEvent storageSourceCopyEvent = new StorageSourceCopyEvent(fromStorageId, newStorageId);
+        applicationEventPublisher.publishEvent(storageSourceCopyEvent);
 
         // 初始化存储源
-        storageSourceContext.init(dbSaveResult);
+        List<StorageSourceConfig> storageSourceConfigList = storageSourceConfigService.selectStorageConfigByStorageId(newStorageId);
+        StorageSourceInitDTO storageSourceInitDTO = StorageSourceInitDTO.convert(dbSaveResult, storageSourceConfigList);
+        StorageSourceContext.init(storageSourceInitDTO);
         log.info("初始化存储源成功, id: {}, name: {}, config size: {}",
-                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
+                newStorageId, dbSaveResult.getName(), storageSourceConfigList.size());
 
-        // 复制存储源过滤配置
-        List<FilterConfig> filterConfigList = filterConfigService.findByStorageId(fromStorageId);
-        filterConfigList.forEach(filterConfig -> {
-            filterConfig.setId(null);
-            filterConfig.setStorageId(newStorageId);
-        });
-        filterConfigService.batchSave(newStorageId, filterConfigList);
-        log.info("复制存储源过滤配置成功, id: {}, name: {}, config size: {}",
-                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
-
-        // 复制存储源密码配置
-        List<PasswordConfig> passwordConfigList = passwordConfigService.findByStorageId(fromStorageId);
-        passwordConfigList.forEach(passwordConfig -> {
-            passwordConfig.setId(null);
-            passwordConfig.setStorageId(newStorageId);
-        });
-        passwordConfigService.batchSave(newStorageId, passwordConfigList);
-        log.info("复制存储源密码配置成功, id: {}, name: {}, config size: {}",
-                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
-
-        // 复制存储源 readme 配置
-        List<ReadmeConfig> readmeConfigList = readmeConfigService.findByStorageId(fromStorageId);
-        readmeConfigList.forEach(readmeConfig -> {
-            readmeConfig.setId(null);
-            readmeConfig.setStorageId(newStorageId);
-        });
-        readmeConfigService.batchSave(newStorageId, readmeConfigList);
-        log.info("复制存储源 readme 配置成功, id: {}, name: {}, config size: {}",
-                dbSaveResult.getId(), dbSaveResult.getName(), storageSourceConfigList.size());
-
-        return dbSaveResult.getId();
+        return newStorageId;
     }
-    
+
 }

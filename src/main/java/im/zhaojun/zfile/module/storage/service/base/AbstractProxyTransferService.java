@@ -1,15 +1,15 @@
 package im.zhaojun.zfile.module.storage.service.base;
 
-import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.module.storage.model.param.ProxyTransferParam;
-import im.zhaojun.zfile.module.storage.service.StorageSourceService;
-import im.zhaojun.zfile.module.config.service.SystemConfigService;
+import cn.hutool.core.net.url.UrlBuilder;
+import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.ProxyDownloadUrlUtils;
 import im.zhaojun.zfile.core.util.StringUtils;
-import org.springframework.core.io.Resource;
+import im.zhaojun.zfile.module.config.service.SystemConfigService;
+import im.zhaojun.zfile.module.storage.model.param.ProxyTransferParam;
+import im.zhaojun.zfile.module.storage.service.StorageSourceService;
+import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -31,12 +31,11 @@ public abstract class AbstractProxyTransferService<P extends ProxyTransferParam>
 	 */
 	public static final String PROXY_UPLOAD_LINK_PREFIX = "/file/upload";
 
-
-	@javax.annotation.Resource
+	@Resource
 	private SystemConfigService systemConfigService;
 
 
-	@javax.annotation.Resource
+	@Resource
 	private StorageSourceService storageSourceService;
 
 
@@ -48,20 +47,51 @@ public abstract class AbstractProxyTransferService<P extends ProxyTransferParam>
 	 *
 	 * @return  默认的代理下载 URL
 	 */
-	@Override
-	public String getDownloadUrl(String pathAndName) {
-		String signature = "";
-		if (param.isPrivate()) {
-			signature = "?signature=" + ProxyDownloadUrlUtils.generatorSignature(storageId, pathAndName, param.getTokenTime());
+	public String getProxyDownloadUrl(String pathAndName) {
+		return getProxyDownloadUrl(pathAndName, false);
+	}
+
+
+	/**
+	 * 获取默认代理下载 URL.
+	 *
+	 * @param   pathAndName
+	 *          文件路径及文件名称
+	 *
+	 * @param 	useParamDomain
+	 * 			是否使用存储源参数中的域名替换系统配置中的域名作为下载地址
+	 *
+	 * @return  默认的代理下载 URL
+	 */
+	public String getProxyDownloadUrl(String pathAndName, boolean useParamDomain) {
+		String path = pathAndName;
+
+		UrlBuilder urlBuilder = UrlBuilder.of();
+		String filename = FileUtils.getName(pathAndName);
+		if (filename.startsWith(".")) {
+			urlBuilder.addQuery("filename", filename);
+			path = FileUtils.getParentPath(pathAndName);
 		}
+
+		if (param.isProxyPrivate()) {
+			urlBuilder.addQuery("signature", ProxyDownloadUrlUtils.generatorSignature(storageId, pathAndName, param.getProxyTokenTime()));
+		}
+
+		String url;
+
 		// 如果未填写下载域名，则默认使用带来下载地址.
-		if (StrUtil.isEmpty(param.getDomain())) {
-			String domain = systemConfigService.getDomain();
+		if (!useParamDomain || StringUtils.isEmpty(param.getDomain())) {
+			String domain = systemConfigService.getAxiosFromDomainOrSetting();
 			String storageKey = storageSourceService.findStorageKeyById(storageId);
-			return StringUtils.concat(domain, PROXY_DOWNLOAD_LINK_PREFIX, storageKey, StringUtils.encodeAllIgnoreSlashes(pathAndName)) + signature;
+			url = StringUtils.concat(domain, PROXY_DOWNLOAD_LINK_PREFIX, storageKey, StringUtils.encodeAllIgnoreSlashes(path));
 		} else {
-			return StringUtils.concat(param.getDomain(), StringUtils.encodeAllIgnoreSlashes(pathAndName)) + signature;
+			url = StringUtils.concat(param.getDomain(), StringUtils.encodeAllIgnoreSlashes(path));
 		}
+
+		if (StringUtils.isNotEmpty(urlBuilder.getQueryStr())) {
+			url = url + "?" + urlBuilder.getQueryStr();
+		}
+		return url;
 	}
 
 
@@ -74,17 +104,29 @@ public abstract class AbstractProxyTransferService<P extends ProxyTransferParam>
 	 * @param   name
 	 *          文件名称
 	 *
-	 * @param   size
-	 *          文件大小
-	 *
 	 * @return  默认的代理下上传 URL
 	 */
-	@Override
-	public String getUploadUrl(String path, String name, Long size) {
-		String domain = systemConfigService.getDomain();
+	public String getProxyUploadUrl(String path, String name) {
+		String domain = systemConfigService.getAxiosFromDomainOrSetting();
 		String storageKey = storageSourceService.findStorageKeyById(storageId);
-		String pathAndName = StringUtils.concat(true, path, name);
-		return StringUtils.concat(domain, PROXY_UPLOAD_LINK_PREFIX, storageKey, pathAndName);
+
+		UrlBuilder urlBuilder = UrlBuilder.of();
+
+		String fullPath = StringUtils.concat(path, name);
+
+		// 以 . 开头的文件名, 代表是隐藏文件, 需要特殊处理为参数形式，不然会被安全拦截.
+		if (name.startsWith(".")) {
+			urlBuilder.addQuery("filename", name);
+			fullPath = path;
+		}
+
+		String uploadUrl = StringUtils.concat(domain, PROXY_UPLOAD_LINK_PREFIX, storageKey, StringUtils.encodeAllIgnoreSlashes(fullPath));
+
+		if (StringUtils.isNotEmpty(urlBuilder.getQueryStr())) {
+			uploadUrl = uploadUrl + "?" + urlBuilder.getQueryStr();
+		}
+
+		return uploadUrl;
 	}
 
 	/**
@@ -97,7 +139,7 @@ public abstract class AbstractProxyTransferService<P extends ProxyTransferParam>
 	 *          文件流
 	 *
 	 */
-	public abstract void uploadFile(String pathAndName, InputStream inputStream);
+	public abstract void uploadFile(String pathAndName, InputStream inputStream) throws Exception;
 
 
 	/**
@@ -108,6 +150,6 @@ public abstract class AbstractProxyTransferService<P extends ProxyTransferParam>
 	 *
 	 * @return  文件响应.
 	 */
-	public abstract ResponseEntity<Resource> downloadToStream(String pathAndName) throws IOException;
+	public abstract ResponseEntity<org.springframework.core.io.Resource> downloadToStream(String pathAndName) throws Exception;
 
 }

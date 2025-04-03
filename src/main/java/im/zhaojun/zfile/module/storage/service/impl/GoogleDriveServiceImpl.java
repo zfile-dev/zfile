@@ -1,24 +1,29 @@
 package im.zhaojun.zfile.module.storage.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.exceptions.ExceptionUtil;
-import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.net.url.UrlBuilder;
+import cn.hutool.core.net.url.UrlQuery;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import im.zhaojun.zfile.core.exception.StorageSourceRefreshTokenException;
-import im.zhaojun.zfile.core.exception.http.HttpResponseStatusErrorException;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.exception.core.SystemException;
+import im.zhaojun.zfile.core.util.CollectionUtils;
+import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.RequestHolder;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.storage.constant.StorageConfigConstant;
+import im.zhaojun.zfile.module.storage.constant.StorageSourceConnectionProperties;
 import im.zhaojun.zfile.module.storage.model.bo.RefreshTokenCacheBO;
+import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.dto.OAuth2TokenDTO;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSourceConfig;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
@@ -28,6 +33,8 @@ import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
 import im.zhaojun.zfile.module.storage.service.StorageSourceConfigService;
 import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService;
 import im.zhaojun.zfile.module.storage.service.base.RefreshTokenService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -47,13 +54,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,7 +100,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	 */
 	private static final String REFRESH_TOKEN_URL = "https://oauth2.googleapis.com/token";
 
-	@javax.annotation.Resource
+	@jakarta.annotation.Resource
 	private StorageSourceConfigService storageSourceConfigService;
 
 	@Override
@@ -111,19 +117,17 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	 * @return	文件/文件夹 id
 	 */
 	private String getIdByPath(String path) {
-		String fullPath = StringUtils.concat(param.getBasePath(), path);
-		if (StrUtil.isEmpty(fullPath) || StrUtil.equals(fullPath, StringUtils.DELIMITER_STR)) {
-			return StrUtil.isEmpty(param.getDriveId()) ? "root" : param.getDriveId();
+		String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path);
+		if (StringUtils.isEmpty(fullPath) || StringUtils.equals(fullPath, StringUtils.SLASH)) {
+			return StringUtils.isEmpty(param.getDriveId()) ? "root" : param.getDriveId();
 		}
 
-		List<String> pathList = StrUtil.splitTrim(fullPath, "/");
+		List<String> pathList = StringUtils.split(fullPath, StringUtils.SLASH, true, true);
 
 		String driveId = "";
 		for (String subPath : pathList) {
 			String folderIdParam = new GoogleDriveAPIParam().getDriveIdByPathParam(subPath, driveId);
-			HttpRequest httpRequest = HttpUtil.createGet(DRIVE_FILE_URL);
-			httpRequest.header("Authorization", "Bearer " + param.getAccessToken());
-			httpRequest.body(folderIdParam);
+			HttpRequest httpRequest = commonHttpRequest(HttpUtil.createGet(DRIVE_FILE_URL + "?" + folderIdParam));
 
 			HttpResponse httpResponse = httpRequest.execute();
 
@@ -134,7 +138,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			JSONObject jsonRoot = JSON.parseObject(body);
 			JSONArray files = jsonRoot.getJSONArray("files");
 
-			if (files.size() == 0) {
+			if (files.isEmpty()) {
 				throw ExceptionUtil.wrapRuntime(new FileNotFoundException());
 			}
 
@@ -157,9 +161,8 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 		String pageToken = "";
 		do {
 			String folderIdParam = new GoogleDriveAPIParam().getFileListParam(folderId, pageToken);
-			HttpRequest httpRequest = HttpUtil.createGet(DRIVE_FILE_URL);
-			httpRequest.header("Authorization", "Bearer " + param.getAccessToken());
-			httpRequest.body(folderIdParam);
+			HttpRequest httpRequest = commonHttpRequest(HttpUtil.createGet(DRIVE_FILE_URL + "?" + folderIdParam));
+			httpRequest.setConnectionTimeout(StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_MILLIS);
 
 			HttpResponse httpResponse = httpRequest.execute();
 
@@ -171,7 +174,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			pageToken = jsonObject.getString("nextPageToken");
 			JSONArray files = jsonObject.getJSONArray("files");
 			result.addAll(jsonArrayToFileList(files, folderPath));
-		} while (StrUtil.isNotEmpty(pageToken));
+		} while (StringUtils.isNotEmpty(pageToken));
 
 		return result;
 	}
@@ -180,12 +183,15 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	public FileItemResult getFileItem(String pathAndName) {
 		String fileId = getIdByPath(pathAndName);
 
-		String folderName = FileUtil.getParent(pathAndName, 1);
+		String folderName = FileUtils.getParentPath(pathAndName);
 
-		HttpRequest httpRequest = HttpUtil.createGet(DRIVE_FILE_URL + "/" + fileId);
-		httpRequest.header("Authorization", "Bearer " + param.getAccessToken());
+		HttpRequest httpRequest = commonHttpRequest(HttpUtil.createGet(DRIVE_FILE_URL + StringUtils.SLASH + fileId));
 		httpRequest.body("fields=id,name,mimeType,shortcutDetails,size,modifiedTime");
 		HttpResponse httpResponse = httpRequest.execute();
+
+		if (httpResponse.getStatus() == HttpStatus.NOT_FOUND.value()) {
+			return null;
+		}
 
 		checkHttpResponseIsError(httpResponse);
 
@@ -197,9 +203,8 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 
 	@Override
 	public boolean newFolder(String path, String name) {
-		HttpResponse httpResponse = HttpRequest.post(DRIVE_FILE_URL)
-				.header("Authorization", "Bearer " + param.getAccessToken())
-				.body(new JSONObject()
+		HttpResponse httpResponse = commonHttpRequest(HttpUtil.createPost(DRIVE_FILE_URL))
+						.body(new JSONObject()
 						.fluentPut("name", name)
 						.fluentPut("mimeType", FOLDER_MIME_TYPE)
 						.fluentPut("parents", Collections.singletonList(getIdByPath(path)))
@@ -214,8 +219,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	@Override
 	public boolean deleteFile(String path, String name) {
 		String pathAndName = StringUtils.concat(path, name);
-		HttpResponse httpResponse = HttpRequest.delete(DRIVE_FILE_URL + "/" + getIdByPath(pathAndName))
-				.header("Authorization", "Bearer " + param.getAccessToken())
+		HttpResponse httpResponse = commonHttpRequest(HttpUtil.createRequest(Method.DELETE, DRIVE_FILE_URL + StringUtils.SLASH + getIdByPath(pathAndName)))
 				.execute();
 
 		checkHttpResponseIsError(httpResponse);
@@ -233,8 +237,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 		String pathAndName = StringUtils.concat(path, name);
 		String fileId = getIdByPath(pathAndName);
 
-		HttpResponse httpResponse = HttpRequest.patch(DRIVE_FILE_URL + "/" + fileId)
-				.header("Authorization", "Bearer " + param.getAccessToken())
+		HttpResponse httpResponse = commonHttpRequest(HttpUtil.createRequest(Method.PATCH, DRIVE_FILE_URL + StringUtils.SLASH + fileId))
 				.body(new JSONObject()
 						.fluentPut("name", newName)
 						.toJSONString())
@@ -250,11 +253,18 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 		return renameFile(path, name, newName);
 	}
 
+
+	@Override
+	public String getUploadUrl(String path, String name, Long size) {
+		return super.getProxyUploadUrl(path, name);
+	}
+
+
 	@Override
 	public void uploadFile(String pathAndName, InputStream inputStream) {
 		String boundary = IdUtil.fastSimpleUUID();
-		String fileName = FileUtil.getName(pathAndName);
-		String folderName = StringUtils.getParentPath(pathAndName);
+		String fileName = FileUtils.getName(pathAndName);
+		String folderName = FileUtils.getParentPath(pathAndName);
 
 		String jsonString = new JSONObject()
 				.fluentPut("name", fileName)
@@ -281,13 +291,17 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	}
 
 	@Override
+	public String getDownloadUrl(String pathAndName) {
+		return super.getProxyDownloadUrl(pathAndName);
+	}
+
+	@Override
 	public ResponseEntity<Resource> downloadToStream(String pathAndName) {
 		String fileId = getIdByPath(pathAndName);
 
 		HttpServletRequest request = RequestHolder.getRequest();
 
-		HttpRequest httpRequest = HttpUtil.createGet(DRIVE_FILE_URL + "/" + fileId);
-		httpRequest.header("Authorization", "Bearer " + param.getAccessToken());
+		HttpRequest httpRequest = commonHttpRequest(HttpUtil.createGet(DRIVE_FILE_URL + StringUtils.SLASH + fileId));
 		httpRequest.body("alt=media");
 		httpRequest.header(HttpHeaders.RANGE, request.getHeader(HttpHeaders.RANGE));
 		HttpResponse httpResponse = httpRequest.executeAsync();
@@ -300,7 +314,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			for (Map.Entry<String, List<String>> stringListEntry : httpResponse.headers().entrySet()) {
 				String key = stringListEntry.getKey();
 				List<String> values = stringListEntry.getValue();
-				if (key != null && CollUtil.isNotEmpty(values)) {
+				if (key != null && CollectionUtils.isNotEmpty(values)) {
 					response.setHeader(key, stringListEntry.getValue().get(0));
 				}
 			}
@@ -312,6 +326,55 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 		return null;
 	}
 
+	@Override
+	public boolean copyFile(String path, String name, String targetPath, String targetName) {
+		String srcPathAndName = StringUtils.concat(path, name);
+		String srcFileId = getIdByPath(srcPathAndName);
+
+		HttpResponse httpResponse = commonHttpRequest(HttpUtil.createPost(DRIVE_FILE_URL + StringUtils.SLASH + srcFileId + "/copy"))
+				.body(new JSONObject()
+						.fluentPut("name", targetName)
+						.fluentPut("parents", Collections.singletonList(getIdByPath(targetPath)))
+						.fluentPut("supportsAllDrives", true)
+						.toJSONString())
+				.execute();
+
+		checkHttpResponseIsError(httpResponse);
+
+		return true;
+	}
+
+	@Override
+	public boolean copyFolder(String path, String name, String targetPath, String targetName) {
+		throw new BizException(ErrorCode.BIZ_STORAGE_NOT_SUPPORT_OPERATION);
+	}
+
+	@Override
+	public boolean moveFile(String path, String name, String targetPath, String targetName) {
+		String pathAndName = StringUtils.concat(path, name);
+		String fileId = getIdByPath(pathAndName);
+
+		HttpResponse httpResponse = commonHttpRequest(
+				HttpUtil.createRequest(Method.PATCH,
+						UrlBuilder.of(DRIVE_FILE_URL + StringUtils.SLASH + fileId)
+								.setQuery(UrlQuery.of(new JSONObject()
+												.fluentPut("addParents", getIdByPath(targetPath))
+												.fluentPut("removeParents", getIdByPath(path))
+												.fluentPut("supportsAllDrives", true)
+										)
+								).build()
+				)
+		).execute();
+
+		checkHttpResponseIsError(httpResponse);
+
+		return true;
+	}
+
+	@Override
+	public boolean moveFolder(String path, String name, String targetPath, String targetName) {
+		return moveFile(path, name, targetPath, targetName);
+	}
 
 	@Override
 	public StorageTypeEnum getStorageTypeEnum() {
@@ -339,9 +402,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			log.debug("存储源 {}({}) 尝试刷新令牌, 参数信息为: {}", storageId, this.getStorageTypeEnum().getDescription(), param);
 		}
 
-		HttpRequest post = HttpUtil.createPost(REFRESH_TOKEN_URL);
-
-		post.body(paramStr);
+		HttpRequest post = commonHttpRequest(HttpUtil.createPost(REFRESH_TOKEN_URL + "?" + paramStr));
 		HttpResponse response = post.execute();
 		String responseBody = response.body();
 
@@ -371,7 +432,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			OAuth2TokenDTO refreshToken = getRefreshToken();
 
 			if (refreshToken.getAccessToken() == null) {
-				throw new StorageSourceRefreshTokenException("存储源刷新令牌失败, 获取到令牌为空.", storageId);
+				throw new SystemException("存储源 " + storageId + " 刷新令牌失败, 获取到令牌为空.");
 			}
 
 			StorageSourceConfig accessTokenConfig =
@@ -385,7 +446,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			log.info("存储源 {} 刷新 AccessToken 成功", storageId);
 		} catch (Exception e) {
 			RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.fail(getStorageTypeEnum().getDescription() + " AccessToken 刷新失败: " + e.getMessage()));
-			throw new StorageSourceRefreshTokenException("存储源刷新令牌失败，获取时发生异常", e, storageId);
+			throw new SystemException("存储源 " + storageId + " 刷新令牌失败, 获取时发生异常.", e);
 		}
 	}
 
@@ -434,11 +495,11 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			mimeType = shortcutDetails.getString("targetMimeType");
 		}
 
-		if (StrUtil.equals(mimeType, FOLDER_MIME_TYPE)) {
+		if (StringUtils.equals(mimeType, FOLDER_MIME_TYPE)) {
 			fileItemResult.setType(FileTypeEnum.FOLDER);
 		} else {
 			fileItemResult.setType(FileTypeEnum.FILE);
-			fileItemResult.setUrl(getDownloadUrl(StringUtils.concat(folderPath, fileItemResult.getName())));
+			fileItemResult.setUrl(getDownloadUrl(StringUtils.concat(getCurrentUserBasePath(), folderPath, fileItemResult.getName())));
 		}
 
 		fileItemResult.setTime(jsonObject.getDate("modifiedTime"));
@@ -494,12 +555,14 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 
 			String parentIdParam = "";
 
-			if (StrUtil.isNotEmpty(parentId)) {
+			if (StringUtils.isNotEmpty(parentId)) {
 				parentIdParam = "'" + parentId + "' in parents and ";
 			}
 
+			folderPath = folderPath.replace("'", "\\'");
+
 			googleDriveApiParam.setFields("files(id,shortcutDetails)");
-			googleDriveApiParam.setQ(parentIdParam + " name = '" + folderPath + "'  and trashed = false");
+			googleDriveApiParam.setQ(parentIdParam + "name = '" + folderPath + "' and trashed = false");
 
 			return googleDriveApiParam.toString();
 		}
@@ -541,7 +604,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			GoogleDriveAPIParam googleDriveAPIParam = getBasicParam();
 
 			String parentIdParam = "";
-			if (StrUtil.isNotEmpty(folderId)) {
+			if (StringUtils.isNotEmpty(folderId)) {
 				parentIdParam = "'" + folderId + "' in parents and ";
 			}
 
@@ -561,7 +624,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			String driveId = param.getDriveId();
 
 			// 判断是否是团队盘，如果是，则需要添加团队盘的参数
-			boolean isTeamDrive = StrUtil.isNotEmpty(driveId);
+			boolean isTeamDrive = StringUtils.isNotEmpty(driveId);
 
 			googleDriveAPIParam.setCorpora("user");
 			googleDriveAPIParam.setIncludeItemsFromAllDrives(true);
@@ -581,23 +644,35 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 		 */
 		@Override
 		public String toString() {
+			return toString(true);
+		}
+
+		/**
+		 * 请求对象转 url param string
+		 *
+		 * @return	url param string
+		 */
+		public String toString(boolean encodeValue) {
 			Field[] fields = ReflectUtil.getFields(this.getClass());
 
-			StringBuilder param = new StringBuilder();
+			UrlQuery urlQuery = new UrlQuery();
 
 			for (Field field : fields) {
-				if (StrUtil.startWith(field.getName(), "this")) {
+				if (StringUtils.startWith(field.getName(), "this")) {
 					continue;
 				}
 				Object fieldValue = ReflectUtil.getFieldValue(this, field);
 
 				if (ObjectUtil.isNotEmpty(fieldValue) && ObjectUtil.notEqual(fieldValue, false)) {
-					param.append(field.getName()).append("=").append(fieldValue).append("&");
+					urlQuery.add(field.getName(),
+							encodeValue ?
+									URLEncoder.encode(fieldValue.toString(), StandardCharsets.UTF_8)
+									:
+									fieldValue.toString()
+					);
 				}
 			}
-
-			param.deleteCharAt(param.length() - 1);
-			return param.toString();
+			return urlQuery.toString();
 		}
 	}
 
@@ -612,8 +687,8 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 		if (HttpStatus.valueOf(httpResponse.getStatus()).isError()) {
 			int statusCode = httpResponse.getStatus();
 			String responseBody = httpResponse.body();
-			String msg = StrUtil.format("statusCode: {}, responseBody: {}", statusCode, responseBody);
-			throw new HttpResponseStatusErrorException(msg);
+			String msg = String.format("statusCode: %s, responseBody: %s", statusCode, responseBody);
+			throw new SystemException(msg);
 		}
 	}
 
@@ -628,8 +703,21 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 		if (HttpStatus.valueOf(statusCode).isError()) {
 			HttpEntity responseEntity = closeableHttpResponse.getEntity();
 			String responseBody = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
-			String msg = StrUtil.format("statusCode: {}, responseBody: {}", statusCode, responseBody);
-			throw new HttpResponseStatusErrorException(msg);
+			String msg = String.format("statusCode: %s, responseBody: %s", statusCode, responseBody);
+			throw new SystemException(msg);
 		}
 	}
+
+	@Override
+	public StorageSourceMetadata getStorageSourceMetadata() {
+		StorageSourceMetadata storageSourceMetadata = new StorageSourceMetadata();
+		storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.PROXY);
+		return storageSourceMetadata;
+	}
+
+	private HttpRequest commonHttpRequest(HttpRequest httpRequest) {
+		httpRequest.header("Authorization", "Bearer " + param.getAccessToken());
+		return httpRequest;
+	}
+
 }

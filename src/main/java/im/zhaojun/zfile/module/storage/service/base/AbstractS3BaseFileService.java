@@ -1,38 +1,59 @@
 package im.zhaojun.zfile.module.storage.service.base;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.StrUtil;
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.*;
-import im.zhaojun.zfile.core.constant.ZFileConstant;
-import im.zhaojun.zfile.core.exception.StorageSourceAutoConfigCorsException;
+import cn.hutool.core.convert.Convert;
+import com.alibaba.fastjson2.JSON;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.biz.CorsBizException;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.util.FileUtils;
+import im.zhaojun.zfile.core.util.RequestHolder;
+import im.zhaojun.zfile.core.util.RequestUtils;
 import im.zhaojun.zfile.core.util.StringUtils;
-import im.zhaojun.zfile.module.config.service.SystemConfigService;
+import im.zhaojun.zfile.module.storage.constant.StorageSourceConnectionProperties;
+import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
+import im.zhaojun.zfile.module.storage.model.dto.ZFileCORSRule;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.S3BaseParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.http.HttpRange;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.net.URLConnection;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * @author zhaojun
  */
 @Slf4j
-public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends AbstractBaseFileService<P> {
+public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends AbstractProxyTransferService<P> {
 
-    protected AmazonS3 s3Client;
+    protected S3Client s3ClientNew;
+
+    protected S3Presigner s3Presigner;
 
     public static final InputStream EMPTY_INPUT_STREAM = new ByteArrayInputStream(new byte[0]);
-
-    @Resource
-    private SystemConfigService systemConfigService;
 
     @Override
     public List<FileItemResult> fileList(String folderPath) {
@@ -46,13 +67,16 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
      */
     @Override
     public String getDownloadUrl(String pathAndName) {
+        if (param.isEnableProxyDownload() && StringUtils.isEmpty(param.getDomain())) {
+            return getProxyDownloadUrl(pathAndName, false);
+        }
         String bucketName = param.getBucketName();
         String domain = param.getDomain();
 
-        String fullPath = StringUtils.concatTrimStartSlashes(param.getBasePath() + pathAndName);
+        String fullPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), pathAndName);
 
         // 如果不是私有空间, 且指定了加速域名, 则直接返回下载地址.
-        if (BooleanUtil.isFalse(param.isPrivate()) && StrUtil.isNotEmpty(domain)) {
+        if (BooleanUtils.isNotTrue(param.isPrivate()) && StringUtils.isNotEmpty(domain)) {
             return StringUtils.concat(domain, StringUtils.encodeAllIgnoreSlashes(fullPath));
         }
 
@@ -61,19 +85,28 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
             tokenTime = 1800;
         }
 
-        Date expirationDate = new Date(System.currentTimeMillis() + tokenTime * 1000);
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .applyMutation(processGeneratePresignedUrlRequest())
+                .bucket(bucketName)
+                .key(fullPath)
+                .build();
 
-        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, fullPath, HttpMethod.GET);
-        generatePresignedUrlRequest.setExpiration(expirationDate);
-        URL url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
-
+        PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(GetObjectPresignRequest.builder()
+                .getObjectRequest(getObjectRequest)
+                .signatureDuration(Duration.ofSeconds(tokenTime))
+                .build());
+        URL url = presignedGetObjectRequest.url();
         String defaultUrl = url.toExternalForm();
-        if (StrUtil.isNotEmpty(domain)) {
+        if (StringUtils.isNotEmpty(domain)) {
             defaultUrl = StringUtils.concat(domain, url.getFile());
         }
         return defaultUrl;
     }
 
+    public Consumer<GetObjectRequest.Builder> processGeneratePresignedUrlRequest() {
+        return builder -> {
+        };
+    }
 
     /**
      * 获取 S3 指定目录下的对象列表
@@ -83,184 +116,267 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
     public List<FileItemResult> s3FileList(String path) {
         String bucketName = param.getBucketName();
         path = StringUtils.trimStartSlashes(path);
-        String fullPath = StringUtils.trimStartSlashes(StringUtils.concat(param.getBasePath(), path, ZFileConstant.PATH_SEPARATOR));
+        String fullPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), path, StringUtils.SLASH);
 
         List<FileItemResult> fileItemList = new ArrayList<>();
 
-        ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
-                .withBucketName(bucketName)
-                .withPrefix(fullPath)
-                .withMaxKeys(1000)
-                .withDelimiter("/");
-        ObjectListing objectListing = s3Client.listObjects(listObjectsRequest);
+        ListObjectsV2Request listObjectsV2Request = ListObjectsV2Request.builder()
+                .bucket(bucketName)
+                .prefix(fullPath)
+                .maxKeys(1000)
+                .delimiter(StringUtils.SLASH)
+                .build();
+        ListObjectsV2Iterable listObjectsV2Iterable = s3ClientNew.listObjectsV2Paginator(listObjectsV2Request);
+        for (S3Object s : listObjectsV2Iterable.contents()) {
+            FileItemResult fileItemResult = new FileItemResult();
+            if (s.key().equals(fullPath)) {
+                continue;
+            }
+            fileItemResult.setName(s.key().substring(fullPath.length()));
+            fileItemResult.setSize(s.size());
+            fileItemResult.setTime(Date.from(s.lastModified()));
+            fileItemResult.setType(FileTypeEnum.FILE);
+            fileItemResult.setPath(path);
 
-        boolean isFirstWhile = true;
+            String fullPathAndName = StringUtils.concat(getCurrentUserBasePath(), path, fileItemResult.getName());
+            fileItemResult.setUrl(getDownloadUrl(fullPathAndName));
 
-        do {
-            if (!isFirstWhile) {
-                objectListing = s3Client.listNextBatchOfObjects(objectListing);
+            fileItemList.add(fileItemResult);
+        }
+
+        for (CommonPrefix commonPrefix : listObjectsV2Iterable.commonPrefixes()) {
+            String commonPrefixStr = commonPrefix.prefix();
+            FileItemResult fileItemResult = new FileItemResult();
+            fileItemResult.setName(commonPrefixStr.substring(fullPath.length(), commonPrefixStr.length() - 1));
+            String name = fileItemResult.getName();
+            if (StringUtils.isEmpty(name) || StringUtils.equals(name, StringUtils.SLASH)) {
+                continue;
             }
 
-            for (S3ObjectSummary s : objectListing.getObjectSummaries()) {
-                FileItemResult fileItemResult = new FileItemResult();
-                if (s.getKey().equals(fullPath)) {
-                    continue;
-                }
-                fileItemResult.setName(s.getKey().substring(fullPath.length()));
-                fileItemResult.setSize(s.getSize());
-                fileItemResult.setTime(s.getLastModified());
-                fileItemResult.setType(FileTypeEnum.FILE);
-                fileItemResult.setPath(path);
-
-                String fullPathAndName = StringUtils.concat(path, fileItemResult.getName());
-                fileItemResult.setUrl(getDownloadUrl(fullPathAndName));
-
-                fileItemList.add(fileItemResult);
-            }
-
-            for (String commonPrefix : objectListing.getCommonPrefixes()) {
-                FileItemResult fileItemResult = new FileItemResult();
-                fileItemResult.setName(commonPrefix.substring(fullPath.length(), commonPrefix.length() - 1));
-                String name = fileItemResult.getName();
-                if (StrUtil.isEmpty(name) || StrUtil.equals(name, StringUtils.DELIMITER_STR)) {
-                    continue;
-                }
-
-                fileItemResult.setType(FileTypeEnum.FOLDER);
-                fileItemResult.setPath(path);
-                fileItemList.add(fileItemResult);
-            }
-            isFirstWhile = false;
-        } while (objectListing.isTruncated());
+            fileItemResult.setType(FileTypeEnum.FOLDER);
+            fileItemResult.setPath(path);
+            fileItemList.add(fileItemResult);
+        }
 
         return fileItemList;
     }
 
     @Override
     public FileItemResult getFileItem(String pathAndName) {
-        String fileName = FileUtil.getName(pathAndName);
-        String parentPath = StringUtils.getParentPath(pathAndName);
+        String fileName = FileUtils.getName(pathAndName);
+        String parentPath = FileUtils.getParentPath(pathAndName);
 
-        String trimStartPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), pathAndName);
-        ObjectMetadata objectMetadata = s3Client.getObjectMetadata(param.getBucketName(), trimStartPath);
+        String trimStartPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
+        HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(param.getBucketName()).key(trimStartPath).build();
+        HeadObjectResponse headObjectResponse;
+        try {
+            headObjectResponse = s3ClientNew.headObject(headObjectRequest);
+        } catch (NoSuchKeyException e) {
+            return null;
+        }
 
         FileItemResult fileItemResult = new FileItemResult();
         fileItemResult.setName(fileName);
-        fileItemResult.setSize(objectMetadata.getInstanceLength());
-        fileItemResult.setTime(objectMetadata.getLastModified());
+        fileItemResult.setSize(headObjectResponse.contentLength());
+        fileItemResult.setTime(Date.from(headObjectResponse.lastModified()));
         fileItemResult.setType(FileTypeEnum.FILE);
         fileItemResult.setPath(parentPath);
-        fileItemResult.setUrl(getDownloadUrl(pathAndName));
+        fileItemResult.setUrl(getDownloadUrl(StringUtils.concat(getCurrentUserBasePath(), pathAndName)));
         return fileItemResult;
     }
 
     @Override
     public boolean newFolder(String path, String name) {
         name = StringUtils.trimSlashes(name);
-        String fullPath = StringUtils.concat(param.getBasePath(), path, name, ZFileConstant.PATH_SEPARATOR);
-        fullPath = StringUtils.trimStartSlashes(fullPath);
-        PutObjectRequest putObjectRequest = new PutObjectRequest(param.getBucketName(), fullPath, EMPTY_INPUT_STREAM, null);
-        PutObjectResult putObjectResult = s3Client.putObject(putObjectRequest);
-        return putObjectResult != null;
+        String fullPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), path, name, StringUtils.SLASH);
+        PutObjectResponse putObjectResponse = s3ClientNew.putObject(PutObjectRequest.builder()
+                        .bucket(param.getBucketName())
+                        .key(fullPath)
+                        .build(),
+                RequestBody.empty());
+
+        return putObjectResponse != null && putObjectResponse.sdkHttpResponse().isSuccessful();
     }
 
     @Override
     public boolean deleteFile(String path, String name) {
-        String fullPath = StringUtils.concat(param.getBasePath(), path, name);
-        fullPath = StringUtils.trimStartSlashes(fullPath);
-        s3Client.deleteObject(param.getBucketName(), fullPath);
-        return true;
+        String fullPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), path, name);
+        DeleteObjectResponse deleteObjectResponse = s3ClientNew.deleteObject(DeleteObjectRequest.builder()
+                .bucket(param.getBucketName())
+                .key(fullPath)
+                .build());
+        return deleteObjectResponse != null && deleteObjectResponse.sdkHttpResponse().isSuccessful();
     }
 
     @Override
     public boolean deleteFolder(String path, String name) {
-        String fullPath = StringUtils.concat(param.getBasePath(), path, name);
-        fullPath = StringUtils.trimStartSlashes(fullPath);
-        s3Client.deleteObject(param.getBucketName(), fullPath + '/');
-        return true;
+        return deleteFile(path, name + StringUtils.SLASH);
     }
 
     @Override
     public boolean renameFile(String path, String name, String newName) {
-        String srcPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), path, name);
-        String distPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), path, newName);
-
-        String bucketName = param.getBucketName();
-        s3Client.copyObject(bucketName, srcPath, bucketName, distPath);
-        deleteFile(path, name);
+        this.copyFile(path, name, path, newName);
+        this.deleteFile(path, name);
         return true;
     }
 
     @Override
     public boolean renameFolder(String path, String name, String newName) {
-        throw new UnsupportedOperationException("该存储类型不支持此操作");
+        throw new BizException(ErrorCode.BIZ_STORAGE_NOT_SUPPORT_OPERATION);
     }
 
     @Override
     public String getUploadUrl(String path, String name, Long size) {
+        if (param.isEnableProxyUpload()) {
+            return super.getProxyUploadUrl(path, name);
+        }
         String bucketName = param.getBucketName();
-        String uploadToPath = StringUtils.concat(param.getBasePath(), path, name);
-        uploadToPath = StringUtils.trimStartSlashes(uploadToPath);
+        String uploadToPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), path, name);
 
-        GeneratePresignedUrlRequest req =
-                new GeneratePresignedUrlRequest(bucketName, uploadToPath, HttpMethod.PUT);
-        URL url = s3Client.generatePresignedUrl(req);
+        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(uploadToPath)
+                .build();
 
-        return url.toExternalForm();
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(30))  // The URL expires in 10 minutes.
+                .putObjectRequest(objectRequest)
+                .build();
+
+
+        PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner.presignPutObject(presignRequest);
+        URL url = presignedPutObjectRequest.url();
+        String urlString = url.toExternalForm();
+
+        String contentType = parseContentTypeByName(name, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        urlString = urlString + (urlString.contains("?") ? "&" : "?") + "Content-Type=" + contentType;
+        return urlString;
+    }
+
+
+
+    @Override
+    public boolean copyFile(String path, String name, String targetPath, String targetName) {
+        String bucketName = param.getBucketName();
+
+        String srcFilePath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), path, name);
+        String distFilePath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), targetPath, targetName);
+
+        CopyObjectResponse copyObjectResponse = s3ClientNew.copyObject(CopyObjectRequest.builder()
+                .sourceBucket(bucketName)
+                .sourceKey(srcFilePath)
+                .destinationBucket(bucketName)
+                .destinationKey(distFilePath)
+                .build());
+        return copyObjectResponse != null && copyObjectResponse.sdkHttpResponse().isSuccessful();
+    }
+
+    @Override
+    public boolean copyFolder(String path, String name, String targetPath, String targetName) {
+        throw new BizException(ErrorCode.BIZ_STORAGE_NOT_SUPPORT_OPERATION);
+    }
+
+    @Override
+    public boolean moveFile(String path, String name, String targetPath, String targetName) {
+        this.copyFile(path, name, targetPath, targetName);
+        this.deleteFile(path, name);
+        return true;
+    }
+
+    @Override
+    public boolean moveFolder(String path, String name, String targetPath, String targetName) {
+        throw new BizException(ErrorCode.BIZ_STORAGE_NOT_SUPPORT_OPERATION);
     }
 
     protected void setUploadCors() {
-        if (param.isAutoConfigCors()) {
-            try {
-                // 获取历史的 CORS 规则
-                BucketCrossOriginConfiguration bucketCrossOriginConfiguration = s3Client.getBucketCrossOriginConfiguration(param.getBucketName());
-                if (bucketCrossOriginConfiguration == null) {
-                    bucketCrossOriginConfiguration = new BucketCrossOriginConfiguration();
-                }
-                List<CORSRule> corsRules = bucketCrossOriginConfiguration.getRules();
-                if (corsRules == null) {
-                    corsRules = new ArrayList<>();
-                }
-
-
-                // 当前要添加的规则
-                List<String> allowOrigins = new ArrayList<>();
-                if (StrUtil.isNotEmpty(systemConfigService.getDomain())) {
-                    allowOrigins.add(systemConfigService.getDomain());
-                }
-                if (StrUtil.isNotEmpty(systemConfigService.getFrontDomain())) {
-                    allowOrigins.add(systemConfigService.getFrontDomain());
-                }
-
-                if (allowOrigins.isEmpty()) {
-                    throw new IllegalStateException("请先在 \"站点设置\" 中配置站点域名");
-                }
-
-                // 从历史规则中查找是否已经存在, 如果存在则不添加.
-                boolean presentCorsRules = corsRules.stream().anyMatch(corsRule -> {
-                    List<String> origins = corsRule.getAllowedOrigins();
-                    return new HashSet<>(origins).containsAll(allowOrigins);
-                });
-
-                if (presentCorsRules) {
-                    log.info("存储源 {} CORS 规则已经存在，不需要重复添加", storageId);
-                    return;
-                }
-
-                CORSRule corsRule = new CORSRule();
-                corsRule.setAllowedMethods(CORSRule.AllowedMethods.PUT, CORSRule.AllowedMethods.GET);
-                corsRule.setAllowedOrigins(allowOrigins);
-                corsRules.add(corsRule);
-                bucketCrossOriginConfiguration.setRules(corsRules);
-
-                SetBucketCrossOriginConfigurationRequest setBucketCrossOriginConfigurationRequest =
-                        new SetBucketCrossOriginConfigurationRequest(param.getBucketName(), bucketCrossOriginConfiguration);
-                log.info("{} 设置 CORS 规则: [allowedMethods={}, allowOrigins={}]", getStorageSimpleInfo(), corsRule.getAllowedMethods(), corsRule.getAllowedOrigins());
-                s3Client.setBucketCrossOriginConfiguration(setBucketCrossOriginConfigurationRequest);
-            } catch (Exception e) {
-                throw new StorageSourceAutoConfigCorsException("设置跨域失败，请检查 API 密钥、地域、存储器名称是否正确，或 API 是否有权限设置跨域", e, param);
+        try {
+            List<ZFileCORSRule> zFileCORSRuleList = JSON.parseArray(param.getCorsConfigList(), ZFileCORSRule.class);
+            if (zFileCORSRuleList == null || zFileCORSRuleList.isEmpty()) {
+                return;
             }
+            Set<CORSRule> s3CORSRuleList = ZFileCORSRule.toCORSRule(zFileCORSRuleList);
+            CORSConfiguration corsConfiguration = CORSConfiguration.builder().corsRules(s3CORSRuleList).build();
+
+            s3ClientNew.putBucketCors(PutBucketCorsRequest.builder()
+                    .bucket(param.getBucketName())
+                    .corsConfiguration(corsConfiguration)
+                    .build());
+        } catch (Exception e) {
+            throw new CorsBizException("设置跨域失败, 请检查配置是否正确. 错误信息: " + e.getMessage(), e);
         }
     }
 
+
+    @Override
+    public void uploadFile(String pathAndName, InputStream inputStream) throws Exception {
+        String contentType = parseContentTypeByName(pathAndName, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+        String trimStartPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
+
+        s3ClientNew.putObject(PutObjectRequest.builder()
+                        .bucket(param.getBucketName())
+                        .key(trimStartPath)
+                        .contentType(contentType)
+                        .build(),
+                RequestBody.fromInputStream(inputStream, inputStream.available()));
+    }
+
+    @Override
+    public ResponseEntity<org.springframework.core.io.Resource> downloadToStream(String pathAndName) throws Exception {
+        String bucketName = param.getBucketName();
+        String trimStartPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), pathAndName);
+
+        HttpRange requestRange = RequestUtils.getRequestRange(RequestHolder.getRequest());
+
+        ResponseInputStream<GetObjectResponse> responseResponseInputStream = s3ClientNew.getObject(GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(trimStartPath)
+                .range(requestRange != null ? "bytes=" + requestRange.getRangeStart(Integer.MAX_VALUE) + "-" + requestRange.getRangeEnd(Integer.MAX_VALUE) : null)
+                .build());
+
+        long fileSize = Convert.toLong(responseResponseInputStream.response().contentLength());
+        String fileName = FileUtils.getName(pathAndName);
+        RequestHolder.writeFile(responseResponseInputStream, fileName, fileSize, true, param.isProxyLinkForceDownload());
+        return null;
+    }
+
+    public ClientOverrideConfiguration getClientConfiguration() {
+        return ClientOverrideConfiguration.builder()
+                .apiCallTimeout(Duration.ofSeconds(StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_SECONDS)) // 设置 API 调用超时时间
+                .apiCallAttemptTimeout(Duration.ofSeconds(StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_SECONDS)) // 设置 API 调用尝试超时时间
+                .build();
+    }
+
+    @Override
+    public StorageSourceMetadata getStorageSourceMetadata() {
+        StorageSourceMetadata storageSourceMetadata = new StorageSourceMetadata();
+        if (param.isEnableProxyUpload()) {
+            storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.PROXY);
+        } else {
+            storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.S3);
+        }
+        storageSourceMetadata.setSupportRenameFolder(false);
+        storageSourceMetadata.setSupportMoveFolder(false);
+        storageSourceMetadata.setSupportCopyFolder(false);
+        storageSourceMetadata.setSupportDeleteNotEmptyFolder(false);
+        return storageSourceMetadata;
+    }
+
+    private static String parseContentTypeByName(String pathAndName, String defaultContentType) {
+        String contentType = URLConnection.guessContentTypeFromName(pathAndName);
+        if (StringUtils.isBlank(contentType)) {
+            contentType = defaultContentType;
+        }
+        return contentType;
+    }
+
+    @Override
+    public void destroy() {
+        if (this.s3ClientNew != null) {
+            this.s3ClientNew.close();
+        }
+        if (this.s3Presigner != null) {
+            this.s3Presigner.close();
+        }
+    }
 }

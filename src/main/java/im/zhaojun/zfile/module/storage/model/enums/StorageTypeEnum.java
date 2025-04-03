@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.baomidou.mybatisplus.annotation.IEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,11 +46,11 @@ public enum StorageTypeEnum implements IEnum {
         }
     }
 
-    @ApiModelProperty(value = "存储源类型枚举 Key", example = "aliyun")
+    @Schema(name = "存储源类型枚举 Key", example = "aliyun")
     @EnumValue
     private final String key;
 
-    @ApiModelProperty(value = "存储源类型枚举描述", example = "阿里云 OSS")
+    @Schema(name = "存储源类型枚举描述", example = "阿里云 OSS")
     private final String description;
 
     StorageTypeEnum(String key, String description) {

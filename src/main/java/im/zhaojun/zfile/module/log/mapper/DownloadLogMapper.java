@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface DownloadLogMapper extends BaseMapper<DownloadLog> {
-	
+
 	/**
 	 * 根据存储源 KEY 删除所有数据
 	 *
@@ -19,5 +19,13 @@ public interface DownloadLogMapper extends BaseMapper<DownloadLog> {
 	 * 			存储源 KEY
 	 */
 	int deleteByStorageKey(String storageKey);
+
+
+	/**
+	 * 删除过期的短链下载日志
+	 *
+	 * @return	删除的行数
+	 */
+	int deleteExpireShortLinkLog();
 	
 }

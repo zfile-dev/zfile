@@ -1,1 +1,0 @@
-System.register(["./request-legacy.01567c6f.js"],(function(t){"use strict";var e;return{setters:[function(t){e=t.d}],execute:function(){t("i",(function(){return e({url:"/api/install/status",method:"get"})})),t("a",(function(t){return e({url:"/api/install",method:"post",data:t})}))}}}));

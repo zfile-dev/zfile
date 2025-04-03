@@ -1,0 +1,1 @@
+alter table "user" add salt varchar(32);

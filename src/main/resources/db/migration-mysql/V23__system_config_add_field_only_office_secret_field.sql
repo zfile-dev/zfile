@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`) VALUES ('onlyOfficeSecret', 'OnlyOffice Secret，用于生成 JWT Token');

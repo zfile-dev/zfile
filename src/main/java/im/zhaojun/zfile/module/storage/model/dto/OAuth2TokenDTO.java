@@ -1,12 +1,14 @@
 package im.zhaojun.zfile.module.storage.model.dto;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * OneDrive Token DTO
  *
  * @author zhaojun
  */
+@ToString
 @Data
 public class OAuth2TokenDTO {
     

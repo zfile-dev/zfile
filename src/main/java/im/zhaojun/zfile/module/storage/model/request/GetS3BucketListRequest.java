@@ -1,10 +1,9 @@
 package im.zhaojun.zfile.module.storage.model.request;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * 获取 S3 bucket 列表请求类
@@ -12,22 +11,22 @@ import javax.validation.constraints.NotBlank;
  * @author zhaojun
  */
 @Data
-@ApiModel(value="S3 bucket 列表请求类")
+@Schema(name="S3 bucket 列表请求类")
 public class GetS3BucketListRequest {
 
 	@NotBlank(message = "accessKey 不能为空")
-	@ApiModelProperty(value = "accessKey", required = true, example = "XQEWQJI129JAS12")
+	@Schema(name = "accessKey", requiredMode = Schema.RequiredMode.REQUIRED, example = "XQEWQJI129JAS12")
 	private String accessKey;
 
 	@NotBlank(message = "secretKey 不能为空")
-	@ApiModelProperty(value = "secretKey", required = true, example = "EWQJI129JAS11AE2")
+	@Schema(name = "secretKey", requiredMode = Schema.RequiredMode.REQUIRED, example = "EWQJI129JAS11AE2")
 	private String secretKey;
 
 	@NotBlank(message = "EndPoint 不能为空")
-	@ApiModelProperty(value = "Endpoint 接入点", required = true, example = "oss-cn-beijing.aliyuncs.com")
+	@Schema(name = "Endpoint 接入点", requiredMode = Schema.RequiredMode.REQUIRED, example = "oss-cn-beijing.aliyuncs.com")
 	private String endPoint;
 
-	@ApiModelProperty(value = "Endpoint 接入点", required = true, example = "cn-beijing")
+	@Schema(name = "Endpoint 接入点", requiredMode = Schema.RequiredMode.REQUIRED, example = "cn-beijing")
 	private String region;
 
 }

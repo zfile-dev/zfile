@@ -9,27 +9,27 @@ import lombok.Getter;
  * @author zhaojun
  */
 @Getter
-public class UpYunParam implements IStorageParam {
+public class UpYunParam extends OptionalProxyTransferParam {
 
-	@StorageParamItem(name = "存储空间名称")
+	@StorageParamItem(name = "存储空间名称", order = 1)
 	private String bucketName;
 
-	@StorageParamItem(name = "用户名")
+	@StorageParamItem(name = "用户名", order = 2)
 	private String username;
 
-	@StorageParamItem(name = "密码")
+	@StorageParamItem(name = "密码", order = 3)
 	private String password;
 
-	@StorageParamItem(name = "下载域名", description = "填写您在又拍云绑定的域名.")
+	@StorageParamItem(name = "下载域名", description = "填写您在又拍云绑定的域名.", required = false, order = 4)
 	private String domain;
 
-	@StorageParamItem(name = "基路径", defaultValue = "/", description = "基路径表示读取的根文件夹，不填写表示允许读取所有。如： '/'，'/文件夹1'")
+	@StorageParamItem(name = "基路径", defaultValue = "/", description = "基路径表示该存储源哪个目录在 ZFile 中作为根目录，如： '/'，'/文件夹1'", order = 5)
 	private String basePath;
 
-	@StorageParamItem(name = "Token", required = false, link = "https://help.upyun.com/knowledge-base/cdn-token-limite/", linkName = "官方配置文档",description = "可在又拍云后台开启 \"访问控制\" -> \"Token 防盗链\"，控制资源内容的访问时限，即时间戳防盗链。")
+	@StorageParamItem(name = "Token", required = false,
+			condition = "enableProxyDownload==false",
+			link = "https://help.upyun.com/knowledge-base/cdn-token-limite/", linkName = "官方配置文档",
+			description = "可在又拍云后台开启 \"访问控制\" -> \"Token 防盗链\"，控制资源内容的访问时限，即时间戳防盗链。", order = 6)
 	private String token;
-
-	@StorageParamItem(name = "Token 有效期", required = false, defaultValue = "1800", description = "Token (防盗链)有效期，单位为秒。")
-	private int tokenTime;
 
 }

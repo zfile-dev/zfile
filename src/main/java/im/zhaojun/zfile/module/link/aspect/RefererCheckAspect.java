@@ -1,11 +1,14 @@
 package im.zhaojun.zfile.module.link.aspect;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.module.storage.annotation.RefererCheck;
-import im.zhaojun.zfile.module.link.model.enums.RefererTypeEnum;
-import im.zhaojun.zfile.module.config.service.SystemConfigService;
+import im.zhaojun.zfile.core.util.CollectionUtils;
+import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.module.config.service.SystemConfigService;
+import im.zhaojun.zfile.module.link.model.enums.RefererTypeEnum;
+import im.zhaojun.zfile.module.storage.annotation.RefererCheck;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -14,9 +17,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
 
@@ -71,27 +71,27 @@ public class RefererCheckAspect {
 
 		// 如果 referer 不允许为空，且当前 referer 为空，则校验
 		Boolean refererAllowEmpty = systemConfig.getRefererAllowEmpty();
-		if (!refererAllowEmpty && StrUtil.isEmpty(referer)) {
+		if (!refererAllowEmpty && StringUtils.isEmpty(referer)) {
 			log.warn("请求路径 {}, referer 不允许为空，当前请求 referer 为空，禁止访问.", requestUrl);
 			httpServletResponse.sendRedirect(forbiddenUrl);
 			return null;
-		} else if (refererAllowEmpty && StrUtil.isEmpty(referer)) { // 如果 referer 允许为空，且当前 referer 为空，则跳过校验
+		} else if (refererAllowEmpty && StringUtils.isEmpty(referer)) { // 如果 referer 允许为空，且当前 referer 为空，则跳过校验
 			return point.proceed();
 		}
 
 		// 获取允许的 referer 地址
 		String refererValue = systemConfig.getRefererValue();
-		List<String> refererValueList = StrUtil.split(refererValue, '\n');
+		List<String> refererValueList = StringUtils.split(refererValue, StringUtils.LF);
 
 		// 如果是白名单模式，则校验当前 referer, 如果未在允许的列表中，则禁止访问.
-		if (refererType == RefererTypeEnum.WHITE_LIST && !containsPathMatcher(refererValueList, referer)) {
+		if (refererType == RefererTypeEnum.WHITE_LIST && containsPathMatcher(refererValueList, referer) == null) {
 			log.warn("请求路径 {}, referer 为白名单模式，当前请求 referer {} 未在白名单中，禁止访问.", requestUrl, referer);
 			httpServletResponse.sendRedirect(forbiddenUrl);
 			return null;
 		}
 
 		// 如果是黑名单模式，则校验当前 referer 是否在列表中，则禁止访问.
-		if (refererType == RefererTypeEnum.BLACK_LIST && containsPathMatcher(refererValueList, referer)) {
+		if (refererType == RefererTypeEnum.BLACK_LIST && containsPathMatcher(refererValueList, referer) != null) {
 			log.warn("请求路径 {}, referer 为黑名单模式，当前请求 referer {} 在黑名单中，禁止访问.", requestUrl, referer);
 
 			httpServletResponse.sendRedirect(forbiddenUrl);
@@ -110,20 +110,20 @@ public class RefererCheckAspect {
 	 * @param   value
 	 *          要校验的值
 	 *
-	 * @return  如果集合为空 (null 或者空), 返回 false, 否则在表达式列表中找到匹配的返回 true, 找不到返回 false.
+	 * @return  返回匹配到的规则项，如果没有匹配到，则返回 null.
 	 */
-	public boolean containsPathMatcher(Collection<String> patternList, String value) {
-		if (CollUtil.isEmpty(patternList)) {
-			return false;
+	public String containsPathMatcher(Collection<String> patternList, String value) {
+		if (CollectionUtils.isEmpty(patternList)) {
+			return null;
 		}
 
 		for (String pattern : patternList) {
 			if (pathMatcher.match(pattern, value)) {
-				return true;
+				return pattern;
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 }

@@ -2,6 +2,7 @@ package im.zhaojun.zfile.module.storage.service.base;
 
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public interface BaseFileService {
      *
      * @return  单个文件的内容.
      */
+    @Nullable
     FileItemResult getFileItem(String pathAndName);
 
     /**
@@ -213,5 +215,10 @@ public interface BaseFileService {
      * @return  存储源类型
      */
     StorageTypeEnum getStorageTypeEnum();
+
+    /**
+     * 销毁资源
+     */
+    void destroy();
 
 }

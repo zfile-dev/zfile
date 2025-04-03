@@ -1,18 +1,31 @@
 package im.zhaojun.zfile.module.storage.service.base;
 
 import cn.hutool.core.util.ObjUtil;
-import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.core.exception.file.init.InitializeStorageSourceException;
-import im.zhaojun.zfile.core.util.CodeMsg;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.biz.InitializeStorageSourceBizException;
+import im.zhaojun.zfile.core.util.StrPool;
+import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.core.util.ZFileAuthUtil;
+import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.param.IStorageParam;
+import im.zhaojun.zfile.module.storage.model.request.base.SearchStorageRequest;
+import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
+import im.zhaojun.zfile.module.user.model.entity.UserStorageSource;
+import im.zhaojun.zfile.module.user.service.UserStorageSourceService;
+import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 /**
  * @author zhaojun
  */
 @Slf4j
 public abstract class AbstractBaseFileService<P extends IStorageParam> implements BaseFileService {
+
+    @Resource
+    private UserStorageSourceService userStorageSourceService;
 
     /**
      * 存储源初始化配置
@@ -61,35 +74,32 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
      */
     public void testConnection() {
         try {
-            fileList("/");
+            fileList(StringUtils.SLASH);
             isInitialized = true;
         } catch (Exception e) {
-            throw new InitializeStorageSourceException(CodeMsg.STORAGE_SOURCE_INIT_FAIL, storageId, "初始化异常, 错误信息为: " + e.getMessage(), e).setResponseExceptionMessage(true);
+            throw new InitializeStorageSourceBizException(ErrorCode.BIZ_STORAGE_INIT_ERROR.getCode(), "初始化异常, 错误信息为: " + e.getMessage(), storageId, e);
         }
     }
 
     String getStorageSimpleInfo() {
-        return StrUtil.format("存储源 [id={}, name={}, type: {}]", storageId, name, getStorageTypeEnum().getDescription());
+        return String.format("存储源 [id=%s, name=%s, type: %s]", storageId, name, getStorageTypeEnum().getDescription());
     }
+
+
+    public abstract StorageSourceMetadata getStorageSourceMetadata();
+
+    public String getCurrentUserBasePath() {
+        UserStorageSource userStorageSource = userStorageSourceService.getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
+        if (userStorageSource == null || StringUtils.isEmpty(userStorageSource.getRootPath())) {
+            return StrPool.SLASH;
+        } else {
+            return userStorageSource.getRootPath();
+        }
+    }
+
 
     @Override
-    public boolean copyFile(String path, String name, String targetPath, String targetName) {
-        return false;
-    }
+    public void destroy() {
 
-    @Override
-    public boolean copyFolder(String path, String name, String targetPath, String targetName) {
-        return false;
     }
-
-    @Override
-    public boolean moveFile(String path, String name, String targetPath, String targetName) {
-        return false;
-    }
-
-    @Override
-    public boolean moveFolder(String path, String name, String targetPath, String targetName) {
-        return false;
-    }
-
 }

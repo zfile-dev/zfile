@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -20,9 +20,6 @@ import java.util.Map;
 @Slf4j
 public class AccessTokenRefreshSchedule {
 
-	@Resource
-	private StorageSourceContext storageSourceContext;
-
 	/**
 	 * 项目启动 30 秒后, 每 10 分钟执行一次刷新 OneDrive Token 的定时任务.
 	 */
@@ -30,7 +27,7 @@ public class AccessTokenRefreshSchedule {
 	public void autoRefreshAccessToken() {
 		log.info("开始执行需要定期刷新 AccessToken 存储源的定时任务");
 
-		Map<Integer, RefreshTokenService> refreshTokenServiceMap = storageSourceContext.getAllRefreshTokenStorageSource();
+		Map<Integer, RefreshTokenService> refreshTokenServiceMap = StorageSourceContext.getAllRefreshTokenStorageSource();
 
 		for (Map.Entry<Integer, RefreshTokenService> refreshTokenServiceEntry : refreshTokenServiceMap.entrySet()) {
 			Integer storageId = refreshTokenServiceEntry.getKey();

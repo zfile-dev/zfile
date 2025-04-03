@@ -34,7 +34,7 @@ public class GoogleDriveParam extends ProxyTransferParam {
 	@StorageParamItem(name = "网盘", order = 6, required = false)
 	private String driveId;
 
-	@StorageParamItem(name = "基路径", defaultValue = "/", order = 7, description = "基路径表示读取的根文件夹，不填写表示允许读取所有。如： '/'，'/文件夹1'")
+	@StorageParamItem(name = "基路径", defaultValue = "/", order = 7, description = "基路径表示该存储源哪个目录在 ZFile 中作为根目录，如： '/'，'/文件夹1'")
 	private String basePath;
 
 	@StorageParamItem(name = "加速域名", required = false, description = "可使用 cf worker index 程序的链接，会使用 cf 中转下载，教程自行查询. 不填写则使用服务器中转下载.")

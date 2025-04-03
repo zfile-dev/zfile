@@ -1,26 +1,30 @@
 package im.zhaojun.zfile.module.readme.service;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
+import im.zhaojun.zfile.core.util.CollectionUtils;
 import im.zhaojun.zfile.core.util.HttpUtil;
 import im.zhaojun.zfile.core.util.PatternMatcherUtils;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.readme.mapper.ReadmeConfigMapper;
 import im.zhaojun.zfile.module.readme.model.entity.ReadmeConfig;
 import im.zhaojun.zfile.module.readme.model.enums.ReadmeDisplayModeEnum;
+import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
+import im.zhaojun.zfile.module.storage.event.StorageSourceCopyEvent;
+import im.zhaojun.zfile.module.storage.event.StorageSourceDeleteEvent;
 import im.zhaojun.zfile.module.storage.model.param.IStorageParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.aop.framework.AopContext;
+import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -35,12 +39,6 @@ public class ReadmeConfigService {
 
 	@Resource
 	private ReadmeConfigMapper readmeConfigMapper;
-	
-	@Resource
-	private ReadmeConfigService readmeConfigService;
-	
-	@Resource
-	private StorageSourceContext storageSourceContext;
 
 	/**
 	 * 根据存储源 ID 查询文档配置
@@ -50,7 +48,8 @@ public class ReadmeConfigService {
 	 *
 	 * @return  存储源文档配置列表
 	 */
-	@Cacheable(key = "#storageId")
+	@Cacheable(key = "#storageId",
+				condition = "#storageId != null")
 	public List<ReadmeConfig> findByStorageId(Integer storageId){
 		return readmeConfigMapper.findByStorageId(storageId);
 	}
@@ -67,14 +66,15 @@ public class ReadmeConfigService {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public void batchSave(Integer storageId, List<ReadmeConfig> readmeConfigList) {
-		readmeConfigService.deleteByStorageId(storageId);
-		
+		((ReadmeConfigService) AopContext.currentProxy()).deleteByStorageId(storageId);
+
 		log.info("更新存储源 ID 为 {} 的目录文档配置 {} 条", storageId, readmeConfigList.size());
-		
+
 		readmeConfigList.forEach(readmeConfig -> {
+			readmeConfig.setId(null);
 			readmeConfig.setStorageId(storageId);
 			readmeConfigMapper.insert(readmeConfig);
-			
+
 			if (log.isDebugEnabled()) {
 				log.debug("新增目录文档, 存储源 ID: {}, 表达式: {}, 描述: {}, 显示模式: {}",
 						readmeConfig.getStorageId(), readmeConfig.getExpression(),
@@ -82,8 +82,8 @@ public class ReadmeConfigService {
 			}
 		});
 	}
-	
-	
+
+
 	/**
 	 * 根据存储源 ID 删除存储源 readme 配置
 	 *
@@ -97,6 +97,24 @@ public class ReadmeConfigService {
 		return deleteSize;
 	}
 
+	/**
+	 * 监听存储源删除事件，根据存储源 id 删除相关的目录文档设置
+	 *
+	 * @param   storageSourceDeleteEvent
+	 *          存储源删除事件
+	 */
+	@EventListener
+	public void onStorageSourceDelete(StorageSourceDeleteEvent storageSourceDeleteEvent) {
+		Integer storageId = storageSourceDeleteEvent.getId();
+		int updateRows = ((ReadmeConfigService) AopContext.currentProxy()).deleteByStorageId(storageId);
+		if (log.isDebugEnabled()) {
+			log.debug("删除存储源 [id {}, name: {}, type: {}] 时，关联删除存储源目录文档设置 {} 条",
+					storageId,
+					storageSourceDeleteEvent.getName(),
+					storageSourceDeleteEvent.getType().getDescription(),
+					updateRows);
+		}
+	}
 
 	/**
 	 * 根据存储源指定路径下的 readme 配置
@@ -110,11 +128,11 @@ public class ReadmeConfigService {
 	 * @return  存储源 readme 配置列表
 	 */
 	public ReadmeConfig findReadmeByPath(Integer storageId, String path) {
-		List<ReadmeConfig> readmeConfigList = readmeConfigService.findByStorageId(storageId);
+		List<ReadmeConfig> readmeConfigList = ((ReadmeConfigService) AopContext.currentProxy()).findByStorageId(storageId);
 		return getReadmeByTestPattern(storageId, readmeConfigList, path);
 	}
-	
-	
+
+
 	/**
 	 * 根据存储源指定路径下的 readme 配置，如果指定为兼容模式，则会读取指定目录下的 readme.md 文件.
 	 *
@@ -133,10 +151,10 @@ public class ReadmeConfigService {
 		ReadmeConfig readmeByPath = new ReadmeConfig();
 		readmeByPath.setStorageId(storageId);
 		readmeByPath.setDisplayMode(ReadmeDisplayModeEnum.BOTTOM);
-		if (BooleanUtil.isTrue(compatibilityReadme)) {
+		if (BooleanUtils.isTrue(compatibilityReadme)) {
 			try {
 				log.info("存储源 {} 兼容获取目录 {} 下的 readme.md", storageId, path);
-				AbstractBaseFileService<IStorageParam> abstractBaseFileService = storageSourceContext.getByStorageId(storageId);
+				AbstractBaseFileService<IStorageParam> abstractBaseFileService = StorageSourceContext.getByStorageId(storageId);
 				String pathAndName = StringUtils.concat(path, "readme.md");
 				FileItemResult fileItem = abstractBaseFileService.getFileItem(pathAndName);
 				if (fileItem != null) {
@@ -149,16 +167,16 @@ public class ReadmeConfigService {
 			}
 		} else {
 			// 获取指定目录 readme 文件
-			ReadmeConfig dbReadmeConfig = readmeConfigService.findReadmeByPath(storageId, path);
+			ReadmeConfig dbReadmeConfig = ((ReadmeConfigService) AopContext.currentProxy()).findReadmeByPath(storageId, path);
 			if (dbReadmeConfig != null) {
 				readmeByPath = dbReadmeConfig;
 			}
 			log.info("存储源 {} 规则模式获取目录 {} 下文档信息", storageId, path);
 		}
-		
+
 		return readmeByPath;
 	}
-	
+
 
 	/**
 	 * 根据规则表达式和测试字符串进行匹配，如测试字符串和其中一个规则匹配上，则返回 true，反之返回 false。
@@ -173,32 +191,32 @@ public class ReadmeConfigService {
 	 */
 	private ReadmeConfig getReadmeByTestPattern(Integer storageId, List<ReadmeConfig> patternList, String test) {
 		// 如果目录文档规则为空, 则可直接返回空.
-		if (CollUtil.isEmpty(patternList)) {
+		if (CollectionUtils.isEmpty(patternList)) {
 			if (log.isDebugEnabled()) {
 				log.debug("目录文档规则列表为空, 存储源 ID: {}, 测试字符串: {}", storageId, test);
 			}
 			return null;
 		}
-		
-		for (ReadmeConfig filterConfig : patternList) {
-			String expression = filterConfig.getExpression();
-			
-			if (StrUtil.isEmpty(expression)) {
+
+		for (ReadmeConfig readmeConfig : patternList) {
+			String expression = readmeConfig.getExpression();
+
+			if (StringUtils.isEmpty(expression)) {
 				if (log.isDebugEnabled()) {
 					log.debug("存储源 {} 目录文档规则表达式为空: {}, 测试字符串: {}, 表达式为空，跳过该规则比对", storageId, expression, test);
 				}
 				continue;
 			}
-			
+
 			try {
 				boolean match = PatternMatcherUtils.testCompatibilityGlobPattern(expression, test);
-				
+
 				if (log.isDebugEnabled()) {
 					log.debug("存储源 {} 目录文档规则表达式: {}, 测试字符串: {}, 匹配结果: {}", storageId, expression, test, match);
 				}
-				
+
 				if (match) {
-					return filterConfig;
+					return readmeConfig;
 				}
 			} catch (Exception e) {
 				log.error("存储源 {} 目录文档规则表达式: {}, 测试字符串: {}, 匹配异常，跳过该规则.", storageId, expression, test, e);
@@ -207,6 +225,30 @@ public class ReadmeConfigService {
 
 		return null;
 	}
-	
+
+
+	/**
+	 * 监听存储源复制事件, 复制存储源时, 复制存储源目录文档设置
+	 *
+	 * @param   storageSourceCopyEvent
+	 *          存储源复制事件
+	 */
+	@EventListener
+	public void onStorageSourceCopy(StorageSourceCopyEvent storageSourceCopyEvent) {
+		Integer fromId = storageSourceCopyEvent.getFromId();
+		Integer newId = storageSourceCopyEvent.getNewId();
+
+		List<ReadmeConfig> readmeConfigList = ((ReadmeConfigService) AopContext.currentProxy()).findByStorageId(fromId);
+
+		readmeConfigList.forEach(readmeConfig -> {
+			ReadmeConfig newReadmeConfig = new ReadmeConfig();
+			BeanUtils.copyProperties(readmeConfig, newReadmeConfig);
+			newReadmeConfig.setId(null);
+			newReadmeConfig.setStorageId(newId);
+			readmeConfigMapper.insert(newReadmeConfig);
+		});
+
+		log.info("复制存储源 ID 为 {} 的存储源目录文档设置到存储源 ID 为 {} 成功, 共 {} 条", fromId, newId, readmeConfigList.size());
+	}
 
 }

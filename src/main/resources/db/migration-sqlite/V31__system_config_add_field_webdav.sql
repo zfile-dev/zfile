@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('webdavAllowAnonymous', '是否允许匿名访问', 'false');

@@ -1,9 +1,6 @@
 package im.zhaojun.zfile.module.storage.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * 检查文件夹密码规则的注解, 判断是否有权限访问文件夹
@@ -12,6 +9,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
+@Repeatable(CheckPasswords.class)
 public @interface CheckPassword {
 	
 	/**

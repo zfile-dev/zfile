@@ -1,0 +1,1 @@
+delete from system_config where name = 'domain';

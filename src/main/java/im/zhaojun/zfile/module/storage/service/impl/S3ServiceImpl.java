@@ -1,10 +1,7 @@
 package im.zhaojun.zfile.module.storage.service.impl;
 
-import cn.hutool.core.util.StrUtil;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.core.util.UrlUtils;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.S3Param;
 import im.zhaojun.zfile.module.storage.service.base.AbstractS3BaseFileService;
@@ -12,6 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
+import java.net.URI;
 
 /**
  * @author zhaojun
@@ -23,20 +27,38 @@ public class S3ServiceImpl extends AbstractS3BaseFileService<S3Param> {
 
     @Override
     public void init() {
+        String endPoint = param.getEndPoint();
+        String endPointScheme = param.getEndPointScheme();
+        // 如果 endPoint 不包含协议部分, 且配置了 endPointScheme, 则手动拼接协议部分.
+        if (!UrlUtils.hasScheme(endPoint) && StringUtils.isNotBlank(endPointScheme)) {
+            endPoint = endPointScheme + "://" + endPoint;
+        }
+
         boolean isPathStyle = "path-style".equals(param.getPathStyle());
         String region = param.getRegion();
-        if (StrUtil.isEmpty(param.getRegion()) && StrUtil.isNotEmpty(param.getEndPoint())) {
-            region = param.getEndPoint().split("\\.")[1];
+        if (StringUtils.isEmpty(param.getRegion()) && StringUtils.isNotEmpty(endPoint)) {
+            region = endPoint.split("\\.")[1];
         }
-        BasicAWSCredentials credentials = new BasicAWSCredentials(param.getAccessKey(), param.getSecretKey());
-        s3Client = AmazonS3ClientBuilder.standard()
-                .withPathStyleAccessEnabled(isPathStyle)
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(param.getEndPoint(), region)).build();
 
-        if (param.isAutoConfigCors()) {
-            setUploadCors();
-        }
+        Region oss = Region.of(region);
+        URI endpointOverride = URI.create(endPoint);
+        StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(AwsBasicCredentials.create(param.getAccessKey(), param.getSecretKey()));
+
+        super.s3ClientNew = S3Client.builder()
+                .overrideConfiguration(getClientConfiguration())
+                .forcePathStyle(isPathStyle)
+                .region(oss)
+                .endpointOverride(endpointOverride)
+                .credentialsProvider(credentialsProvider)
+                .build();
+
+        super.s3Presigner = S3Presigner.builder()
+                .region(oss)
+                .endpointOverride(endpointOverride)
+                .credentialsProvider(credentialsProvider)
+                .build();
+
+        setUploadCors();
     }
 
     @Override

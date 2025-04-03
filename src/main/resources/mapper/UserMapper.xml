@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.zfile.module.user.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="im.zhaojun.zfile.module.user.model.entity.User">
+    <!--@mbg.generated-->
+    <!--@Table "user"-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="salt" jdbcType="VARCHAR" property="salt" />
+    <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="default_permissions" jdbcType="VARCHAR" property="defaultPermissions" typeHandler="im.zhaojun.zfile.core.config.mybatis.CollectionStrTypeHandler" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, `username`, `nickname`, `password`, salt, `enable`, create_time, update_time, default_permissions
+  </sql>
+
+  <select id="findIdByUsername" resultType="int">
+    select
+         id
+    from
+        user
+    where
+        username = #{username}
+  </select>
+
+  <select id="countByUsername" resultType="int">
+    select count(1)
+    from user
+    where username = #{username}
+    <if test="ignoreId != null">
+      and id != #{ignoreId}
+    </if>
+  </select>
+
+  <update id="updateUserNameAndPwdById">
+    update
+        user
+    set
+        username = #{username},
+        password = #{password}
+    where
+        id = #{id}
+  </update>
+</mapper>

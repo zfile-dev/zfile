@@ -1,9 +1,8 @@
 package im.zhaojun.zfile.module.storage.model.bo;
 
+import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.storage.annotation.StorageParamSelectOption;
 import im.zhaojun.zfile.module.storage.model.enums.StorageParamTypeEnum;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
@@ -15,8 +14,6 @@ import java.util.List;
  * @author zhaojun
  */
 @Data
-@AllArgsConstructor
-@Builder
 public class StorageSourceParamDef {
 
 	/**
@@ -60,6 +57,11 @@ public class StorageSourceParamDef {
 	private String linkName;
 
 	/**
+	 * 是否是 pro 功能
+	 */
+	private boolean pro;
+
+	/**
 	 * 字段类型, 默认为 input, 可选值为: input, select, switch.
 	 */
 	private StorageParamTypeEnum type;
@@ -68,6 +70,16 @@ public class StorageSourceParamDef {
 	 * 当 {@link #type} 为 select 时, 选项的值.
 	 */
 	private List<Options> options;
+
+	/**
+	 * 当 {@link #type} 为 select 时, 是否允许用户创建选项.
+	 */
+	private boolean optionAllowCreate;
+
+	/**
+	 * 判断条件表达式，表达式结果为 true 时才显示该字段
+	 */
+	private String condition;
 
 	@Getter
 	public static class Options {
@@ -86,8 +98,8 @@ public class StorageSourceParamDef {
 			this.value = value;
 		}
 		public Options(StorageParamSelectOption storageParamSelectOption) {
-			this.label = storageParamSelectOption.label();
 			this.value = storageParamSelectOption.value();
+			this.label = StringUtils.firstNonNull(storageParamSelectOption.label(), storageParamSelectOption.value());
 		}
 
 	}

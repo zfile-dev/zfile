@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('loginLogMode', '登录日志模式', 'all');

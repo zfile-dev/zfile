@@ -1,16 +1,12 @@
 package im.zhaojun.zfile.module.storage.chain;
 
-import im.zhaojun.zfile.module.storage.chain.command.FileAccessPermissionVerifyCommand;
-import im.zhaojun.zfile.module.storage.chain.command.FileHiddenCommand;
-import im.zhaojun.zfile.module.storage.chain.command.FileSortCommand;
-import im.zhaojun.zfile.module.storage.chain.command.FileUrlAddVersionCommand;
-import im.zhaojun.zfile.module.storage.chain.command.FolderPasswordVerifyCommand;
+import im.zhaojun.zfile.module.storage.chain.command.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.chain.impl.ChainBase;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 
 /**
  * 文件处理责任链定义
@@ -34,7 +30,7 @@ public class FileChain extends ChainBase {
 	private FileSortCommand fileSortCommand;
 
 	@Resource
-	private FileUrlAddVersionCommand fileUrlAddVersionCommand;
+	private FileDownloadPermissionCommand fileDownloadPermissionCommand;
 
 	/**
 	 * 初始化责任链
@@ -45,7 +41,7 @@ public class FileChain extends ChainBase {
 		this.addCommand(folderPasswordVerifyCommand);
 		this.addCommand(fileHiddenCommand);
 		this.addCommand(fileSortCommand);
-		this.addCommand(fileUrlAddVersionCommand);
+		this.addCommand(fileDownloadPermissionCommand);
 	}
 
 	/**

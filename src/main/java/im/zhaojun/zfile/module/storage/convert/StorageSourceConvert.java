@@ -10,6 +10,7 @@ import im.zhaojun.zfile.module.storage.model.result.StorageSourceResult;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.List;
  * @author zhaojun
  */
 @Component
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface StorageSourceConvert {
 
 
@@ -44,7 +45,6 @@ public interface StorageSourceConvert {
 	 * @return  StorageSourceConfigResult 实体
 	 */
 	@Mapping(source = "readmeConfig.displayMode", target = "readmeDisplayMode")
-	@Mapping(source = "storageSource.allowOperator", target = "enableFileOperator")
 	StorageSourceConfigResult entityToConfigResult(StorageSource storageSource, ReadmeConfig readmeConfig);
 
 

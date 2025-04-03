@@ -1,8 +1,7 @@
 package im.zhaojun.zfile.module.config.model.request;
 
-import im.zhaojun.zfile.module.login.model.enums.LoginVerifyModeEnum;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import im.zhaojun.zfile.module.user.model.enums.LoginLogModeEnum;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -11,16 +10,25 @@ import lombok.Data;
  * @author zhaojun
  */
 @Data
-@ApiModel(description = "登陆安全设置请求参数类")
+@Schema(description = "登陆安全设置请求参数类")
 public class UpdateSecuritySettingRequest {
 
-	@ApiModelProperty(value = "是否在前台显示登陆按钮", example = "true")
+	@Schema(name = "是否在前台显示登陆按钮", example = "true")
 	private Boolean showLogin;
 
-	@ApiModelProperty(value = "登陆验证方式，支持验证码和 2FA 认证")
-	private LoginVerifyModeEnum loginVerifyMode;
+	@Schema(name = "登录日志模式", example = "all")
+	private LoginLogModeEnum loginLogMode;
 
-	@ApiModelProperty(value = "登陆验证 Secret")
+	@Schema(name = "是否启用登陆验证码", example = "true")
+	private Boolean loginImgVerify;
+
+	@Schema(name = "是否为管理员启用双因素认证", example = "true")
+	private Boolean adminTwoFactorVerify;
+
+	@Schema(name = "2FA登陆验证 Secret")
 	private String loginVerifySecret;
+
+	@Schema(name = "匿名用户首页显示内容")
+	private String guestIndexHtml;
 
 }

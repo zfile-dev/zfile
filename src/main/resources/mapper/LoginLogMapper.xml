@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.zfile.module.log.mapper.LoginLogMapper">
+  <resultMap id="BaseResultMap" type="im.zhaojun.zfile.module.log.model.entity.LoginLog">
+    <!--@mbg.generated-->
+    <!--@Table login_log-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="user_agent" jdbcType="VARCHAR" property="userAgent" />
+    <result column="referer" jdbcType="VARCHAR" property="referer" />
+    <result column="result" jdbcType="VARCHAR" property="result" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, `username`, `password`, `create_time`, `ip`, `user_agent`, `referer`, `result`
+  </sql>
+</mapper>

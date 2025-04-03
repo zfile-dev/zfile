@@ -4,29 +4,58 @@
 
     <groupId>im.zhaojun</groupId>
     <artifactId>zfile</artifactId>
-    <version>4.1.5</version>
+    <version>4.2.0</version>
     <name>zfile</name>
-    <packaging>${packaging}</packaging>
+    <packaging>jar</packaging>
     <description>一个在线的文件浏览系统</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.12</version>
+        <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <properties>
-        <java.version>1.8</java.version>
+        <skipTests>true</skipTests>
+
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <jackson-bom.version>2.14.1</jackson-bom.version>
-        <sqlite-jdbc.version>3.41.2.2</sqlite-jdbc.version>
-        <packaging>jar</packaging>
+        <sqlite-jdbc.version>3.46.0.1</sqlite-jdbc.version>
+        <flyway.version>10.12.0</flyway.version>
+
+        <lombok.version>1.18.32</lombok.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.24.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <!-- spring boot 官方相关 -->
+        <!--         spring boot 官方相关-->
+        <dependency>
+            <groupId>org.graalvm.sdk</groupId>
+            <artifactId>graal-sdk</artifactId>
+            <version>24.1.0</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -35,10 +64,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -53,12 +87,10 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-
         <!-- 数据库相关 -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -68,12 +100,18 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>7.15.0</version>
+            <version>${flyway.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.3.1</version>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.6</version>
         </dependency>
 
 
@@ -83,10 +121,10 @@
             <artifactId>java-sdk</artifactId>
             <version>4.2.3</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/s3 -->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.470</version>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
         </dependency>
         <dependency>
             <groupId>com.qiniu</groupId>
@@ -94,53 +132,86 @@
             <version>7.12.1</version>
         </dependency>
         <dependency>
-            <groupId>com.jcraft</groupId>
+            <groupId>com.github.mwiede</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.55</version>
+            <version>0.2.20</version>
         </dependency>
         <dependency>
             <groupId>com.github.lookfirst</groupId>
             <artifactId>sardine</artifactId>
-            <version>5.10</version>
+            <version>5.12</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.35.2</version>
+        </dependency>
 
         <!-- 登陆/权限相关 -->
         <dependency>
             <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-spring-boot-starter</artifactId>
-            <version>1.34.0.temp1</version>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
+            <version>1.38.0</version>
         </dependency>
 
 
         <!-- 文档相关 -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-spring-boot-starter</artifactId>
-            <version>3.0.3</version>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <version>4.5.0</version>
         </dependency>
 
-
         <!-- 工具类 -->
+        <!--        <dependency>-->
+        <!--            <groupId>com.hierynomus</groupId>-->
+        <!--            <artifactId>sshj</artifactId>-->
+        <!--            <version>0.38.0</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>5.8.18</version>
+            <version>5.8.28</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-compress</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.26.2</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>3.9.0</version>
+            <version>3.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -154,7 +225,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>30.1.1-jre</version>
+            <version>33.2.0-jre</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -168,7 +239,7 @@
         </dependency>
         <dependency>
             <groupId>dev.samstevens.totp</groupId>
-            <artifactId>totp-spring-boot-starter</artifactId>
+            <artifactId>totp</artifactId>
             <version>1.7.1</version>
         </dependency>
         <dependency>
@@ -179,12 +250,16 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20230227</version>
+            <version>20231013</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -206,8 +281,15 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dns-cache-manipulator</artifactId>
-            <version>1.8.1</version>
+            <version>1.8.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.6.3</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -215,21 +297,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>21</source>
+                    <target>21</target>
                     <encoding>UTF-8</encoding>
                     <annotationProcessorPaths>
                         <path>
@@ -240,7 +314,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.16</version>
+                            <version>1.18.32</version>
                         </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -257,50 +331,48 @@
         </plugins>
     </build>
 
+
     <profiles>
         <profile>
-            <id>enable-war-packaging</id>
-            <activation>
-                <property>
-                    <name>packaging</name>
-                    <value>war</value>
-                </property>
-            </activation>
+            <id>native</id>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>com.uyoqu.framework</groupId>
-                        <artifactId>maven-plugin-starter</artifactId>
-                        <version>1.0.0</version>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>
                         <executions>
                             <execution>
-                                <phase>package</phase>
+                                <id>build-native</id>
                                 <goals>
-                                    <goal>bin</goal>
+                                    <goal>compile-no-fork</goal>
                                 </goals>
-                                <configuration>
-                                    <jvms>
-                                        <jvm>-Djava.security.egd=file:/dev/./urandom</jvm>
-                                        <jvm>-Dfile.encoding=utf-8</jvm>
-                                        <jvm>-Djava.net.preferIPv4Stack=false</jvm>
-                                        <jvm>-Djava.net.preferIPv4Addresses=true</jvm>
-                                        <jvm>-Djava.awt.headless=true</jvm>
-                                    </jvms>
-                                </configuration>
+                                <phase>package</phase>
                             </execution>
                         </executions>
+                        <configuration>
+                            <fallback>false</fallback>
+                            <imageName>${project.name}</imageName>
+                            <metadataRepository>
+                                <enabled>true</enabled>
+                            </metadataRepository>
+                            <jvmArgs>
+                                <jvmArg>--add-opens=java.base/java.net=ALL-UNNAMED</jvmArg>
+                                <jvmArg>--add-opens=java.base/sun.net=ALL-UNNAMED</jvmArg>
+                            </jvmArgs>
+                            <buildArgs>
+                                <arg>
+                                    -march=compatibility
+                                    -H:+AddAllCharsets
+                                    --features=im.zhaojun.zfile.aot.LambdaRegistrationFeature
+                                    --features=im.zhaojun.zfile.aot.BouncyCastleFeature
+                                    --features=im.zhaojun.zfile.aot.SQLiteNativeConfiguration
+                                </arg>
+                            </buildArgs>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>enable-jar-packaging</id>
-            <activation>
-                <property>
-                    <name>packaging</name>
-                    <value>jar</value>
-                </property>
-            </activation>
         </profile>
     </profiles>
 

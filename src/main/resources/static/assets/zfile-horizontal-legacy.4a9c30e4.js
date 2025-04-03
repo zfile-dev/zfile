@@ -1,1 +1,0 @@
-System.register([],(function(e){"use strict";return{execute:function(){var t=e("a","/assets/zfile-horizontal.abd5aec9.svg"),r=Object.freeze(Object.defineProperty({__proto__:null,default:t},Symbol.toStringTag,{value:"Module"}));e("_",r)}}}));

@@ -1,15 +1,9 @@
 package im.zhaojun.zfile.core.util;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
  
 /**
  * 配置文件或模板中的占位符替换工具类
@@ -23,6 +17,7 @@ public class PlaceholderUtils {
      * Prefix for system property placeholders: "${"
      */
     public static final String PLACEHOLDER_PREFIX = "${";
+
     /**
      * Suffix for system property placeholders: "}"
      */
@@ -31,7 +26,7 @@ public class PlaceholderUtils {
 
     /**
      * 解析占位符, 将指定的占位符替换为指定的值. 变量值从 Spring 环境中获取, 如没取到, 则默认为空.
-     *
+     * <br>
      * 必须在 Spring 环境下使用, 否则会抛出异常.
      *
      *
@@ -42,7 +37,7 @@ public class PlaceholderUtils {
      */
     public static String resolvePlaceholdersBySpringProperties(String formatStr) {
         String placeholderName = getFirstPlaceholderName(formatStr);
-        if (StrUtil.isEmpty(placeholderName)) {
+        if (StringUtils.isEmpty(placeholderName)) {
             return formatStr;
         }
 
@@ -68,17 +63,17 @@ public class PlaceholderUtils {
         if (parameter == null || parameter.isEmpty()) {
             return formatStr;
         }
-        StringBuffer buf = new StringBuffer(formatStr);
-        int startIndex = buf.indexOf(PLACEHOLDER_PREFIX);
+        StringBuilder sb = new StringBuilder(formatStr);
+        int startIndex = sb.indexOf(PLACEHOLDER_PREFIX);
         while (startIndex != -1) {
-            int endIndex = buf.indexOf(PLACEHOLDER_SUFFIX, startIndex + PLACEHOLDER_PREFIX.length());
+            int endIndex = sb.indexOf(PLACEHOLDER_SUFFIX, startIndex + PLACEHOLDER_PREFIX.length());
             if (endIndex != -1) {
-                String placeholder = buf.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
+                String placeholder = sb.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
                 int nextIndex = endIndex + PLACEHOLDER_SUFFIX.length();
                 try {
                     String propVal = parameter.get(placeholder);
                     if (propVal != null) {
-                        buf.replace(startIndex, endIndex + PLACEHOLDER_SUFFIX.length(), propVal);
+                        sb.replace(startIndex, endIndex + PLACEHOLDER_SUFFIX.length(), propVal);
                         nextIndex = startIndex + propVal.length();
                     } else {
                         log.warn("Could not resolve placeholder '{}' in [{}] ", placeholder, formatStr);
@@ -86,12 +81,12 @@ public class PlaceholderUtils {
                 } catch (Exception ex) {
                     log.error("Could not resolve placeholder '{}' in [{}]: ", placeholder, formatStr, ex);
                 }
-                startIndex = buf.indexOf(PLACEHOLDER_PREFIX, nextIndex);
+                startIndex = sb.indexOf(PLACEHOLDER_PREFIX, nextIndex);
             } else {
                 startIndex = -1;
             }
         }
-        return buf.toString();
+        return sb.toString();
     }
 
 
@@ -105,8 +100,8 @@ public class PlaceholderUtils {
      */
     public static String getFirstPlaceholderName(String formatStr) {
         List<String> list = getPlaceholderNames(formatStr);
-        if (CollUtil.isNotEmpty(list)) {
-            return list.get(0);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.getFirst();
         }
         return null;
     }
@@ -121,20 +116,20 @@ public class PlaceholderUtils {
      * @return  占位符名称
      */
     public static List<String> getPlaceholderNames(String formatStr) {
-        if (StrUtil.isEmpty(formatStr)) {
+        if (StringUtils.isEmpty(formatStr)) {
             return Collections.emptyList();
         }
 
         List<String> placeholderNameList = new ArrayList<>();
 
-        StringBuffer buf = new StringBuffer(formatStr);
-        int startIndex = buf.indexOf(PLACEHOLDER_PREFIX);
+        StringBuilder sb = new StringBuilder(formatStr);
+        int startIndex = sb.indexOf(PLACEHOLDER_PREFIX);
         while (startIndex != -1) {
-            int endIndex = buf.indexOf(PLACEHOLDER_SUFFIX, startIndex + PLACEHOLDER_PREFIX.length());
+            int endIndex = sb.indexOf(PLACEHOLDER_SUFFIX, startIndex + PLACEHOLDER_PREFIX.length());
             if (endIndex != -1) {
-                String placeholder = buf.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
+                String placeholder = sb.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
                 int nextIndex = endIndex + PLACEHOLDER_SUFFIX.length();
-                startIndex = buf.indexOf(PLACEHOLDER_PREFIX, nextIndex);
+                startIndex = sb.indexOf(PLACEHOLDER_PREFIX, nextIndex);
                 placeholderNameList.add(placeholder);
             } else {
                 startIndex = -1;

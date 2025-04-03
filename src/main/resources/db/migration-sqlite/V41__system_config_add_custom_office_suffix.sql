@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('customOfficeSuffix', 'Office 预览类型', 'doc,docx,csv,xls,xlsx,ppt,pptx,xlsm');

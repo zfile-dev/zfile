@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.zfile.module.permission.mapper.PermissionConfigMapper">
+  <resultMap id="BaseResultMap" type="im.zhaojun.zfile.module.permission.model.entity.PermissionConfig">
+    <!--@mbg.generated-->
+    <!--@Table `permission_config`-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="operator" jdbcType="VARCHAR" property="operator" />
+    <result column="allow_admin" jdbcType="BIT" property="allowAdmin" />
+    <result column="allow_anonymous" jdbcType="BIT" property="allowAnonymous" />
+    <result column="storage_id" jdbcType="INTEGER" property="storageId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    `id`, `operator`, `allow_admin`, `allow_anonymous`, `storage_id`
+  </sql>
+
+  <select id="findByStorageId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from permission_config
+    where storage_id=#{storageId,jdbcType=INTEGER}
+  </select>
+
+  <delete id="deleteByStorageId">
+    delete from permission_config
+    where storage_id=#{storageId,jdbcType=INTEGER}
+  </delete>
+
+</mapper>

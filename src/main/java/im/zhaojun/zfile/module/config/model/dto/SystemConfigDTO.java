@@ -1,12 +1,17 @@
 package im.zhaojun.zfile.module.config.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import im.zhaojun.zfile.module.config.annotation.JSONStringParse;
 import im.zhaojun.zfile.module.config.model.enums.FileClickModeEnum;
-import im.zhaojun.zfile.module.login.model.enums.LoginVerifyModeEnum;
 import im.zhaojun.zfile.module.link.model.enums.RefererTypeEnum;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import im.zhaojun.zfile.module.user.model.enums.LoginLogModeEnum;
+import im.zhaojun.zfile.module.user.model.enums.LoginVerifyModeEnum;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 系统设置传输类
@@ -14,157 +19,241 @@ import lombok.Data;
  * @author zhaojun
  */
 @Data
-@ApiModel(description = "系统设置类")
-public class SystemConfigDTO {
+@Schema(description = "系统设置类")
+public class SystemConfigDTO implements Serializable {
 
-    @JsonIgnore
-    @ApiModelProperty(value = "ID", required = true, example = "1")
-    private Integer id;
+    private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "站点名称", example = "ZFile Site Name")
+    @Schema(name = "站点名称", example = "ZFile Site Name")
     private String siteName;
 
-    @ApiModelProperty(value = "用户名", example = "admin")
+    @Schema(name = "用户名", example = "admin")
+    @Deprecated
     private String username;
 
-    @ApiModelProperty(value = "头像地址", example = "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png")
+    @Schema(name = "头像地址", example = "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png")
     private String avatar;
 
-    @ApiModelProperty(value = "备案号", example = "冀ICP备12345678号-1")
+    @Schema(name = "备案号", example = "冀ICP备12345678号-1")
     private String icp;
 
     @JsonIgnore
+    @Deprecated
     private String password;
 
-    @ApiModelProperty(value = "站点域名", example = "https://zfile.vip")
-    private String domain;
-
-    @ApiModelProperty(value = "自定义 JS")
+    @Schema(name = "自定义 JS")
     private String customJs;
 
-    @ApiModelProperty(value = "自定义 CSS")
+    @Schema(name = "自定义 CSS")
     private String customCss;
 
-    @ApiModelProperty(value = "列表尺寸", notes = "large:大,default:中,small:小", example = "default")
+    @Schema(name = "列表尺寸", description ="large:大,default:中,small:小", example = "default")
     private String tableSize;
 
-    @ApiModelProperty(value = "是否显示文档区", example = "true")
+    @Schema(name = "是否显示文档区", example = "true")
     private Boolean showDocument;
 
-    @ApiModelProperty(value = "网站公告", example = "ZFile 网站公告")
+    @Schema(name = "网站公告", example = "ZFile 网站公告")
     private String announcement;
 
-    @ApiModelProperty(value = "是否显示网站公告", example = "true")
+    @Schema(name = "是否显示网站公告", example = "true")
     private Boolean showAnnouncement;
 
-    @ApiModelProperty(value = "页面布局", notes = "full:全屏,center:居中", example = "full")
+    @Schema(name = "页面布局", description ="full:全屏,center:居中", example = "full")
     private String layout;
 
-    @ApiModelProperty(value = "是否显示生成直链功能（含直链和路径短链）", example = "true")
+    @Schema(name = "移动端页面布局", description ="full:全屏,center:居中", example = "full")
+    private String mobileLayout;
+
+    @Schema(name = "是否显示生成直链功能（含直链和路径短链）", example = "true")
     private Boolean showLinkBtn;
 
-    @ApiModelProperty(value = "是否显示生成短链功能", example = "true")
+    @Schema(name = "是否显示生成短链功能", example = "true")
     private Boolean showShortLink;
 
-    @ApiModelProperty(value = "是否显示生成路径链接功能", example = "true")
+    @Schema(name = "是否显示生成路径链接功能", example = "true")
     private Boolean showPathLink;
 
-    @ApiModelProperty(value = "是否已初始化", example = "true")
+    @Schema(name = "是否已初始化", example = "true")
     private Boolean installed;
 
-    @ApiModelProperty(value = "自定义视频文件后缀格式")
+    @Schema(name = "自定义视频文件后缀格式")
     private String customVideoSuffix;
 
-    @ApiModelProperty(value = "自定义图像文件后缀格式")
+    @Schema(name = "自定义图像文件后缀格式")
     private String customImageSuffix;
 
-    @ApiModelProperty(value = "自定义音频文件后缀格式")
+    @Schema(name = "自定义音频文件后缀格式")
     private String customAudioSuffix;
 
-    @ApiModelProperty(value = "自定义文本文件后缀格式")
+    @Schema(name = "自定义文本文件后缀格式")
     private String customTextSuffix;
 
-    @ApiModelProperty(value = "直链地址前缀")
+    @Schema(name = "自定义Office后缀格式")
+    private String customOfficeSuffix;
+
+    @Schema(name = "直链地址前缀")
     private String directLinkPrefix;
 
-    @ApiModelProperty(value = "直链 Referer 防盗链类型")
+    @Schema(name = "直链 Referer 防盗链类型")
     private RefererTypeEnum refererType;
 
-    @ApiModelProperty(value = "是否记录下载日志", example = "true")
+    @Schema(name = "是否记录下载日志", example = "true")
     private Boolean recordDownloadLog;
 
-    @ApiModelProperty(value = "直链 Referer 是否允许为空")
+    @Schema(name = "直链 Referer 是否允许为空")
     private Boolean refererAllowEmpty;
 
-    @ApiModelProperty(value = "直链 Referer 值")
+    @Schema(name = "直链 Referer 值")
     private String refererValue;
 
-    @ApiModelProperty(value = "登陆验证方式，支持验证码和 2FA 认证")
+    /**
+     * 废弃的字段，改为使用 {@link #adminTwoFactorVerify} 和 {@link #loginVerifySecret} 代替
+     */
+    @Schema(name = "管理员登陆验证方式，目前仅支持 2FA 认证或关闭")
+    @Deprecated
     private LoginVerifyModeEnum loginVerifyMode;
 
-    @ApiModelProperty(value = "登陆验证 Secret")
+    @Schema(name = "登陆验证 Secret")
     private String loginVerifySecret;
 
-    @ApiModelProperty(value = "根目录是否显示所有存储源", notes = "根目录是否显示所有存储源, 如果为 true, 则根目录显示所有存储源列表, 如果为 false, 则会自动跳转到第一个存储源.", example = "true", required = true)
+    @Schema(name = "是否启用登陆验证码", example = "true")
+    private Boolean loginImgVerify;
+
+    @Schema(name = "是否为管理员启用双因素认证", example = "true")
+    private Boolean adminTwoFactorVerify;
+
+    @Schema(name = "根目录是否显示所有存储源", description ="勾选则根目录显示所有存储源列表, 反之会自动显示第一个存储源的内容.", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean rootShowStorage;
 
-    @ApiModelProperty(value = "前端域名", notes = "前端域名，前后端分离情况下需要配置.", example = "http://xxx.example.com")
+    @Schema(name = "前端域名", description ="前端域名，前后端分离情况下需要配置.", example = "http://xxx.example.com")
     private String frontDomain;
 
-    @ApiModelProperty(value = "是否在前台显示登陆按钮", example = "true")
+    @Schema(name = "是否在前台显示登陆按钮", example = "true")
     private Boolean showLogin;
 
-    @ApiModelProperty(value = "RAS Hex Key", example = "r2HKbzc1DfvOs5uHhLn7pA==")
+    @Schema(name = "登录日志模式", example = "all")
+    private LoginLogModeEnum loginLogMode;
+
+    @Schema(name = "RAS Hex Key", example = "r2HKbzc1DfvOs5uHhLn7pA==")
     private String rsaHexKey;
 
-    @ApiModelProperty(value = "默认文件点击习惯", example = "click")
+    @Schema(name = "默认文件点击习惯", example = "click")
     private FileClickModeEnum fileClickMode;
 
-    @ApiModelProperty(value = "最大同时上传文件数", example = "5")
+    @Schema(name = "授权码", example = "e619510f-cdcd-f657-6c5e-2d12e9a28ae5")
+    private String authCode;
+
+    @Schema(name = "最大同时上传文件数", example = "5")
     private Integer maxFileUploads;
 
-    @ApiModelProperty(value = "onlyOffice 在线预览地址", example = "http://office.zfile.vip")
+    @Schema(name = "onlyOffice 在线预览地址", example = "http://office.zfile.vip")
     private String onlyOfficeUrl;
 
-    @ApiModelProperty(value = "是否允许路径直链可直接访问", example = "true", required = true)
+    @Schema(name = "onlyOffice Secret", example = "X9rBGypwWE86Lca8e4Mo55iHFoiyh9ed")
+    private String onlyOfficeSecret;
+
+    @Schema(name = "启用 WebDAV", example = "true")
+    private Boolean webdavEnable;
+
+    @Schema(name = "WebDAV 服务器中转下载", example = "true")
+    private Boolean webdavProxy;
+
+    @Schema(name = "WebDAV 匿名用户访问", example = "true")
+    private Boolean webdavAllowAnonymous;
+
+    @Schema(name = "WebDAV 账号", example = "admin")
+    private String webdavUsername;
+
+    @Schema(name = "WebDAV 密码", example = "123456")
+    private String webdavPassword;
+
+    @Schema(name = "是否允许路径直链可直接访问", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean allowPathLinkAnonAccess;
 
-    @ApiModelProperty(value = "默认最大显示文件数", example = "1000")
+    @Schema(name = "默认最大显示文件数", example = "1000")
     private Integer maxShowSize;
 
-    @ApiModelProperty(value = "每次加载更多文件数", example = "50")
+    @Schema(name = "每次加载更多文件数", example = "50")
     private Integer loadMoreSize;
 
-    @ApiModelProperty(value = "默认排序字段", example = "name")
+    @Schema(name = "默认排序字段", example = "name")
     private String defaultSortField;
 
-    @ApiModelProperty(value = "默认排序方向", example = "asc")
+    @Schema(name = "默认排序方向", example = "asc")
     private String defaultSortOrder;
 
-    @ApiModelProperty(value = "站点 Home 名称", example = "xxx 的小站")
+    @Schema(name = "站点 Home 名称", example = "xxx 的小站")
     private String siteHomeName;
 
-    @ApiModelProperty(value = "站点 Home Logo", example = "true")
+    @Schema(name = "站点 Home Logo", example = "true")
     private String siteHomeLogo;
 
-    @ApiModelProperty(value = "站点 Logo 点击后链接", example = "https://www.zfile.vip")
+    @Schema(name = "站点 Logo 点击后链接", example = "https://www.zfile.vip")
     private String siteHomeLogoLink;
 
-    @ApiModelProperty(value = "站点 Logo 链接打开方式", example = "_blank")
+    @Schema(name = "站点 Logo 链接打开方式", example = "_blank")
     private String siteHomeLogoTargetMode;
 
-    @ApiModelProperty(value = "限制直链下载秒数", example = "_blank")
+    @Schema(name = "管理员页面点击 Logo 回到首页打开方式", example = "_blank")
+    private String siteAdminLogoTargetMode;
+
+    @Schema(name = "管理员页面点击版本号打开更新日志", example = "true")
+    private Boolean siteAdminVersionOpenChangeLog;
+
+    @Schema(name = "限制直链下载秒数", example = "_blank")
     private Integer linkLimitSecond;
 
-    @ApiModelProperty(value = "限制直链下载次数", example = "_blank")
+    @Schema(name = "限制直链下载次数", example = "_blank")
     private Integer linkDownloadLimit;
 
-    @ApiModelProperty(value = "网站 favicon 图标地址", example = "https://www.example.com/favicon.ico")
+    @Schema(name = "网站 favicon 图标地址", example = "https://www.example.com/favicon.ico")
     private String faviconUrl;
 
-    @ApiModelProperty(value = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
-    private String linkExpireTimes;
+    @Schema(name = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
+    @JSONStringParse
+    private List<LinkExpireDTO> linkExpireTimes;
 
-    @ApiModelProperty(value = "是否默认记住密码", example = "true")
+    @Schema(name = "是否默认记住密码", example = "true")
     private Boolean defaultSavePwd;
+
+    /**
+     * 废弃的字段，不再使用悬浮菜单
+     */
+    @Deprecated
+    @Schema(name = "是否启用 hover 菜单", example = "true")
+    private Boolean enableHoverMenu;
+
+    @Schema(name = "访问 ip 黑名单", example = "162.13.1.0/24\n192.168.1.1")
+    private String accessIpBlocklist;
+
+    @Schema(name = "访问 ua 黑名单", example = "Mozilla/5.0 (Linux; Android) AppleWebKit/537.36*")
+    private String accessUaBlocklist;
+
+    @Schema(name = "匿名用户首页显示内容")
+    private String guestIndexHtml;
+
+    public String getAnnouncement() {
+        return announcement == null ? "" : announcement;
+    }
+
+    public List<LinkExpireDTO> getLinkExpireTimes() {
+        if (linkExpireTimes == null) {
+            LinkExpireDTO linkExpireDTO = new LinkExpireDTO();
+            linkExpireDTO.setValue(1);
+            linkExpireDTO.setUnit("d");
+            linkExpireDTO.setSeconds(86400L);
+            linkExpireTimes = new ArrayList<>();
+            linkExpireTimes.add(linkExpireDTO);
+        }
+        return linkExpireTimes;
+    }
+
+    public String getLayout() {
+        return layout == null ? "full" : layout;
+    }
+
+    public String getMobileLayout() {
+        return mobileLayout == null ? getLayout() : mobileLayout;
+    }
 }

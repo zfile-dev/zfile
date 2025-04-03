@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.module.password.model.dto;
 
+import im.zhaojun.zfile.core.exception.ErrorCode;
 import lombok.Data;
 
 /**
@@ -16,19 +17,14 @@ public class VerifyResultDTO {
     private boolean passed;
 
     /**
-     * 消息
-     */
-    private String msg;
-
-    /**
-     * 代码
-     */
-    private Integer code;
-
-    /**
      * 表达式
      */
     private String pattern;
+
+    /**
+     * 错误消息
+     */
+    private ErrorCode errorCode;
 
     public static VerifyResultDTO success() {
         VerifyResultDTO verifyResultDTO = new VerifyResultDTO();
@@ -45,11 +41,10 @@ public class VerifyResultDTO {
     }
 
 
-    public static VerifyResultDTO fail(String msg, Integer code) {
+    public static VerifyResultDTO fail(ErrorCode errorCode) {
         VerifyResultDTO verifyResultDTO = new VerifyResultDTO();
         verifyResultDTO.setPassed(false);
-        verifyResultDTO.setMsg(msg);
-        verifyResultDTO.setCode(code);
+        verifyResultDTO.setErrorCode(errorCode);
         return verifyResultDTO;
     }
 

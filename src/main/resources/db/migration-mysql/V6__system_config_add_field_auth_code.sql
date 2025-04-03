@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`) VALUES ('authCode', '授权码');

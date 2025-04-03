@@ -1,8 +1,5 @@
 package im.zhaojun.zfile.core.util;
 
-import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.core.constant.ZFileConstant;
-
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
@@ -26,7 +23,7 @@ public class PatternMatcherUtils {
 	 * <li>test1: /a</li>
 	 * <li>test2: /a/</li>
 	 * <ul>
-	 * <p>test1 和 test 2 均无法匹配这种情况, 此方法兼容了这种情况, 即对 test 内容后拼接 "/xx", 使其可以匹配上 pattern.
+	 * <p>test1 和 test 2 均无法匹配这种情况, 此方法兼容了这种情况, 即对 test 内容后拼接 "/xx"(其实任意字符都可以), 使其可以匹配上 pattern.
 	 * <p><strong>注意：</strong>但此方法对包含文件名的情况无效, 仅支持 test 为 路径的情况.
 	 *
 	 * @param 	pattern
@@ -39,13 +36,13 @@ public class PatternMatcherUtils {
 	 */
 	public static boolean testCompatibilityGlobPattern(String pattern, String test) {
 		// 如果规则表达式最开始没有 /, 则兼容在最前方加上 /.
-		if (!StrUtil.startWith(pattern, ZFileConstant.PATH_SEPARATOR)) {
-			pattern = ZFileConstant.PATH_SEPARATOR + pattern;
+		if (!StringUtils.startWith(pattern, StringUtils.SLASH)) {
+			pattern = StringUtils.SLASH + pattern;
 		}
 		
 		// 兼容性处理.
-		test = StringUtils.concat(test, ZFileConstant.PATH_SEPARATOR);
-		if (StrUtil.endWith(pattern, "/**")) {
+		test = StringUtils.concat(test, StringUtils.SLASH);
+		if (StringUtils.endWith(pattern, "/**") || StringUtils.endWith(pattern, "/*")) {
 			test += "xxx";
 		}
 		return testGlobPattern(pattern, test);
@@ -66,7 +63,7 @@ public class PatternMatcherUtils {
 		PathMatcher pathMatcher = PATH_MATCHER_MAP.getOrDefault(pattern, FileSystems.getDefault().getPathMatcher("glob:" + pattern));
 		PATH_MATCHER_MAP.put(pattern, pathMatcher);
 		
-		return pathMatcher.matches(Paths.get(test)) || StrUtil.equals(pattern, test);
+		return pathMatcher.matches(Paths.get(test)) || StringUtils.equals(pattern, test);
 	}
 	
 }

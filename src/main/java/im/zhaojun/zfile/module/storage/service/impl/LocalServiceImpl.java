@@ -4,12 +4,17 @@ import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import im.zhaojun.zfile.core.constant.ZFileConstant;
-import im.zhaojun.zfile.core.exception.file.init.InitializeStorageSourceException;
-import im.zhaojun.zfile.core.util.CodeMsg;
-import im.zhaojun.zfile.core.util.RequestHolder;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.biz.FilePathSecurityBizException;
+import im.zhaojun.zfile.core.exception.biz.InitializeStorageSourceBizException;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.exception.status.NotFoundAccessException;
+import im.zhaojun.zfile.core.io.EnsureContentLengthInputStreamResource;
+import im.zhaojun.zfile.core.io.ThrottledInputStream;
+import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
+import im.zhaojun.zfile.module.storage.model.enums.FileOperatorTypeEnum;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.LocalParam;
@@ -18,23 +23,18 @@ import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -46,17 +46,14 @@ import java.util.List;
 @Slf4j
 public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
-    private static final String PREVIEW_PARAM_NAME = "preview";
-
     @Override
     public void init() {
         // 初始化存储源
         File file = new File(param.getFilePath());
         // 校验文件夹是否存在
         if (!file.exists()) {
-            String errMsg = StrUtil.format("文件路径:「{}」不存在, 请检查是否填写正确.", file.getAbsolutePath());
-            throw new InitializeStorageSourceException(CodeMsg.STORAGE_SOURCE_INIT_FAIL,
-                    storageId, errMsg).setResponseExceptionMessage(true);
+            String errMsg = String.format("文件路径:「%s」不存在, 请检查是否填写正确.", file.getAbsolutePath());
+            throw new InitializeStorageSourceBizException(errMsg, storageId);
         }
     }
 
@@ -67,12 +64,12 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
         List<FileItemResult> fileItemList = new ArrayList<>();
 
-        String fullPath = StringUtils.concat(param.getFilePath() + folderPath);
+        String fullPath = StringUtils.concat(param.getFilePath(), getCurrentUserBasePath(), folderPath);
 
         File file = new File(fullPath);
 
-        if (!file.exists()) {
-            throw new FileNotFoundException("文件不存在");
+        if (!(file.isDirectory() && file.exists())) {
+            throw new BizException(ErrorCode.BIZ_FOLDER_NOT_EXIST);
         }
 
         File[] files = file.listFiles();
@@ -92,15 +89,15 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
     public FileItemResult getFileItem(String pathAndName) {
         checkPathSecurity(pathAndName);
 
-        String fullPath = StringUtils.concat(param.getFilePath(), pathAndName);
+        String fullPath = StringUtils.concat(param.getFilePath(), getCurrentUserBasePath(), pathAndName);
 
         File file = new File(fullPath);
 
         if (!file.exists()) {
-            throw ExceptionUtil.wrapRuntime(new FileNotFoundException("文件不存在"));
+            return null;
         }
 
-        String folderPath = StringUtils.getParentPath(pathAndName);
+        String folderPath = FileUtils.getParentPath(pathAndName);
         return fileToFileItem(file, folderPath);
     }
 
@@ -110,7 +107,7 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
         checkPathSecurity(path);
         checkNameSecurity(name);
 
-        String fullPath = StringUtils.concat(param.getFilePath(), path, name);
+        String fullPath = StringUtils.concat(param.getFilePath(), getCurrentUserBasePath(), path, name);
         return FileUtil.mkdir(fullPath) != null;
     }
 
@@ -120,49 +117,26 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
         checkPathSecurity(path);
         checkNameSecurity(name);
 
-        String fullPath = StringUtils.concat(param.getFilePath(), path, name);
+        String fullPath = StringUtils.concat(param.getFilePath(), getCurrentUserBasePath(), path, name);
         return FileUtil.del(fullPath);
     }
 
 
     @Override
     public boolean deleteFolder(String path, String name) {
-        checkPathSecurity(path);
-        checkNameSecurity(name);
-
         return deleteFile(path, name);
     }
 
 
     @Override
     public boolean renameFile(String path, String name, String newName) {
-        checkPathSecurity(path);
-        checkNameSecurity(name, newName);
-
-        // 如果文件名没变，不做任何操作.
-        if (StrUtil.equals(name, newName)) {
-            return true;
-        }
-
-        String srcPath = StringUtils.concat(param.getFilePath(), path, name);
-        File file = new File(srcPath);
-
-        boolean srcExists = file.exists();
-        if (!srcExists) {
-            throw ExceptionUtil.wrapRuntime(new FileNotFoundException("文件夹不存在."));
-        }
-
-        FileUtil.rename(file, newName, true);
-        return true;
+        return operateFile(path, name, path, newName, FileOperatorTypeEnum.RENAME);
     }
 
 
     @Override
     public boolean renameFolder(String path, String name, String newName) {
-        checkPathSecurity(path);
-        checkNameSecurity(name, newName);
-
-        return renameFile(path, name, newName);
+        return operateFile(path, name, path, newName, FileOperatorTypeEnum.RENAME);
     }
 
 
@@ -176,10 +150,10 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
     public void uploadFile(String pathAndName, InputStream inputStream) {
         checkPathSecurity(pathAndName);
 
-        String baseFilePath = param.getFilePath();
-        String uploadPath = StringUtils.removeDuplicateSlashes(baseFilePath + ZFileConstant.PATH_SEPARATOR + pathAndName);
+        String uploadPath = StringUtils.concat(param.getFilePath(), getCurrentUserBasePath(), pathAndName);
+
         // 如果目录不存在则创建
-        String parentPath = FileUtil.getParent(uploadPath, 1);
+        String parentPath = FileUtils.getParentPath(uploadPath);
         if (!FileUtil.exist(parentPath)) {
             FileUtil.mkdir(parentPath);
         }
@@ -191,32 +165,96 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
         IoUtil.close(inputStream);
     }
 
+    @Override
+    public boolean copyFile(String path, String name, String targetPath, String targetName) {
+        return operateFile(path, name, targetPath, targetName, FileOperatorTypeEnum.COPY);
+    }
+
+    @Override
+    public boolean copyFolder(String path, String name, String targetPath, String targetName) {
+        return operateFile(path, name, targetPath, targetName, FileOperatorTypeEnum.COPY);
+    }
+
+    @Override
+    public boolean moveFile(String path, String name, String targetPath, String targetName) {
+        return operateFile(path, name, targetPath, targetName, FileOperatorTypeEnum.MOVE);
+    }
+
+    @Override
+    public boolean moveFolder(String path, String name, String targetPath, String targetName) {
+        return operateFile(path, name, targetPath, targetName, FileOperatorTypeEnum.MOVE);
+    }
+
+    private boolean operateFile(String path, String name, String newPath, String newName, FileOperatorTypeEnum operatorTypeEnum) {
+        checkPathSecurity(path, newPath);
+        checkNameSecurity(name, newName);
+
+        // 如果原文件路径和目的文件路径没变，不做任何操作.
+        if (StringUtils.equals(path, newPath) && StringUtils.equals(name, newName)) {
+            return true;
+        }
+
+        String srcPath = StringUtils.concat(param.getFilePath(), getCurrentUserBasePath(), path, name);
+
+        // 如果是复制，不需要拼接新的文件名
+        String appendName = operatorTypeEnum == FileOperatorTypeEnum.COPY ? "" : newName;
+        String distPath = StringUtils.concat(param.getFilePath(), getCurrentUserBasePath(), newPath, appendName);
+        File srcFile = new File(srcPath);
+        File distFile = new File(distPath);
+
+        if (operatorTypeEnum == FileOperatorTypeEnum.MOVE) {
+            FileUtil.move(srcFile, distFile, true);
+        } else if (operatorTypeEnum == FileOperatorTypeEnum.COPY) {
+            FileUtil.copy(srcFile, distFile, true);
+        } else if (operatorTypeEnum == FileOperatorTypeEnum.RENAME) {
+            FileUtil.rename(srcFile, newName, true);
+        } else {
+            throw ExceptionUtil.wrapRuntime(new RuntimeException("不支持的操作类型."));
+        }
+        return true;
+    }
+
+
+    @Override
+    public String getUploadUrl(String path, String name, Long size) {
+        return super.getProxyUploadUrl(path, name);
+    }
+
+
+    @Override
+    public String getDownloadUrl(String pathAndName) {
+        if (StringUtils.isNotBlank(param.getDomain())) {
+            return StringUtils.concat(param.getDomain(), StringUtils.encodeAllIgnoreSlashes(pathAndName));
+        }
+        return super.getProxyDownloadUrl(pathAndName);
+    }
+
 
     @Override
     public ResponseEntity<Resource> downloadToStream(String pathAndName) {
         checkPathSecurity(pathAndName);
 
-        File file = new File(StringUtils.removeDuplicateSlashes(param.getFilePath() + ZFileConstant.PATH_SEPARATOR + pathAndName));
+        File file = new File(StringUtils.concat(param.getFilePath(), pathAndName));
         if (!file.exists()) {
-            ByteArrayResource byteArrayResource = new ByteArrayResource("文件不存在或异常，请联系管理员.".getBytes(StandardCharsets.UTF_8));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .body(byteArrayResource);
+            throw new NotFoundAccessException(ErrorCode.BIZ_FILE_NOT_EXIST);
         }
 
-        HttpServletRequest request = RequestHolder.getRequest();
-        String type = request.getParameter("type");
+        Resource body = new InputStreamResource(FileUtil.getInputStream(file));
 
-        MediaType mimeType = MediaType.APPLICATION_OCTET_STREAM;
-        if (StrUtil.equals(type, PREVIEW_PARAM_NAME)) {
+        MediaType mimeType;
+        if (param.isProxyLinkForceDownload()) {
+            mimeType = MediaType.APPLICATION_OCTET_STREAM;
+        } else {
             mimeType = MediaTypeFactory.getMediaType(file.getName()).orElse(MediaType.APPLICATION_OCTET_STREAM);
         }
 
         HttpHeaders headers = new HttpHeaders();
+        String filename = StringUtils.encodeAllIgnoreSlashes(file.getName());
 
         if (ObjectUtil.equals(mimeType, MediaType.APPLICATION_OCTET_STREAM)) {
-            String fileName = file.getName();
-            headers.setContentDispositionFormData("attachment", StringUtils.encodeAllIgnoreSlashes(fileName));
+            headers.setContentDispositionFormData("attachment", filename);
+        } else {
+            headers.put(HttpHeaders.CONTENT_DISPOSITION, Collections.singletonList("inline; filename=\"" + filename + "\""));
         }
 
         return ResponseEntity
@@ -224,7 +262,7 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
                 .headers(headers)
                 .contentLength(file.length())
                 .contentType(mimeType)
-                .body(new FileSystemResource(file));
+                .body(body);
     }
 
 
@@ -237,7 +275,7 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
         fileItemResult.setPath(folderPath);
 
         if (fileItemResult.getType() == FileTypeEnum.FILE) {
-            fileItemResult.setUrl(getDownloadUrl(StringUtils.concat(folderPath, file.getName())));
+            fileItemResult.setUrl(getDownloadUrl(StringUtils.concat(getCurrentUserBasePath(), folderPath, file.getName())));
         } else {
             fileItemResult.setSize(null);
         }
@@ -257,8 +295,8 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
     private static void checkPathSecurity(String... paths) {
         for (String path : paths) {
             // 路径中不能包含 .. 不然可能会获取到上层文件夹的内容
-            if (StrUtil.startWith(path, "/..") || StrUtil.containsAny(path, "../", "..\\")) {
-                throw new IllegalArgumentException("文件路径存在安全隐患: " + path);
+            if (StringUtils.startWith(path, "/..") || StringUtils.containsAny(path, "../", "..\\")) {
+                throw new FilePathSecurityBizException(path);
             }
         }
     }
@@ -276,10 +314,17 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
     private static void checkNameSecurity(String... names) {
         for (String name : names) {
             // 路径中不能包含 .. 不然可能会获取到上层文件夹的内容
-            if (StrUtil.containsAny(name, "\\", "/")) {
-                throw new IllegalArgumentException("文件名存在安全隐患: " + name);
+            if (StringUtils.containsAny(name, "\\", StringUtils.SLASH)) {
+                throw new FilePathSecurityBizException(name);
             }
         }
+    }
+
+    @Override
+    public StorageSourceMetadata getStorageSourceMetadata() {
+        StorageSourceMetadata storageSourceMetadata = new StorageSourceMetadata();
+        storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.PROXY);
+        return storageSourceMetadata;
     }
 
 }

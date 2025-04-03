@@ -1,9 +1,14 @@
 package im.zhaojun.zfile.module.link.model.request;
 
+import cn.hutool.core.date.DateUtil;
 import im.zhaojun.zfile.core.model.request.PageQueryRequest;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author zhaojun
@@ -12,19 +17,30 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class QueryShortLinkLogRequest extends PageQueryRequest {
 	
-	@ApiModelProperty(value="短链 key")
+	@Schema(name="短链 key")
 	private String key;
 	
-	@ApiModelProperty(value="存储源 id")
+	@Schema(name="存储源 id")
 	private String storageId;
 	
-	@ApiModelProperty(value="短链文件路径")
+	@Schema(name="短链文件路径")
 	private String url;
-	
-	@ApiModelProperty(value="访问时间从")
-	private String dateFrom;
-	
-	@ApiModelProperty(value="访问时间至")
-	private String dateTo;
-	
+
+	@Schema(name="访问时间")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private List<Date> searchDate;
+
+	public Date getDateFrom() {
+		if (searchDate == null) {
+			return null;
+		}
+		return DateUtil.beginOfDay(searchDate.getFirst());
+	}
+
+	public Date getDateTo() {
+		if (searchDate == null) {
+			return null;
+		}
+		return DateUtil.endOfDay(searchDate.getLast());
+	}
 }

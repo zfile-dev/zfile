@@ -22,4 +22,23 @@
   <delete id="deleteByStorageKey">
       delete from download_log where storage_key = #{storageKey}
     </delete>
+
+    <delete id="deleteExpireShortLinkLog" databaseId="sqlite">
+        DELETE FROM
+            download_log
+        WHERE
+            short_key in (
+                select short_key from short_link where expire_date &lt;= strftime('%s', 'now') * 1000
+        )
+    </delete>
+
+    <delete id="deleteExpireShortLinkLog" databaseId="mysql">
+        DELETE FROM
+            download_log
+        WHERE
+            short_key in (
+                select short_key from short_link where expire_date &lt;= NOW()
+        )
+    </delete>
+
 </mapper>

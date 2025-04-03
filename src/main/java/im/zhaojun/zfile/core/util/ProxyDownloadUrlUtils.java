@@ -3,7 +3,6 @@ package im.zhaojun.zfile.core.util;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.HexUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import cn.hutool.extra.spring.SpringUtil;
@@ -22,14 +21,28 @@ public class ProxyDownloadUrlUtils {
 
 	private static SystemConfigService systemConfigService;
 
-	private static final String PROXY_DOWNLOAD_LINK_DELIMITER= ":";
+	private static final String PROXY_DOWNLOAD_LINK_DELIMITER = ":";
 
 
 	/**
-	 * 服务器代理下载 URL 有效期 (分钟).
+	 * 服务器代理下载 URL 有效期 (秒).
 	 */
 	public static final Integer PROXY_DOWNLOAD_LINK_EFFECTIVE_SECOND = 1800;
 
+	/**
+	 * 生成签名：根据系统设置中 AES 密钥对生成签名.
+	 *
+	 * @param 	storageId
+	 * 			存储源 ID
+	 *
+	 * @param 	pathAndName
+	 * 			文件路径及文件名称
+	 *
+	 * @param 	effectiveSecond
+	 * 			有效时间, 单位: 秒
+	 *
+	 * @return	签名
+	 */
 	public static String generatorSignature(Integer storageId, String pathAndName, Integer effectiveSecond) {
 		if (systemConfigService == null) {
 			systemConfigService = SpringUtil.getBean(SystemConfigService.class);
@@ -44,8 +57,8 @@ public class ProxyDownloadUrlUtils {
 		long second = DateUtil.offsetSecond(DateUtil.date(), effectiveSecond).getTime();
 		String content = storageId + PROXY_DOWNLOAD_LINK_DELIMITER + pathAndName + PROXY_DOWNLOAD_LINK_DELIMITER + second;
 
-		String rsaHexKey = systemConfigService.getRsaHexKeyOrGenerate();
-		byte[] key = HexUtil.decodeHex(rsaHexKey);
+		String aesHexKey = systemConfigService.getAesHexKeyOrGenerate();
+		byte[] key = HexUtil.decodeHex(aesHexKey);
 		//构建
 		SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
 
@@ -59,8 +72,8 @@ public class ProxyDownloadUrlUtils {
 			systemConfigService = SpringUtil.getBean(SystemConfigService.class);
 		}
 
-		String rsaHexKey = systemConfigService.getRsaHexKeyOrGenerate();
-		byte[] key = HexUtil.decodeHex(rsaHexKey);
+		String aesHexKey = systemConfigService.getAesHexKeyOrGenerate();
+		byte[] key = HexUtil.decodeHex(aesHexKey);
 		SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
 		
 		long currentTimeMillis = System.currentTimeMillis();
@@ -72,14 +85,14 @@ public class ProxyDownloadUrlUtils {
 		try {
 			//解密
 			String decryptStr = aes.decryptStr(signature);
-			List<String> split = StrUtil.split(decryptStr, PROXY_DOWNLOAD_LINK_DELIMITER);
+			List<String> split = StringUtils.split(decryptStr, PROXY_DOWNLOAD_LINK_DELIMITER);
 			storageId = split.get(0);
 			pathAndName = split.get(1);
 			expiredSecond = split.get(2);
 			
 			// 校验存储源 ID 和文件路径及是否过期.
-			if (StrUtil.equals(storageId, Convert.toStr(expectedStorageId))
-				&& StrUtil.equals(StringUtils.concat(pathAndName), StringUtils.concat(expectedPathAndName))
+			if (StringUtils.equals(storageId, Convert.toStr(expectedStorageId))
+				&& StringUtils.equals(StringUtils.concat(pathAndName), StringUtils.concat(expectedPathAndName))
 				&& currentTimeMillis < Convert.toLong(expiredSecond)) {
 				return true;
 			}

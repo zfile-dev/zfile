@@ -1,20 +1,24 @@
 package im.zhaojun.zfile.module.storage.controller.helper;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.biz.APIHttpRequestBizException;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.util.AjaxJson;
+import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.module.storage.model.request.SharePointInfoRequest;
 import im.zhaojun.zfile.module.storage.model.request.SharePointSearchSitesRequest;
 import im.zhaojun.zfile.module.storage.model.request.SharePointSiteListsRequest;
-import im.zhaojun.zfile.module.storage.model.result.SharepointSiteResult;
 import im.zhaojun.zfile.module.storage.model.result.SharepointSiteListResult;
-import im.zhaojun.zfile.module.storage.model.request.SharePointInfoRequest;
-import im.zhaojun.zfile.core.util.AjaxJson;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import im.zhaojun.zfile.module.storage.model.result.SharepointSiteResult;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,19 +26,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * SharePoint 工具类
  *
  * @author zhaojun
  */
-@Api(tags = "SharePoint 工具辅助模块")
+@Tag(name = "SharePoint 工具辅助模块")
 @Controller
 @RequestMapping("/sharepoint")
 public class SharePointHelperController {
@@ -47,14 +46,14 @@ public class SharePointHelperController {
     @PostMapping("/getSites")
     @ResponseBody
     @ApiOperationSupport(order = 1)
-    @ApiOperation(value = "获取网站列表")
+    @Operation(summary = "获取网站列表")
     public AjaxJson<List<SharepointSiteResult>> getSites(@Valid @RequestBody SharePointSearchSitesRequest searchSitesRequest) {
         List<SharepointSiteResult> sites = new ArrayList<>();
 
         String requestUrl = getSearchSiteUrlByType(searchSitesRequest.getType());
 
         // 构建请求认证 Token 信息
-        String tokenValue = String.format("%s %s", "Bearer", searchSitesRequest.getAccessToken());
+        String tokenValue = getBearer(searchSitesRequest.getAccessToken());
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", tokenValue);
 
@@ -64,7 +63,7 @@ public class SharePointHelperController {
         HttpResponse execute = getRequest.addHeaders(headers).execute();
         String body = execute.body();
         if (execute.getStatus() != HttpStatus.OK.value()) {
-            throw new RuntimeException("自动获取网站列表失败：" + body);
+            throw new APIHttpRequestBizException(ErrorCode.BIZ_AUTO_GET_SHARE_POINT_SITES_ERROR, requestUrl, execute.getStatus(), body);
         }
 
         // 解析前缀
@@ -82,7 +81,7 @@ public class SharePointHelperController {
     @PostMapping("/getSiteLists")
     @ResponseBody
     @ApiOperationSupport(order = 2)
-    @ApiOperation(value = "获取网站下的子目录")
+    @Operation(summary = "获取网站下的子目录")
     public AjaxJson<List<SharepointSiteListResult>> getSites(@Valid @RequestBody SharePointSiteListsRequest sharePointSiteListsRequest) {
         List<SharepointSiteListResult> sites = new ArrayList<>();
 
@@ -96,7 +95,7 @@ public class SharePointHelperController {
         String requestUrl = getSiteListsUrlByType(sharePointSiteListsRequest.getType(), siteId);
 
         // 构建请求认证 Token 信息
-        String tokenValue = String.format("%s %s", "Bearer", sharePointSiteListsRequest.getAccessToken());
+        String tokenValue = getBearer(sharePointSiteListsRequest.getAccessToken());
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", tokenValue);
 
@@ -105,7 +104,7 @@ public class SharePointHelperController {
         HttpResponse execute = getRequest.addHeaders(headers).execute();
         String body = execute.body();
         if (execute.getStatus() != HttpStatus.OK.value()) {
-            throw new RuntimeException("自动获取网站子目录列表失败：" + body);
+            throw new APIHttpRequestBizException(ErrorCode.BIZ_AUTO_GET_SHARE_POINT_SITES_ERROR, requestUrl, execute.getStatus(), body);
         }
 
         // 解析前缀
@@ -128,26 +127,16 @@ public class SharePointHelperController {
         return AjaxJson.getSuccessData(sites);
     }
 
-
     @PostMapping("/getDomainPrefix")
     @ApiOperationSupport(order = 3)
-    @ApiOperation(value = "获取域名前缀")
+    @Operation(summary = "获取域名前缀")
     @ResponseBody
     public AjaxJson<String> getDomainPrefix(@RequestBody SharePointInfoRequest sharePointInfoRequest) {
-        String host = "";
-
-        // 判断是标准版还是世纪互联版
-        if (Objects.equals(sharePointInfoRequest.getType(), "Standard")) {
-            host = "graph.microsoft.com";
-        } else if (Objects.equals(sharePointInfoRequest.getType(), "China")) {
-            host = "microsoftgraph.chinacloudapi.cn";
-        }
-
         // 请求 URL
-        String requestUrl = StrUtil.format("https://{}/v1.0/sites/root", host);
+        String requestUrl = getSiteRootUrlByType(sharePointInfoRequest.getType());
 
         // 构建请求认证 Token 信息
-        String tokenValue = String.format("%s %s", "Bearer", sharePointInfoRequest.getAccessToken());
+        String tokenValue = getBearer(sharePointInfoRequest.getAccessToken());
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", tokenValue);
 
@@ -156,69 +145,57 @@ public class SharePointHelperController {
         HttpResponse execute = getRequest.addHeaders(headers).execute();
         String body = execute.body();
         if (execute.getStatus() != HttpStatus.OK.value()) {
-            return AjaxJson.getError(body);
+            throw new BizException(body);
         }
 
         // 解析前缀
         JSONObject jsonObject = JSONObject.parseObject(body);
         String hostname = jsonObject.getJSONObject("siteCollection").getString("hostname");
-        String domainPrefix = StrUtil.subBefore(hostname, ".sharepoint", false);
+        String domainPrefix = StringUtils.subBefore(hostname, ".sharepoint", false);
         return AjaxJson.getSuccessData(domainPrefix);
     }
 
 
     @PostMapping("/getSiteId")
     @ApiOperationSupport(order = 4)
-    @ApiOperation(value = "获取 SiteId")
+    @Operation(summary = "获取 SiteId")
     @ResponseBody
     public AjaxJson<String> getSiteId(@RequestBody SharePointInfoRequest sharePointInfoRequest) {
 
         // 判断必填参数
         if (sharePointInfoRequest == null || sharePointInfoRequest.getAccessToken() == null || sharePointInfoRequest.getSiteName() == null) {
-            return AjaxJson.getError("参数不全");
-        }
-
-        String host = "";
-
-        // 判断是标准版还是世纪互联版
-        if (Objects.equals(sharePointInfoRequest.getType(), "Standard")) {
-            host = "graph.microsoft.com";
-            sharePointInfoRequest.setDomainType("com");
-        } else if (Objects.equals(sharePointInfoRequest.getType(), "China")) {
-            host = "microsoftgraph.chinacloudapi.cn";
-            sharePointInfoRequest.setDomainType("cn");
-        } else {
-            return AjaxJson.getError("参数不全");
+            throw new BizException(ErrorCode.BIZ_BAD_REQUEST);
         }
 
         // 构建请求认证 Token 信息
-        String tokenValue = String.format("%s %s", "Bearer", sharePointInfoRequest.getAccessToken());
+        String tokenValue = getBearer(sharePointInfoRequest.getAccessToken());
         HashMap<String, String> authorizationHeaders = new HashMap<>();
         authorizationHeaders.put("Authorization", tokenValue);
 
 
         // 如果没有域名前缀, 则先获取
         if (sharePointInfoRequest.getDomainPrefix() == null || sharePointInfoRequest.getDomainType() == null) {
-            String requestUrl = StrUtil.format("https://{}/v1.0/sites/root", host);
+            String requestUrl = getSiteRootUrlByType(sharePointInfoRequest.getType());
             HttpRequest getRequest = HttpUtil.createGet(requestUrl);
             HttpResponse execute = getRequest.addHeaders(authorizationHeaders).execute();
             String body = execute.body();
             if (execute.getStatus() != HttpStatus.OK.value()) {
-                return AjaxJson.getError(body);
+                throw new BizException(body);
             }
             JSONObject jsonObject = JSONObject.parseObject(body);
             String hostname = jsonObject.getJSONObject("siteCollection").getString("hostname");
-            String domainPrefix = StrUtil.subBefore(hostname, ".sharepoint", false);
+            String domainPrefix = StringUtils.subBefore(hostname, ".sharepoint", false);
             sharePointInfoRequest.setDomainPrefix(domainPrefix);
         }
 
 
-        if (StrUtil.isEmpty(sharePointInfoRequest.getSiteType())) {
+        if (StringUtils.isEmpty(sharePointInfoRequest.getSiteType())) {
             sharePointInfoRequest.setSiteType("/sites/");
         }
 
         // 请求接口
-        String requestUrl = StrUtil.format("https://{}/v1.0/sites/{}.sharepoint.{}:/{}/{}", host,
+        String host = getHostByType(sharePointInfoRequest.getType());
+        String requestUrl = String.format("https://%s/v1.0/sites/%s.sharepoint.%s:/%s/%s", host,
                 sharePointInfoRequest.getDomainPrefix(),
                 sharePointInfoRequest.getDomainType(),
                 sharePointInfoRequest.getSiteType(),
@@ -229,7 +206,7 @@ public class SharePointHelperController {
 
         // 解析数据
         if (execute.getStatus() != HttpStatus.OK.value()) {
-            return AjaxJson.getError(body);
+            throw new BizException(body);
         }
         JSONObject jsonObject = JSONObject.parseObject(body);
         return AjaxJson.getSuccessData(jsonObject.getString("id"));
@@ -253,7 +230,7 @@ public class SharePointHelperController {
         } else if (Objects.equals(type, "China")) {
             return "microsoftgraph.chinacloudapi.cn";
         } else {
-            throw new RuntimeException("不支持的类型");
+            throw new BizException(ErrorCode.BIZ_UNSUPPORTED_STORAGE_TYPE);
         }
     }
 
@@ -270,7 +247,7 @@ public class SharePointHelperController {
      */
     private String getSearchSiteUrlByType(String type) {
         String hostByType = getHostByType(type);
-        return StrUtil.format("https://{}/v1.0/sites", hostByType);
+        return String.format("https://%s/v1.0/sites", hostByType);
     }
 
 
@@ -286,7 +263,36 @@ public class SharePointHelperController {
      */
     private String getSiteListsUrlByType(String type, String siteId) {
         String hostByType = getHostByType(type);
-        return StrUtil.format("https://{}/v1.0/sites/{}/lists",hostByType, siteId);
+        return String.format("https://%s/v1.0/sites/%s/lists",hostByType, siteId);
+    }
+
+
+    /**
+     * 获取网站根目录请求 URL
+     *
+     * @param   type
+     *          网站类型：
+     *              Standard：标准版
+     *              China：世纪互联版
+     *
+     * @return  搜索网站请求 URL
+     */
+    private String getSiteRootUrlByType(String type) {
+        String hostByType = getHostByType(type);
+        return String.format("https://%s/v1.0/sites/root", hostByType);
+    }
+
+
+    /**
+     * 获取 Bearer 格式的 Token
+     *
+     * @param   accessToken
+     *          访问令牌
+     *
+     * @return  Bearer 格式的 Token
+     */
+    private static String getBearer(String accessToken) {
+        return String.format("%s %s", "Bearer", accessToken);
     }
 
 }

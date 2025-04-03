@@ -17,7 +17,7 @@ public @interface StorageParamSelectOption {
 	/**
 	 * 选项显示值
 	 */
-	String label();
+	String label() default "";
 
 	/**
 	 * 选项存储值

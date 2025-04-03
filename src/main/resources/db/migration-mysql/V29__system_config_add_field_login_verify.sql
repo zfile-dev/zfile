@@ -1,0 +1,2 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('siteAdminLogoTargetMode', '管理员页面点击 Logo 回到首页打开方式', '_blank');
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('siteAdminVersionOpenChangeLog', '管理员页面点击版本号打开更新日志', 'true');

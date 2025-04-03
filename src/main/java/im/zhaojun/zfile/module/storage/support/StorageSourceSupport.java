@@ -1,22 +1,18 @@
 package im.zhaojun.zfile.module.storage.support;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import im.zhaojun.zfile.core.util.ClassUtils;
-import im.zhaojun.zfile.core.util.PlaceholderUtils;
-import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.core.util.*;
 import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.module.storage.annotation.StorageParamItem;
 import im.zhaojun.zfile.module.storage.annotation.StorageParamSelect;
 import im.zhaojun.zfile.module.storage.annotation.StorageParamSelectOption;
+import im.zhaojun.zfile.module.storage.enums.StorageParamItemAnnoEnum;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceParamDef;
 import im.zhaojun.zfile.module.storage.model.enums.StorageParamTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.IStorageParam;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.aop.support.AopUtils;
 
 import java.lang.reflect.Field;
@@ -53,7 +49,7 @@ public class StorageSourceSupport {
             return STORAGE_SOURCE_PARAM_CACHE.get(clazz);
         }
 
-        ArrayList<StorageSourceParamDef> result = new ArrayList<>();
+        Map<String, StorageSourceParamDef> storageSourceParamDefMap = new HashMap<>();
 
         // 获取存储源实现类的泛型参数类型
         Class<?> paramClass = ClassUtils.getClassFirstGenericsParam(clazz);
@@ -61,8 +57,8 @@ public class StorageSourceSupport {
 
         // 已添加的字段列表.
         List<String> useFieldNames = new ArrayList<>();
-        // 要忽略的字段名
-        List<String> ignoreFieldNames = new ArrayList<>();
+
+        Map<String, Set<StorageParamItemAnnoEnum>> fieldOverrideMap = new HashMap<>();
 
         for (Field field : fields) {
             // 获取字段上的注解
@@ -71,60 +67,97 @@ public class StorageSourceSupport {
                 continue;
             }
 
-            String key = storageParamItemAnnotation.key();
-            int order = storageParamItemAnnotation.order();
-            String name = storageParamItemAnnotation.name();
-            String linkName = storageParamItemAnnotation.linkName();
-            boolean required = storageParamItemAnnotation.required();
-            String description = storageParamItemAnnotation.description();
-            StorageParamTypeEnum type = storageParamItemAnnotation.type();
-            String link = parseAnnotationLinkField(storageParamItemAnnotation);
-            String defaultValue = PlaceholderUtils.resolvePlaceholdersBySpringProperties(storageParamItemAnnotation.defaultValue());
-
-            // 取注解上标注的字段名称, 如果为空, 则使用字段名称
-            if (StrUtil.isEmpty(key)) {
-                key = field.getName();
-            }
-
-            // 如果字段已存在, 则跳过
-            if (useFieldNames.contains(field.getName())) {
+            // 如果字段被忽略, 则添加到忽略列表中
+            String fieldName = field.getName();
+            if (storageParamItemAnnotation.ignoreInput()) {
+                useFieldNames.add(fieldName);
                 continue;
             }
 
-            // 如果字段被忽略, 则添加到忽略列表中
-            if (storageParamItemAnnotation.ignoreInput()) {
-                ignoreFieldNames.add(key);
+            String key = storageParamItemAnnotation.key();
+            String name = storageParamItemAnnotation.name();
+            String description = storageParamItemAnnotation.description();
+            boolean required = storageParamItemAnnotation.required();
+            String defaultValue = PlaceholderUtils.resolvePlaceholdersBySpringProperties(storageParamItemAnnotation.defaultValue());
+            String link = parseAnnotationLinkField(storageParamItemAnnotation);
+            String linkName = storageParamItemAnnotation.linkName();
+            StorageParamTypeEnum type = storageParamItemAnnotation.type();
+            List<StorageSourceParamDef.Options> optionsList = getOptionsList(storageParamItemAnnotation, storageParam);
+            boolean optionAllowCreate = storageParamItemAnnotation.optionAllowCreate();
+            int order = storageParamItemAnnotation.order();
+            boolean pro = storageParamItemAnnotation.pro();
+            String condition = storageParamItemAnnotation.condition();
+
+            // 默认 key 为字段名，默认 name 为 key
+            if (StringUtils.isEmpty(key)) key = fieldName;
+            if (StringUtils.isEmpty(name)) name = key;
+
+            // 如果字段已存在且不是覆盖属性, 则跳过
+            if (useFieldNames.contains(fieldName) && !fieldOverrideMap.containsKey(fieldName)) {
+                continue;
             }
 
+            Set<StorageParamItemAnnoEnum> fieldOverrideSet = fieldOverrideMap.get(fieldName);
+
             // 如果默认值不为空, 则该字段则不是必填的
-            if (StrUtil.isNotEmpty(defaultValue)) {
+            if (StringUtils.isNotEmpty(defaultValue)) {
                 required = false;
             }
 
-            // 如果 type 为 select, 则获取 options 下拉列表.
-            List<StorageSourceParamDef.Options> optionsList = getOptionsList(storageParamItemAnnotation, storageParam);
-
-            StorageSourceParamDef storageSourceParamDef = StorageSourceParamDef.builder().
-                    key(key).
-                    name(name).
-                    description(description).
-                    required(required).
-                    defaultValue(defaultValue).
-                    link(link).
-                    linkName(linkName).
-                    type(type).
-                    options(optionsList).
-                    order(order).
-                    build();
-
-            if (!ignoreFieldNames.contains(key)) {
-                result.add(storageSourceParamDef);
+            StorageSourceParamDef storageSourceParamDef = storageSourceParamDefMap.getOrDefault(fieldName, new StorageSourceParamDef());
+            boolean fieldOverrideSetIsEmpty = CollectionUtils.isEmpty(fieldOverrideSet);
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.KEY)) {
+                storageSourceParamDef.setKey(key);
             }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.NAME)) {
+                storageSourceParamDef.setName(name);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.DESCRIPTION)) {
+                storageSourceParamDef.setDescription(description);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.REQUIRED)) {
+                storageSourceParamDef.setRequired(required);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.DEFAULT_VALUE)) {
+                storageSourceParamDef.setDefaultValue(defaultValue);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.LINK)) {
+                storageSourceParamDef.setLink(link);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.LINK_NAME)) {
+                storageSourceParamDef.setLinkName(linkName);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.TYPE)) {
+                storageSourceParamDef.setType(type);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.OPTIONS)) {
+                storageSourceParamDef.setOptions(optionsList);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.OPTION_ALLOW_CREATE)) {
+                storageSourceParamDef.setOptionAllowCreate(optionAllowCreate);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.ORDER)) {
+                storageSourceParamDef.setOrder(order);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.PRO)) {
+                storageSourceParamDef.setPro(pro);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.CONDITION)) {
+                storageSourceParamDef.setCondition(condition);
+            }
+            storageSourceParamDefMap.put(fieldName, storageSourceParamDef);
+            useFieldNames.add(fieldName);
 
-            useFieldNames.add(field.getName());
+            StorageParamItemAnnoEnum[] storageParamItemAnnoEnumArray = storageParamItemAnnotation.onlyOverwrite();
+            if (ArrayUtils.isNotEmpty(storageParamItemAnnoEnumArray)) {
+                Set<StorageParamItemAnnoEnum> set = fieldOverrideMap.getOrDefault(fieldName, new HashSet<>());
+                set.addAll(Arrays.asList(storageParamItemAnnoEnumArray));
+                fieldOverrideMap.put(fieldName, set);
+            }
         }
 
         // 按照顺序排序
+        ArrayList<StorageSourceParamDef> result = new ArrayList<>(storageSourceParamDefMap.values());
         result.sort(Comparator.comparingInt(StorageSourceParamDef::getOrder));
 
         // 写入到缓存中
@@ -143,10 +176,10 @@ public class StorageSourceSupport {
     private static List<StorageSourceParamDef.Options> getOptionsList(StorageParamItem storageParamItemAnnotation, IStorageParam storageParam) {
         // 如果不是默认的空接口实现，优先从实现类中通过反射获取 options 列表
         Class<? extends StorageParamSelect> storageParamSelectClass = storageParamItemAnnotation.optionsClass();
-        if (BooleanUtil.isFalse(storageParamSelectClass.isInterface())) {
+        if (BooleanUtils.isNotTrue(storageParamSelectClass.isInterface())) {
             StorageParamSelect storageParamSelect = ReflectUtil.newInstance(storageParamSelectClass);
             List<StorageSourceParamDef.Options> options = storageParamSelect.getOptions(storageParamItemAnnotation, storageParam);
-            if (CollUtil.isEmpty(options)) {
+            if (CollectionUtils.isEmpty(options)) {
                 return Collections.emptyList();
             }
             return options;
@@ -155,7 +188,7 @@ public class StorageSourceSupport {
         // 从注解中获取 options
         List<StorageSourceParamDef.Options> optionsList = new ArrayList<>();
         StorageParamSelectOption[] options = storageParamItemAnnotation.options();
-        if (ArrayUtil.isNotEmpty(options)) {
+        if (ArrayUtils.isNotEmpty(options)) {
             for (StorageParamSelectOption storageParamSelectOption : options) {
                 StorageSourceParamDef.Options option = new StorageSourceParamDef.Options(storageParamSelectOption);
                 optionsList.add(option);
@@ -175,9 +208,9 @@ public class StorageSourceSupport {
     private static String parseAnnotationLinkField(StorageParamItem storageParamItemAnnotation) {
         String link = storageParamItemAnnotation.link();
         // 如果不为空，且不是 http 或 https 开头，则添加站点域名开头
-        if (StrUtil.isNotEmpty(link) && !link.toLowerCase().startsWith(StringUtils.HTTP)) {
+        if (StringUtils.isNotEmpty(link) && !link.toLowerCase().startsWith(StringUtils.HTTP)) {
             SystemConfigService systemConfigService = SpringUtil.getBean(SystemConfigService.class);
-            String domain = systemConfigService.getDomain();
+            String domain = systemConfigService.getAxiosFromDomainOrSetting();
             link = StringUtils.concat(domain, link);
         }
         return link;

@@ -1,6 +1,6 @@
 package im.zhaojun.zfile.module.storage.chain.command;
 
-import cn.hutool.core.collection.CollUtil;
+import im.zhaojun.zfile.core.util.CollectionUtils;
 import im.zhaojun.zfile.module.filter.service.FilterConfigService;
 import im.zhaojun.zfile.module.storage.chain.FileContext;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
@@ -8,7 +8,7 @@ import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +38,7 @@ public class FileHiddenCommand implements Command {
 		Integer storageId = fileContext.getStorageId();
 		
 		List<FileItemResult> fileItemList = fileContext.getFileItemList();
-		if (CollUtil.isEmpty(fileItemList)) {
+		if (CollectionUtils.isEmpty(fileItemList)) {
 			return false;
 		}
 

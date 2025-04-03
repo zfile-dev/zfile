@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('guestIndexHtml', '匿名用户首页显示内容', '');

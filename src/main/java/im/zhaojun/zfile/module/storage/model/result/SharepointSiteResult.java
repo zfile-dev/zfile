@@ -1,7 +1,6 @@
 package im.zhaojun.zfile.module.storage.model.result;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -10,16 +9,16 @@ import lombok.Data;
  * @author zhaojun
  */
 @Data
-@ApiModel(description = "SharePoint 站点结果类")
+@Schema(description = "SharePoint 站点结果类")
 public class SharepointSiteResult {
 
-	@ApiModelProperty(value="站点 id")
+	@Schema(name="站点 id")
 	private String id;
 
-	@ApiModelProperty(value="站点名称")
+	@Schema(name="站点名称")
 	private String displayName;
 
-	@ApiModelProperty(value="站点地址")
+	@Schema(name="站点地址")
 	private String webUrl;
 
 }
