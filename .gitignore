@@ -37,5 +37,3 @@ build/
 /mvnw
 /mvnw.cmd
 /result/
-/.package/**
-/.package**
