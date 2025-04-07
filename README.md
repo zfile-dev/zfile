@@ -1,4 +1,4 @@
-<div style="text-align: center">
+<div align="center">
     <a href="https://zfile.vip" target="_blank" rel="noopener noreferrer">
         <img style="margin: auto; width: 100px; display: block" src="/img/logo-zfile.png" alt="ZFile" />
     </a>
