@@ -1,16 +1,21 @@
 package im.zhaojun.zfile.module.storage.aspect;
 
-import im.zhaojun.zfile.core.util.ZFileAuthUtil;
-import im.zhaojun.zfile.module.user.model.entity.User;
-import org.apache.commons.lang3.BooleanUtils;
 import im.zhaojun.zfile.core.exception.biz.StorageSourceIllegalOperationBizException;
+import im.zhaojun.zfile.core.util.CollectionUtils;
+import im.zhaojun.zfile.core.util.OnlyOfficeKeyCacheUtils;
+import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.core.util.ZFileAuthUtil;
+import im.zhaojun.zfile.module.onlyoffice.model.OnlyOfficeFile;
 import im.zhaojun.zfile.module.storage.annotation.StoragePermissionCheck;
 import im.zhaojun.zfile.module.storage.model.enums.FileOperatorTypeEnum;
 import im.zhaojun.zfile.module.storage.service.StorageSourceService;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
+import im.zhaojun.zfile.module.user.model.entity.User;
 import im.zhaojun.zfile.module.user.model.entity.UserStorageSource;
 import im.zhaojun.zfile.module.user.service.UserStorageSourceService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
@@ -18,8 +23,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Resource;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -85,7 +91,8 @@ public class FileOperatorCheckAspect {
 	@Around("execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.fileList(..)) || " +
 			"execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.getFileItem(..))")
 	public Object availableAround(ProceedingJoinPoint point) throws Throwable {
-		return check(point, FileOperatorTypeEnum.AVAILABLE);
+		checkPermission(point, FileOperatorTypeEnum.AVAILABLE);
+		return point.proceed();
 	}
 
 	/**
@@ -98,7 +105,8 @@ public class FileOperatorCheckAspect {
 	 */
 	@Around("execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.newFolder(..))")
 	public Object newFolderAround(ProceedingJoinPoint point) throws Throwable {
-		return check(point, FileOperatorTypeEnum.NEW_FOLDER);
+		checkPermission(point, FileOperatorTypeEnum.NEW_FOLDER);
+		return point.proceed();
 	}
 
 	/**
@@ -111,7 +119,19 @@ public class FileOperatorCheckAspect {
 	 */
 	@Around("execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.delete*(..))")
 	public Object deleteAround(ProceedingJoinPoint point) throws Throwable {
-		return check(point, FileOperatorTypeEnum.DELETE);
+		checkPermission(point, FileOperatorTypeEnum.DELETE);
+
+		Object result = point.proceed();
+
+		boolean isFolder = point.getSignature().getName().equals("deleteFolder");
+		AbstractBaseFileService<?> targetService = (AbstractBaseFileService<?>) point.getTarget();
+		String path = (String) point.getArgs()[0];
+		String name = (String) point.getArgs()[1];
+		String currentUserBasePath = targetService.getCurrentUserBasePath();
+		String fullPath = StringUtils.concat(currentUserBasePath, path, name);
+		clearOnlyOfficeCache(fullPath, targetService.storageId, isFolder);
+
+		return result;
 	}
 
 	/**
@@ -125,7 +145,26 @@ public class FileOperatorCheckAspect {
 	@Around("execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.getUploadUrl(..)) || " +
 			"execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService.uploadFile(..))")
 	public Object uploadAround(ProceedingJoinPoint point) throws Throwable {
-		return check(point, FileOperatorTypeEnum.UPLOAD);
+		checkPermission(point, FileOperatorTypeEnum.UPLOAD);
+
+		Object[] args = point.getArgs();
+		AbstractBaseFileService<?> targetService = (AbstractBaseFileService<?>) point.getTarget();
+		String currentUserBasePath = targetService.getCurrentUserBasePath();
+
+		String fullPath;
+		String methodName = point.getSignature().getName();
+		if (Objects.equals(methodName, "getUploadUrl")) {
+			fullPath = StringUtils.concat(currentUserBasePath, (String) args[0], (String) args[1]);
+		} else if (Objects.equals(methodName, "uploadFile")) {
+			fullPath = StringUtils.concat(currentUserBasePath, (String) args[0]);
+		} else {
+			throw new IllegalArgumentException("上传校验异常.");
+		}
+
+		Object result = point.proceed();
+		clearOnlyOfficeCache(fullPath, targetService.storageId, false);
+
+		return result;
 	}
 
 	/**
@@ -138,7 +177,22 @@ public class FileOperatorCheckAspect {
 	 */
 	@Around("execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.rename*(..))")
 	public Object renameAround(ProceedingJoinPoint point) throws Throwable {
-		return check(point, FileOperatorTypeEnum.RENAME);
+		checkPermission(point, FileOperatorTypeEnum.RENAME);
+
+		AbstractBaseFileService<?> targetService = (AbstractBaseFileService<?>) point.getTarget();
+		String currentUserBasePath = targetService.getCurrentUserBasePath();
+
+		Object[] args = point.getArgs();
+		String path = (String) args[0];
+		String name = (String) args[1];
+		String newName = (String) args[2];
+		String sourceFullPath = StringUtils.concat(currentUserBasePath, path, name);
+		String targetFullPath = StringUtils.concat(currentUserBasePath, path, newName);
+
+		Object result = point.proceed();
+		clearOnlyOfficeCache(sourceFullPath, targetService.storageId, Objects.equals(point.getSignature().getName(), "renameFolder"));
+
+		return result;
 	}
 
 	/**
@@ -151,7 +205,17 @@ public class FileOperatorCheckAspect {
 	 */
 	@Around("execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.move*(..))")
 	public Object moveAround(ProceedingJoinPoint point) throws Throwable {
-		return check(point, FileOperatorTypeEnum.MOVE);
+		checkPermission(point, FileOperatorTypeEnum.MOVE);
+		Object result = point.proceed();
+
+		AbstractBaseFileService<?> targetService = (AbstractBaseFileService<?>) point.getTarget();
+		String path = (String) point.getArgs()[0];
+		String name = (String) point.getArgs()[1];
+		String currentUserBasePath = targetService.getCurrentUserBasePath();
+		String fullPath = StringUtils.concat(currentUserBasePath, path, name);
+		clearOnlyOfficeCache(fullPath, targetService.storageId, Objects.equals(point.getSignature().getName(), "moveFolder"));
+
+		return result;
 	}
 
 	/**
@@ -164,7 +228,8 @@ public class FileOperatorCheckAspect {
 	 */
 	@Around("execution(public * im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService.copy*(..))")
 	public Object copyAround(ProceedingJoinPoint point) throws Throwable {
-		return check(point, FileOperatorTypeEnum.COPY);
+		checkPermission(point, FileOperatorTypeEnum.COPY);
+		return point.proceed();
 	}
 
 	/**
@@ -175,10 +240,8 @@ public class FileOperatorCheckAspect {
 	 *
 	 * @param   fileOperatorType
 	 *          文件操作类型
-	 *
-	 * @return  方法运行结果
 	 */
-	private Object check(ProceedingJoinPoint point, FileOperatorTypeEnum fileOperatorType) throws Throwable {
+	private void checkPermission(ProceedingJoinPoint point, FileOperatorTypeEnum fileOperatorType) {
 		// 获取对应的存储源 service
 		AbstractBaseFileService<?> targetService = (AbstractBaseFileService<?>) point.getTarget();
 		Integer storageId = targetService.storageId;
@@ -188,8 +251,6 @@ public class FileOperatorCheckAspect {
 		if (BooleanUtils.isFalse(allowAccess)) {
 			throw new StorageSourceIllegalOperationBizException(storageId, fileOperatorType);
 		}
-
-		return point.proceed();
 	}
 
 
@@ -213,6 +274,34 @@ public class FileOperatorCheckAspect {
 
 		Set<String> permissions = userStorageSource.getPermissions();
 		return permissions.contains(fileOperatorType.getValue());
+	}
+
+	/**
+	 * 清除 OnlyOffice 缓存
+	 *
+	 * @param 	fullPath
+	 * 			文件全路径(包含用户路径)
+	 *
+	 * @param 	storageId
+	 * 			存储源 ID
+	 */
+	private void clearOnlyOfficeCache(String fullPath, Integer storageId, boolean isFolder) {
+		try {
+			String storageKey = storageSourceService.findStorageKeyById(storageId);
+			if (isFolder) {
+				List<OnlyOfficeFile> caches = OnlyOfficeKeyCacheUtils.removeByFolder(new OnlyOfficeFile(storageKey, fullPath));
+				if (CollectionUtils.isNotEmpty(caches)) {
+					log.debug("删除/重命名文件夹时, 清除 OnlyOffice 缓存 {} 个", caches);
+				}
+			} else {
+				OnlyOfficeFile onlyOfficeFile = OnlyOfficeKeyCacheUtils.removeByFile(new OnlyOfficeFile(storageKey, fullPath));
+				if (onlyOfficeFile != null) {
+					log.debug("删除/重命名文件时, 清除 OnlyOffice 缓存: {}", onlyOfficeFile);
+				}
+			}
+		} catch (Exception e) {
+			log.error("清除 OnlyOffice 缓存失败", e);
+		}
 	}
 
 }

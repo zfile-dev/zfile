@@ -101,6 +101,9 @@ public class OnlyOfficeController {
                 throw new BizException("文件不存在");
             }
 
+            String currentUserBasePath = fileService.getCurrentUserBasePath();
+            fileItemRequest.setPath(currentUserBasePath + fileItemRequest.getPath());
+
             boolean hasUploadPermission = userStorageSourceService.hasCurrentUserStorageOperatorPermission(storageId, FileOperatorTypeEnum.UPLOAD);
             return Pair.of(fileItem, hasUploadPermission);
         } catch (Exception e) {
@@ -163,17 +166,17 @@ public class OnlyOfficeController {
         log.debug("OnlyOffice 回调信息: {}, {}", onlyOfficeCallback.getStatus(), onlyOfficeCallback);
         boolean useOnlyOfficeSecret = StrUtil.isNotBlank(systemConfigService.getSystemConfig().getOnlyOfficeSecret());
         if (useOnlyOfficeSecret) {
-            
+
             if (StrUtil.isBlank(onlyOfficeCallback.getToken())) {
                 log.error("OnlyOffice 回调 Token 为空: {}", onlyOfficeCallback);
                 return CALLBACK_ERROR_MSG;
             }
-            
+
             if (!JWTUtil.verify(onlyOfficeCallback.getToken(), StrUtil.bytes(systemConfigService.getSystemConfig().getOnlyOfficeSecret(), StandardCharsets.UTF_8))) {
                 log.error("OnlyOffice 回调 Token 验证失败: {}", onlyOfficeCallback);
-                return CALLBACK_ERROR_MSG;    
+                return CALLBACK_ERROR_MSG;
             }
-            
+
         }
         // 文件发送了变化，清空缓存中该文件的 key 信息.
         if (SUPPORTED_STATUS.contains(onlyOfficeCallback.getStatus())) {

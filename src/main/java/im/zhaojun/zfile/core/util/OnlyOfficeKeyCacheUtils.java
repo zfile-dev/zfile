@@ -2,11 +2,15 @@ package im.zhaojun.zfile.core.util;
 
 import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.CacheObj;
 import im.zhaojun.zfile.module.onlyoffice.model.OnlyOfficeFile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -81,6 +85,45 @@ public class OnlyOfficeKeyCacheUtils {
         ONLY_OFFICE_FILE_KEY_MAP.remove(onlyOfficeFile);
         ONLY_OFFICE_KEY_FILE_MAP.remove(key);
         return onlyOfficeFile;
+    }
+
+    /**
+     * 清理缓存中的文件信息与 Key 的映射关系.(文件发生了变化, 需要重新生成 OnlyOffice 预览链接时调用)
+     *
+     * @param   onlyOfficeFile
+     *          OnlyOffice 文件信息
+     */
+    public static OnlyOfficeFile removeByFile(OnlyOfficeFile onlyOfficeFile) {
+        String key = ONLY_OFFICE_FILE_KEY_MAP.get(onlyOfficeFile);
+        if (key == null) {
+            return null;
+        }
+        ONLY_OFFICE_FILE_KEY_MAP.remove(onlyOfficeFile);
+        ONLY_OFFICE_KEY_FILE_MAP.remove(key);
+        return onlyOfficeFile;
+    }
+
+
+    /**
+     * 清理缓存中的某个文件夹下所有文件信息与 Key 的映射关系.(文件发生了变化, 需要重新生成 OnlyOffice 预览链接时调用)
+     *
+     * @param   onlyOfficeFile
+     *          OnlyOffice 文件信息
+     */
+    public static List<OnlyOfficeFile> removeByFolder(OnlyOfficeFile onlyOfficeFile) {
+        List<OnlyOfficeFile> caches = new ArrayList<>();
+        Iterator<CacheObj<OnlyOfficeFile, String>> cacheObjIterator = ONLY_OFFICE_FILE_KEY_MAP.cacheObjIterator();
+        while (cacheObjIterator.hasNext()) {
+            CacheObj<OnlyOfficeFile, String> cacheObj = cacheObjIterator.next();
+            OnlyOfficeFile cacheOnlyOfficeFile = cacheObj.getKey();
+            if (cacheOnlyOfficeFile.getStorageKey().equals(onlyOfficeFile.getStorageKey())
+                    && StringUtils.startWith(cacheOnlyOfficeFile.getPathAndName(), onlyOfficeFile.getPathAndName())) {
+                ONLY_OFFICE_FILE_KEY_MAP.remove(cacheObj.getKey());
+                ONLY_OFFICE_KEY_FILE_MAP.remove(cacheObj.getValue());
+                caches.add(cacheOnlyOfficeFile);
+            }
+        }
+        return caches;
     }
 
     /**
