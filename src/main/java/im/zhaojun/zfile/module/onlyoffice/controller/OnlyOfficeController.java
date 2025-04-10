@@ -102,7 +102,7 @@ public class OnlyOfficeController {
             }
 
             String currentUserBasePath = fileService.getCurrentUserBasePath();
-            fileItemRequest.setPath(currentUserBasePath + fileItemRequest.getPath());
+            fileItemRequest.setPath(StringUtils.concat(currentUserBasePath, fileItemRequest.getPath()));
 
             boolean hasUploadPermission = userStorageSourceService.hasCurrentUserStorageOperatorPermission(storageId, FileOperatorTypeEnum.UPLOAD);
             return Pair.of(fileItem, hasUploadPermission);
