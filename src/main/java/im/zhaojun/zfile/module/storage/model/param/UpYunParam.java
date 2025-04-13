@@ -14,10 +14,10 @@ public class UpYunParam extends OptionalProxyTransferParam {
 	@StorageParamItem(name = "存储空间名称", order = 1)
 	private String bucketName;
 
-	@StorageParamItem(name = "用户名", order = 2)
+	@StorageParamItem(name = "操作员名称", order = 2)
 	private String username;
 
-	@StorageParamItem(name = "密码", order = 3)
+	@StorageParamItem(name = "操作员密码", order = 3)
 	private String password;
 
 	@StorageParamItem(name = "下载域名", description = "填写您在又拍云绑定的域名.", required = false, order = 4)
