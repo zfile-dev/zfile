@@ -139,7 +139,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = NoResourceFoundException.class)
     @ResponseBody
     public String notFoundAccessException() {
-        return frontIndexController.redirect();
+        return frontIndexController.redirect().getBody();
     }
 
     @ExceptionHandler(value = MethodNotAllowedAccessException.class)

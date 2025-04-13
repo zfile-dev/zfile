@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -37,7 +38,7 @@ public class FrontIndexController {
 	 */
 	@RequestMapping(value = { "/"})
 	@ResponseBody
-	public String redirect() {
+	public ResponseEntity<String> redirect() {
 		// 读取 resources/static/index.html 文件修改 title 和 favicon 后返回
 		ResourceLoader resourceLoader = new FileSystemResourceLoader();
 		String[] staticLocations = webProperties.getResources().getStaticLocations();
@@ -64,7 +65,7 @@ public class FrontIndexController {
 					log.debug("读取 index.html 文件成功, 文件路径: {}", staticLocation);
 				} catch (Exception e) {
 					log.error("{} 资源存在但读取 index.html 文件失败.", staticLocation);
-					return "static index.html read error";
+					return ResponseEntity.status(500).body("static index.html read error");
 				}
 
 				SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
@@ -81,11 +82,14 @@ public class FrontIndexController {
 					content = content.replace("/favicon.svg", faviconUrl);
 				}
 
-				return content;
+				// 添加缓存控制头
+				return ResponseEntity.ok()
+						.header("Cache-Control", "max-age=600, must-revalidate, proxy-revalidate")						.header("Pragma", "no-cache")
+						.body(content);
 			}
 		}
 
-		return "static index.html not found";
+		return ResponseEntity.status(404).body("static index.html not found");
 	}
 
 	@RequestMapping(value = { "/guest"})
