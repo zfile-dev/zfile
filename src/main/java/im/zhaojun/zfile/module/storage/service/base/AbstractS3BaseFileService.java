@@ -359,6 +359,7 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
         storageSourceMetadata.setSupportMoveFolder(false);
         storageSourceMetadata.setSupportCopyFolder(false);
         storageSourceMetadata.setSupportDeleteNotEmptyFolder(false);
+        storageSourceMetadata.setNeedCreateFolderBeforeUpload(false);
         return storageSourceMetadata;
     }
 

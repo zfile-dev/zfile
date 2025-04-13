@@ -582,6 +582,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
         } else {
             storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.MICROSOFT);
         }
+        storageSourceMetadata.setNeedCreateFolderBeforeUpload(false);
         return storageSourceMetadata;
     }
 

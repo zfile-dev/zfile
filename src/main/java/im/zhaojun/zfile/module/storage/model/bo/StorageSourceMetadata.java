@@ -33,6 +33,11 @@ public class StorageSourceMetadata {
      */
     private boolean supportDeleteNotEmptyFolder = true;
 
+    /**
+     * 是否需要在上传文件前创建文件夹
+     */
+    private boolean needCreateFolderBeforeUpload = true;
+
     public enum UploadType {
 
         /**

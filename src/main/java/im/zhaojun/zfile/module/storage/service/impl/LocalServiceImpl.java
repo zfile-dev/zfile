@@ -9,8 +9,6 @@ import im.zhaojun.zfile.core.exception.biz.FilePathSecurityBizException;
 import im.zhaojun.zfile.core.exception.biz.InitializeStorageSourceBizException;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.exception.status.NotFoundAccessException;
-import im.zhaojun.zfile.core.io.EnsureContentLengthInputStreamResource;
-import im.zhaojun.zfile.core.io.ThrottledInputStream;
 import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
@@ -23,7 +21,6 @@ import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +29,10 @@ import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -324,6 +324,7 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
     public StorageSourceMetadata getStorageSourceMetadata() {
         StorageSourceMetadata storageSourceMetadata = new StorageSourceMetadata();
         storageSourceMetadata.setUploadType(StorageSourceMetadata.UploadType.PROXY);
+        storageSourceMetadata.setNeedCreateFolderBeforeUpload(false);
         return storageSourceMetadata;
     }
 

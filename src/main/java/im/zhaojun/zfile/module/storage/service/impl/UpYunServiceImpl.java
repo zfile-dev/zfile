@@ -357,6 +357,7 @@ public class UpYunServiceImpl extends AbstractProxyTransferService<UpYunParam> {
         storageSourceMetadata.setSupportMoveFolder(false);
         storageSourceMetadata.setSupportCopyFolder(false);
         storageSourceMetadata.setSupportDeleteNotEmptyFolder(false);
+        storageSourceMetadata.setNeedCreateFolderBeforeUpload(false);
         return storageSourceMetadata;
     }
 }
