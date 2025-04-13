@@ -95,6 +95,9 @@ public class FrontSiteConfigResult {
 	@Schema(name = "默认文件点击习惯", example = "click")
 	private FileClickModeEnum fileClickMode;
 
+	@Schema(name = "移动端默认文件点击习惯", example = "click")
+	private FileClickModeEnum mobileFileClickMode;
+
 	@Schema(name = "最大同时上传文件数", example = "5")
 	private Integer maxFileUploads;
 

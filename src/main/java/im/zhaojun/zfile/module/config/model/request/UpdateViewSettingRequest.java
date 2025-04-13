@@ -58,6 +58,9 @@ public class UpdateViewSettingRequest {
 	@Schema(name = "默认文件点击习惯", example = "click")
 	private FileClickModeEnum fileClickMode;
 
+	@Schema(name = "移动端默认文件点击习惯", example = "click")
+	private FileClickModeEnum mobileFileClickMode;
+
 	@Schema(name = "onlyOffice 在线预览地址", example = "http://office.zfile.vip")
 	private String onlyOfficeUrl;
 

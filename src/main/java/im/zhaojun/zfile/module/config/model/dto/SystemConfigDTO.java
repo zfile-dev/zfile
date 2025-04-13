@@ -141,6 +141,9 @@ public class SystemConfigDTO implements Serializable {
     @Schema(name = "默认文件点击习惯", example = "click")
     private FileClickModeEnum fileClickMode;
 
+    @Schema(name = "移动端默认文件点击习惯", example = "click")
+    private FileClickModeEnum mobileFileClickMode;
+
     @Schema(name = "授权码", example = "e619510f-cdcd-f657-6c5e-2d12e9a28ae5")
     private String authCode;
 
