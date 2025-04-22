@@ -36,7 +36,7 @@ import java.util.List;
 @Component
 public class DataSourceBeanPostProcessor implements BeanPostProcessor, PriorityOrdered {
 
-    public static final String ZFILE_VERSION_PROPERTIES = "zfile.version";
+    public static final String ZFILE_VERSION_PROPERTIES = "zfile.db.version";
 
     public static final String DRIVE_CLASS_NAME_PROPERTIES = "spring.datasource.driver-class-name";
 
