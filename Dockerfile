@@ -5,9 +5,9 @@ ARG TARGETARCH
 WORKDIR /root
 EXPOSE 8080
 
-RUN apt update -y && apt install --no-install-recommends fontconfig zstd -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt update -y && apt install --no-install-recommends fontconfig -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY zfile-artifacts/zfile-linux-${TARGETARCH}/zfile/* /root/
+COPY --chmod=755 zfile-artifacts/zfile-linux-${TARGETARCH}/zfile/* /root/
 COPY zfile-artifacts/zfile-linux-${TARGETARCH}/static/ /root/static/
 COPY zfile-artifacts/zfile-linux-${TARGETARCH}/application.properties /root/
 
@@ -18,4 +18,4 @@ RUN echo 'Asia/Shanghai' >/etc/timezone
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
-CMD if [ -f /root/zfile.zst ]; then zstd --no-progress -d /root/zfile.zst && rm -rf /root/zfile.zst && chmod +x /root/zfile && /root/zfile --spring.config.location=file:/root/application.properties; else chmod +x /root/zfile && /root/zfile --spring.config.location=file:/root/application.properties; fi
+ENTRYPOINT ["/root/zfile", "--spring.config.location=file:/root/application.properties"]
