@@ -21,7 +21,7 @@ import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -239,7 +239,7 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
             throw new NotFoundAccessException(ErrorCode.BIZ_FILE_NOT_EXIST);
         }
 
-        Resource body = new InputStreamResource(FileUtil.getInputStream(file));
+        Resource body = new FileSystemResource(file);
 
         MediaType mimeType;
         if (param.isProxyLinkForceDownload()) {
