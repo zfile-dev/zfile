@@ -32,10 +32,13 @@ public class SftpParam extends ProxyTransferParam {
     @StorageParamItem(name = "密码", required = false, order = 5)
     private String password;
 
-    @StorageParamItem(name = "基路径", defaultValue = "/", description = "基路径表示该存储源哪个目录在 ZFile 中作为根目录，如： '/'，'/文件夹1'", order = 6)
+    @StorageParamItem(name = "密钥", type = StorageParamTypeEnum.TEXTAREA, required = false, order = 6)
+    private String privateKey;
+
+    @StorageParamItem(name = "基路径", defaultValue = "/", description = "基路径表示该存储源哪个目录在 ZFile 中作为根目录，如： '/'，'/文件夹1'", order = 7)
     private String basePath;
 
-    @StorageParamItem(name = "最大连接数", defaultValue = "8", description = "要确保你服务器 SSH 的可用连接数大于这个值，不然可能会报错 channel is not opened.", order = 7)
+    @StorageParamItem(name = "最大连接数", defaultValue = "8", description = "要确保你服务器 SSH 的可用连接数大于这个值，不然可能会报错 channel is not opened.", order = 8)
     private Integer maxConnections;
 
 }

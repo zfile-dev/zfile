@@ -71,6 +71,9 @@ public class StorageSourceAllParamDTO implements Serializable {
     @Schema(name = "密码", example = "123456")
     private String password;
 
+    @Schema(name = "密钥", example = "-----BEGIN OPENSSH PRIVATE KEY-----\nxxxx\n-----END OPENSSH PRIVATE KEY-----")
+    private String privateKey;
+
     @Schema(name = "域名", example = "http://zfile-test.oss-cn-beijing.aliyuncs.com")
     private String domain;
 

@@ -38,7 +38,7 @@ public @interface StorageParamItem {
 	String name() default "";
 
 	/**
-	 * 字段类型, 默认为 input, 可选值为: input, select, switch.
+	 * 字段类型, 默认为 input, 可选值为: input, textarea, select, switch.
 	 */
 	StorageParamTypeEnum type() default StorageParamTypeEnum.INPUT;
 
