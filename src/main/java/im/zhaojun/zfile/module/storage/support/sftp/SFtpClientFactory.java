@@ -37,7 +37,6 @@ public class SFtpClientFactory extends BasePooledObjectFactory<Sftp> {
 
     @Override
     public Sftp create() throws Exception {
-        System.out.println("privateKey" + privateKey);
         Sftp sftp;
         if(privateKey == null || privateKey.isBlank()) {//密码登录
             FtpConfig ftpConfig = new FtpConfig(host, port, username, password, charset);
