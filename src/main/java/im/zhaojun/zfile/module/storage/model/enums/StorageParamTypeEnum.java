@@ -20,6 +20,11 @@ public enum StorageParamTypeEnum {
 	INPUT("input"),
 
 	/**
+	 * 多行文本输入框
+	 */
+	TEXTAREA("textarea"),
+
+	/**
 	 * 下拉框
 	 */
 	SELECT("select"),

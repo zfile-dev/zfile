@@ -46,7 +46,7 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 	@Override
 	public void init() {
 		Charset charset = Charset.forName(param.getEncoding());
-		SFtpClientFactory factory = new SFtpClientFactory(param.getHost(), param.getPort(), param.getUsername(), param.getPassword(), charset);
+		SFtpClientFactory factory = new SFtpClientFactory(param.getHost(), param.getPort(), param.getUsername(), param.getPassword(), param.getPrivateKey(), param.getPassphrase(), charset);
 		GenericObjectPoolConfig<FtpClientFactory> config = new GenericObjectPoolConfig<>();
 		config.setTestOnBorrow(true);
 		config.setMaxTotal(param.getMaxConnections());
