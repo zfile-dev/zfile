@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.stp.parameter.SaLoginParameter;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import im.zhaojun.zfile.module.sso.model.response.TokenResponse;
@@ -77,7 +78,7 @@ public class SsoService
 
         if (ObjectUtil.isNull(token) || StrUtil.isEmpty(token.getAccessToken()))
         {
-            return "/sso/error?err=获取 Access Token 失败"; // TODO 这里要确认，是否需要从后端控制跳转到错误页面，全部由后端控制可能会更简单一些
+            return URLUtil.encode( "/sso/error?err=获取 Access Token 失败"); // TODO 这里要确认，是否需要从后端控制跳转到错误页面，全部由后端控制可能会更简单一些
         }
 
         // 获取用户信息
@@ -86,7 +87,7 @@ public class SsoService
 
         if (ObjectUtil.isNull(userInfo) || StrUtil.isEmpty(userInfo.getEmail()))
         {
-            return "/sso/error?err=获取用户信息失败"; // TODO 同上一个错误处理
+            return URLUtil.encode("/sso/error?err=获取用户信息失败"); // TODO 同上一个错误处理
         }
 
         // 调用 Sa Token 的登录方法
