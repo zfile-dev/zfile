@@ -28,7 +28,7 @@ class SsoController
         var state = IdUtil.fastSimpleUUID();
         session.setAttribute("state", state);
 
-        var url = ssoService.getAuthRedirectUrl(state);
+        var url = ssoService.getAuthRedirectUrl(provider, state);
 
         var redirect = new RedirectView();
         redirect.setUrl(url);
@@ -37,8 +37,8 @@ class SsoController
         return redirect;
     }
 
-    @GetMapping("/login/callback")
-    public RedirectView callback(@RequestParam("code") String code, @RequestParam("state") String state, HttpSession session)
+    @GetMapping("/{provider}/login/callback")
+    public RedirectView callback(@PathVariable("provider") String provider, @RequestParam("code") String code, @RequestParam("state") String state, HttpSession session)
     {
         if (!state.equals(session.getAttribute("state").toString()))
         {
@@ -46,7 +46,7 @@ class SsoController
             return new RedirectView("/sso/error?err=" + err);
         }
 
-        var url = ssoService.callbackHandler(code);
+        var url = ssoService.callbackHandler(provider, code);
 
         var redirect = new RedirectView();
         redirect.setUrl(url);
