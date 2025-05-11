@@ -172,7 +172,7 @@ public class SsoService
 
         if (ObjectUtil.isNull(userInfoStr) || ObjectUtil.isEmpty(bindingField))
         {
-            return "/sso/login/error?err=" + URLUtil.encode("获取用户信息失败, 请检查配置"); // TODO 同上一个错误处理
+            return "/sso/login/error?err=" + URLUtil.encode("获取用户信息失败, 请检查配置");
         }
 
         // 调用 Sa Token 的登录方法
