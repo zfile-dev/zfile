@@ -82,46 +82,45 @@ public class SsoService
             put("redirect_uri", HOST + StrUtil.format(REDIRECT_URI, provider));
             put("grant_type", "authorization_code");
         }};
-        var authParamsStr = HttpUtil.toParams(tokenParamsMap);
-        var result = HttpUtil.post(config.getTokenUrl(), authParamsStr);
 
-        var token = JSONUtil.toBean(result, TokenResponse.class);
+        var tokenStr = HttpUtil
+                .createPost(config.getTokenUrl())
+                .header(Header.ACCEPT, "application/json")
+                .body(HttpUtil.toParams(tokenParamsMap))
+                .execute()
+                .body();
+        log.info("[Token] 单点登录厂商返回的 Token 信息: {}", JSONUtil.toJsonPrettyStr(tokenStr));
+        var token = JSONUtil.toBean(tokenStr, TokenResponse.class);
+
+        if ("bearer".equalsIgnoreCase(token.getTokenType()))
+        {
+            return "/sso/login/error?err=" + URLUtil.encode("Access Token 类型错误, 需要 Bearer 类型, 请检查配置");
+        }
 
         if (ObjectUtil.isNull(token) || StrUtil.isEmpty(token.getAccessToken()))
         {
-            return "/sso/login/error?err=" + URLUtil.encode("获取 Access Token 失败"); // TODO 这里要确认，是否需要从后端控制跳转到错误页面，全部由后端控制可能会更简单一些
+            return "/sso/login/error?err=" + URLUtil.encode("获取 Access Token 失败, 请检查配置");
         }
 
         // 获取用户信息
-        var userInfoStr = HttpUtil.createGet(config.getUserInfoUrl()).bearerAuth(token.getAccessToken()).execute().body();
-        var userInfo = JSONUtil.toBean(userInfoStr, UserInfoResponse.class);
+        var userInfoStr = HttpUtil
+                .createGet(config.getUserInfoUrl())
+                .bearerAuth(token.getAccessToken())
+                .execute()
+                .body();
+        log.info("[UserInfo] 单点登录服务商处的用户信息: {}", JSONUtil.toJsonPrettyStr(userInfoStr));
 
-        if (ObjectUtil.isNull(userInfo) || StrUtil.isEmpty(userInfo.getEmail()))
+        var bindingField = JSONUtil.parse(userInfoStr).getByPath(config.getBindingField());
+        log.info("[UserInfo] 绑定字段 [{}]: {}", config.getBindingField(), bindingField);
+
+        if (ObjectUtil.isNull(userInfoStr) || ObjectUtil.isEmpty(bindingField))
         {
-            return "/sso/login/error?err=" + URLUtil.encode("获取用户信息失败"); // TODO 同上一个错误处理
+            return "/sso/login/error?err=" + URLUtil.encode("获取用户信息失败, 请检查配置"); // TODO 同上一个错误处理
         }
 
         // 调用 Sa Token 的登录方法
         // TODO 这里要处理一下，如果没有对应用户，则创建用户
-        try
-        {
-            var bindingField = ReflectUtil.getFieldValue(userInfo, config.getBindingField());
-
-            if (ObjectUtil.isNull(bindingField))
-            {
-                return "/sso/login/error?err=" + URLUtil.encode("未配置绑定字段, 或绑定字段为空, 请检查配置");
-            }
-
-            if (StrUtil.isEmpty(bindingField.toString()))
-            {
-                return "/sso/login/error?err=" + URLUtil.encode("绑定字段: [" + config.getBindingField() + "] 为空, 请检查配置");
-            }
-            StpUtil.login(bindingField.toString(), new SaLoginModel().setToken(token.getAccessToken()));
-        }
-        catch (Exception e)
-        {
-            return "/sso/login/error?err=" + URLUtil.encode("绑定字段: [" + config.getBindingField() + "] 不存在, 请检查配置");
-        }
+        StpUtil.login(bindingField.toString(), new SaLoginModel().setToken(token.getAccessToken()));
 
         return "/sso/login/success";
     }
