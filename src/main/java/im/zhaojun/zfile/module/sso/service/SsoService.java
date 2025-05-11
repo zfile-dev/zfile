@@ -14,8 +14,6 @@ import im.zhaojun.zfile.module.sso.model.response.TokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashMap;
 
@@ -33,7 +31,7 @@ public class SsoService
     private static final String REDIRECT_URI = "/sso/{}/login/callback";
     private final SsoConfigMapper ssoConfigMapper;
 
-    public String insertProvider(@RequestBody SsoConfig provider)
+    public String insertProvider(SsoConfig provider)
     {
         if (!StrUtil.isEmpty(provider.getWellKnownUrl()))
         {
@@ -56,19 +54,19 @@ public class SsoService
         return result > 0 ? "success" : "error";
     }
 
-    public String deleteProvider(@PathVariable String provider)
+    public String deleteProvider(String provider)
     {
         var result = ssoConfigMapper.deleteById(provider);
         return result > 0 ? "success" : "error";
     }
 
-    public String modifyProvider(@RequestBody SsoConfig provider)
+    public String modifyProvider(SsoConfig provider)
     {
         var result = ssoConfigMapper.updateById(provider);
         return result > 0 ? "success" : "error";
     }
 
-    public SsoConfig getProvider(@PathVariable String provider)
+    public SsoConfig getProvider(String provider)
     {
         var result = ssoConfigMapper.findByProvider(provider);
         result.setClientSecret(StrUtil.hide(result.getClientSecret(), 5, result.getClientSecret().length() - 5));
