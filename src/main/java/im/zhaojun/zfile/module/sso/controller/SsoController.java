@@ -36,7 +36,7 @@ class SsoController
         return redirect;
     }
 
-    @GetMapping("/callback")
+    @GetMapping("/login/callback")
     public RedirectView callback(@RequestParam("code") String code, @RequestParam("state") String state, HttpSession session)
     {
         if (!state.equals(session.getAttribute("state").toString()))
@@ -53,13 +53,13 @@ class SsoController
         return redirect;
     }
 
-    @GetMapping("/success")
+    @GetMapping("/login/success")
     public String success()
     {
         return "单点登录成功, 当前用户 ID: [" + StpUtil.getLoginIdAsString() + "]!";
     }
 
-    @GetMapping("/error")
+    @GetMapping("/login/error")
     public String error(@RequestParam("err") String err)
     {
         return "单点登录失败: " + err;
