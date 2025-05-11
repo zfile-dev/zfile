@@ -29,7 +29,6 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 public class SsoService
 {
-    // TODO 同时考虑是否需要利用 Well-Known 来获取相关信息
     private static final String HOST = "http://localhost:8080"; // TODO 这里需要一个环境变量用来配置重定向地址
     private static final String REDIRECT_URI = "/sso/{}/login/callback";
     private final SsoConfigMapper ssoConfigMapper;
