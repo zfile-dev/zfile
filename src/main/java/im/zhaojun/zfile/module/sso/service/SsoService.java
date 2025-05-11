@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.module.sso.service;
 
+import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.stp.parameter.SaLoginParameter;
 import cn.hutool.core.util.ObjectUtil;
@@ -92,7 +93,7 @@ public class SsoService
 
         // 调用 Sa Token 的登录方法
         // TODO 这里要处理一下，如果没有对应用户，则创建用户
-        StpUtil.login(userInfo.getEmail(), new SaLoginParameter().setToken(token.getAccessToken()));
+        StpUtil.login(userInfo.getEmail(), new SaLoginModel().setToken(token.getAccessToken()));
 
         return "/sso/success";
     }
