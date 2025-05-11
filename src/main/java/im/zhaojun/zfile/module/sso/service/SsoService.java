@@ -31,6 +31,15 @@ public class SsoService
     private static final String REDIRECT_URI = "/sso/{}/login/callback";
     private final SsoConfigMapper ssoConfigMapper;
 
+    /**
+     * 在系统中插入新的单点登录服务商配置<br/>
+     * 如果配置中提供了 "Well-Known" URL，系统会尝试自动获取并解析 SSO 端点数据<br/>
+     * 注意: <strong>通过 Well-Known 获取到的配置会将手动填写的配置信息覆盖</strong><br/>
+     * 如果系统自动获取的配置无法解析，则会失败<br/>
+     *
+     * @param provider 要插入的单点登录（SSO）提供程序配置对象
+     * @return 表示操作结果的字符串："success"、"error"、"错误信息"
+     */
     public String insertProvider(SsoConfig provider)
     {
         if (!StrUtil.isEmpty(provider.getWellKnownUrl()))
@@ -66,6 +75,13 @@ public class SsoService
         return result > 0 ? "success" : "error";
     }
 
+    /**
+     * 读取指定单点登录服务商的配置<br/>
+     * 安全起见，配置中的 Client Secret 会被部分隐藏
+     *
+     * @param provider 要获取的单点登录提供商的名称
+     * @return 指定的单点登录服务商配置信息
+     */
     public SsoConfig getProvider(String provider)
     {
         var result = ssoConfigMapper.findByProvider(provider);
