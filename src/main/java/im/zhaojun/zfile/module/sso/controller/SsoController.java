@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.core.util.AjaxJson;
+import im.zhaojun.zfile.module.sso.model.entity.SsoConfig;
 import im.zhaojun.zfile.module.sso.service.SsoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
@@ -21,6 +22,30 @@ import org.springframework.web.servlet.view.RedirectView;
 class SsoController
 {
     private final SsoService ssoService;
+
+    @PostMapping("/provider")
+    public AjaxJson<Void> insertProvider(@RequestBody SsoConfig provider)
+    {
+        return AjaxJson.getSuccess(ssoService.insertProvider(provider));
+    }
+
+    @DeleteMapping("/provider/{provider}")
+    public AjaxJson<Void> deleteProvider(@PathVariable String provider)
+    {
+        return AjaxJson.getSuccess(ssoService.deleteProvider(provider));
+    }
+
+    @PutMapping("/provider")
+    public AjaxJson<Void> modifyProvider(@RequestBody SsoConfig provider)
+    {
+        return AjaxJson.getSuccess(ssoService.modifyProvider(provider));
+    }
+
+    @GetMapping("/provider/{provider}")
+    public AjaxJson<SsoConfig> getProvider(@PathVariable String provider)
+    {
+        return AjaxJson.getSuccessData(ssoService.getProvider(provider));
+    }
 
     @GetMapping("/{provider}/login")
     public RedirectView login(@PathVariable String provider, HttpSession session)
@@ -43,7 +68,7 @@ class SsoController
         if (!state.equals(session.getAttribute("state").toString()))
         {
             var err = URLUtil.encode("state 参数不一致");
-            return new RedirectView("/sso/error?err=" + err);
+            return new RedirectView("/sso/login/error?err=" + err);
         }
 
         var url = ssoService.callbackHandler(provider, code);

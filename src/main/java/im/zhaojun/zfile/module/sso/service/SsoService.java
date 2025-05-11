@@ -3,17 +3,19 @@ package im.zhaojun.zfile.module.sso.service;
 import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
+import cn.hutool.http.Header;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import im.zhaojun.zfile.module.sso.mapper.SsoConfigMapper;
+import im.zhaojun.zfile.module.sso.model.entity.SsoConfig;
 import im.zhaojun.zfile.module.sso.model.response.TokenResponse;
-import im.zhaojun.zfile.module.sso.model.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashMap;
 
@@ -31,6 +33,48 @@ public class SsoService
     private static final String HOST = "http://localhost:8080"; // TODO 这里需要一个环境变量用来配置重定向地址
     private static final String REDIRECT_URI = "/sso/{}/login/callback";
     private final SsoConfigMapper ssoConfigMapper;
+
+    public String insertProvider(@RequestBody SsoConfig provider)
+    {
+        if (!StrUtil.isEmpty(provider.getWellKnownUrl()))
+        {
+            var wellKnownStr = HttpUtil.get(provider.getWellKnownUrl());
+            var wellKnown = JSONUtil.parseObj(wellKnownStr);
+
+            var authUrl = wellKnown.getStr("authorization_endpoint");
+            var tokenUrl = wellKnown.getStr("token_endpoint");
+            var userInfoUrl = wellKnown.getStr("userinfo_endpoint");
+            if (StrUtil.isEmpty(authUrl) || StrUtil.isEmpty(tokenUrl) || StrUtil.isEmpty(userInfoUrl))
+            {
+                return "Well-Known 信息错误, 自动发现配置失败, 请检查配置或直接填写全部配置";
+            }
+
+            provider.setAuthUrl(authUrl);
+            provider.setTokenUrl(tokenUrl);
+            provider.setUserInfoUrl(userInfoUrl);
+        }
+        var result = ssoConfigMapper.insert(provider);
+        return result > 0 ? "success" : "error";
+    }
+
+    public String deleteProvider(@PathVariable String provider)
+    {
+        var result = ssoConfigMapper.deleteById(provider);
+        return result > 0 ? "success" : "error";
+    }
+
+    public String modifyProvider(@RequestBody SsoConfig provider)
+    {
+        var result = ssoConfigMapper.updateById(provider);
+        return result > 0 ? "success" : "error";
+    }
+
+    public SsoConfig getProvider(@PathVariable String provider)
+    {
+        var result = ssoConfigMapper.findByProvider(provider);
+        result.setClientSecret(StrUtil.hide(result.getClientSecret(), 5, result.getClientSecret().length() - 5));
+        return result;
+    }
 
     /**
      * 获取 OIDC/OAuth2 的授权地址<br/>
