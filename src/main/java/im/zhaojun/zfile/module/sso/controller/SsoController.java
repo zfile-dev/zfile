@@ -2,6 +2,7 @@ package im.zhaojun.zfile.module.sso.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.module.sso.model.entity.SsoConfig;
@@ -14,6 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+/**
+ * 单点登录接口
+ *
+ * @author OnEvent
+ */
 @Slf4j
 @Tag(name = "单点登录")
 @RestController
@@ -26,25 +32,46 @@ class SsoController
     @PostMapping("/provider")
     public AjaxJson<Void> insertProvider(@RequestBody SsoConfig provider)
     {
-        return AjaxJson.getSuccess(ssoService.insertProvider(provider));
+        if (
+                StrUtil.isEmpty(provider.getProvider()) ||
+                StrUtil.isEmpty(provider.getClientId()) ||
+                StrUtil.isEmpty(provider.getClientSecret()) ||
+                StrUtil.isEmpty(provider.getScope()) ||
+                StrUtil.isEmpty(provider.getBindingField())
+        )
+        {
+            return AjaxJson.getError("缺少必要参数, 请检查配置");
+        }
+
+        if (
+                (StrUtil.isEmpty(provider.getAuthUrl()) ||
+                 StrUtil.isEmpty(provider.getTokenUrl()) ||
+                 StrUtil.isEmpty(provider.getUserInfoUrl())) &&
+                StrUtil.isEmpty(provider.getWellKnownUrl())
+        )
+        {
+            return AjaxJson.getError("各项端点配置和 Well-Known 配置必须填写其中一个, 请检查配置");
+        }
+
+        return ssoService.insertProvider(provider);
     }
 
     @DeleteMapping("/provider/{provider}")
     public AjaxJson<Void> deleteProvider(@PathVariable String provider)
     {
-        return AjaxJson.getSuccess(ssoService.deleteProvider(provider));
+        return ssoService.deleteProvider(provider);
     }
 
     @PutMapping("/provider")
     public AjaxJson<Void> modifyProvider(@RequestBody SsoConfig provider)
     {
-        return AjaxJson.getSuccess(ssoService.modifyProvider(provider));
+        return ssoService.modifyProvider(provider);
     }
 
     @GetMapping("/provider/{provider}")
-    public AjaxJson<SsoConfig> getProvider(@PathVariable String provider)
+    public AjaxJson<?> getProvider(@PathVariable String provider)
     {
-        return AjaxJson.getSuccessData(ssoService.getProvider(provider));
+        return ssoService.getProvider(provider);
     }
 
     @GetMapping("/{provider}/login")

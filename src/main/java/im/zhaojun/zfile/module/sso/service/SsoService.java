@@ -8,6 +8,7 @@ import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.Header;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
+import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.module.sso.mapper.SsoConfigMapper;
 import im.zhaojun.zfile.module.sso.model.entity.SsoConfig;
 import im.zhaojun.zfile.module.sso.model.response.TokenResponse;
@@ -38,9 +39,9 @@ public class SsoService
      * 如果系统自动获取的配置无法解析，则会失败<br/>
      *
      * @param provider 要插入的单点登录（SSO）提供程序配置对象
-     * @return 表示操作结果的字符串："success"、"error"、"错误信息"
+     * @return 表示操作结果的字符串
      */
-    public String insertProvider(SsoConfig provider)
+    public AjaxJson<Void> insertProvider(SsoConfig provider)
     {
         if (!StrUtil.isEmpty(provider.getWellKnownUrl()))
         {
@@ -52,27 +53,28 @@ public class SsoService
             var userInfoUrl = wellKnown.getStr("userinfo_endpoint");
             if (StrUtil.isEmpty(authUrl) || StrUtil.isEmpty(tokenUrl) || StrUtil.isEmpty(userInfoUrl))
             {
-                return "Well-Known 信息错误, 自动发现配置失败, 请检查配置或直接填写全部配置";
+                return AjaxJson.getError("Well-Known 信息错误, 自动发现配置失败, 请检查配置或直接填写全部配置");
             }
 
             provider.setAuthUrl(authUrl);
             provider.setTokenUrl(tokenUrl);
             provider.setUserInfoUrl(userInfoUrl);
         }
+        provider.setEnabled(true);
         var result = ssoConfigMapper.insert(provider);
-        return result > 0 ? "success" : "error";
+        return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("插入失败, 请检查配置");
     }
 
-    public String deleteProvider(String provider)
+    public AjaxJson<Void> deleteProvider(String provider)
     {
         var result = ssoConfigMapper.deleteById(provider);
-        return result > 0 ? "success" : "error";
+        return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("删除失败, 请检查配置");
     }
 
-    public String modifyProvider(SsoConfig provider)
+    public AjaxJson<Void> modifyProvider(SsoConfig provider)
     {
         var result = ssoConfigMapper.updateById(provider);
-        return result > 0 ? "success" : "error";
+        return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("修改失败, 请检查配置");
     }
 
     /**
@@ -82,11 +84,15 @@ public class SsoService
      * @param provider 要获取的单点登录提供商的名称
      * @return 指定的单点登录服务商配置信息
      */
-    public SsoConfig getProvider(String provider)
+    public AjaxJson<?> getProvider(String provider)
     {
         var result = ssoConfigMapper.findByProvider(provider);
+        if (ObjectUtil.isNull(result))
+        {
+            return AjaxJson.getError("单点登录厂商配置不存在, 请检查配置");
+        }
         result.setClientSecret(StrUtil.hide(result.getClientSecret(), 5, result.getClientSecret().length() - 5));
-        return result;
+        return AjaxJson.getSuccessData(result);
     }
 
     /**
