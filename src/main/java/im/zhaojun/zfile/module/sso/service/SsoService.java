@@ -95,6 +95,6 @@ public class SsoService
         // TODO 这里要处理一下，如果没有对应用户，则创建用户
         StpUtil.login(userInfo.getEmail(), new SaLoginModel().setToken(token.getAccessToken()));
 
-        return "/sso/success";
+        return "/sso/login/success";
     }
 }

@@ -3,6 +3,7 @@ package im.zhaojun.zfile.module.sso.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.URLUtil;
+import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.module.sso.service.SsoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
@@ -21,7 +22,7 @@ class SsoController
 {
     private final SsoService ssoService;
 
-    @GetMapping("/login/{provider}")
+    @GetMapping("/{provider}/login")
     public RedirectView login(@PathVariable String provider, HttpSession session)
     {
         var state = IdUtil.fastSimpleUUID();
@@ -54,14 +55,14 @@ class SsoController
     }
 
     @GetMapping("/login/success")
-    public String success()
+    public AjaxJson<Void> success()
     {
-        return "单点登录成功, 当前用户 ID: [" + StpUtil.getLoginIdAsString() + "]!";
+        return AjaxJson.getSuccess("单点登录成功, 当前用户 ID: [" + StpUtil.getLoginIdAsString() + "]!");
     }
 
     @GetMapping("/login/error")
-    public String error(@RequestParam("err") String err)
+    public AjaxJson<Void> error(@RequestParam("err") String err)
     {
-        return "单点登录失败: " + err;
+        return AjaxJson.getError("单点登录失败: " + err);
     }
 }
