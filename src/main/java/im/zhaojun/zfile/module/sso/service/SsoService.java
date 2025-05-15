@@ -155,7 +155,7 @@ public class SsoService
         log.info("[Token] 单点登录厂商返回的 Token 信息: {}", JSONUtil.toJsonPrettyStr(tokenStr));
         var token = JSONUtil.toBean(tokenStr, TokenResponse.class);
 
-        if ("bearer".equalsIgnoreCase(token.getTokenType()))
+        if (!"bearer".equalsIgnoreCase(token.getTokenType()))
         {
             return "/sso/login/error?err=" + URLUtil.encode("Access Token 类型错误, 需要 Bearer 类型, 请检查配置");
         }
