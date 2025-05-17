@@ -2,13 +2,13 @@ package im.zhaojun.zfile.module.sso.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.module.sso.model.entity.SsoConfig;
 import im.zhaojun.zfile.module.sso.service.SsoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,29 +30,8 @@ class SsoController
     private final SsoService ssoService;
 
     @PostMapping("/provider")
-    public AjaxJson<Void> insertProvider(@RequestBody SsoConfig provider)
+    public AjaxJson<Void> insertProvider(@RequestBody @Valid SsoConfig provider)
     {
-        if (
-                StrUtil.isEmpty(provider.getProvider()) ||
-                StrUtil.isEmpty(provider.getClientId()) ||
-                StrUtil.isEmpty(provider.getClientSecret()) ||
-                StrUtil.isEmpty(provider.getScope()) ||
-                StrUtil.isEmpty(provider.getBindingField())
-        )
-        {
-            return AjaxJson.getError("缺少必要参数, 请检查配置");
-        }
-
-        if (
-                (StrUtil.isEmpty(provider.getAuthUrl()) ||
-                 StrUtil.isEmpty(provider.getTokenUrl()) ||
-                 StrUtil.isEmpty(provider.getUserInfoUrl())) &&
-                StrUtil.isEmpty(provider.getWellKnownUrl())
-        )
-        {
-            return AjaxJson.getError("各项端点配置和 Well-Known 配置必须填写其中一个, 请检查配置");
-        }
-
         return ssoService.insertProvider(provider);
     }
 

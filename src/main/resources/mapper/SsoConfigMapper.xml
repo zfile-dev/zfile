@@ -3,28 +3,28 @@
 <mapper namespace="im.zhaojun.zfile.module.sso.mapper.SsoConfigMapper">
     <resultMap id="BaseResultMap" type="im.zhaojun.zfile.module.sso.model.entity.SsoConfig">
         <id column="provider" property="provider" jdbcType="VARCHAR"/>
-        <result column="issuer" property="issuer" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
         <result column="client_id" property="clientId" jdbcType="VARCHAR"/>
         <result column="client_secret" property="clientSecret" jdbcType="VARCHAR"/>
         <result column="auth_url" property="authUrl" jdbcType="VARCHAR"/>
         <result column="token_url" property="tokenUrl" jdbcType="VARCHAR"/>
         <result column="user_info_url" property="userInfoUrl" jdbcType="VARCHAR"/>
         <result column="scope" property="scope" jdbcType="VARCHAR"/>
-        <result column="well_known_url" property="wellKnownUrl" jdbcType="VARCHAR"/>
         <result column="binding_field" property="bindingField" jdbcType="VARCHAR"/>
         <result column="enabled" property="enabled" jdbcType="BIT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         `provider`,
-        `issuer`,
+        `name`,
+        `icon`,
         `client_id`,
         `client_secret`,
         `auth_url`,
         `token_url`,
         `user_info_url`,
         `scope`,
-        `well_known_url`,
         `binding_field`,
         `enabled`
     </sql>

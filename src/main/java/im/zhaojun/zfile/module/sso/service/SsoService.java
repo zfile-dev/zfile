@@ -43,24 +43,6 @@ public class SsoService
      */
     public AjaxJson<Void> insertProvider(SsoConfig provider)
     {
-        if (!StrUtil.isEmpty(provider.getWellKnownUrl()))
-        {
-            var wellKnownStr = HttpUtil.get(provider.getWellKnownUrl());
-            var wellKnown = JSONUtil.parseObj(wellKnownStr);
-
-            var authUrl = wellKnown.getStr("authorization_endpoint");
-            var tokenUrl = wellKnown.getStr("token_endpoint");
-            var userInfoUrl = wellKnown.getStr("userinfo_endpoint");
-            if (StrUtil.isEmpty(authUrl) || StrUtil.isEmpty(tokenUrl) || StrUtil.isEmpty(userInfoUrl))
-            {
-                return AjaxJson.getError("Well-Known 信息错误, 自动发现配置失败, 请检查配置或直接填写全部配置");
-            }
-
-            provider.setAuthUrl(authUrl);
-            provider.setTokenUrl(tokenUrl);
-            provider.setUserInfoUrl(userInfoUrl);
-        }
-        provider.setEnabled(true);
         var result = ssoConfigMapper.insert(provider);
         return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("插入失败, 请检查配置");
     }
@@ -187,4 +169,5 @@ public class SsoService
 
         return "/sso/login/success";
     }
+
 }
