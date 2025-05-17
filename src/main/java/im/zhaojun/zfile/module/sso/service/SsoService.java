@@ -26,10 +26,12 @@ import java.util.HashMap;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SsoService
-{
+public class SsoService {
+
     private static final String HOST = "http://localhost:8080"; // TODO 这里需要一个环境变量用来配置重定向地址
+
     private static final String REDIRECT_URI = "/sso/{}/login/callback";
+
     private final SsoConfigMapper ssoConfigMapper;
 
     /**
@@ -41,20 +43,17 @@ public class SsoService
      * @param provider 要插入的单点登录（SSO）提供程序配置对象
      * @return 表示操作结果的字符串
      */
-    public AjaxJson<Void> insertProvider(SsoConfig provider)
-    {
+    public AjaxJson<Void> insertProvider(SsoConfig provider) {
         var result = ssoConfigMapper.insert(provider);
         return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("插入失败, 请检查配置");
     }
 
-    public AjaxJson<Void> deleteProvider(String provider)
-    {
+    public AjaxJson<Void> deleteProvider(String provider) {
         var result = ssoConfigMapper.deleteById(provider);
         return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("删除失败, 请检查配置");
     }
 
-    public AjaxJson<Void> modifyProvider(SsoConfig provider)
-    {
+    public AjaxJson<Void> modifyProvider(SsoConfig provider) {
         var result = ssoConfigMapper.updateById(provider);
         return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("修改失败, 请检查配置");
     }
@@ -66,8 +65,7 @@ public class SsoService
      * @param provider 要获取的单点登录提供商的名称
      * @return 指定的单点登录服务商配置信息
      */
-    public AjaxJson<?> getProvider(String provider)
-    {
+    public AjaxJson<?> getProvider(String provider) {
         var result = ssoConfigMapper.findByProvider(provider);
         if (ObjectUtil.isNull(result))
         {
@@ -84,8 +82,7 @@ public class SsoService
      * @param state 状态值
      * @return 授权地址
      */
-    public String getAuthRedirectUrl(String provider, String state)
-    {
+    public String getAuthRedirectUrl(String provider, String state) {
         var config = ssoConfigMapper.findByProvider(provider);
         if (ObjectUtil.isNull(config))
         {
@@ -113,8 +110,7 @@ public class SsoService
      * @param code 授权码
      * @return 重定向的页面路径
      */
-    public String callbackHandler(String provider, String code)
-    {
+    public String callbackHandler(String provider, String code) {
         var config = ssoConfigMapper.findByProvider(provider);
         log.info("[Callback] 单点登录厂商配置信息: {}", JSONUtil.toJsonPrettyStr(config));
 

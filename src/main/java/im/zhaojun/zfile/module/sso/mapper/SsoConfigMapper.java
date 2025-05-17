@@ -11,7 +11,8 @@ import org.apache.ibatis.annotations.Param;
  * @author OnEvent
  */
 @Mapper
-public interface SsoConfigMapper extends BaseMapper<SsoConfig>
-{
+public interface SsoConfigMapper extends BaseMapper<SsoConfig> {
+
     SsoConfig findByProvider(@Param("provider") String provider);
+
 }

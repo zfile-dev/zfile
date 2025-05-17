@@ -19,8 +19,8 @@ import java.io.Serializable;
 @Data
 @Schema(name = "单点登录厂商配置")
 @TableName(value = "`sso_config`")
-public class SsoConfig implements Serializable
-{
+public class SsoConfig implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 

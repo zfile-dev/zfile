@@ -25,37 +25,32 @@ import org.springframework.web.servlet.view.RedirectView;
 @RestController
 @RequestMapping("/sso")
 @RequiredArgsConstructor
-class SsoController
-{
+class SsoController {
+
     private final SsoService ssoService;
 
     @PostMapping("/provider")
-    public AjaxJson<Void> insertProvider(@RequestBody @Valid SsoConfig provider)
-    {
+    public AjaxJson<Void> insertProvider(@RequestBody @Valid SsoConfig provider) {
         return ssoService.insertProvider(provider);
     }
 
     @DeleteMapping("/provider/{provider}")
-    public AjaxJson<Void> deleteProvider(@PathVariable String provider)
-    {
+    public AjaxJson<Void> deleteProvider(@PathVariable String provider) {
         return ssoService.deleteProvider(provider);
     }
 
     @PutMapping("/provider")
-    public AjaxJson<Void> modifyProvider(@RequestBody SsoConfig provider)
-    {
+    public AjaxJson<Void> modifyProvider(@RequestBody SsoConfig provider) {
         return ssoService.modifyProvider(provider);
     }
 
     @GetMapping("/provider/{provider}")
-    public AjaxJson<?> getProvider(@PathVariable String provider)
-    {
+    public AjaxJson<?> getProvider(@PathVariable String provider) {
         return ssoService.getProvider(provider);
     }
 
     @GetMapping("/{provider}/login")
-    public RedirectView login(@PathVariable String provider, HttpSession session)
-    {
+    public RedirectView login(@PathVariable String provider, HttpSession session) {
         var state = IdUtil.fastSimpleUUID();
         session.setAttribute("state", state);
 
@@ -69,10 +64,8 @@ class SsoController
     }
 
     @GetMapping("/{provider}/login/callback")
-    public RedirectView callback(@PathVariable("provider") String provider, @RequestParam("code") String code, @RequestParam("state") String state, HttpSession session)
-    {
-        if (!state.equals(session.getAttribute("state").toString()))
-        {
+    public RedirectView callback(@PathVariable("provider") String provider, @RequestParam("code") String code, @RequestParam("state") String state, HttpSession session) {
+        if (!state.equals(session.getAttribute("state").toString())) {
             var err = URLUtil.encode("state 参数不一致");
             return new RedirectView("/sso/login/error?err=" + err);
         }
@@ -86,14 +79,13 @@ class SsoController
     }
 
     @GetMapping("/login/success")
-    public AjaxJson<Void> success()
-    {
+    public AjaxJson<Void> success() {
         return AjaxJson.getSuccess("单点登录成功, 当前用户 ID: [" + StpUtil.getLoginIdAsString() + "]!");
     }
 
     @GetMapping("/login/error")
-    public AjaxJson<Void> error(@RequestParam("err") String err)
-    {
+    public AjaxJson<Void> error(@RequestParam("err") String err) {
         return AjaxJson.getError("单点登录失败: " + err);
     }
+
 }
