@@ -29,10 +29,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static im.zhaojun.zfile.module.user.service.UserService.USER_CACHE_KEY;
 
@@ -222,15 +219,21 @@ public class UserService {
     @Transactional(rollbackFor = Exception.class)
     public void updateUserNameAndPwdById(Integer id, UpdateUserPwdRequest updateUserPwdRequest) {
         User user = userMapper.selectById(id);
-        if (user == null) {
+        if (user == null || Objects.equals(id, UserConstant.ANONYMOUS_ID)) {
             throw new BizException(ErrorCode.BIZ_USER_NOT_EXIST);
         }
-        if (!PasswordVerifyUtils.verify(user.getPassword(), user.getSalt(), updateUserPwdRequest.getOldPassword())) {
+
+        // 验证旧密码是否正确，如果旧密码不为空，则进行验证
+        if (StringUtils.isNotBlank(user.getPassword()) &&
+                !PasswordVerifyUtils.verify(user.getPassword(), user.getSalt(), updateUserPwdRequest.getOldPassword())) {
             throw new BizException(ErrorCode.BIZ_OLD_PASSWORD_ERROR);
         }
+
+        // 验证新密码和确认密码是否一致
         if (!updateUserPwdRequest.getNewPassword().equals(updateUserPwdRequest.getConfirmPassword())) {
             throw new BizException(ErrorCode.BIZ_PASSWORD_NOT_SAME);
         }
+
         passwordEncryptAndSet(updateUserPwdRequest.getNewPassword(), user);
         userMapper.updateById(user);
     }
@@ -248,7 +251,7 @@ public class UserService {
         if (user == null) {
             throw new BizException(ErrorCode.BIZ_USER_NOT_EXIST);
         }
-        if (user.getId() <= 2) {
+        if (user.getId() <= UserConstant.ANONYMOUS_ID) {
             throw new BizException(ErrorCode.BIZ_DELETE_BUILT_IN_USER);
         }
 
