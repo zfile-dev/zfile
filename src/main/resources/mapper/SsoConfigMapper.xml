@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.zfile.module.sso.mapper.SsoConfigMapper">
+    <resultMap id="BaseResultMap" type="im.zhaojun.zfile.module.sso.model.entity.SsoConfig">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="provider" property="provider" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="client_id" property="clientId" jdbcType="VARCHAR"/>
+        <result column="client_secret" property="clientSecret" jdbcType="VARCHAR"/>
+        <result column="auth_url" property="authUrl" jdbcType="VARCHAR"/>
+        <result column="token_url" property="tokenUrl" jdbcType="VARCHAR"/>
+        <result column="user_info_url" property="userInfoUrl" jdbcType="VARCHAR"/>
+        <result column="scope" property="scope" jdbcType="VARCHAR"/>
+        <result column="binding_field" property="bindingField" jdbcType="VARCHAR"/>
+        <result column="enabled" property="enabled" jdbcType="BIT"/>
+        <result column="order_num" property="orderNum" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,
+        `provider`,
+        `name`,
+        `icon`,
+        `client_id`,
+        `client_secret`,
+        `auth_url`,
+        `token_url`,
+        `user_info_url`,
+        `scope`,
+        `binding_field`,
+        `enabled`,
+        `order_num`
+    </sql>
+
+    <select id="findByProvider" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sso_config
+        where provider = #{provider}
+        limit 1
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sso_config
+        order by order_num, id
+    </select>
+
+    <select id="countByProvider" resultType="int">
+        select count(1)
+        from sso_config
+        where provider = #{provider}
+        <if test="ignoreId != null">
+            and id != #{ignoreId}
+        </if>
+    </select>
+
+    <select id="findAllLoginItems" resultType="im.zhaojun.zfile.module.sso.model.response.SsoLoginItemResponse">
+        select
+            `provider` as `provider`,
+            `name` as `name`,
+            `icon` as `icon`
+        from
+            sso_config
+        where
+            enabled = 1
+        order by
+            order_num, id
+    </select>
+</mapper>

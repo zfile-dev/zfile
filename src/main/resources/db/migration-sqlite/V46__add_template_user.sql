@@ -1,0 +1,1 @@
+INSERT INTO `user` (id, username, nickname, enable, create_time, update_time) VALUES (0, 'template', '虚拟新用户', true, datetime(CURRENT_TIMESTAMP,'localtime'), datetime(CURRENT_TIMESTAMP,'localtime'));
