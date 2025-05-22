@@ -1,22 +1,40 @@
 package im.zhaojun.zfile.module.sso.service;
 
-import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.Header;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
-import im.zhaojun.zfile.core.util.AjaxJson;
+import im.zhaojun.zfile.core.exception.ErrorCode;
+import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.exception.core.ErrorPageBizException;
+import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.module.sso.mapper.SsoConfigMapper;
 import im.zhaojun.zfile.module.sso.model.entity.SsoConfig;
+import im.zhaojun.zfile.module.sso.model.response.SsoLoginItemResponse;
 import im.zhaojun.zfile.module.sso.model.response.TokenResponse;
+import im.zhaojun.zfile.module.user.model.constant.UserConstant;
+import im.zhaojun.zfile.module.user.model.entity.User;
+import im.zhaojun.zfile.module.user.model.request.CopyUserRequest;
+import im.zhaojun.zfile.module.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static im.zhaojun.zfile.module.sso.service.SsoService.SSO_CONFIG_CACHE_KEY;
 
 /**
  * 单点登录服务
@@ -26,53 +44,54 @@ import java.util.HashMap;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = SSO_CONFIG_CACHE_KEY)
 public class SsoService {
 
-    private static final String HOST = "http://localhost:8080"; // TODO 这里需要一个环境变量用来配置重定向地址
+    public static final String SSO_CONFIG_CACHE_KEY = "ssoConfig";
 
     private static final String REDIRECT_URI = "/sso/{}/login/callback";
 
     private final SsoConfigMapper ssoConfigMapper;
 
-    /**
-     * 在系统中插入新的单点登录服务商配置<br/>
-     * 如果配置中提供了 "Well-Known" URL，系统会尝试自动获取并解析 SSO 端点数据<br/>
-     * 注意: <strong>通过 Well-Known 获取到的配置会将手动填写的配置信息覆盖</strong><br/>
-     * 如果系统自动获取的配置无法解析，则会失败<br/>
-     *
-     * @param provider 要插入的单点登录（SSO）提供程序配置对象
-     * @return 表示操作结果的字符串
-     */
-    public AjaxJson<Void> insertProvider(SsoConfig provider) {
-        var result = ssoConfigMapper.insert(provider);
-        return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("插入失败, 请检查配置");
+    private final SystemConfigService systemConfigService;
+
+    private final UserService userService;
+
+    public List<SsoConfig> list() {
+        return ssoConfigMapper.findAll();
     }
 
-    public AjaxJson<Void> deleteProvider(String provider) {
-        var result = ssoConfigMapper.deleteById(provider);
-        return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("删除失败, 请检查配置");
+    public List<SsoLoginItemResponse> listAllLoginItems() {
+        return ssoConfigMapper.findAllLoginItems();
     }
 
-    public AjaxJson<Void> modifyProvider(SsoConfig provider) {
-        var result = ssoConfigMapper.updateById(provider);
-        return result > 0 ? AjaxJson.getSuccess() : AjaxJson.getError("修改失败, 请检查配置");
+    @Cacheable(key = "#provider", unless = "#result == null", condition = "#provider != null")
+    public SsoConfig getProvider(String provider) {
+        return ssoConfigMapper.findByProvider(provider);
     }
 
-    /**
-     * 读取指定单点登录服务商的配置<br/>
-     * 安全起见，配置中的 Client Secret 会被部分隐藏
-     *
-     * @param provider 要获取的单点登录提供商的名称
-     * @return 指定的单点登录服务商配置信息
-     */
-    public AjaxJson<?> getProvider(String provider) {
-        var result = ssoConfigMapper.findByProvider(provider);
-        if (ObjectUtil.isNull(result))
-        {
-            return AjaxJson.getError("单点登录厂商配置不存在, 请检查配置");
+    @CacheEvict(key = "#result.provider")
+    public SsoConfig saveOrUpdate(SsoConfig ssoConfig) {
+        boolean providerIsDuplicate = checkDuplicateProvider(ssoConfig.getId(), ssoConfig.getProvider());
+        if (providerIsDuplicate) {
+            throw new BizException(ErrorCode.BIZ_SSO_PROVIDER_EXIST);
         }
-        result.setClientSecret(StrUtil.hide(result.getClientSecret(), 5, result.getClientSecret().length() - 5));
-        return AjaxJson.getSuccessData(result);
+
+        if (ssoConfig.getId() == null) {
+            ssoConfigMapper.insert(ssoConfig);
+        } else {
+            ssoConfigMapper.updateById(ssoConfig);
+        }
+        return ssoConfig;
+    }
+
+    @CacheEvict(key = "#provider")
+    public void deleteProvider(String provider) {
+        ssoConfigMapper.deleteById(provider);
+    }
+
+    public boolean checkDuplicateProvider(Integer ignoreId, String provider) {
+        return ssoConfigMapper.countByProvider(provider, ignoreId) > 0;
     }
 
     /**
@@ -83,22 +102,23 @@ public class SsoService {
      * @return 授权地址
      */
     public String getAuthRedirectUrl(String provider, String state) {
-        var config = ssoConfigMapper.findByProvider(provider);
-        if (ObjectUtil.isNull(config))
-        {
-            return "/sso/login/error?err=" + URLUtil.encode("供应商: [" + provider + "] 不存在, 请检查配置");
+        SsoConfig config = ((SsoService) AopContext.currentProxy()).getProvider(provider);
+        if (ObjectUtil.isNull(config)) {
+            throw new ErrorPageBizException("供应商: [" + provider + "] 不存在, 请检查配置");
         }
-        log.info("[Authorization] 单点登录厂商配置信息: {}", JSONUtil.toJsonPrettyStr(config));
 
-        var authParamsMap = new HashMap<String, String>()
-        {{
+        if (BooleanUtil.isFalse(config.getEnabled())) {
+            throw new ErrorPageBizException(ErrorCode.BIZ_SSO_PROVIDER_DISABLED);
+        }
+
+        Map<String, String> authParamsMap = new HashMap<>() {{
             put("response_type", "code");
             put("client_id", config.getClientId());
-            put("redirect_uri", HOST + StrUtil.format(REDIRECT_URI, provider));
+            put("redirect_uri", systemConfigService.getAxiosFromDomainOrSetting() + StrUtil.format(REDIRECT_URI, provider));
             put("state", state);
             put("scope", config.getScope());
         }};
-        var authParamsStr = HttpUtil.toParams(authParamsMap);
+        String authParamsStr = HttpUtil.toParams(authParamsMap);
         return config.getAuthUrl() + "?" + authParamsStr;
     }
 
@@ -111,59 +131,103 @@ public class SsoService {
      * @return 重定向的页面路径
      */
     public String callbackHandler(String provider, String code) {
-        var config = ssoConfigMapper.findByProvider(provider);
-        log.info("[Callback] 单点登录厂商配置信息: {}", JSONUtil.toJsonPrettyStr(config));
+        SsoConfig config = ((SsoService) AopContext.currentProxy()).getProvider(provider);
+        if (log.isDebugEnabled()) {
+            log.debug("[Callback] 单点登录厂商 {} 配置信息: {}", provider, config);
+        }
+
+        if (BooleanUtil.isFalse(config.getEnabled())) {
+            throw new ErrorPageBizException(ErrorCode.BIZ_SSO_PROVIDER_DISABLED);
+        }
 
         // 获取 Access Token
-        var tokenParamsMap = new HashMap<String, String>()
-        {{
+        Map<String, String> tokenParamsMap = new HashMap<>() {{
             put("code", code);
             put("client_id", config.getClientId());
             put("client_secret", config.getClientSecret());
-            put("redirect_uri", HOST + StrUtil.format(REDIRECT_URI, provider));
+            put("redirect_uri", systemConfigService.getAxiosFromDomainOrSetting() + StrUtil.format(REDIRECT_URI, provider));
             put("grant_type", "authorization_code");
         }};
 
-        var tokenStr = HttpUtil
-                .createPost(config.getTokenUrl())
+        HttpResponse getTokenResponse = HttpUtil.createPost(config.getTokenUrl())
                 .header(Header.ACCEPT, "application/json")
                 .body(HttpUtil.toParams(tokenParamsMap))
-                .execute()
-                .body();
-        log.info("[Token] 单点登录厂商返回的 Token 信息: {}", JSONUtil.toJsonPrettyStr(tokenStr));
-        var token = JSONUtil.toBean(tokenStr, TokenResponse.class);
-
-        if (!"bearer".equalsIgnoreCase(token.getTokenType()))
-        {
-            return "/sso/login/error?err=" + URLUtil.encode("Access Token 类型错误, 需要 Bearer 类型, 请检查配置");
+                .execute();
+        String tokenStr = getTokenResponse.body();
+        if (log.isDebugEnabled()) {
+            log.debug("[Token] 单点登录厂商返回的 Token 信息: {}", tokenStr);
+        }
+        if (!getTokenResponse.isOk()) {
+            log.error("单点登录厂商 {} 返回错误: {}, 错误信息: {}", provider, getTokenResponse.getStatus(), tokenStr);
+            throw new ErrorPageBizException("单点登录失败: " + getTokenResponse.getStatus() + ", " + tokenStr);
         }
 
-        if (ObjectUtil.isNull(token) || StrUtil.isEmpty(token.getAccessToken()))
-        {
-            return "/sso/login/error?err=" + URLUtil.encode("获取 Access Token 失败, 请检查配置");
+        TokenResponse token = JSONUtil.toBean(tokenStr, TokenResponse.class);
+        if (!"bearer".equalsIgnoreCase(token.getTokenType())) {
+            throw new ErrorPageBizException("Access Token 类型错误, 需要 Bearer 类型, 请检查配置");
         }
+
 
         // 获取用户信息
-        var userInfoStr = HttpUtil
+        HttpResponse userInfoResponse = HttpUtil
                 .createGet(config.getUserInfoUrl())
                 .bearerAuth(token.getAccessToken())
-                .execute()
-                .body();
-        log.info("[UserInfo] 单点登录服务商处的用户信息: {}", JSONUtil.toJsonPrettyStr(userInfoStr));
-
-        var bindingField = JSONUtil.parse(userInfoStr).getByPath(config.getBindingField());
-        log.info("[UserInfo] 绑定字段 [{}]: {}", config.getBindingField(), bindingField);
-
-        if (ObjectUtil.isNull(userInfoStr) || ObjectUtil.isEmpty(bindingField))
-        {
-            return "/sso/login/error?err=" + URLUtil.encode("获取用户信息失败, 请检查配置");
+                .execute();
+        String userInfoStr = userInfoResponse.body();
+        if (log.isDebugEnabled()) {
+            log.debug("[UserInfo] 单点登录服务商处请求 {} 的用户信息: {}，将尝试通过 {} 表达式获取字段", config.getUserInfoUrl(), userInfoStr, config.getBindingField());
+        }
+        if (!userInfoResponse.isOk()) {
+            log.error("单点登录服务商 {} 返回错误: {}, 错误信息: {}", provider, userInfoResponse.getStatus(), userInfoStr);
+            throw new ErrorPageBizException("从单点登录服务商获取用户信息失败: " + userInfoResponse.getStatus() + ", " + userInfoStr);
         }
 
-        // 调用 Sa Token 的登录方法
-        // TODO 这里要处理一下，如果没有对应用户，则创建用户
-        StpUtil.login(bindingField.toString(), new SaLoginModel().setToken(token.getAccessToken()));
+        Object bindingField = JSONUtil.parse(userInfoStr).getByPath(config.getBindingField());
+        if (log.isDebugEnabled()) {
+            log.debug("[UserInfo] 通过表达式 [{}] 获取到字段: {}", config.getBindingField(), bindingField);
+        }
 
-        return "/sso/login/success";
+        if (StrUtil.isBlankIfStr(bindingField)) {
+            throw new ErrorPageBizException("解析用户信息失败, 请检查配置");
+        }
+
+
+        String bindingFieldStr = Convert.toStr(bindingField);
+        User user = userService.getByUsername(bindingFieldStr);
+        if (user == null) {
+            User templateUser = userService.getById(UserConstant.NEW_USER_TEMPLATE_ID);
+            if (!BooleanUtil.isTrue(templateUser.getEnable())) {
+                throw new ErrorPageBizException("当前系统未启用新用户注册, 请联系管理员");
+            }
+
+            CopyUserRequest copyUserRequest = new CopyUserRequest();
+            copyUserRequest.setFromId(UserConstant.NEW_USER_TEMPLATE_ID);
+            copyUserRequest.setToNickname(bindingFieldStr);
+            copyUserRequest.setToUsername(bindingFieldStr);
+            Integer newUserId = userService.copy(copyUserRequest);
+
+            log.info("新用户 {} 通过单点登录注册成功, ID: {}", bindingFieldStr, newUserId);
+
+            user = new User();
+            user.setId(newUserId);
+        }
+
+        StpUtil.login(user.getId());
+        String axiosFromDomainOrSetting = systemConfigService.getAxiosFromDomainOrSetting();
+        String frontDomain = systemConfigService.getFrontDomain();
+
+        String redirectUrl;
+        if (StringUtils.isBlank(frontDomain)) {
+            redirectUrl = axiosFromDomainOrSetting;
+        } else {
+            // 如果配置了前端域名，则跳转到前端域名
+            redirectUrl = frontDomain + "/sso?token=" + StpUtil.getTokenValue();
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("用户 {} 通过单点登录登录成功, ID: {}，将跳转到 {}, token 为 {}", bindingFieldStr, user.getId(), redirectUrl, StpUtil.getTokenValue());
+        }
+        return redirectUrl;
     }
 
 }

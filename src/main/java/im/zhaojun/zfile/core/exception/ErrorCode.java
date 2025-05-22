@@ -82,7 +82,8 @@ public enum ErrorCode {
     BIZ_2FA_CODE_ERROR("43010", "两步验证失败"),
     BIZ_STORAGE_INIT_ERROR("43011", "存储源初始化失败"),
     BIZ_RULE_EXIST("43012", "规则已存在"),
-
+    BIZ_SSO_PROVIDER_EXIST("43013", "单点登录配置已存在"),
+    BIZ_SSO_PROVIDER_DISABLED("43014", "此单点登录未启用"),
 
 
     /**

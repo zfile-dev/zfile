@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serial;
@@ -24,7 +25,10 @@ public class SsoConfig implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "provider", type = IdType.INPUT)
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
+    @TableField(value = "provider")
     @Schema(name = "OIDC/OAuth2 厂商名", example = "Logto", description = "简称，仅可包含数字、字母，-，_")
     @NotBlank(message = "OIDC/OAuth2 厂商名不能为空")
     private String provider;
@@ -76,7 +80,11 @@ public class SsoConfig implements Serializable {
 
     @TableField(value = "`enabled`")
     @Schema(name = "是否启用")
-    @NotBlank(message = "启用状态不能为空")
+    @NotNull(message = "启用状态不能为空")
     private Boolean enabled;
+
+    @TableField(value = "`order_num`")
+    @Schema(name = "排序", description = "数字越小越靠前")
+    private Integer orderNum;
 
 }
