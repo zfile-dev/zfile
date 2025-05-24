@@ -9,6 +9,7 @@ import cn.hutool.http.Header;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONReader;
 import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.exception.core.ErrorPageBizException;
@@ -162,7 +163,7 @@ public class SsoService {
             throw new ErrorPageBizException("单点登录失败: " + getTokenResponse.getStatus() + ", " + tokenStr);
         }
 
-        TokenResponse token = JSON.parseObject(tokenStr, TokenResponse.class);
+        TokenResponse token = JSON.parseObject(tokenStr, TokenResponse.class, JSONReader.Feature.SupportSmartMatch);
         if (!"bearer".equalsIgnoreCase(token.getTokenType())) {
             throw new ErrorPageBizException("Access Token 类型错误, 需要 Bearer 类型, 请检查配置");
         }
@@ -182,7 +183,7 @@ public class SsoService {
             throw new ErrorPageBizException("从单点登录服务商获取用户信息失败: " + userInfoResponse.getStatus() + ", " + userInfoStr);
         }
 
-        Object bindingField = JSON.parseObject(userInfoStr).getByPath(config.getBindingField());
+        Object bindingField = JSON.parseObject(userInfoStr, JSONReader.Feature.SupportSmartMatch).getByPath(config.getBindingField());
         if (log.isDebugEnabled()) {
             log.debug("[UserInfo] 通过表达式 [{}] 获取到字段: {}", config.getBindingField(), bindingField);
         }
