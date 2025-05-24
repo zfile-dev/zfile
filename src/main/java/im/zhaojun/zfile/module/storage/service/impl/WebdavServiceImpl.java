@@ -4,7 +4,6 @@ import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.util.URLUtil;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
-import com.github.sardine.SardineFactory;
 import com.github.sardine.impl.SardineException;
 import im.zhaojun.zfile.core.util.CollectionUtils;
 import im.zhaojun.zfile.core.util.FileUtils;
@@ -16,6 +15,7 @@ import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.WebdavParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
 import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService;
+import im.zhaojun.zfile.module.storage.support.webdav.CustomSardine;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -26,7 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,8 @@ import java.util.Objects;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
 public class WebdavServiceImpl extends AbstractProxyTransferService<WebdavParam> {
+
+	public static final Duration connectTimeoutSecond = Duration.ofSeconds(10);
 
 	private Sardine sardine;
 
@@ -55,14 +58,8 @@ public class WebdavServiceImpl extends AbstractProxyTransferService<WebdavParam>
 	@SneakyThrows
 	@Override
 	public void init() {
-		if (StringUtils.isAllNotEmpty(param.getUsername(), param.getPassword())) {
-			sardine = SardineFactory.begin(param.getUsername(), param.getPassword());
-		} else {
-			sardine = SardineFactory.begin();
-		}
-
-		// 设置每次发请求都设置请求头，防止身份验证导致的无法上传成功.
-		String host = new URL(param.getUrl()).getHost();
+		sardine = new CustomSardine(param.getUsername(), param.getPassword(), connectTimeoutSecond, null);
+		String host = URI.create(param.getUrl()).getHost();
 		sardine.enablePreemptiveAuthentication(host);
 	}
 
