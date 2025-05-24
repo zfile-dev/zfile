@@ -125,7 +125,7 @@ public class PasswordConfigService {
      *          存储源 ID
      *
      * @param   path
-     *          请求路径
+     *          请求路径(全路径，包含用户目录)
      *
      * @param   inputPassword
      *          用户输入的密码

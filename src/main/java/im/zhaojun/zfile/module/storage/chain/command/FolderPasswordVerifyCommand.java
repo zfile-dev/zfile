@@ -1,10 +1,12 @@
 package im.zhaojun.zfile.module.storage.chain.command;
 
 import im.zhaojun.zfile.core.exception.core.BizException;
+import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.password.model.dto.VerifyResultDTO;
 import im.zhaojun.zfile.module.password.service.PasswordConfigService;
 import im.zhaojun.zfile.module.storage.chain.FileContext;
 import im.zhaojun.zfile.module.storage.model.request.base.FileListRequest;
+import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 import org.springframework.stereotype.Service;
@@ -39,9 +41,12 @@ public class FolderPasswordVerifyCommand implements Command {
 		FileListRequest fileListRequest = fileContext.getFileListRequest();
 		String path = fileListRequest.getPath();
 		String password = fileListRequest.getPassword();
-		
+
+		AbstractBaseFileService<?> fileService = fileContext.getFileService();
+		String fullPath = StringUtils.concat(fileService.getCurrentUserBasePath(), path);
+
 		// 校验密码, 如果校验不通过, 则返回错误消息
-		VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(storageId, path, password);
+		VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(storageId, fullPath, password);
 		if (!verifyResultDTO.isPassed()) {
 			throw new BizException(verifyResultDTO.getErrorCode());
 		}

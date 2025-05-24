@@ -10,9 +10,11 @@ import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.module.config.model.result.FrontSiteConfigResult;
 import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.module.storage.annotation.ProCheck;
+import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.module.storage.model.request.base.FileListConfigRequest;
 import im.zhaojun.zfile.module.storage.model.result.StorageSourceConfigResult;
 import im.zhaojun.zfile.module.storage.service.StorageSourceService;
+import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import im.zhaojun.zfile.module.user.model.constant.UserConstant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -72,5 +74,15 @@ public class SiteController {
 	}
 
 
+	@ApiOperationSupport(order = 3)
+	@Operation(summary = "获取用户存储源路径", description = "获取用户存储源路径")
+	@GetMapping("/config/userRootPath/{storageKey}")
+	public AjaxJson<String> getUserRootPath(@PathVariable("storageKey") String storageKey) {
+		AbstractBaseFileService<?> baseFileService = StorageSourceContext.getByStorageKey(storageKey);
+		if (baseFileService == null || baseFileService.getCurrentUserBasePath() == null) {
+			return AjaxJson.getSuccessData("");
+		}
+		return AjaxJson.getSuccessData(baseFileService.getCurrentUserBasePath());
+	}
 
 }

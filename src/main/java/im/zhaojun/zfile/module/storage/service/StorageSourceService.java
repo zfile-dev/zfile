@@ -378,7 +378,6 @@ public class StorageSourceService {
 
     public StorageSourceConfigResult getStorageConfigSource(FileListConfigRequest fileListConfigRequest) {
         String storageKey = fileListConfigRequest.getStorageKey();
-        String path = fileListConfigRequest.getPath();
 
         // 判断存储源是否存在.
         StorageSource storageSource = ((StorageSourceService)AopContext.currentProxy()).findByStorageKey(storageKey);
@@ -389,14 +388,18 @@ public class StorageSourceService {
         // 根据存储源 key 获取存储源 id
         Integer storageId = storageSource.getId();
 
-        VerifyResultDTO verifyPassword = passwordConfigService.verifyPassword(storageId, path, fileListConfigRequest.getPassword());
+        // 拼接用户目录
+        AbstractBaseFileService<IStorageParam> baseFileService = StorageSourceContext.getByStorageId(storageId);
+        String fullPath = StringUtils.concat(baseFileService.getCurrentUserBasePath(), fileListConfigRequest.getPath());
+
+        VerifyResultDTO verifyPassword = passwordConfigService.verifyPassword(storageId, fullPath, fileListConfigRequest.getPassword());
 
         ReadmeConfig readmeByPath = null;
         if (verifyPassword.isPassed()) {
             // 获取指定存储源路径下的 readme 信息
-            readmeByPath = readmeConfigService.getByStorageAndPath(storageId, path, storageSource.getCompatibilityReadme());
+            readmeByPath = readmeConfigService.getByStorageAndPath(storageId, fullPath, storageSource.getCompatibilityReadme());
         } else {
-            log.info("文件夹密码验证失败，不获取 readme 信息, storageId: {}, path: {}, password: {}", storageId, path, fileListConfigRequest.getPassword());
+            log.info("文件夹密码验证失败，不获取 readme 信息, storageId: {}, path: {}, password: {}", storageId, fullPath, fileListConfigRequest.getPassword());
         }
 
         StorageSourceConfigResult storageSourceConfigResult = storageSourceConvert.entityToConfigResult(storageSource, readmeByPath);
@@ -406,7 +409,6 @@ public class StorageSourceService {
         storageSourceConfigResult.setPermission(permissionMap);
 
         // 获取存储源元数据
-        AbstractBaseFileService<IStorageParam> baseFileService = StorageSourceContext.getByStorageId(storageId);
         storageSourceConfigResult.setMetadata(baseFileService.getStorageSourceMetadata());
 
         UserStorageSource userStorageSource = userStorageSourceService.getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);

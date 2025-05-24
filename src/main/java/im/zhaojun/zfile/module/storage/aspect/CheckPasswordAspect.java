@@ -4,11 +4,14 @@ import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.util.CollectionUtils;
 import im.zhaojun.zfile.core.util.FileUtils;
+import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.password.model.dto.VerifyResultDTO;
 import im.zhaojun.zfile.module.password.service.PasswordConfigService;
 import im.zhaojun.zfile.module.storage.annotation.CheckPassword;
 import im.zhaojun.zfile.module.storage.annotation.CheckPasswords;
+import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.module.storage.service.StorageSourceService;
+import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -88,7 +91,9 @@ public class CheckPasswordAspect {
 				throw new BizException(ErrorCode.BIZ_STORAGE_NOT_FOUND);
 			}
 
-			VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(storageId, pathFieldValue, passwordFieldValue);
+			AbstractBaseFileService<?> targetService = StorageSourceContext.getByStorageId(storageId);
+			String fullPath = StringUtils.concat(targetService.getCurrentUserBasePath(), pathFieldValue);
+			VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(storageId, fullPath, passwordFieldValue);
 			if (!verifyResultDTO.isPassed()) {
 				throw new BizException(verifyResultDTO.getErrorCode());
 			}

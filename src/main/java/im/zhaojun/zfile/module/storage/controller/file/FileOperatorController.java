@@ -76,43 +76,48 @@ public class FileOperatorController {
 
 		for (BatchDeleteRequest.DeleteItem deleteItem : deleteItems) {
 			// 检查权限
-			Boolean pathCheckResult = pathCheckCache.get(deleteItem.getPath());
+			String deletePath = deleteItem.getPath();
+			String deleteName = deleteItem.getName();
+			FileTypeEnum deleteType = deleteItem.getType();
+
+			Boolean pathCheckResult = pathCheckCache.get(deletePath);
 
 			// 缓存值为 false, 则即为失败, 直接跳过此删除的文件
 			if (BooleanUtils.isFalse(pathCheckResult)) {
-				batchOperatorResults.add(BatchOperatorResult.fail(deleteItem.getPath(), deleteItem.getName(), "密码错误"));
+				batchOperatorResults.add(BatchOperatorResult.fail(deletePath, deleteName, "密码错误"));
 				continue;
 			}
 
 			// 缓存没有, 则进行校验
 			if (pathCheckResult == null) {
-				VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(fileService.getStorageId(), deleteItem.getPath(), deleteItem.getPassword());
+				String fullPath = StringUtils.concat(fileService.getCurrentUserBasePath(), deletePath);
+				VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(fileService.getStorageId(), fullPath, deleteItem.getPassword());
 				// 校验不通过, 则跳过此删除的文件
 				if (!verifyResultDTO.isPassed()) {
-					log.warn("因密码原因删除失败, 类型: {}, 路径: {}, 名称: {}, 原因: {}", deleteItem.getType(), deleteItem.getPath(), deleteItem.getName(), verifyResultDTO.getErrorCode());
-					pathCheckCache.put(deleteItem.getPath(), false);
-					batchOperatorResults.add(BatchOperatorResult.fail(deleteItem.getPath(), deleteItem.getName(), "密码错误"));
+					log.warn("因密码原因删除失败, 类型: {}, 路径: {}, 名称: {}, 原因: {}", deleteType, deletePath, deleteName, verifyResultDTO.getErrorCode());
+					pathCheckCache.put(deletePath, false);
+					batchOperatorResults.add(BatchOperatorResult.fail(deletePath, deleteName, "密码错误"));
 					continue;
 				}
-				pathCheckCache.put(deleteItem.getPath(), true);
+				pathCheckCache.put(deletePath, true);
 			}
 
 			boolean flag = false;
 			try {
-				if (deleteItem.getType() == FileTypeEnum.FILE) {
-					flag = fileService.deleteFile(deleteItem.getPath(), deleteItem.getName());
-				} else if (deleteItem.getType() == FileTypeEnum.FOLDER) {
-					flag = fileService.deleteFolder(deleteItem.getPath(), deleteItem.getName());
+				if (deleteType == FileTypeEnum.FILE) {
+					flag = fileService.deleteFile(deletePath, deleteName);
+				} else if (deleteType == FileTypeEnum.FOLDER) {
+					flag = fileService.deleteFolder(deletePath, deleteName);
 				}
 
 				if (flag) {
-					batchOperatorResults.add(BatchOperatorResult.success(deleteItem.getPath(), deleteItem.getName()));
+					batchOperatorResults.add(BatchOperatorResult.success(deletePath, deleteName));
 				} else {
-					batchOperatorResults.add(BatchOperatorResult.fail(deleteItem.getPath(), deleteItem.getName(), "操作失败"));
+					batchOperatorResults.add(BatchOperatorResult.fail(deletePath, deleteName, "操作失败"));
 				}
 			} catch (Exception e) {
-				log.error("删除文件/文件夹失败, 文件路径: {}, 文件名称: {}", deleteItem.getPath(), deleteItem.getName(), e);
-				batchOperatorResults.add(BatchOperatorResult.fail(deleteItem.getPath(), deleteItem.getName(), e.getMessage()));
+				log.error("删除文件/文件夹失败, 文件路径: {}, 文件名称: {}", deletePath, deleteName, e);
+				batchOperatorResults.add(BatchOperatorResult.fail(deletePath, deleteName, e.getMessage()));
 			}
 		}
 
@@ -145,7 +150,7 @@ public class FileOperatorController {
 			pathFieldExpression = "[0].path",
 			passwordFieldExpression = "[0].password")
 	@DemoDisable
-	public AjaxJson<Void> deleteFile(@Valid @RequestBody RenameFolderRequest renameFolderRequest) {
+	public AjaxJson<Void> renameFolder(@Valid @RequestBody RenameFolderRequest renameFolderRequest) {
 		AbstractBaseFileService<?> fileService = StorageSourceContext.getByStorageKey(renameFolderRequest.getStorageKey());
 		boolean flag = fileService.renameFolder(renameFolderRequest.getPath(), renameFolderRequest.getName(), renameFolderRequest.getNewName());
 		if (flag) {
