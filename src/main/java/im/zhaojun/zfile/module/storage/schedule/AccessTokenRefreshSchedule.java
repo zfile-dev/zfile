@@ -25,7 +25,9 @@ public class AccessTokenRefreshSchedule {
 	 */
 	@Scheduled(fixedRate = 1000 * 60 * 10, initialDelay = 1000 * 10)
 	public void autoRefreshAccessToken() {
-		log.info("开始执行需要定期刷新 AccessToken 存储源的定时任务");
+		if (log.isDebugEnabled()) {
+			log.debug("开始执行需要定期刷新 AccessToken 存储源的定时任务");
+		}
 
 		Map<Integer, RefreshTokenService> refreshTokenServiceMap = StorageSourceContext.getAllRefreshTokenStorageSource();
 
@@ -41,8 +43,10 @@ public class AccessTokenRefreshSchedule {
 						storageId, refreshTokenService.getStorageTypeEnum().getDescription(), e);
 			}
 		}
-		
-		log.info("执行需要定期刷新 AccessToken 存储源的定时任务完成");
+
+		if (log.isDebugEnabled()) {
+			log.debug("执行需要定期刷新 AccessToken 存储源的定时任务完成");
+		}
 	}
 
 }

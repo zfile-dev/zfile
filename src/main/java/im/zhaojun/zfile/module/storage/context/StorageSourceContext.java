@@ -268,7 +268,9 @@ public class StorageSourceContext {
                     continue;
                 }
                 ReflectUtil.setFieldValue(iStorageParam, field, defaultValue);
-                log.info("存储源 {} 数据库未设置字段 {} 值，使用默认值 {}", baseFileService, entry.getKey(), defaultValue);
+                if (log.isDebugEnabled()) {
+                    log.debug("存储源 {} 数据库未设置字段 {} 值，使用默认值 {}", baseFileService, entry.getKey(), defaultValue);
+                }
             }
         }
 

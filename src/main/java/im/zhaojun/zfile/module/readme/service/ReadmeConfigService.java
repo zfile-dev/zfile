@@ -153,13 +153,15 @@ public class ReadmeConfigService {
 		readmeByPath.setDisplayMode(ReadmeDisplayModeEnum.BOTTOM);
 		if (BooleanUtils.isTrue(compatibilityReadme)) {
 			try {
-				log.info("存储源 {} 兼容获取目录 {} 下的 readme.md", storageId, path);
 				AbstractBaseFileService<IStorageParam> abstractBaseFileService = StorageSourceContext.getByStorageId(storageId);
 				String pathAndName = StringUtils.concat(path, "readme.md");
 				FileItemResult fileItem = abstractBaseFileService.getFileItem(pathAndName);
 				if (fileItem != null) {
 					String url = fileItem.getUrl();
 					String readmeText = HttpUtil.getTextContent(url);
+					if (log.isDebugEnabled()) {
+						log.debug("存储源 {} 兼容获取目录 {} 下的 readme.md 文件成功, url: {}", storageId, path, url);
+					}
 					readmeByPath.setReadmeText(readmeText);
 				}
 			} catch (Exception e) {
@@ -171,7 +173,6 @@ public class ReadmeConfigService {
 			if (dbReadmeConfig != null) {
 				readmeByPath = dbReadmeConfig;
 			}
-			log.info("存储源 {} 规则模式获取目录 {} 下文档信息", storageId, path);
 		}
 
 		return readmeByPath;

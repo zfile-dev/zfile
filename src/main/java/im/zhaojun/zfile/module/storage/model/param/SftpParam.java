@@ -3,7 +3,6 @@ package im.zhaojun.zfile.module.storage.model.param;
 import im.zhaojun.zfile.module.storage.annotation.StorageParamItem;
 import im.zhaojun.zfile.module.storage.annotation.impl.EncodingStorageParamSelect;
 import im.zhaojun.zfile.module.storage.model.enums.StorageParamTypeEnum;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 /**
