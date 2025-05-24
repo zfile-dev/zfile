@@ -36,12 +36,17 @@
         left join
             user_storage_source uss
         on ss.id = uss.storage_source_id
+        left join
+            user u
+        on uss.user_id = u.id
         where
             ss.enable = true
         and
             uss.user_id = #{userId}
         and
             uss.enable = true
+        and
+            u.enable = true
         order by ifnull(order_num, -1), ss.id desc
     </select>
 
