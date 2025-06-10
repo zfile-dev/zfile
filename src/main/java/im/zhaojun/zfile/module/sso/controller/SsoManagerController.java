@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.module.sso.controller;
 
+import im.zhaojun.zfile.core.annotation.DemoDisable;
 import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.module.sso.model.entity.SsoConfig;
 import im.zhaojun.zfile.module.sso.model.request.CheckProviderDuplicateRequest;
@@ -37,12 +38,14 @@ class SsoManagerController {
 
     @PostMapping("/provider")
     @Operation(summary = "保存 SSO 服务商")
+    @DemoDisable
     public AjaxJson<SsoConfig> saveOrUpdateProvider(@RequestBody @Valid SsoConfig ssoConfig) {
         return AjaxJson.getSuccessData(ssoService.saveOrUpdate(ssoConfig));
     }
 
     @DeleteMapping("/provider/{provider}")
     @Operation(summary = "删除 SSO 服务商")
+    @DemoDisable
     public AjaxJson<Void> deleteProvider(@PathVariable String provider) {
         ssoService.deleteProvider(provider);
         return AjaxJson.getSuccess();
