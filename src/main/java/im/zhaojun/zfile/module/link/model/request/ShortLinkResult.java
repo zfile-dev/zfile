@@ -43,4 +43,7 @@ public class ShortLinkResult {
 	@Schema(name = "过期时间", example = "2021-11-23 10:05")
 	private Date expireDate;
 
+	@Schema(name="短链地址")
+	private String shortLink;
+
 }

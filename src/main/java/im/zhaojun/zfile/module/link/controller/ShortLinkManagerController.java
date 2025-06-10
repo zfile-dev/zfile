@@ -12,6 +12,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.core.annotation.DemoDisable;
 import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.module.link.cache.LinkRateLimiterCache;
 import im.zhaojun.zfile.module.link.convert.ShortLinkConvert;
 import im.zhaojun.zfile.module.link.model.dto.CacheInfo;
@@ -56,6 +57,9 @@ import java.util.stream.Stream;
 public class ShortLinkManagerController {
 
     @Resource
+    private SystemConfigService systemConfigService;
+
+    @Resource
     private ShortLinkService shortLinkService;
 
     @Resource
@@ -74,6 +78,13 @@ public class ShortLinkManagerController {
     @ResponseBody
     public AjaxJson<List<ShortLinkResult>> list(QueryShortLinkLogRequest queryObj) {
         Page<ShortLinkResult> resultPage = getShortLinkResultPage(queryObj);
+
+        String serverAddress = systemConfigService.getAxiosFromDomainOrSetting();
+
+        resultPage.getRecords().forEach(shortLinkResult -> {
+            shortLinkResult.setShortLink(StringUtils.concat(serverAddress, "s", shortLinkResult.getShortKey()));
+        });
+
         return AjaxJson.getPageData(resultPage.getTotal(), resultPage.getRecords());
     }
 

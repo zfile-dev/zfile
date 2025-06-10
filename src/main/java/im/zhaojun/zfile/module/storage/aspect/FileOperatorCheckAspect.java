@@ -5,6 +5,7 @@ import im.zhaojun.zfile.core.util.CollectionUtils;
 import im.zhaojun.zfile.core.util.OnlyOfficeKeyCacheUtils;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.core.util.ZFileAuthUtil;
+import im.zhaojun.zfile.module.link.model.request.BatchGenerateLinkRequest;
 import im.zhaojun.zfile.module.onlyoffice.model.OnlyOfficeFile;
 import im.zhaojun.zfile.module.storage.annotation.StoragePermissionCheck;
 import im.zhaojun.zfile.module.storage.model.enums.FileOperatorTypeEnum;
@@ -69,7 +70,7 @@ public class FileOperatorCheckAspect {
 	public Object linkActionCheck(ProceedingJoinPoint point) throws Throwable {
 		FileOperatorTypeEnum action = FileOperatorTypeEnum.LINK;
 		Object arg = point.getArgs()[0];
-		String storageKey = (String) arg;
+		String storageKey = (arg instanceof BatchGenerateLinkRequest) ?((BatchGenerateLinkRequest) arg).getStorageKey() : (String) arg;
 		Integer storageId = storageSourceService.findIdByKey(storageKey);
 
 		boolean allowAccess = allowAccess(storageId, action);

@@ -223,12 +223,18 @@ public class SystemConfigService {
 
 
     /**
-     * 优先使用请求中的 axios-from 参数, 如果没有则使用系统设置中的域名.(用来避免网络环境变化但是系统设置中未及时修改导致的问题)
+     * 优先级：
+     * 1. 如果设置了强制后端地址，则使用强制后端地址。
+     * 2. 如果请求中有 axios-from 参数，则使用该参数。
+     * 3. 如果没有强制后端地址和 axios-from 参数，则使用请求的服务器地址（如果经过多个代理，可能不是实际的后端地址）。
      *
-     * @return  axios-from 参数或者系统设置中的域名
+     * @return  后端站点地址
      */
     public String getAxiosFromDomainOrSetting() {
-        if (StringUtils.isNotEmpty(RequestHolder.getAxiosFrom())) {
+        SystemConfigDTO systemConfigDTO = ((SystemConfigService)AopContext.currentProxy()).getSystemConfig();
+        if (StringUtils.isNotBlank(systemConfigDTO.getForceBackendAddress())) {
+            return systemConfigDTO.getForceBackendAddress();
+        } else if (StringUtils.isNotEmpty(RequestHolder.getAxiosFrom())) {
             return RequestHolder.getAxiosFrom();
         } else {
             return RequestHolder.getRequestServerAddress();

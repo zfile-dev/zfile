@@ -44,4 +44,10 @@ public class DownloadLogResult {
 	@Schema(name="访问 referer")
 	private String referer;
 
+	@Schema(name="短链地址")
+	private String shortLink;
+
+	@Schema(name="直链地址")
+	private String pathLink;
+
 }

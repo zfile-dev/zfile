@@ -9,6 +9,8 @@ import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import im.zhaojun.zfile.core.annotation.DemoDisable;
 import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.core.util.StringUtils;
+import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.module.link.model.request.BatchDeleteRequest;
 import im.zhaojun.zfile.module.link.model.request.QueryDownloadLogRequest;
 import im.zhaojun.zfile.module.log.convert.DownloadLogConvert;
@@ -52,6 +54,9 @@ public class DownloadLogManagerController {
     @Resource
     private DownloadLogService downloadLogService;
 
+    @Resource
+    private SystemConfigService systemConfigService;
+
     @ApiOperationSupport(order = 1)
     @GetMapping("/list")
     @Operation(summary = "直链下载日志")
@@ -79,13 +84,23 @@ public class DownloadLogManagerController {
 
         Map<String, StorageSource> cache = new HashMap<>();
 
+        String serverAddress = systemConfigService.getAxiosFromDomainOrSetting();
+        SystemConfigDTO systemConfig = systemConfigService.getSystemConfig();
+        String directLinkPrefix = systemConfig.getDirectLinkPrefix();
+
         Stream<DownloadLogResult> shortLinkResultList = selectResult.getRecords().stream().map(model -> {
             String storageKey = model.getStorageKey();
 
-            StorageSource storageSource = cache.getOrDefault(storageKey, storageSourceService.findByStorageKey(storageKey));
-            cache.put(storageKey, storageSource);
+            StorageSource storageSource = cache.computeIfAbsent(storageKey, (key) -> storageSourceService.findByStorageKey(key));
+            DownloadLogResult downloadLogResult = downloadLogConvert.entityToResultList(model, storageSource);
 
-            return downloadLogConvert.entityToResultList(model, storageSource);
+            if (StringUtils.isNotBlank(downloadLogResult.getShortKey())) {
+                downloadLogResult.setShortLink(StringUtils.concat(serverAddress, "s", downloadLogResult.getShortKey()));
+            } else {
+                downloadLogResult.setPathLink(StringUtils.concat(serverAddress, directLinkPrefix, downloadLogResult.getStorageKey(), downloadLogResult.getPath()));
+            }
+
+            return downloadLogResult;
         });
         return AjaxJson.getPageData(selectResult.getTotal(), shortLinkResultList);
     }

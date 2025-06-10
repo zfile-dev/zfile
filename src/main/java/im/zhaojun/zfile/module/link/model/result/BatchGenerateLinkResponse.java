@@ -12,6 +12,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class BatchGenerateLinkResponse {
 	
-	private String shortLink;
+	private String address;
 
 }

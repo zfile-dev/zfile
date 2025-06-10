@@ -126,6 +126,9 @@ public class SystemConfigDTO implements Serializable {
     @Schema(name = "根目录是否显示所有存储源", description ="勾选则根目录显示所有存储源列表, 反之会自动显示第一个存储源的内容.", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean rootShowStorage;
 
+    @Schema(name = "强制后端地址", description ="强制指定生成直链，短链，获取回调地址时的地址。", example = "http://xxx.example.com")
+    private String forceBackendAddress;
+
     @Schema(name = "前端域名", description ="前端域名，前后端分离情况下需要配置.", example = "http://xxx.example.com")
     private String frontDomain;
 

@@ -18,6 +18,9 @@ public class UpdateSiteSettingRequest {
 	@NotBlank(message = "站点名称不能为空")
 	private String siteName;
 
+	@Schema(name = "强制后端地址", description ="强制指定生成直链，短链，获取回调地址时的地址。", example = "http://xxx.example.com")
+	private String forceBackendAddress;
+
 	@Schema(name = "前端域名", description ="前端域名，前后端分离情况下需要配置.", example = "http://xxx.example.com")
 	private String frontDomain;
 
