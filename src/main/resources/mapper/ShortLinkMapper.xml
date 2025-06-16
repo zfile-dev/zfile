@@ -7,9 +7,9 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="short_key" jdbcType="VARCHAR" property="shortKey"/>
         <result column="url" jdbcType="LONGVARCHAR" property="url"/>
-        <result column="create_date" jdbcType="DATE" property="createDate"/>
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate"/>
         <result column="storage_id" jdbcType="INTEGER" property="storageId"/>
-        <result column="expire_date" jdbcType="DATE" property="expireDate"/>
+        <result column="expire_date" jdbcType="TIMESTAMP" property="expireDate"/>
     </resultMap>
     <sql id="Base_Column_List">
         <!--@mbg.generated-->
