@@ -88,7 +88,7 @@ public class AliyunServiceImpl extends AbstractS3BaseFileService<AliyunParam> {
 
         // 如果不是私有空间, 且指定了加速域名, 则直接返回下载地址.
         if (BooleanUtils.isNotTrue(param.isPrivate()) && StringUtils.isNotEmpty(domain)) {
-            return StringUtils.concat(domain, fullPath);
+            return StringUtils.concat(domain, StringUtils.encodeAllIgnoreSlashes(fullPath));
         }
 
         Integer tokenTime = param.getTokenTime();
