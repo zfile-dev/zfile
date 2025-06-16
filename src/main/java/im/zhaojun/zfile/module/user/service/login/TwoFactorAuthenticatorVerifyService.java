@@ -8,8 +8,10 @@ import dev.samstevens.totp.qr.QrDataFactory;
 import dev.samstevens.totp.secret.SecretGenerator;
 import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.status.ForbiddenAccessException;
+import im.zhaojun.zfile.core.util.ZFileAuthUtil;
 import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
 import im.zhaojun.zfile.module.config.service.SystemConfigService;
+import im.zhaojun.zfile.module.user.model.entity.User;
 import im.zhaojun.zfile.module.user.model.request.VerifyLoginTwoFactorAuthenticatorRequest;
 import im.zhaojun.zfile.module.user.model.result.LoginTwoFactorAuthenticatorResult;
 import jakarta.annotation.Resource;
@@ -44,7 +46,10 @@ public class TwoFactorAuthenticatorVerifyService {
 	public LoginTwoFactorAuthenticatorResult setupDevice() {
 		// 生成 2FA 密钥
 		String secret = secretGenerator.generate();
-		QrData data = qrDataFactory.newBuilder().secret(secret).issuer("ZFile").build();
+
+		// 将生成的 2FA 密钥转换为 Base64 图像字符串
+		User currentUser = ZFileAuthUtil.getCurrentUser();
+		QrData data = qrDataFactory.newBuilder().label("ZFile:" + currentUser.getUsername()).secret(secret).issuer("ZFile").build();
 
 		// 将生成的 2FA 密钥转换为 Base64 图像字符串
 		String qrCodeImage = QrCodeUtil.generateAsBase64(data.getUri(), new QrConfig(300, 300), QrCodeUtil.QR_TYPE_SVG);
