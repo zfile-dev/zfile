@@ -1,5 +1,7 @@
 package im.zhaojun.zfile.core.util;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.LRUCache;
 import cn.hutool.core.net.URLEncodeUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
@@ -17,10 +19,9 @@ public class StringUtils extends CharSequenceUtil implements StrPool {
 
     public static final String HTTP = "http";
 
-    public static final String HTTP_PROTOCOL = "http://";
+    public static final String PROTOCOL_MARKER = "://";
 
-    public static final String HTTPS_PROTOCOL = "https://";
-
+    private static final LRUCache<String, String> CACHE = CacheUtil.newLRUCache(1000);
 
     /**
      * 移除 URL 中的前后的所有 '/'
@@ -84,7 +85,7 @@ public class StringUtils extends CharSequenceUtil implements StrPool {
 
 
     /**
-     * 去除路径中所有重复的 '/'
+     * 去除路径中所有重复的 '/'，如果最开始的协议头前有 / 也一并去除。
      *
      * @param   path
      *          路径
@@ -97,35 +98,43 @@ public class StringUtils extends CharSequenceUtil implements StrPool {
             return path;
         }
 
-        StringBuilder sb = new StringBuilder();
+        return CACHE.get(path, false, () -> {
+            StringBuilder sb = new StringBuilder(path.length());
+            int protocolIndex = path.indexOf(PROTOCOL_MARKER);
 
-        // 是否包含 http 或 https 协议信息
-        boolean containProtocol =  StringUtils.containsAnyIgnoreCase(path, HTTP_PROTOCOL, HTTPS_PROTOCOL);
+            int pathStartIndex = 0;
 
-        if (containProtocol) {
-            path = trimStartSlashes(path);
-        }
+            // 1. 处理协议部分
+            if (protocolIndex > -1) {
+                // 找到协议名称的实际开始位置
+                int schemeStartIndex = 0;
+                while (schemeStartIndex < protocolIndex && path.charAt(schemeStartIndex) == '/') {
+                    schemeStartIndex++;
+                }
 
-        // 是否包含 http 协议信息
-        boolean startWithHttpProtocol = StringUtils.startWithIgnoreCase(path, HTTP_PROTOCOL);
-        // 是否包含 https 协议信息
-        boolean startWithHttpsProtocol = StringUtils.startWithIgnoreCase(path, HTTPS_PROTOCOL);
+                sb.append(path, schemeStartIndex, protocolIndex);
+                sb.append(PROTOCOL_MARKER);
 
-        if (startWithHttpProtocol) {
-            sb.append(HTTP_PROTOCOL);
-        } else if (startWithHttpsProtocol) {
-            sb.append(HTTPS_PROTOCOL);
-        }
-
-        for (int i = sb.length(); i < path.length() - 1; i++) {
-            char current = path.charAt(i);
-            char next = path.charAt(i + 1);
-            if (!(current == SLASH_CHAR && next == SLASH_CHAR)) {
-                sb.append(current);
+                pathStartIndex = protocolIndex + PROTOCOL_MARKER.length();
             }
-        }
-        sb.append(path.charAt(path.length() - 1));
-        return sb.toString();
+
+            if (pathStartIndex < path.length()) {
+                char lastChar;
+                char firstPathChar = path.charAt(pathStartIndex);
+                sb.append(firstPathChar);
+                lastChar = firstPathChar;
+
+                for (int i = pathStartIndex + 1; i < path.length(); i++) {
+                    char current = path.charAt(i);
+                    if (current != SLASH_CHAR || lastChar != SLASH_CHAR) {
+                        sb.append(current);
+                        lastChar = current;
+                    }
+                }
+            }
+
+            return sb.toString();
+        });
     }
 
 
@@ -236,21 +245,11 @@ public class StringUtils extends CharSequenceUtil implements StrPool {
      * @return  拼接结果
      */
     public static String concat(boolean encodeAllIgnoreSlashes, String... strs) {
-        StringBuilder sb = new StringBuilder(SLASH);
-        for (int i = 0; i < strs.length; i++) {
-            String str = strs[i];
-            if (isEmpty(str)) {
-                continue;
-            }
-            sb.append(str);
-            if (i != strs.length - 1) {
-                sb.append(SLASH_CHAR);
-            }
-        }
+        String res = concat(strs);
         if (encodeAllIgnoreSlashes) {
-            return encodeAllIgnoreSlashes(removeDuplicateSlashes(sb.toString()));
+            return encodeAllIgnoreSlashes(res);
         } else {
-            return removeDuplicateSlashes(sb.toString());
+            return res;
         }
     }
 
