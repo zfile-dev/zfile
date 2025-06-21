@@ -9,7 +9,9 @@ import cn.hutool.extra.spring.SpringUtil;
 import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 代理下载链接工具类
@@ -23,6 +25,7 @@ public class ProxyDownloadUrlUtils {
 
 	private static final String PROXY_DOWNLOAD_LINK_DELIMITER = ":";
 
+	private static final Map<String, SymmetricCrypto> AES_CACHE = new HashMap<>();
 
 	/**
 	 * 服务器代理下载 URL 有效期 (秒).
@@ -58,9 +61,7 @@ public class ProxyDownloadUrlUtils {
 		String content = storageId + PROXY_DOWNLOAD_LINK_DELIMITER + pathAndName + PROXY_DOWNLOAD_LINK_DELIMITER + second;
 
 		String aesHexKey = systemConfigService.getAesHexKeyOrGenerate();
-		byte[] key = HexUtil.decodeHex(aesHexKey);
-		//构建
-		SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
+		SymmetricCrypto aes = AES_CACHE.computeIfAbsent(aesHexKey, k -> new SymmetricCrypto(SymmetricAlgorithm.AES, HexUtil.decodeHex(k)));
 
 		//加密
 		return aes.encryptHex(content);
@@ -73,9 +74,8 @@ public class ProxyDownloadUrlUtils {
 		}
 
 		String aesHexKey = systemConfigService.getAesHexKeyOrGenerate();
-		byte[] key = HexUtil.decodeHex(aesHexKey);
-		SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
-		
+		SymmetricCrypto aes = AES_CACHE.computeIfAbsent(aesHexKey, k -> new SymmetricCrypto(SymmetricAlgorithm.AES, HexUtil.decodeHex(k)));
+
 		long currentTimeMillis = System.currentTimeMillis();
 		
 		String storageId = null;
