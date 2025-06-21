@@ -351,6 +351,9 @@ public class GlobalExceptionHandler {
                 exceptionMessage.remove();
                 return AjaxJson.getError(message);
             }
+        } else if (exceptionType == ExceptionType.IGNORE_EXCEPTION) {
+            // 忽略异常
+            return null;
         }
 
         if (e.getClass() == Exception.class) {
