@@ -20,6 +20,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.http.HttpRange;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -54,6 +55,8 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
     protected S3Presigner s3Presigner;
 
     public static final InputStream EMPTY_INPUT_STREAM = new ByteArrayInputStream(new byte[0]);
+
+    Consumer<AwsRequestOverrideConfiguration.Builder> unlimitTimeoutBuilderConsumer = builder -> builder.apiCallTimeout(Duration.ofDays(30)).build();
 
     @Override
     public List<FileItemResult> fileList(String folderPath) {
@@ -314,6 +317,7 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
         String trimStartPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
 
         s3ClientNew.putObject(PutObjectRequest.builder()
+                        .overrideConfiguration(unlimitTimeoutBuilderConsumer)
                         .bucket(param.getBucketName())
                         .key(trimStartPath)
                         .contentType(contentType)
@@ -329,6 +333,7 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
         HttpRange requestRange = RequestUtils.getRequestRange(RequestHolder.getRequest());
 
         ResponseInputStream<GetObjectResponse> responseResponseInputStream = s3ClientNew.getObject(GetObjectRequest.builder()
+                .overrideConfiguration(unlimitTimeoutBuilderConsumer)
                 .bucket(bucketName)
                 .key(trimStartPath)
                 .range(requestRange != null ? "bytes=" + requestRange.getRangeStart(Integer.MAX_VALUE) + "-" + requestRange.getRangeEnd(Integer.MAX_VALUE) : null)
@@ -343,7 +348,6 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
     public ClientOverrideConfiguration getClientConfiguration() {
         return ClientOverrideConfiguration.builder()
                 .apiCallTimeout(Duration.ofSeconds(StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_SECONDS)) // 设置 API 调用超时时间
-                .apiCallAttemptTimeout(Duration.ofSeconds(StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_SECONDS)) // 设置 API 调用尝试超时时间
                 .build();
     }
 
