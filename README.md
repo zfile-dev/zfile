@@ -13,6 +13,7 @@
     <img alt="forks"            src="https://shields.io/github/forks/zhaojun1998/zfile?style=flat-square"/>
     <img alt="stars"            src="https://shields.io/github/stars/zhaojun1998/zfile?style=flat-square"/>
     <img alt="watchers"         src="https://shields.io/github/watchers/zhaojun1998/zfile?style=flat-square"/>
+    <img alt="gitcode"          src="https://gitcode.com/zfile-dev/zfile/star/badge.svg"/>
 </div>
     <span>
         <a href="https://zfile.vip">官网</a>
