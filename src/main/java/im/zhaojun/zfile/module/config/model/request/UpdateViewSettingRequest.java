@@ -40,6 +40,9 @@ public class UpdateViewSettingRequest {
 	@Schema(name = "自定义Office后缀格式")
 	private String customOfficeSuffix;
 
+	@Schema(name = "自定义kkFileView后缀格式")
+	private String customKkFileViewSuffix;
+
 	@Schema(name = "是否显示文档区", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Boolean showDocument;
 
@@ -66,6 +69,9 @@ public class UpdateViewSettingRequest {
 
 	@Schema(name = "onlyOffice Secret", example = "X9rBGypwWE86Lca8e4Mo55iHFoiyh9ed")
 	private String onlyOfficeSecret;
+
+	@Schema(name = "kkFileView 在线预览地址", example = "http://kkfile.zfile.vip")
+	private String kkFileViewUrl;
 
 	@Schema(name = "默认最大显示文件数", example = "1000")
 	private Integer maxShowSize;

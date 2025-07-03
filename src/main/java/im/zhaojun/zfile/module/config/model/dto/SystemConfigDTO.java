@@ -92,6 +92,9 @@ public class SystemConfigDTO implements Serializable {
     @Schema(name = "自定义Office后缀格式")
     private String customOfficeSuffix;
 
+    @Schema(name = "自定义kkFileView后缀格式")
+    private String customKkFileViewSuffix;
+
     @Schema(name = "直链地址前缀")
     private String directLinkPrefix;
 
@@ -158,6 +161,9 @@ public class SystemConfigDTO implements Serializable {
 
     @Schema(name = "onlyOffice Secret", example = "X9rBGypwWE86Lca8e4Mo55iHFoiyh9ed")
     private String onlyOfficeSecret;
+
+    @Schema(name = "kkFileView 在线预览地址", example = "http://kkfile.zfile.vip")
+    private String kkFileViewUrl;
 
     @Schema(name = "启用 WebDAV", example = "true")
     private Boolean webdavEnable;
