@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('kkFileViewOpenMode', 'kkFileView 预览方式', 'iframe');

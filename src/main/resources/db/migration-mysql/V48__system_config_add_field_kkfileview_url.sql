@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('kkFileViewUrl', 'kkFileView 地址', '');
