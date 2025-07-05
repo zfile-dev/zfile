@@ -165,6 +165,9 @@ public class SystemConfigDTO implements Serializable {
     @Schema(name = "kkFileView 在线预览地址", example = "http://kkfile.zfile.vip")
     private String kkFileViewUrl;
 
+    @Schema(name = "kkFileView 预览方式", example = "iframe/newTab")
+    private String kkFileViewOpenMode;
+
     @Schema(name = "启用 WebDAV", example = "true")
     private Boolean webdavEnable;
 

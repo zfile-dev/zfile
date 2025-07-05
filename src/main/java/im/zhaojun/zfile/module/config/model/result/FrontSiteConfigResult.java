@@ -113,6 +113,9 @@ public class FrontSiteConfigResult {
 	@Schema(name = "kkFileView 在线预览地址", example = "http://kkfile.zfile.vip")
 	private String kkFileViewUrl;
 
+	@Schema(name = "kkFileView 预览方式", example = "iframe/newTab")
+	private String kkFileViewOpenMode;
+
 	@Schema(name = "默认最大显示文件数", example = "1000")
 	private Integer maxShowSize;
 
@@ -138,7 +141,7 @@ public class FrontSiteConfigResult {
 	private String siteHomeLogoTargetMode;
 
 	@Schema(name = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
-	private List<LinkExpireDTO> linkExpireTimes;;
+	private List<LinkExpireDTO> linkExpireTimes;
 
 	@Schema(name = "是否默认记住密码", example = "true")
 	private Boolean defaultSavePwd;

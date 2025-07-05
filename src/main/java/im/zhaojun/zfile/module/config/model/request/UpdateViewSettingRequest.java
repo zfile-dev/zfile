@@ -73,6 +73,9 @@ public class UpdateViewSettingRequest {
 	@Schema(name = "kkFileView 在线预览地址", example = "http://kkfile.zfile.vip")
 	private String kkFileViewUrl;
 
+	@Schema(name = "kkFileView 预览方式", example = "iframe/newTab")
+	private String kkFileViewOpenMode;
+
 	@Schema(name = "默认最大显示文件数", example = "1000")
 	private Integer maxShowSize;
 
