@@ -80,6 +80,9 @@ public class FrontSiteConfigResult {
 	@Schema(name = "自定义Office后缀格式")
 	private String customOfficeSuffix;
 
+	@Schema(name = "自定义kkFileView后缀格式")
+	private String customKkFileViewSuffix;
+
 	@Schema(name = "根目录是否显示所有存储源", description ="勾选则根目录显示所有存储源列表, 反之会自动显示第一个存储源的内容.", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Boolean rootShowStorage;
 
@@ -107,6 +110,12 @@ public class FrontSiteConfigResult {
 	@Schema(name = "onlyOffice 在线预览地址", example = "http://office.zfile.vip")
 	private String onlyOfficeUrl;
 
+	@Schema(name = "kkFileView 在线预览地址", example = "http://kkfile.zfile.vip")
+	private String kkFileViewUrl;
+
+	@Schema(name = "kkFileView 预览方式", example = "iframe/newTab")
+	private String kkFileViewOpenMode;
+
 	@Schema(name = "默认最大显示文件数", example = "1000")
 	private Integer maxShowSize;
 
@@ -132,7 +141,7 @@ public class FrontSiteConfigResult {
 	private String siteHomeLogoTargetMode;
 
 	@Schema(name = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
-	private List<LinkExpireDTO> linkExpireTimes;;
+	private List<LinkExpireDTO> linkExpireTimes;
 
 	@Schema(name = "是否默认记住密码", example = "true")
 	private Boolean defaultSavePwd;
