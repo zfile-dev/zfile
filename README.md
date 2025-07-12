@@ -4,15 +4,15 @@
     </a>
     <p>ZFile 是一个适用于个人或小团队的在线网盘程序，可以将多种存储类型统一管理，再也不用登录各种网站管理文件，现在你只需要在 ZFile 中畅快使用！</p>
 <div>
-    <img alt="last commit"      src="https://shields.io/github/last-commit/zhaojun1998/zfile.svg?style=flat-square"/>
-    <img alt="downloads"        src="https://shields.io/github/downloads/zhaojun1998/zfile/total?style=flat-square"/>
-    <img alt="release version"  src="https://shields.io/github/v/release/zhaojun1998/zfile?style=flat-square"/>
-    <img alt="commit activity"  src="https://shields.io/github/commit-activity/y/zhaojun1998/zfile?style=flat-square"/>
-    <img alt="open issues"      src="https://shields.io/github/issues/zhaojun1998/zfile?style=flat-square"/>
-    <img alt="closed issues"    src="https://shields.io/github/issues-closed-raw/zhaojun1998/zfile?style=flat-square"/>
-    <img alt="forks"            src="https://shields.io/github/forks/zhaojun1998/zfile?style=flat-square"/>
-    <img alt="stars"            src="https://shields.io/github/stars/zhaojun1998/zfile?style=flat-square"/>
-    <img alt="watchers"         src="https://shields.io/github/watchers/zhaojun1998/zfile?style=flat-square"/>
+    <img alt="last commit"      src="https://shields.io/github/last-commit/zfile-dev/zfile.svg?style=flat-square"/>
+    <img alt="downloads"        src="https://shields.io/github/downloads/zfile-dev/zfile/total?style=flat-square"/>
+    <img alt="release version"  src="https://shields.io/github/v/release/zfile-dev/zfile?style=flat-square"/>
+    <img alt="commit activity"  src="https://shields.io/github/commit-activity/y/zfile-dev/zfile?style=flat-square"/>
+    <img alt="open issues"      src="https://shields.io/github/issues/zfile-dev/zfile?style=flat-square"/>
+    <img alt="closed issues"    src="https://shields.io/github/issues-closed-raw/zfile-dev/zfile?style=flat-square"/>
+    <img alt="forks"            src="https://shields.io/github/forks/zfile-dev/zfile?style=flat-square"/>
+    <img alt="stars"            src="https://shields.io/github/stars/zfile-dev/zfile?style=flat-square"/>
+    <img alt="watchers"         src="https://shields.io/github/watchers/zfile-dev/zfile?style=flat-square"/>
     <img alt="gitcode"          src="https://gitcode.com/zfile-dev/zfile/star/badge.svg"/>
 </div>
     <span>
