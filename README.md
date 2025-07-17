@@ -89,3 +89,12 @@ curl -sSL https://docs.zfile.vip/install.sh -o install.sh && chmod +x install.sh
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=zfile-dev/zfile&type=Date)](https://star-history.com/#zfile-dev/zfile&Date)
+
+
+[NodeSupport](https://github.com/NodeSeekDev/NodeSupport) 赞助了该项目
+
+<div align="left">
+  <a href="https://yxvm.com/">
+    <img src="https://support.nodeget.com/page/promotion?id=325" width="300" />
+  </a>
+</div>
