@@ -7,6 +7,7 @@ import com.jcraft.jsch.SftpException;
 import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.exception.core.SystemException;
+import im.zhaojun.zfile.core.exception.status.NotFoundAccessException;
 import im.zhaojun.zfile.core.util.*;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
@@ -231,7 +232,7 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 
 		FileItemResult fileItem = getFileItem(pathAndName);
 		if (fileItem == null) {
-			throw new BizException(ErrorCode.BIZ_FILE_NOT_EXIST);
+			throw new NotFoundAccessException(ErrorCode.BIZ_FILE_NOT_EXIST);
 		}
 
 		long fileSize = fileItem.getSize();
