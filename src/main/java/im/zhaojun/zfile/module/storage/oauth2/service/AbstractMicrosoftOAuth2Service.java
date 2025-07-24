@@ -59,9 +59,6 @@ public abstract class AbstractMicrosoftOAuth2Service implements IOAuth2Service {
 
         String responseBody = response.body();
         int responseStatus = response.getStatus();
-
-        log.info("根据授权回调 code 获取令牌完成. [httpStatus: {}]", responseStatus);
-
         if (responseStatus != HttpStatus.OK.value()) {
             return OAuth2TokenDTO.fail(clientId, clientSecret, redirectUri, responseBody);
         }

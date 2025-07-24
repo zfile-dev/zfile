@@ -75,7 +75,9 @@ public class SystemConfigService {
         for (SystemConfig systemConfig : systemConfigList) {
             String key = systemConfig.getName();
             if (ignoreFieldList.contains(key)) {
-                log.debug("从数据库加载字段填充到 DTO 时，忽略字段: {}", key);
+                if (log.isTraceEnabled()) {
+                    log.trace("从数据库加载字段填充到 DTO 时，忽略字段: {}", key);
+                }
                 continue;
             }
             try {

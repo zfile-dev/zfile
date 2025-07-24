@@ -62,7 +62,9 @@ public class FrontIndexController {
 				String content;
 				try {
 					content = resource.getContentAsString(StandardCharsets.UTF_8);
-					log.debug("读取 index.html 文件成功, 文件路径: {}", staticLocation);
+					if (log.isTraceEnabled()) {
+						log.trace("读取 index.html 文件成功, 文件路径: {}", staticLocation);
+					}
 				} catch (Exception e) {
 					log.error("{} 资源存在但读取 index.html 文件失败.", staticLocation);
 					return ResponseEntity.status(500).body("static index.html read error");

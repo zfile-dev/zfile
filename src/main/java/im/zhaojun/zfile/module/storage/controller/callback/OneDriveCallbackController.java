@@ -36,9 +36,7 @@ public class OneDriveCallbackController {
     @ApiOperationSupport(order = 1)
     @Operation(summary = "生成 OAuth2 登陆 URL", description = "生成 OneDrive OAuth2 登陆 URL，用户国际版，家庭版等非世纪互联运营的 OneDrive.")
     public String authorize(String clientId, String clientSecret, String redirectUri) {
-        log.debug("onedrive 国际版生成授权链接参数信息： clientId: {}, clientSecret: {}, redirectUri: {}", clientId, clientSecret, redirectUri);
         String authorizeUrl = oneDriveOAuth2Service.generateAuthorizationUrl(clientId, clientSecret, redirectUri);
-        log.debug("onedrive 国际版生成授权链接结果: {}", authorizeUrl);
         return "redirect:" + authorizeUrl;
     }
     
@@ -47,7 +45,9 @@ public class OneDriveCallbackController {
     @ApiOperationSupport(order = 2)
     @Operation(summary = "OAuth2 回调地址", description = "根据 OAuth2 协议，登录成功后，会返回给网站一个 code，用此 code 去换取 accessToken 和 refreshToken.（oneDrive 会回调此接口）")
     public String oneDriveCallback(String code, String state, Model model) {
-        log.debug("onedrive 国际版授权回调参数信息： code: {}, state: {}", code, state);
+        if (log.isDebugEnabled()) {
+            log.debug("onedrive 国际版授权回调参数信息： code: {}, state: {}", code, state);
+        }
 
         String clientId = null, clientSecret = null, redirectUri = null;
         if (StringUtils.isNotEmpty(state)) {
@@ -58,10 +58,8 @@ public class OneDriveCallbackController {
             redirectUri = stateArr[2];
         }
 
-        OAuth2TokenDTO OAuth2TokenDTO = oneDriveOAuth2Service.getTokenByCode(code, clientId, clientSecret, redirectUri);
-        log.debug("onedrive 国际版授权回调获取令牌结果: {}", OAuth2TokenDTO);
-        
-        model.addAttribute("oauth2Token", OAuth2TokenDTO);
+        OAuth2TokenDTO oAuth2TokenDTO = oneDriveOAuth2Service.getTokenByCode(code, clientId, clientSecret, redirectUri);
+        model.addAttribute("oauth2Token", oAuth2TokenDTO);
         model.addAttribute("type", "OneDrive 国际版");
         return "callback";
     }
@@ -71,9 +69,7 @@ public class OneDriveCallbackController {
     @ApiOperationSupport(order = 3)
     @Operation(summary = "生成 OAuth2 登陆 URL(世纪互联)", description = "生成 OneDrive OAuth2 登陆 URL，用于世纪互联版本.")
     public String authorizeChina(String clientId, String clientSecret, String redirectUri) {
-        log.debug("onedrive 世纪互联版生成授权链接参数信息： clientId: {}, clientSecret: {}, redirectUri: {}", clientId, clientSecret, redirectUri);
         String authorizeUrl = oneDriveChinaOAuth2Service.generateAuthorizationUrl(clientId, clientSecret, redirectUri);
-        log.debug("onedrive 世纪互联版生成授权链接结果: {}", authorizeUrl);
         return "redirect:" + authorizeUrl;
     }
     
@@ -82,7 +78,9 @@ public class OneDriveCallbackController {
     @ApiOperationSupport(order = 4)
     @Operation(summary = "OAuth2 回调地址(世纪互联)", description = "根据 OAuth2 协议，登录成功后，会返回给网站一个 code，用此 code 去换取 accessToken 和 refreshToken.（oneDrive 会回调此接口）")
     public String oneDriveChinaCallback(String code, String state, Model model) {
-        log.debug("onedrive 世纪互联版授权回调参数信息： code: {}, state: {}", code, state);
+        if (log.isDebugEnabled()) {
+            log.debug("onedrive 世纪互联授权回调参数信息： code: {}, state: {}", code, state);
+        }
 
         String clientId = null, clientSecret = null, redirectUri = null;
         if (StringUtils.isNotEmpty(state)) {
@@ -94,8 +92,6 @@ public class OneDriveCallbackController {
         }
 
         OAuth2TokenDTO OAuth2TokenDTO = oneDriveChinaOAuth2Service.getTokenByCode(code, clientId, clientSecret, redirectUri);
-        log.info("onedrive 世纪互联版授权回调获取令牌结果: {}", OAuth2TokenDTO);
-        
         model.addAttribute("oauth2Token", OAuth2TokenDTO);
         model.addAttribute("type", "OneDrive 世纪互联");
         return "callback";

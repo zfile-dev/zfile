@@ -30,15 +30,15 @@ public class GoogleDriveCallbackController {
 	@ApiOperationSupport(order = 1)
 	@Operation(summary = "生成 OAuth2 登陆 URL", description = "生成 OneDrive OAuth2 登陆 URL，用户国际版，家庭版等非世纪互联运营的 OneDrive.")
 	public String authorize(String clientId, String clientSecret, String redirectUri) {
-		log.debug("gd 生成授权链接参数信息： clientId: {}, clientSecret: {}, redirectUri: {}", clientId, clientSecret, redirectUri);
 		String authorizeUrl = googleDriveOAuth2ServiceImpl.generateAuthorizationUrl(clientId, clientSecret, redirectUri);
-		log.debug("gd 生成授权链接结果: {}", authorizeUrl);
 		return "redirect:" + authorizeUrl;
 	}
 	
 	@GetMapping("/callback")
 	public String googleDriveCallback(String code, String state, Model model) {
-		log.info("gd 授权回调参数信息： code: {}, state: {}", code, state);
+		if (log.isDebugEnabled()) {
+			log.debug("Google Drive 授权回调参数信息： code: {}, state: {}", code, state);
+		}
 
 		String clientId = null, clientSecret = null, redirectUri = null;
 		if (StringUtils.isNotEmpty(state)) {
@@ -50,7 +50,6 @@ public class GoogleDriveCallbackController {
 		}
 
 		OAuth2TokenDTO oAuth2TokenDTO = googleDriveOAuth2ServiceImpl.getTokenByCode(code, clientId, clientSecret, redirectUri);
-
 		model.addAttribute("oauth2Token", oAuth2TokenDTO);
 		model.addAttribute("type", "Google Drive");
 		return "callback";
