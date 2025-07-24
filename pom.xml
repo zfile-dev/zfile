@@ -331,49 +331,4 @@
         </plugins>
     </build>
 
-
-    <profiles>
-        <profile>
-            <id>native</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>build-native</id>
-                                <goals>
-                                    <goal>compile-no-fork</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <fallback>false</fallback>
-                            <imageName>${project.name}</imageName>
-                            <metadataRepository>
-                                <enabled>true</enabled>
-                            </metadataRepository>
-                            <jvmArgs>
-                                <jvmArg>--add-opens=java.base/java.net=ALL-UNNAMED</jvmArg>
-                                <jvmArg>--add-opens=java.base/sun.net=ALL-UNNAMED</jvmArg>
-                            </jvmArgs>
-                            <buildArgs>
-                                <arg>
-                                    -march=compatibility
-                                    -H:+AddAllCharsets
-                                    --features=im.zhaojun.zfile.aot.LambdaRegistrationFeature
-                                    --features=im.zhaojun.zfile.aot.BouncyCastleFeature
-                                    --features=im.zhaojun.zfile.aot.SQLiteNativeConfiguration
-                                </arg>
-                            </buildArgs>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
 </project>
