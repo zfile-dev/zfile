@@ -15,6 +15,7 @@ import im.zhaojun.zfile.module.storage.model.dto.ZFileCORSRule;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.S3BaseParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
+import im.zhaojun.zfile.module.storage.service.impl.S3ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.http.HttpRange;
@@ -101,7 +102,11 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
         URL url = presignedGetObjectRequest.url();
         String defaultUrl = url.toExternalForm();
         if (StringUtils.isNotEmpty(domain)) {
-            defaultUrl = StringUtils.concat(domain, url.getFile());
+            String path = url.getFile();
+            if (this instanceof S3ServiceImpl) {
+                path = path.replaceFirst(bucketName + "/", "");
+            }
+            defaultUrl = StringUtils.concat(domain, path);
         }
         return defaultUrl;
     }
