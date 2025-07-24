@@ -316,7 +316,7 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
 
 
     @Override
-    public void uploadFile(String pathAndName, InputStream inputStream) throws Exception {
+    public void uploadFile(String pathAndName, InputStream inputStream, Long size) throws Exception {
         String contentType = parseContentTypeByName(pathAndName, MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
         String trimStartPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
@@ -327,7 +327,7 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
                         .key(trimStartPath)
                         .contentType(contentType)
                         .build(),
-                RequestBody.fromInputStream(inputStream, inputStream.available()));
+                RequestBody.fromInputStream(inputStream, size));
     }
 
     @Override

@@ -138,8 +138,10 @@ public abstract class AbstractProxyTransferService<P extends ProxyTransferParam>
 	 * @param   inputStream
 	 *          文件流
 	 *
+	 * @param 	size
+	 * 			文件大小
 	 */
-	public abstract void uploadFile(String pathAndName, InputStream inputStream) throws Exception;
+	public abstract void uploadFile(String pathAndName, InputStream inputStream, Long size) throws Exception;
 
 
 	/**

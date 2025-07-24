@@ -172,10 +172,10 @@ public class WebdavServiceImpl extends AbstractProxyTransferService<WebdavParam>
 	}
 
 	@Override
-	public void uploadFile(String pathAndName, InputStream inputStream) {
+	public void uploadFile(String pathAndName, InputStream inputStream, Long size) {
 		try {
 			pathAndName = getRequestPath(pathAndName);
-			sardine.put(pathAndName, inputStream, null, true, inputStream.available());
+			sardine.put(pathAndName, inputStream, null, true, size);
 		} catch (IOException e) {
 			throw ExceptionUtil.wrapRuntime(e);
 		}

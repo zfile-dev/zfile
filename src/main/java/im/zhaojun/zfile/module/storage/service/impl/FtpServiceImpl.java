@@ -219,7 +219,7 @@ public class FtpServiceImpl extends AbstractProxyTransferService<FtpParam> {
 
 
     @Override
-    public void uploadFile(String pathAndName, InputStream inputStream) {
+    public void uploadFile(String pathAndName, InputStream inputStream, Long size) {
         String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
         String fileName = FileUtils.getName(pathAndName);
         String folderName = FileUtils.getParentPath(fullPath);

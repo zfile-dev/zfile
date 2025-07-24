@@ -305,7 +305,7 @@ public class UpYunServiceImpl extends AbstractProxyTransferService<UpYunParam> {
      * 第一次上传时需加锁，不然又拍云这个上传 API 可能会遇到并发异常
      */
     @Override
-    public void uploadFile(String pathAndName, InputStream inputStream) throws IOException, UpException {
+    public void uploadFile(String pathAndName, InputStream inputStream, Long size) throws IOException, UpException {
         boolean doLock = isFirstUpload;
 
         if (doLock) {

@@ -261,7 +261,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 
 
 	@Override
-	public void uploadFile(String pathAndName, InputStream inputStream) {
+	public void uploadFile(String pathAndName, InputStream inputStream, Long size) {
 		String boundary = IdUtil.fastSimpleUUID();
 		String fileName = FileUtils.getName(pathAndName);
 		String folderName = FileUtils.getParentPath(pathAndName);

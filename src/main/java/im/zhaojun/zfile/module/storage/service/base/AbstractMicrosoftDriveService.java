@@ -299,24 +299,22 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
     }
 
     @Override
-    public void uploadFile(String pathAndName, InputStream inputStream) throws IOException {
+    public void uploadFile(String pathAndName, InputStream inputStream, Long size) throws IOException {
         String fullPath = StringUtils.concat(getCurrentUserBasePath(), pathAndName);
         String folderPath = FileUtils.getParentPath(fullPath);
         String fileName = FileUtils.getName(fullPath);
         String uploadUrl = getOneDriveUploadUrl(folderPath, fileName);
 
-        int available = inputStream.available();
-
         try {
             getRestTemplate().execute(uploadUrl, HttpMethod.PUT, request -> {
                 HttpHeaders headers = request.getHeaders();
                 headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-                headers.setContentLength(available);
-                headers.set(HttpHeaders.CONTENT_RANGE, "bytes 0-" + (available - 1) + StringUtils.SLASH + available);
+                headers.setContentLength(size);
+                headers.set(HttpHeaders.CONTENT_RANGE, "bytes 0-" + (size - 1) + StringUtils.SLASH + size);
                 StreamUtils.copy(inputStream, request.getBody());
             }, clientHttpResponse -> {
                 if (!clientHttpResponse.getStatusCode().is2xxSuccessful()) {
-                    throw new UploadFileFailSystemException(this.getStorageTypeEnum(), pathAndName, available,
+                    throw new UploadFileFailSystemException(this.getStorageTypeEnum(), pathAndName, size,
                             clientHttpResponse.getStatusCode().value(), clientHttpResponse.getStatusText());
                 }
                 return null;
@@ -325,7 +323,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
             if (e instanceof ResourceAccessException && e.getMessage().contains("Timeout on")) {
                 throw new BizException(ErrorCode.BIZ_UPLOAD_FILE_TIMEOUT_ERROR);
             }
-            throw new UploadFileFailSystemException(this.getStorageTypeEnum(), pathAndName, available, 500, e.getMessage());
+            throw new UploadFileFailSystemException(this.getStorageTypeEnum(), pathAndName, size, 500, e.getMessage());
         }
     }
     @Override
