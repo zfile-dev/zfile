@@ -9,15 +9,14 @@ import im.zhaojun.zfile.core.util.ArrayUtils;
 import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.RequestHolder;
 import im.zhaojun.zfile.core.util.StringUtils;
-import im.zhaojun.zfile.module.storage.support.ftp.FtpClientFactory;
-import im.zhaojun.zfile.module.storage.support.ftp.FtpClientPool;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.FtpParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
 import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService;
-import jakarta.annotation.PreDestroy;
+import im.zhaojun.zfile.module.storage.support.ftp.FtpClientFactory;
+import im.zhaojun.zfile.module.storage.support.ftp.FtpClientPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -31,10 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * @author zhaojun
@@ -101,17 +97,22 @@ public class FtpServiceImpl extends AbstractProxyTransferService<FtpParam> {
         Ftp ftp = null;
         try {
             ftp = getClientFromPool();
-            String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
+            String folderPath = FileUtils.getParentPath(pathAndName);
+            String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), folderPath);
             FTPFile[] ftpFiles = ftp.lsFiles(fullPath);
 
             if (ArrayUtils.isEmpty(ftpFiles)) {
                 return null;
             }
 
-            FTPFile ftpFile = ftpFiles[0];
+            String fileName = FileUtils.getName(pathAndName);
 
-            String folderPath = FileUtils.getParentPath(pathAndName);
-            return ftpFileToFileItem(ftpFile, folderPath);
+            for (FTPFile ftpFile : ftpFiles) {
+                if (Objects.equals(ftpFile.getName(), fileName)) {
+                    return ftpFileToFileItem(ftpFile, folderPath);
+                }
+            }
+            return null;
         } finally {
             if (ftp != null) {
                 ftpClientPool.returnObject(ftp);
