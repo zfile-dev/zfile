@@ -6,6 +6,7 @@ import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.biz.InvalidStorageSourceBizException;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.util.AjaxJson;
+import im.zhaojun.zfile.core.util.ZFileAuthUtil;
 import im.zhaojun.zfile.module.storage.annotation.CheckPassword;
 import im.zhaojun.zfile.module.storage.annotation.ProCheck;
 import im.zhaojun.zfile.module.storage.chain.FileChain;
@@ -57,7 +58,7 @@ public class FileController {
 	@GetMapping("/list")
 	@ProCheck
 	public AjaxJson<List<StorageSourceResult>> storageList() {
-		List<StorageSource> storageList = storageSourceService.findAllEnableOrderByOrderNum();
+		List<StorageSource> storageList = storageSourceService.findAllEnableOrderByOrderNum(ZFileAuthUtil.getCurrentUserId());
 		List<StorageSourceResult> storageSourceResultList =
 				storageSourceConvert.entityToResultList(storageList);
 		return AjaxJson.getSuccessData(storageSourceResultList);
