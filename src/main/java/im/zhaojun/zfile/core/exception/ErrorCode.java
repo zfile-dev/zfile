@@ -79,7 +79,7 @@ public enum ErrorCode {
     BIZ_STORAGE_KEY_EXIST("43007", "存储源别名已存在"),
     BIZ_AUTO_GET_SHARE_POINT_SITES_ERROR("43008", "自动获取 SharePoint 网站列表失败"),
     BIZ_ORIGINS_NOT_EMPTY("43009", "请先在 \"站点设置\" 中配置站点域名"),
-    BIZ_2FA_CODE_ERROR("43010", "两步验证失败"),
+    BIZ_2FA_CODE_ERROR("43010", "双因素认证验证失败"),
     BIZ_STORAGE_INIT_ERROR("43011", "存储源初始化失败"),
     BIZ_RULE_EXIST("43012", "规则已存在"),
     BIZ_SSO_PROVIDER_EXIST("43013", "单点登录配置已存在"),

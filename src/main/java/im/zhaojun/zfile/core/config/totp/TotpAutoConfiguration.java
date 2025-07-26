@@ -3,9 +3,6 @@ package im.zhaojun.zfile.core.config.totp;
 import dev.samstevens.totp.TotpInfo;
 import dev.samstevens.totp.code.*;
 import dev.samstevens.totp.qr.QrDataFactory;
-import dev.samstevens.totp.qr.QrGenerator;
-import dev.samstevens.totp.qr.ZxingPngQrGenerator;
-import dev.samstevens.totp.recovery.RecoveryCodeGenerator;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
 import dev.samstevens.totp.time.SystemTimeProvider;
@@ -56,12 +53,6 @@ public class TotpAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public QrGenerator qrGenerator() {
-        return new ZxingPngQrGenerator();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
     public CodeGenerator codeGenerator(HashingAlgorithm algorithm) {
         return new DefaultCodeGenerator(algorithm, this.getCodeLength());
     }
@@ -73,12 +64,6 @@ public class TotpAutoConfiguration {
         verifier.setTimePeriod(this.getTimePeriod());
         verifier.setAllowedTimePeriodDiscrepancy(this.props.getTime().getDiscrepancy());
         return verifier;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public RecoveryCodeGenerator recoveryCodeGenerator() {
-        return new RecoveryCodeGenerator();
     }
 
     private int getCodeLength() {
