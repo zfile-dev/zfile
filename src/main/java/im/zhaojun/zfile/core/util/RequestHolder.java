@@ -165,10 +165,20 @@ public class RequestHolder {
         HttpServletRequest request = RequestHolder.getRequest();
         StringBuffer requestURL = request.getRequestURL();
         String result = requestURL.substring(0, requestURL.indexOf(request.getRequestURI()));
+        String serverName = request.getServerName();
 
-        String header = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Proto");
-        if (StringUtils.isNotEmpty(header)) {
-            return StringUtils.setSchema(result, header);
+        String port = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Port");
+        if (StringUtils.isNotEmpty(port) && !StringUtils.contains(serverName, ":")) {
+            // 如果是 http 协议，且 port 为 80，或者是 https 协议，且 port 为 443，则不需要添加端口号
+            boolean ignoreHttpPort = "http".equalsIgnoreCase(request.getScheme()) && "80".equals(port);
+            boolean ignoreHttpsPort = ("https".equalsIgnoreCase(request.getScheme()) && "443".equals(port));
+            if (!ignoreHttpPort && !ignoreHttpsPort) {
+                result = result.replace(serverName, serverName + ":" + port);
+            }
+        }
+        String protocal = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Proto");
+        if (StringUtils.isNotEmpty(protocal)) {
+            return StringUtils.setSchema(result, protocal);
         }
         return result;
     }
