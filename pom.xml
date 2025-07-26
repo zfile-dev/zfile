@@ -147,11 +147,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.35.2</version>
-        </dependency>
 
         <!-- 登陆/权限相关 -->
         <dependency>
@@ -179,11 +174,6 @@
         </dependency>
 
         <!-- 工具类 -->
-        <!--        <dependency>-->
-        <!--            <groupId>com.hierynomus</groupId>-->
-        <!--            <artifactId>sshj</artifactId>-->
-        <!--            <version>0.38.0</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
