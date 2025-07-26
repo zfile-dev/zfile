@@ -86,7 +86,10 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
     public abstract StorageSourceMetadata getStorageSourceMetadata();
 
     public String getCurrentUserBasePath() {
-        UserStorageSource userStorageSource = userStorageSourceService.getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
+        Integer userId = ZFileAuthUtil.getCurrentUserId();
+        if (!this.isInitialized) {
+            userId = UserConstant.ADMIN_ID;
+        }
         UserStorageSource userStorageSource = userStorageSourceService.getByUserIdAndStorageId(userId, storageId);
         if (userStorageSource == null || StringUtils.isEmpty(userStorageSource.getRootPath())) {
             return StrPool.SLASH;
