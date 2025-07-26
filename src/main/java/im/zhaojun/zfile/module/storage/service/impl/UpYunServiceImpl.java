@@ -148,11 +148,11 @@ public class UpYunServiceImpl extends AbstractProxyTransferService<UpYunParam> {
         String folderPath = FileUtils.getParentPath(pathAndName);
         FileItemResult fileItemResult = new FileItemResult();
         fileItemResult.setName(name);
-        fileItemResult.setSize(Long.valueOf(fileInfo.get("size")));
-        fileItemResult.setTime(new Date(Long.parseLong(fileInfo.get("date")) * 1000));
+        fileItemResult.setSize(Long.valueOf(fileInfo.get("x-upyun-file-size")));
+        fileItemResult.setTime(new Date(Long.parseLong(fileInfo.get("x-upyun-file-date")) * 1000));
         fileItemResult.setPath(folderPath);
 
-        if ("folder".equals(fileInfo.get("type"))) {
+        if ("folder".equals(fileInfo.get("x-upyun-file-type"))) {
             fileItemResult.setType(FileTypeEnum.FOLDER);
         } else {
             fileItemResult.setType(FileTypeEnum.FILE);
