@@ -1,6 +1,5 @@
 package im.zhaojun.zfile.module.storage.support.sftp;
 
-import cn.hutool.extra.ftp.FtpConfig;
 import cn.hutool.extra.ssh.Sftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
@@ -11,9 +10,8 @@ import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class SFtpClientFactory extends BasePooledObjectFactory<Sftp> {
@@ -27,6 +25,10 @@ public class SFtpClientFactory extends BasePooledObjectFactory<Sftp> {
 
     private final Charset charset;
 
+    static {
+        JSch.setConfig("StrictHostKeyChecking", "no");
+    }
+
     public SFtpClientFactory(String host, int port, String username, String password, String privateKey, String passphrase, Charset charset) {
         this.host = host;
         this.port = port;
@@ -39,28 +41,20 @@ public class SFtpClientFactory extends BasePooledObjectFactory<Sftp> {
 
     @Override
     public Sftp create() throws Exception {
-        Sftp sftp;
         // 密码登录
-        if(StringUtils.isBlank(privateKey)) {
-            FtpConfig ftpConfig = new FtpConfig(host, port, username, password, charset);
-            ftpConfig.setConnectionTimeout(StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_MILLIS);
-            sftp = new Sftp(ftpConfig, true);
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(username, host, port);
+        session.setTimeout(StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_MILLIS);
+        if (StringUtils.isBlank(privateKey)) {
+            session.setPassword(password);
         } else {
-            // 密钥登录
-            File tempKey = File.createTempFile(host + "-" + port + "-",".tempkeyfile");
-            try {
-                JSch jsch = new JSch();
-                JSch.setConfig("StrictHostKeyChecking", "no");
-                try(FileWriter tmpFileWriter = new FileWriter(tempKey)) {
-                    tmpFileWriter.write(privateKey);
-                }
-                jsch.addIdentity(tempKey.getAbsolutePath(), passphrase);
-                Session session = jsch.getSession(username, host, port);
-                sftp = new Sftp(session, charset, StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_MILLIS);
-            } finally {
-                tempKey.delete();
+            byte[] passphraseBytes = null;
+            if (passphrase != null && !passphrase.isEmpty()) {
+                passphraseBytes = passphrase.getBytes(StandardCharsets.UTF_8);
             }
+            jsch.addIdentity(username, privateKey.getBytes(StandardCharsets.UTF_8), null, passphraseBytes);
         }
+        Sftp sftp = new Sftp(session, charset, StorageSourceConnectionProperties.DEFAULT_CONNECTION_TIMEOUT_MILLIS);
         log.debug("Creating object: {}", sftp);
         return sftp;
     }
