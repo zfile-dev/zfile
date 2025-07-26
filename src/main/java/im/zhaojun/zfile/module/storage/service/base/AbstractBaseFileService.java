@@ -78,7 +78,7 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
         }
     }
 
-    String getStorageSimpleInfo() {
+    protected String getStorageSimpleInfo() {
         return String.format("存储源 [id=%s, name=%s, type: %s]", storageId, name, getStorageTypeEnum().getDescription());
     }
 

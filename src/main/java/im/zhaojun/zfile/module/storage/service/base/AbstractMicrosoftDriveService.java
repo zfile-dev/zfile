@@ -1,9 +1,13 @@
 package im.zhaojun.zfile.module.storage.service.base;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.jwt.JWT;
+import cn.hutool.jwt.JWTPayload;
+import cn.hutool.jwt.JWTUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import im.zhaojun.zfile.core.exception.ErrorCode;
@@ -17,12 +21,14 @@ import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.storage.constant.StorageConfigConstant;
 import im.zhaojun.zfile.module.storage.model.bo.RefreshTokenCacheBO;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
-import im.zhaojun.zfile.module.storage.model.dto.OAuth2TokenDTO;
+import im.zhaojun.zfile.module.storage.model.dto.RefreshTokenInfoDTO;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSourceConfig;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.MicrosoftDriveParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
+import im.zhaojun.zfile.module.storage.oauth2.service.IOAuth2Service;
 import im.zhaojun.zfile.module.storage.service.StorageSourceConfigService;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -30,13 +36,9 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.util.Timeout;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.http.*;
-import org.springframework.http.client.*;
-import org.springframework.retry.RetryCallback;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -92,21 +94,35 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
      * OneDrive 文件类型
      */
     private static final String ONE_DRIVE_FILE_FLAG = "file";
-    
-    /**
-     * 访问令牌字段名称
-     */
-    public static final String ACCESS_TOKEN_FIELD_NAME = "access_token";
-    
-    /**
-     * 刷新令牌字段名称
-     */
-    public static final String REFRESH_TOKEN_FIELD_NAME = "refresh_token";
 
     /*
      * 设置 RestTemplate 使用 Netty 底层实现，默认的实现不支持 PATCH 请求
      */
     private volatile RestTemplate restTemplate;
+
+    @Override
+    public void init() {
+        Integer refreshTokenExpiredAt = param.getRefreshTokenExpiredAt();
+        if (refreshTokenExpiredAt == null) {
+            try {
+                JWT jwt = JWTUtil.parseToken(param.getAccessToken());
+                JWTPayload payload = jwt.getPayload();
+                refreshTokenExpiredAt = Convert.toInt(payload.getClaim("exp"));
+                if (log.isDebugEnabled()) {
+                    log.debug("初始化时尝试根据 AccessToken 自动解析到期时间: {}", refreshTokenExpiredAt);
+                }
+            } catch (Exception e) {
+                log.warn("初始化时尝试根据 AccessToken 自动解析到期时间异常", e);
+            }
+        }
+
+        if (refreshTokenExpiredAt == null) {
+            refreshAccessToken();
+        } else {
+            RefreshTokenInfoDTO tokenInfoDTO = RefreshTokenInfoDTO.success(param.getAccessToken(), param.getRefreshToken(), refreshTokenExpiredAt);
+            RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.success(tokenInfoDTO));
+        }
+    }
 
     public RestTemplate getRestTemplate() {
         // 双重检查锁，避免重复创建 RestTemplate 实例的同时减少锁的开销
@@ -147,19 +163,8 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
                 requestUrl = DRIVER_ITEMS_URL;
             }
 
-            JSONObject root = executeRetryableRequest(context -> {
-                int retryCount = context.getRetryCount();
-                if (retryCount > 0) {
-                    HttpClientErrorException ex = (HttpClientErrorException) context.getLastThrowable();
-                    log.warn("{} 调用 OneDrive 列表时出现了网络异常, 响应信息: [{}], 将尝试重新刷新 token 后再试. 文件路径为: [{}]",
-                            getStorageSimpleInfo(), ex.getResponseBodyAsString(), fullPath, ex);
-                    refreshAccessToken();
-                }
-    
-                HttpEntity<Object> entity = getAuthorizationHttpEntity();
-                return getRestTemplate().exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
-            });
-    
+            HttpEntity<Object> entity = getAuthorizationHttpEntity();
+            JSONObject root = getRestTemplate().exchange(requestUrl, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
             if (root == null) {
                 return Collections.emptyList();
             }
@@ -201,25 +206,8 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
     @Nullable
     private JSONObject getFileOriginInfo(String pathAndName) {
         String fullPath = StringUtils.concat(param.getBasePath(), pathAndName);
-
-        // 404 代表文件不存在, 直接返回 null
-        return executeRetryableRequest(context -> {
-            int retryCount = context.getRetryCount();
-            if (retryCount > 0) {
-                refreshAccessToken();
-                HttpClientErrorException ex = (HttpClientErrorException) context.getLastThrowable();
-                // 404 代表文件不存在, 直接返回 null
-                if (ex instanceof HttpClientErrorException.NotFound) {
-                    return null;
-                }
-                log.warn("{} 调用 OneDrive 获取文件信息时出现了网络异常, 响应信息: [{}], 将尝试重新刷新 token 后再试. 获取文件路径为: {}",
-                        getStorageSimpleInfo(), ex.getResponseBodyAsString(), fullPath, ex);
-
-            }
-
-            HttpEntity<Object> entity = getAuthorizationHttpEntity();
-            return getRestTemplate().exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
-        });
+        HttpEntity<Object> entity = getAuthorizationHttpEntity();
+        return getRestTemplate().exchange(DRIVER_ITEM_URL, HttpMethod.GET, entity, JSONObject.class, getGraphEndPoint(), getType(), fullPath).getBody();
     }
 
 
@@ -470,23 +458,23 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
     @Override
     public void refreshAccessToken() {
         try {
-            OAuth2TokenDTO refreshToken = getAndRefreshToken();
+            RefreshTokenInfoDTO tokenInfoDTO = getAndRefreshToken();
 
-            if (refreshToken.getAccessToken() == null || refreshToken.getRefreshToken() == null) {
+            if (tokenInfoDTO.getAccessToken() == null || tokenInfoDTO.getRefreshToken() == null) {
                 throw new SystemException("存储源 " + storageId + " 刷新令牌失败, 获取到令牌为空.");
             }
 
-            StorageSourceConfig accessTokenConfig =
-                    storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.ACCESS_TOKEN_KEY);
-            StorageSourceConfig refreshTokenConfig =
-                    storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_KEY);
-            accessTokenConfig.setValue(refreshToken.getAccessToken());
-            refreshTokenConfig.setValue(refreshToken.getRefreshToken());
+            StorageSourceConfig accessTokenConfig = storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.ACCESS_TOKEN_KEY);
+            StorageSourceConfig refreshTokenConfig = storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_KEY);
+            StorageSourceConfig refreshTokenExpiredAtConfig = storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_EXPIRED_AT_KEY);
+            accessTokenConfig.setValue(tokenInfoDTO.getAccessToken());
+            refreshTokenConfig.setValue(tokenInfoDTO.getRefreshToken());
+            refreshTokenExpiredAtConfig.setValue(String.valueOf(tokenInfoDTO.getExpiredAt()));
 
-            storageSourceConfigService.updateBatch(storageId, Arrays.asList(accessTokenConfig, refreshTokenConfig));
-            RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.success());
+            storageSourceConfigService.updateBatch(storageId, Arrays.asList(accessTokenConfig, refreshTokenConfig, refreshTokenExpiredAtConfig));
+            RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.success(tokenInfoDTO));
         } catch (Exception e) {
-            RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.fail(getStorageTypeEnum().getDescription() + " AccessToken 刷新失败: " + e.getMessage()));
+            RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.fail("AccessToken 刷新失败: " + e.getMessage()));
             throw new SystemException("存储源 " + storageId + " 刷新令牌失败, 获取时发生异常.", e);
 
         }
@@ -546,31 +534,9 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
      */
     private <T> HttpEntity<T> getAuthorizationHttpEntity(T body) {
         HttpHeaders headers = new HttpHeaders();
-        StorageSourceConfig accessTokenConfig =
-                storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.ACCESS_TOKEN_KEY);
-        headers.setBearerAuth(accessTokenConfig.getValue());
+        String accessToken = checkExpiredAndGetAccessToken();
+        headers.setBearerAuth(accessToken);
         return new HttpEntity<>(body, headers);
-    }
-    
-    
-    /**
-     * 执行可重试 1 次的任务, 对抛出的异常转为 ZFileRetryException(Unchecked Exception)
-     * @param retryCallback     可重试的任务
-     * @return                  任务执行结果
-     *
-     * @param                   <T> 任务执行结果类型
-     */
-    private <T> T executeRetryableRequest(RetryCallback<T, Throwable> retryCallback) {
-        RetryTemplate retryTemplate = RetryTemplate.builder().maxAttempts(2).retryOn(HttpClientErrorException.class).build();
-    
-        T result;
-        try {
-            result = retryTemplate.execute(retryCallback);
-        } catch (Throwable e) {
-            throw new SystemException("请求失败", e);
-        }
-        
-        return result;
     }
 
     @Override
@@ -590,7 +556,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
      *
      * @return  刷新后的 Token
      */
-    private OAuth2TokenDTO getAndRefreshToken() {
+    private RefreshTokenInfoDTO getAndRefreshToken() {
         StorageSourceConfig refreshStorageSourceConfig =
                 storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_KEY);
 
@@ -601,7 +567,7 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
                 "&grant_type=refresh_token";
 
         if (log.isDebugEnabled()) {
-            log.debug("{} 尝试刷新令牌, 请求参数: [{}]", getStorageSimpleInfo(), param);
+            log.debug("{} 尝试刷新令牌, 请求参数: {}", getStorageSimpleInfo(), param);
         }
 
         String authenticateUrl = AUTHENTICATE_URL.replace("{authenticateEndPoint}", getAuthenticateEndPoint());
@@ -612,16 +578,19 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
         String responseBody = response.body();
         int responseStatus = response.getStatus();
 
-        log.info("{} 刷新令牌完成. [httpStatus: {}]", getStorageSimpleInfo(), responseStatus);
+        if (log.isDebugEnabled()) {
+            log.debug("{} 刷新令牌完成. 响应状态码: {}, 响应体: {}", getStorageSimpleInfo(), responseStatus, responseBody);
+        }
 
         if (responseStatus != HttpStatus.OK.value()) {
-            return OAuth2TokenDTO.fail(getClientId(), getClientSecret(), getRedirectUri(), responseBody);
+            throw new SystemException(responseBody);
         }
 
         JSONObject jsonBody = JSONObject.parseObject(responseBody);
-        String accessToken = jsonBody.getString(ACCESS_TOKEN_FIELD_NAME);
-        String refreshToken = jsonBody.getString(REFRESH_TOKEN_FIELD_NAME);
-        return OAuth2TokenDTO.success(getClientId(), getClientSecret(), getRedirectUri(), accessToken, refreshToken, responseBody);
+        String accessToken = jsonBody.getString(IOAuth2Service.ACCESS_TOKEN_FIELD_NAME);
+        String refreshToken = jsonBody.getString(IOAuth2Service.REFRESH_TOKEN_FIELD_NAME);
+        Integer expiresIn = jsonBody.getInteger(IOAuth2Service.EXPIRES_IN_FIELD_NAME);
+        return RefreshTokenInfoDTO.success(accessToken, refreshToken, expiresIn);
     }
 
     @Override
@@ -634,4 +603,33 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
             }
         }
     }
+
+    /**
+     * 检查 AccessToken 是否过期，如果过期则刷新 AccessToken 并返回新的 AccessToken。
+     */
+    private String checkExpiredAndGetAccessToken() {
+        RefreshTokenCacheBO.RefreshTokenInfo refreshTokenInfo = RefreshTokenCacheBO.getRefreshTokenInfo(storageId);
+
+        if (refreshTokenInfo == null || refreshTokenInfo.isExpired()) {
+            // 使用双重检查锁定机制，确保同一个 storageId 只会有一个线程在刷新 AccessToken
+            synchronized (("storage-refresh-" + storageId).intern()) {
+                // 双重检查，再次从缓存中获取，确认是否其他线程已经刷新过
+                refreshTokenInfo = RefreshTokenCacheBO.getRefreshTokenInfo(storageId);
+                if (refreshTokenInfo == null || refreshTokenInfo.isExpired()) {
+                    if (refreshTokenInfo == null || refreshTokenInfo.isExpired()) {
+                        log.info("{} AccessToken 未获取或已过期, 尝试刷新: {}", getStorageSimpleInfo(), refreshTokenInfo);
+                        refreshAccessToken();
+                        refreshTokenInfo = RefreshTokenCacheBO.getRefreshTokenInfo(storageId);
+                    }
+                }
+            }
+        }
+
+        if (refreshTokenInfo == null) {
+            throw new SystemException("存储源 " + storageId + " AccessToken 刷新失败: 未找到刷新令牌信息.");
+        }
+
+        return refreshTokenInfo.getData().getAccessToken();
+    }
+
 }

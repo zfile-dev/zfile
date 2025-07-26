@@ -8,11 +8,6 @@ import im.zhaojun.zfile.module.storage.model.param.SharePointParam;
 public abstract class AbstractSharePointServiceBase<P extends SharePointParam> extends AbstractMicrosoftDriveService<SharePointParam> {
 
     @Override
-    public void init() {
-        refreshAccessToken();
-    }
-
-    @Override
     public String getType() {
         return "sites/" + param.getSiteId();
     }

@@ -25,8 +25,13 @@ public class OAuth2TokenDTO {
     private boolean success;
     
     private String body;
+
+    /**
+     * 令牌到期时间，时间戳，单位毫秒
+     */
+    private Integer expiredAt;
     
-    public static OAuth2TokenDTO success(String clientId, String clientSecret, String redirectUri, String accessToken, String refreshToken, String body) {
+    public static OAuth2TokenDTO success(String clientId, String clientSecret, String redirectUri, String accessToken, String refreshToken, String body, Integer expiredAt) {
         OAuth2TokenDTO token = new OAuth2TokenDTO();
         token.setClientId(clientId);
         token.setClientSecret(clientSecret);
@@ -35,6 +40,7 @@ public class OAuth2TokenDTO {
         token.setBody(body);
         token.setAccessToken(accessToken);
         token.setRefreshToken(refreshToken);
+        token.setExpiredAt(expiredAt);
         return token;
     }
     

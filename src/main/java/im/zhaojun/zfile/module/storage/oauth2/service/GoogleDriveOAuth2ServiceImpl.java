@@ -77,7 +77,8 @@ public class GoogleDriveOAuth2ServiceImpl implements IOAuth2Service {
 
         String accessToken = jsonBody.getString(ACCESS_TOKEN_FIELD_NAME);
         String refreshToken = jsonBody.getString(REFRESH_TOKEN_FIELD_NAME);
-        return OAuth2TokenDTO.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, responseBody);
+        Integer expiresIn = jsonBody.getInteger(EXPIRES_IN_FIELD_NAME);
+        return OAuth2TokenDTO.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, responseBody, expiresIn);
     }
 
 

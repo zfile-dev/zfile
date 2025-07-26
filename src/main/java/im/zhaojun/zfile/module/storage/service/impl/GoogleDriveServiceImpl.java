@@ -24,12 +24,13 @@ import im.zhaojun.zfile.module.storage.constant.StorageConfigConstant;
 import im.zhaojun.zfile.module.storage.constant.StorageSourceConnectionProperties;
 import im.zhaojun.zfile.module.storage.model.bo.RefreshTokenCacheBO;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
-import im.zhaojun.zfile.module.storage.model.dto.OAuth2TokenDTO;
+import im.zhaojun.zfile.module.storage.model.dto.RefreshTokenInfoDTO;
 import im.zhaojun.zfile.module.storage.model.entity.StorageSourceConfig;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
 import im.zhaojun.zfile.module.storage.model.param.GoogleDriveParam;
 import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
+import im.zhaojun.zfile.module.storage.oauth2.service.IOAuth2Service;
 import im.zhaojun.zfile.module.storage.service.StorageSourceConfigService;
 import im.zhaojun.zfile.module.storage.service.base.AbstractProxyTransferService;
 import im.zhaojun.zfile.module.storage.service.base.RefreshTokenService;
@@ -61,10 +62,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zhaojun
@@ -105,7 +103,17 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 
 	@Override
 	public void init() {
-		refreshAccessToken();
+		Integer refreshTokenExpiredAt = param.getRefreshTokenExpiredAt();
+		if (refreshTokenExpiredAt == null) {
+			refreshAccessToken();
+		} else {
+			RefreshTokenInfoDTO tokenInfoDTO = RefreshTokenInfoDTO.success(param.getAccessToken(), param.getRefreshToken(), refreshTokenExpiredAt);
+			RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.success(tokenInfoDTO));
+		}
+	}
+
+	private String getIdByPath(String path) {
+		return getIdByPath(path, true);
 	}
 
 	/**
@@ -278,7 +286,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 
 		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 			HttpUriRequest httpUriRequest = RequestBuilder.post(DRIVE_FILE_UPLOAD_URL)
-					.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + param.getAccessToken())
+					.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + checkExpiredAndGetAccessToken())
 					.setEntity(entity)
 					.build();
 
@@ -385,7 +393,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	 *
 	 * @return  刷新后的 Token
 	 */
-	public OAuth2TokenDTO getRefreshToken() {
+	public RefreshTokenInfoDTO getRefreshToken() {
 		StorageSourceConfig refreshStorageSourceConfig =
 				storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_KEY);
 
@@ -395,31 +403,30 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 				"&grant_type=refresh_token" +
 				"&access_type=offline";
 
-		log.info("存储源 {}({}) 尝试刷新令牌", storageId, this.getStorageTypeEnum().getDescription());
-
 		if (log.isDebugEnabled()) {
-			log.debug("存储源 {}({}) 尝试刷新令牌, 参数信息为: {}", storageId, this.getStorageTypeEnum().getDescription(), param);
+			log.debug("{} 尝试刷新令牌, 请求参数: {}", getStorageSimpleInfo(), param);
 		}
 
-		HttpRequest post = commonHttpRequest(HttpUtil.createPost(REFRESH_TOKEN_URL + "?" + paramStr));
+		HttpRequest post = HttpUtil.createPost(REFRESH_TOKEN_URL + "?" + paramStr);
+		post.timeout(5 * 1000);
 		HttpResponse response = post.execute();
-		String responseBody = response.body();
 
-		log.info("存储源 {}({}) 刷新令牌完成, 响应信息为: httpStatus: {}", storageId, this.getStorageTypeEnum().getDescription(), response.getStatus());
+		String responseBody = response.body();
+		int responseStatus = response.getStatus();
 
 		if (log.isDebugEnabled()) {
-			log.debug("存储源 {}({}) 刷新令牌完成, 响应信息为: {}", storageId, this.getStorageTypeEnum().getDescription(), responseBody);
+			log.debug("{} 刷新令牌完成. 响应状态码: {}, 响应体: {}", getStorageSimpleInfo(), responseStatus, responseBody);
 		}
-
-
-		JSONObject jsonBody = JSONObject.parseObject(responseBody);
 
 		if (response.getStatus() != HttpStatus.OK.value()) {
-			return OAuth2TokenDTO.fail(param.getClientId(), param.getClientSecret(), param.getRedirectUri(), responseBody);
+			throw new SystemException(responseBody);
 		}
 
-		String accessToken = jsonBody.getString("access_token");
-		return OAuth2TokenDTO.success(param.getClientId(), param.getClientSecret(), param.getRedirectUri(), accessToken, null, responseBody);
+		JSONObject jsonBody = JSONObject.parseObject(responseBody);
+		String accessToken = jsonBody.getString(IOAuth2Service.ACCESS_TOKEN_FIELD_NAME);
+		String refreshToken = jsonBody.getString(IOAuth2Service.REFRESH_TOKEN_FIELD_NAME);
+		Integer expiresIn = jsonBody.getInteger(IOAuth2Service.EXPIRES_IN_FIELD_NAME);
+		return RefreshTokenInfoDTO.success(accessToken, refreshToken, expiresIn);
 	}
 
 	/**
@@ -428,23 +435,23 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	@Override
 	public void refreshAccessToken() {
 		try {
-			OAuth2TokenDTO refreshToken = getRefreshToken();
+			RefreshTokenInfoDTO tokenInfoDTO = getRefreshToken();
 
-			if (refreshToken.getAccessToken() == null) {
+			if (tokenInfoDTO.getAccessToken() == null) {
 				throw new SystemException("存储源 " + storageId + " 刷新令牌失败, 获取到令牌为空.");
 			}
 
-			StorageSourceConfig accessTokenConfig =
-					storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.ACCESS_TOKEN_KEY);
-			accessTokenConfig.setValue(refreshToken.getAccessToken());
+			StorageSourceConfig accessTokenConfig = storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.ACCESS_TOKEN_KEY);
+			StorageSourceConfig refreshTokenConfig = storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_KEY);
+			StorageSourceConfig refreshTokenExpiredAtConfig = storageSourceConfigService.findByStorageIdAndName(storageId, StorageConfigConstant.REFRESH_TOKEN_EXPIRED_AT_KEY);
+			accessTokenConfig.setValue(tokenInfoDTO.getAccessToken());
+			refreshTokenConfig.setValue(tokenInfoDTO.getRefreshToken());
+			refreshTokenExpiredAtConfig.setValue(String.valueOf(tokenInfoDTO.getExpiredAt()));
 
-			storageSourceConfigService.updateBatch(storageId, Collections.singletonList(accessTokenConfig));
-			RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.success());
-			param.setAccessToken(refreshToken.getAccessToken());
-			param.setRefreshToken(refreshToken.getRefreshToken());
-			log.info("存储源 {} 刷新 AccessToken 成功", storageId);
+			storageSourceConfigService.updateBatch(storageId, Arrays.asList(accessTokenConfig, refreshTokenConfig, refreshTokenExpiredAtConfig));
+			RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.success(tokenInfoDTO));
 		} catch (Exception e) {
-			RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.fail(getStorageTypeEnum().getDescription() + " AccessToken 刷新失败: " + e.getMessage()));
+			RefreshTokenCacheBO.putRefreshTokenInfo(storageId, RefreshTokenCacheBO.RefreshTokenInfo.fail("AccessToken 刷新失败: " + e.getMessage()));
 			throw new SystemException("存储源 " + storageId + " 刷新令牌失败, 获取时发生异常.", e);
 		}
 	}
@@ -715,8 +722,35 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	}
 
 	private HttpRequest commonHttpRequest(HttpRequest httpRequest) {
-		httpRequest.header("Authorization", "Bearer " + param.getAccessToken());
+		String accessToken = checkExpiredAndGetAccessToken();
+		httpRequest.bearerAuth(accessToken);
 		return httpRequest;
+	}
+
+	/**
+	 * 检查 AccessToken 是否过期，如果过期则刷新 AccessToken 并返回新的 AccessToken。
+	 */
+	private String checkExpiredAndGetAccessToken() {
+		RefreshTokenCacheBO.RefreshTokenInfo refreshTokenInfo = RefreshTokenCacheBO.getRefreshTokenInfo(storageId);
+
+		if (refreshTokenInfo == null || refreshTokenInfo.isExpired()) {
+			// 使用双重检查锁定机制，确保同一个 storageId 只会有一个线程在刷新 AccessToken
+			synchronized (("storage-refresh-" + storageId).intern()) {
+				// 双重检查，再次从缓存中获取，确认是否其他线程已经刷新过
+				refreshTokenInfo = RefreshTokenCacheBO.getRefreshTokenInfo(storageId);
+				if (refreshTokenInfo == null || refreshTokenInfo.isExpired()) {
+					log.info("{} AccessToken 未获取或已过期, 尝试刷新.", getStorageSimpleInfo());
+					refreshAccessToken();
+					refreshTokenInfo = RefreshTokenCacheBO.getRefreshTokenInfo(storageId);
+				}
+			}
+		}
+
+		if (refreshTokenInfo == null) {
+			throw new SystemException("存储源 " + storageId + " AccessToken 刷新失败: 未找到刷新令牌信息.");
+		}
+
+		return refreshTokenInfo.getData().getAccessToken();
 	}
 
 }

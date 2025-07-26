@@ -14,6 +14,11 @@ public interface IOAuth2Service {
      */
     String REFRESH_TOKEN_FIELD_NAME = "refresh_token";
 
+    /**
+     * 过期时间字段名称
+     */
+    String EXPIRES_IN_FIELD_NAME = "expires_in";
+
 
     String generateAuthorizationUrl(String clientId, String clientSecret, String redirectUri);
 
