@@ -1,0 +1,1 @@
+INSERT INTO system_config (`name`, `title`, `value`) VALUES ('mobileShowSize', '移动端显示文件大小', 'true');

@@ -65,6 +65,9 @@ public class SystemConfigDTO implements Serializable {
     @Schema(name = "移动端页面布局", description ="full:全屏,center:居中", example = "full")
     private String mobileLayout;
 
+    @Schema(name = "移动端显示文件大小", description = "仅适用列表视图", example = "true")
+    private Boolean mobileShowSize;
+
     @Schema(name = "是否显示生成直链功能（含直链和路径短链）", example = "true")
     private Boolean showLinkBtn;
 

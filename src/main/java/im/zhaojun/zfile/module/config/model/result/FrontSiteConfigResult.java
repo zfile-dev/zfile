@@ -38,6 +38,9 @@ public class FrontSiteConfigResult {
 	@Schema(name = "移动端页面布局", description ="full:全屏,center:居中", example = "full")
 	private String mobileLayout;
 
+	@Schema(name = "移动端显示文件大小", description = "仅适用列表视图", example = "true")
+	private Boolean mobileShowSize;
+
 	@Schema(name = "列表尺寸", description ="large:大,default:中,small:小", example = "default", requiredMode = Schema.RequiredMode.REQUIRED)
 	private String tableSize;
 
