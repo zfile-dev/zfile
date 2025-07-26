@@ -405,7 +405,7 @@ public class StorageSourceService {
         ReadmeConfig readmeByPath = null;
         if (verifyPassword.isPassed()) {
             // 获取指定存储源路径下的 readme 信息
-            readmeByPath = readmeConfigService.getByStorageAndPath(storageId, fullPath, storageSource.getCompatibilityReadme());
+            readmeByPath = readmeConfigService.getByStorageAndPath(storageId, fileListConfigRequest.getPath(), storageSource.getCompatibilityReadme());
         } else {
             log.info("文件夹密码验证失败，不获取 readme 信息, storageId: {}, path: {}, password: {}", storageId, fullPath, fileListConfigRequest.getPassword());
         }
