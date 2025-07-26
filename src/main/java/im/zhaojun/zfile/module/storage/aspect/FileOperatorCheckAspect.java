@@ -261,7 +261,7 @@ public class FileOperatorCheckAspect {
 			return false;
 		}
 
-		UserStorageSource userStorageSource = userStorageSourceService.getCurrentUserStoragePermission(storageId);
+		UserStorageSource userStorageSource = userStorageSourceService.getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
 
 		// 如果未授权该存储源，则默认禁止所有类型的操作
 		Boolean enable = userStorageSource.getEnable();
