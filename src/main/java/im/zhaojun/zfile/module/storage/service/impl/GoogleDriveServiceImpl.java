@@ -116,8 +116,8 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	 *
 	 * @return	文件/文件夹 id
 	 */
-	private String getIdByPath(String path) {
-		String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), path);
+	private String getIdByPath(String path, boolean concatCurrentUserBasePath) {
+		String fullPath = StringUtils.concat(param.getBasePath(), concatCurrentUserBasePath ? getCurrentUserBasePath() : "", path);
 		if (StringUtils.isEmpty(fullPath) || StringUtils.equals(fullPath, StringUtils.SLASH)) {
 			return StringUtils.isEmpty(param.getDriveId()) ? "root" : param.getDriveId();
 		}
@@ -183,8 +183,6 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 	public FileItemResult getFileItem(String pathAndName) {
 		String fileId = getIdByPath(pathAndName);
 
-		String folderName = FileUtils.getParentPath(pathAndName);
-
 		HttpRequest httpRequest = commonHttpRequest(HttpUtil.createGet(DRIVE_FILE_URL + StringUtils.SLASH + fileId));
 		httpRequest.body("fields=id,name,mimeType,shortcutDetails,size,modifiedTime");
 		HttpResponse httpResponse = httpRequest.execute();
@@ -197,7 +195,8 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 
 		String body = httpResponse.body();
 		JSONObject jsonObject = JSON.parseObject(body);
-		return jsonObjectToFileItem(jsonObject, folderName);
+		String folderPath = FileUtils.getParentPath(pathAndName);
+		return jsonObjectToFileItem(jsonObject, folderPath);
 	}
 
 
@@ -297,7 +296,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 
 	@Override
 	public ResponseEntity<Resource> downloadToStream(String pathAndName) {
-		String fileId = getIdByPath(pathAndName);
+		String fileId = getIdByPath(pathAndName, false);
 
 		HttpServletRequest request = RequestHolder.getRequest();
 

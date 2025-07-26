@@ -123,7 +123,6 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
      */
     public List<FileItemResult> s3FileList(String path) {
         String bucketName = param.getBucketName();
-        path = StringUtils.trimStartSlashes(path);
         String fullPath = StringUtils.concatTrimStartSlashes(param.getBasePath(), getCurrentUserBasePath(), path, StringUtils.SLASH);
 
         List<FileItemResult> fileItemList = new ArrayList<>();

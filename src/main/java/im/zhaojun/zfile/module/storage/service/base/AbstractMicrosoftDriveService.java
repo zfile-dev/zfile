@@ -182,7 +182,8 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
     
     @Override
     public FileItemResult getFileItem(String pathAndName) {
-        return getOriginFileItem(pathAndName);
+        String fullPath = StringUtils.concat(getCurrentUserBasePath(), pathAndName);
+        return getOriginFileItem(fullPath);
     }
 
 

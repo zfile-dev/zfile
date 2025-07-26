@@ -95,9 +95,8 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 	}
 
 
-	@Override
-	public FileItemResult getFileItem(String pathAndName) {
-		String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
+	public FileItemResult getFileItem(String pathAndName, boolean containUserBasePath) {
+		String fullPath = StringUtils.concat(param.getBasePath(), containUserBasePath ? getCurrentUserBasePath() : "", pathAndName);
 
 		Sftp sftp = null;
 		try {
@@ -121,6 +120,10 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 		}
 	}
 
+	@Override
+	public FileItemResult getFileItem(String pathAndName) {
+		return getFileItem(pathAndName, true);
+	}
 
 	@Override
 	public boolean newFolder(String path, String name) {
@@ -230,7 +233,7 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 			throw new BizException(ErrorCode.BIZ_UNSUPPORTED_PROXY_DOWNLOAD);
 		}
 
-		FileItemResult fileItem = getFileItem(pathAndName);
+		FileItemResult fileItem = getFileItem(pathAndName, false);
 		if (fileItem == null) {
 			throw new NotFoundAccessException(ErrorCode.BIZ_FILE_NOT_EXIST);
 		}

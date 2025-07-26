@@ -336,7 +336,7 @@ public class UpYunServiceImpl extends AbstractProxyTransferService<UpYunParam> {
 
     @Override
     public ResponseEntity<Resource> downloadToStream(String pathAndName) throws Exception {
-        String fullUrl = StringUtils.concat(param.getBasePath(),getCurrentUserBasePath(), pathAndName);
+        String fullUrl = StringUtils.concat(param.getBasePath(), pathAndName);
         Response response = restManager.readFile(fullUrl);
         InputStream inputStream = response.body().byteStream();
         String fileName = FileUtils.getName(pathAndName);
