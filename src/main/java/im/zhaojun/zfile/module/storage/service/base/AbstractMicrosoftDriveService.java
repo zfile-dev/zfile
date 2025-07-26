@@ -321,10 +321,10 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
                 return null;
             });
         } catch (Exception e) {
-            if (e instanceof ResourceAccessException && e.getMessage().contains("Timeout on")) {
+            if (e instanceof ResourceAccessException && e.getMessage() != null && e.getMessage().contains("Timeout on")) {
                 throw new BizException(ErrorCode.BIZ_UPLOAD_FILE_TIMEOUT_ERROR);
             }
-            throw new UploadFileFailSystemException(this.getStorageTypeEnum(), pathAndName, size, 500, e.getMessage());
+            throw new UploadFileFailSystemException(this.getStorageTypeEnum(), pathAndName, size, 500, e.getMessage(), e);
         }
     }
     @Override
