@@ -5,7 +5,6 @@ import im.zhaojun.zfile.core.constant.ZFileHttpHeaderConstant;
 import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.exception.core.SystemException;
-import im.zhaojun.zfile.core.io.ThrottledOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -168,17 +167,22 @@ public class RequestHolder {
         String serverName = request.getServerName();
 
         String port = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Port");
+        String forwardedProto = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Proto");
+
         if (StringUtils.isNotEmpty(port) && !StringUtils.contains(serverName, ":")) {
+            // 优先使用 X-Forwarded-Proto 判断协议，如果不存在，则使用 request.getScheme()
+            String scheme = StringUtils.isNotEmpty(forwardedProto) ? forwardedProto : request.getScheme();
+
             // 如果是 http 协议，且 port 为 80，或者是 https 协议，且 port 为 443，则不需要添加端口号
-            boolean ignoreHttpPort = "http".equalsIgnoreCase(request.getScheme()) && "80".equals(port);
-            boolean ignoreHttpsPort = ("https".equalsIgnoreCase(request.getScheme()) && "443".equals(port));
+            boolean ignoreHttpPort = "http".equalsIgnoreCase(scheme) && "80".equals(port);
+            boolean ignoreHttpsPort = "https".equalsIgnoreCase(scheme) && "443".equals(port);
             if (!ignoreHttpPort && !ignoreHttpsPort) {
                 result = result.replace(serverName, serverName + ":" + port);
             }
         }
-        String protocal = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Proto");
-        if (StringUtils.isNotEmpty(protocal)) {
-            return StringUtils.setSchema(result, protocal);
+
+        if (StringUtils.isNotEmpty(forwardedProto)) {
+            return StringUtils.setSchema(result, forwardedProto);
         }
         return result;
     }
