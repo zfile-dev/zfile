@@ -351,8 +351,11 @@ public abstract class AbstractMicrosoftDriveService<P extends MicrosoftDrivePara
         String url = fileItem.getUrl();
 
         // url 转换为 inputStream
-        InputStream inputStream = HttpUtil.createGet(url).execute().bodyStream();
-        RequestHolder.writeFile(inputStream, fileName, fileSize, false, param.isProxyLinkForceDownload());
+        getRestTemplate().execute(url, HttpMethod.GET, null, clientHttpResponse -> {
+            InputStream inputStream = clientHttpResponse.getBody();
+            RequestHolder.writeFile(inputStream, fileName, fileSize, false, param.isProxyLinkForceDownload());
+            return null;
+        });
         return null;
     }
 
