@@ -1,7 +1,5 @@
 package im.zhaojun.zfile.module.user.service.login;
 
-import cn.hutool.extra.qrcode.QrCodeUtil;
-import cn.hutool.extra.qrcode.QrConfig;
 import dev.samstevens.totp.code.CodeVerifier;
 import dev.samstevens.totp.qr.QrData;
 import dev.samstevens.totp.qr.QrDataFactory;
@@ -51,10 +49,7 @@ public class TwoFactorAuthenticatorVerifyService {
 		User currentUser = ZFileAuthUtil.getCurrentUser();
 		QrData data = qrDataFactory.newBuilder().label("ZFile:" + currentUser.getUsername()).secret(secret).issuer("ZFile").build();
 
-		// 将生成的 2FA 密钥转换为 Base64 图像字符串
-		String qrCodeImage = QrCodeUtil.generateAsBase64(data.getUri(), new QrConfig(300, 300), QrCodeUtil.QR_TYPE_SVG);
-
-		return new LoginTwoFactorAuthenticatorResult(qrCodeImage, secret);
+		return new LoginTwoFactorAuthenticatorResult(data.getUri(), secret);
 	}
 
 

@@ -13,11 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractOneDriveServiceBase<P extends OneDriveParam> extends AbstractMicrosoftDriveService<P> {
 
     @Override
-    public void init() {
-        refreshAccessToken();
-    }
-
-    @Override
     public String getType() {
         return "me";
     }

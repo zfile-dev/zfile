@@ -11,6 +11,8 @@ public class StorageConfigConstant {
 
     public static final String REFRESH_TOKEN_KEY = "refreshToken";
 
+    public static final String REFRESH_TOKEN_EXPIRED_AT_KEY = "refreshTokenExpiredAt";
+
     public static final String PROXY_DOWNLOAD_KEY = "enableProxyDownload";
 
     public static final String PROXY_UPLOAD_KEY = "enableProxyUpload";

@@ -23,7 +23,8 @@ public class S3Param extends S3BaseParam {
 			options = { @StorageParamSelectOption(value = "path-style", label = "路径风格"),
 						@StorageParamSelectOption(value = "bucket-virtual-hosting", label = "虚拟主机风格") },
 			linkName = "查看 S3 API 说明文档", link = "https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/VirtualHosting.html#path-style-access",
-			order = 55)
+			description = "当使用域名访问时, 域名风格只支持使用路径模式",
+			order = 65)
 	private String pathStyle;
 
 }

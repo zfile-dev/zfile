@@ -147,7 +147,7 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
 
 
     @Override
-    public void uploadFile(String pathAndName, InputStream inputStream) {
+    public void uploadFile(String pathAndName, InputStream inputStream, Long size) {
         checkPathSecurity(pathAndName);
 
         String uploadPath = StringUtils.concat(param.getFilePath(), getCurrentUserBasePath(), pathAndName);

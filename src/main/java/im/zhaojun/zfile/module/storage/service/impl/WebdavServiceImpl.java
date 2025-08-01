@@ -5,6 +5,7 @@ import cn.hutool.core.util.URLUtil;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.github.sardine.impl.SardineException;
+import com.github.sardine.impl.io.ContentLengthInputStream;
 import im.zhaojun.zfile.core.util.CollectionUtils;
 import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.RequestHolder;
@@ -92,8 +93,12 @@ public class WebdavServiceImpl extends AbstractProxyTransferService<WebdavParam>
 
 	@Override
 	public FileItemResult getFileItem(String pathAndName) {
+		return getFileItem(pathAndName, true);
+	}
+
+	public FileItemResult getFileItem(String pathAndName, boolean containUserBasePath) {
 		try {
-			String requestUrl = getRequestPath(pathAndName);
+			String requestUrl = getRequestPath(containUserBasePath, pathAndName);
 			List<DavResource> resources = sardine.list(requestUrl);
 			DavResource davResource = CollectionUtils.getLast(resources);
             if (davResource == null) {
@@ -160,9 +165,9 @@ public class WebdavServiceImpl extends AbstractProxyTransferService<WebdavParam>
 
 	@Override
 	public ResponseEntity<Resource> downloadToStream(String pathAndName) throws IOException {
-		FileItemResult fileItem = getFileItem(pathAndName);
-		InputStream inputStream = sardine.get(getRequestPath(false, pathAndName));
-		RequestHolder.writeFile(inputStream, fileItem.getName(), fileItem.getSize(), false, param.isProxyLinkForceDownload());
+		ContentLengthInputStream inputStream = (ContentLengthInputStream) sardine.get(getRequestPath(false, pathAndName));
+		String fileName = FileUtils.getName(pathAndName);
+		RequestHolder.writeFile(inputStream, fileName, inputStream.getLength(), false, param.isProxyLinkForceDownload());
 		return null;
 	}
 
@@ -172,10 +177,10 @@ public class WebdavServiceImpl extends AbstractProxyTransferService<WebdavParam>
 	}
 
 	@Override
-	public void uploadFile(String pathAndName, InputStream inputStream) {
+	public void uploadFile(String pathAndName, InputStream inputStream, Long size) {
 		try {
 			pathAndName = getRequestPath(pathAndName);
-			sardine.put(pathAndName, inputStream, null, true, inputStream.available());
+			sardine.put(pathAndName, inputStream, null, true, size);
 		} catch (IOException e) {
 			throw ExceptionUtil.wrapRuntime(e);
 		}

@@ -59,9 +59,6 @@ public abstract class AbstractMicrosoftOAuth2Service implements IOAuth2Service {
 
         String responseBody = response.body();
         int responseStatus = response.getStatus();
-
-        log.info("根据授权回调 code 获取令牌完成. [httpStatus: {}]", responseStatus);
-
         if (responseStatus != HttpStatus.OK.value()) {
             return OAuth2TokenDTO.fail(clientId, clientSecret, redirectUri, responseBody);
         }
@@ -69,7 +66,8 @@ public abstract class AbstractMicrosoftOAuth2Service implements IOAuth2Service {
         JSONObject jsonBody = JSONObject.parseObject(responseBody);
         String accessToken = jsonBody.getString(ACCESS_TOKEN_FIELD_NAME);
         String refreshToken = jsonBody.getString(REFRESH_TOKEN_FIELD_NAME);
-        return OAuth2TokenDTO.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, responseBody);
+        Integer expiresIn = jsonBody.getInteger(EXPIRES_IN_FIELD_NAME);
+        return OAuth2TokenDTO.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, responseBody, expiresIn);
     }
 
     public abstract String getEndPoint();

@@ -68,9 +68,6 @@ public class GoogleDriveOAuth2ServiceImpl implements IOAuth2Service {
         ResponseEntity<String> response = new RestTemplate(new NoRedirectClientHttpRequestFactory())
                                                 .exchange(GOOGLE_OAUTH2_URL, HttpMethod.POST, formEntity, String.class);
 
-        HttpStatusCode statusCode = response.getStatusCode();
-        log.info("根据授权回调 code 获取令牌完成. [httpStatus: {}]", statusCode.value());
-
         String responseBody = response.getBody();
         if (response.getStatusCode() != HttpStatus.OK) {
             return OAuth2TokenDTO.fail(clientId, clientSecret, redirectUri, responseBody);
@@ -80,7 +77,8 @@ public class GoogleDriveOAuth2ServiceImpl implements IOAuth2Service {
 
         String accessToken = jsonBody.getString(ACCESS_TOKEN_FIELD_NAME);
         String refreshToken = jsonBody.getString(REFRESH_TOKEN_FIELD_NAME);
-        return OAuth2TokenDTO.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, responseBody);
+        Integer expiresIn = jsonBody.getInteger(EXPIRES_IN_FIELD_NAME);
+        return OAuth2TokenDTO.success(clientId, clientSecret, redirectUri, accessToken, refreshToken, responseBody, expiresIn);
     }
 
 

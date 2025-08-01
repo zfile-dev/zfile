@@ -148,11 +148,11 @@ public class UpYunServiceImpl extends AbstractProxyTransferService<UpYunParam> {
         String folderPath = FileUtils.getParentPath(pathAndName);
         FileItemResult fileItemResult = new FileItemResult();
         fileItemResult.setName(name);
-        fileItemResult.setSize(Long.valueOf(fileInfo.get("size")));
-        fileItemResult.setTime(new Date(Long.parseLong(fileInfo.get("date")) * 1000));
+        fileItemResult.setSize(Long.valueOf(fileInfo.get("x-upyun-file-size")));
+        fileItemResult.setTime(new Date(Long.parseLong(fileInfo.get("x-upyun-file-date")) * 1000));
         fileItemResult.setPath(folderPath);
 
-        if ("folder".equals(fileInfo.get("type"))) {
+        if ("folder".equals(fileInfo.get("x-upyun-file-type"))) {
             fileItemResult.setType(FileTypeEnum.FOLDER);
         } else {
             fileItemResult.setType(FileTypeEnum.FILE);
@@ -305,7 +305,7 @@ public class UpYunServiceImpl extends AbstractProxyTransferService<UpYunParam> {
      * 第一次上传时需加锁，不然又拍云这个上传 API 可能会遇到并发异常
      */
     @Override
-    public void uploadFile(String pathAndName, InputStream inputStream) throws IOException, UpException {
+    public void uploadFile(String pathAndName, InputStream inputStream, Long size) throws IOException, UpException {
         boolean doLock = isFirstUpload;
 
         if (doLock) {
@@ -336,7 +336,7 @@ public class UpYunServiceImpl extends AbstractProxyTransferService<UpYunParam> {
 
     @Override
     public ResponseEntity<Resource> downloadToStream(String pathAndName) throws Exception {
-        String fullUrl = StringUtils.concat(param.getBasePath(),getCurrentUserBasePath(), pathAndName);
+        String fullUrl = StringUtils.concat(param.getBasePath(), pathAndName);
         Response response = restManager.readFile(fullUrl);
         InputStream inputStream = response.body().byteStream();
         String fileName = FileUtils.getName(pathAndName);

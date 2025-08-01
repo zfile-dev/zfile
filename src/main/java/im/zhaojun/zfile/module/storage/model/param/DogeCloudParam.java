@@ -21,15 +21,6 @@ public class DogeCloudParam extends S3BaseParam {
     @StorageParamItem(ignoreInput = true, onlyOverwrite = { StorageParamItemAnnoEnum.IGNORE_INPUT })
     private String bucketName;
 
-    @StorageParamItem(ignoreInput = true, onlyOverwrite = { StorageParamItemAnnoEnum.IGNORE_INPUT })
-    private String s3AccessKey;
-
-    @StorageParamItem(ignoreInput = true, onlyOverwrite = { StorageParamItemAnnoEnum.IGNORE_INPUT })
-    private String s3SecretKey;
-
-    @StorageParamItem(ignoreInput = true, onlyOverwrite = { StorageParamItemAnnoEnum.IGNORE_INPUT })
-    private String s3SessionToken;
-
     @StorageParamItem(name = "存储空间名称", order = 40)
     private String originBucketName;
 

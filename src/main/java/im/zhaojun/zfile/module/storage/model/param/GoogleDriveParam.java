@@ -31,6 +31,9 @@ public class GoogleDriveParam extends ProxyTransferParam {
 	@StorageParamItem(name = "刷新令牌", order = 5)
 	private String refreshToken;
 
+	@StorageParamItem(name = "刷新令牌到期时间戳(秒)", hidden = true, required = false)
+	private Integer refreshTokenExpiredAt;
+
 	@StorageParamItem(name = "网盘", order = 6, required = false)
 	private String driveId;
 

@@ -7,6 +7,7 @@ import com.jcraft.jsch.SftpException;
 import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.exception.core.SystemException;
+import im.zhaojun.zfile.core.exception.status.NotFoundAccessException;
 import im.zhaojun.zfile.core.util.*;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.enums.FileTypeEnum;
@@ -94,9 +95,8 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 	}
 
 
-	@Override
-	public FileItemResult getFileItem(String pathAndName) {
-		String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
+	public FileItemResult getFileItem(String pathAndName, boolean containUserBasePath) {
+		String fullPath = StringUtils.concat(param.getBasePath(), containUserBasePath ? getCurrentUserBasePath() : "", pathAndName);
 
 		Sftp sftp = null;
 		try {
@@ -120,6 +120,10 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 		}
 	}
 
+	@Override
+	public FileItemResult getFileItem(String pathAndName) {
+		return getFileItem(pathAndName, true);
+	}
 
 	@Override
 	public boolean newFolder(String path, String name) {
@@ -229,9 +233,9 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 			throw new BizException(ErrorCode.BIZ_UNSUPPORTED_PROXY_DOWNLOAD);
 		}
 
-		FileItemResult fileItem = getFileItem(pathAndName);
+		FileItemResult fileItem = getFileItem(pathAndName, false);
 		if (fileItem == null) {
-			throw new BizException(ErrorCode.BIZ_FILE_NOT_EXIST);
+			throw new NotFoundAccessException(ErrorCode.BIZ_FILE_NOT_EXIST);
 		}
 
 		long fileSize = fileItem.getSize();
@@ -274,7 +278,7 @@ public class SftpServiceImpl extends AbstractProxyTransferService<SftpParam> {
 	}
 
 	@Override
-	public void uploadFile(String pathAndName, InputStream inputStream) {
+	public void uploadFile(String pathAndName, InputStream inputStream, Long size) {
 		String fullPath = StringUtils.concat(param.getBasePath(), getCurrentUserBasePath(), pathAndName);
 		String fileName = FileUtils.getName(pathAndName);
 		String folderName = FileUtils.getParentPath(fullPath);

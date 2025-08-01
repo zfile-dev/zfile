@@ -17,5 +17,6 @@ public enum StorageParamItemAnnoEnum {
     LINK,
     LINK_NAME,
     IGNORE_INPUT,
-    CONDITION
+    CONDITION,
+    HIDDEN
 }

@@ -65,6 +65,9 @@ public class SystemConfigDTO implements Serializable {
     @Schema(name = "移动端页面布局", description ="full:全屏,center:居中", example = "full")
     private String mobileLayout;
 
+    @Schema(name = "移动端显示文件大小", description = "仅适用列表视图", example = "true")
+    private Boolean mobileShowSize;
+
     @Schema(name = "是否显示生成直链功能（含直链和路径短链）", example = "true")
     private Boolean showLinkBtn;
 
@@ -91,6 +94,9 @@ public class SystemConfigDTO implements Serializable {
 
     @Schema(name = "自定义Office后缀格式")
     private String customOfficeSuffix;
+
+    @Schema(name = "自定义kkFileView后缀格式")
+    private String customKkFileViewSuffix;
 
     @Schema(name = "直链地址前缀")
     private String directLinkPrefix;
@@ -158,6 +164,12 @@ public class SystemConfigDTO implements Serializable {
 
     @Schema(name = "onlyOffice Secret", example = "X9rBGypwWE86Lca8e4Mo55iHFoiyh9ed")
     private String onlyOfficeSecret;
+
+    @Schema(name = "kkFileView 在线预览地址", example = "http://kkfile.zfile.vip")
+    private String kkFileViewUrl;
+
+    @Schema(name = "kkFileView 预览方式", example = "iframe/newTab")
+    private String kkFileViewOpenMode;
 
     @Schema(name = "启用 WebDAV", example = "true")
     private Boolean webdavEnable;

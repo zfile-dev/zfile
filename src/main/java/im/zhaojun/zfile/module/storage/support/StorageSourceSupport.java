@@ -87,6 +87,7 @@ public class StorageSourceSupport {
             int order = storageParamItemAnnotation.order();
             boolean pro = storageParamItemAnnotation.pro();
             String condition = storageParamItemAnnotation.condition();
+            boolean hidden = storageParamItemAnnotation.hidden();
 
             // 默认 key 为字段名，默认 name 为 key
             if (StringUtils.isEmpty(key)) key = fieldName;
@@ -144,6 +145,9 @@ public class StorageSourceSupport {
             }
             if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.CONDITION)) {
                 storageSourceParamDef.setCondition(condition);
+            }
+            if (fieldOverrideSetIsEmpty || !fieldOverrideSet.contains(StorageParamItemAnnoEnum.HIDDEN)) {
+                storageSourceParamDef.setHidden(hidden);
             }
             storageSourceParamDefMap.put(fieldName, storageSourceParamDef);
             useFieldNames.add(fieldName);

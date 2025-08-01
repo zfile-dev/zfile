@@ -36,7 +36,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.beans.Beans;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -205,9 +207,15 @@ public class OnlyOfficeController {
                 if (Beans.isInstanceOf(storageServiceByKey, AbstractProxyTransferService.class)) {
                     // 进行上传.
                     AbstractProxyTransferService<?> proxyUploadService = (AbstractProxyTransferService<?>) storageServiceByKey;
-                    try (InputStream inputStream = new URL(onlyOfficeCallback.getUrl()).openStream()) {
-                        String pathAndName = onlyOfficeFile.getPathAndName();
-                        proxyUploadService.uploadFile(pathAndName, inputStream);
+
+                    try {
+                        URL url = new URI(onlyOfficeCallback.getUrl()).toURL();
+                        URLConnection connection = url.openConnection();
+                        long contentLength = connection.getContentLengthLong();
+                        try (InputStream inputStream = connection.getInputStream()) {
+                            String pathAndName = onlyOfficeFile.getPathAndName();
+                            proxyUploadService.uploadFile(pathAndName, inputStream, contentLength);
+                        }
                     } catch (Exception e) {
                         log.error("回调保存 OnlyOffice 文件失败", e);
                         return CALLBACK_ERROR_MSG;

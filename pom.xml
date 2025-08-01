@@ -4,7 +4,7 @@
 
     <groupId>im.zhaojun</groupId>
     <artifactId>zfile</artifactId>
-    <version>4.3.2</version>
+    <version>4.3.3</version>
     <name>zfile</name>
     <packaging>jar</packaging>
     <description>一个在线的文件浏览系统</description>
@@ -147,11 +147,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.35.2</version>
-        </dependency>
 
         <!-- 登陆/权限相关 -->
         <dependency>
@@ -166,14 +161,19 @@
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
             <version>4.5.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.webjars</groupId>
+                    <artifactId>swagger-ui</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.xiaoymin</groupId>
+                    <artifactId>knife4j-openapi3-ui</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- 工具类 -->
-        <!--        <dependency>-->
-        <!--            <groupId>com.hierynomus</groupId>-->
-        <!--            <artifactId>sshj</artifactId>-->
-        <!--            <version>0.38.0</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
@@ -241,11 +241,16 @@
             <groupId>dev.samstevens.totp</groupId>
             <artifactId>totp</artifactId>
             <version>1.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>1.82</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.zxing</groupId>
+                    <artifactId>core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.zxing</groupId>
+                    <artifactId>javase</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -330,50 +335,5 @@
             </plugin>
         </plugins>
     </build>
-
-
-    <profiles>
-        <profile>
-            <id>native</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>build-native</id>
-                                <goals>
-                                    <goal>compile-no-fork</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <fallback>false</fallback>
-                            <imageName>${project.name}</imageName>
-                            <metadataRepository>
-                                <enabled>true</enabled>
-                            </metadataRepository>
-                            <jvmArgs>
-                                <jvmArg>--add-opens=java.base/java.net=ALL-UNNAMED</jvmArg>
-                                <jvmArg>--add-opens=java.base/sun.net=ALL-UNNAMED</jvmArg>
-                            </jvmArgs>
-                            <buildArgs>
-                                <arg>
-                                    -march=compatibility
-                                    -H:+AddAllCharsets
-                                    --features=im.zhaojun.zfile.aot.LambdaRegistrationFeature
-                                    --features=im.zhaojun.zfile.aot.BouncyCastleFeature
-                                    --features=im.zhaojun.zfile.aot.SQLiteNativeConfiguration
-                                </arg>
-                            </buildArgs>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>

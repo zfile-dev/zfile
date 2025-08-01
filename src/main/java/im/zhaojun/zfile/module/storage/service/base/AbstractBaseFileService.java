@@ -8,15 +8,12 @@ import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.core.util.ZFileAuthUtil;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.param.IStorageParam;
-import im.zhaojun.zfile.module.storage.model.request.base.SearchStorageRequest;
-import im.zhaojun.zfile.module.storage.model.result.FileItemResult;
+import im.zhaojun.zfile.module.user.model.constant.UserConstant;
 import im.zhaojun.zfile.module.user.model.entity.UserStorageSource;
 import im.zhaojun.zfile.module.user.service.UserStorageSourceService;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 /**
  * @author zhaojun
@@ -81,7 +78,7 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
         }
     }
 
-    String getStorageSimpleInfo() {
+    protected String getStorageSimpleInfo() {
         return String.format("存储源 [id=%s, name=%s, type: %s]", storageId, name, getStorageTypeEnum().getDescription());
     }
 
@@ -89,7 +86,11 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
     public abstract StorageSourceMetadata getStorageSourceMetadata();
 
     public String getCurrentUserBasePath() {
-        UserStorageSource userStorageSource = userStorageSourceService.getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
+        Integer userId = ZFileAuthUtil.getCurrentUserId();
+        if (!this.isInitialized) {
+            userId = UserConstant.ADMIN_ID;
+        }
+        UserStorageSource userStorageSource = userStorageSourceService.getByUserIdAndStorageId(userId, storageId);
         if (userStorageSource == null || StringUtils.isEmpty(userStorageSource.getRootPath())) {
             return StrPool.SLASH;
         } else {

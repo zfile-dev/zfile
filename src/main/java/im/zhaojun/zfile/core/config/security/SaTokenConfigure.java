@@ -3,6 +3,7 @@ package im.zhaojun.zfile.core.config.security;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.dev33.satoken.strategy.SaStrategy;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -29,6 +30,9 @@ public class SaTokenConfigure implements WebMvcConfigurer {
                 StpUtil.checkRole("admin");
             });
         })).addPathPatterns("/**").excludePathPatterns("/admin");
+
+        // 不再依赖 SaToken 的默认路径检查功能
+        SaStrategy.instance.checkRequestPath = (path, extArg1, extArg2) -> {};
     }
 
 }

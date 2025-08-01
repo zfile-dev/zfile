@@ -1,5 +1,6 @@
 package im.zhaojun.zfile.module.storage.service.impl;
 
+import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.core.util.UrlUtils;
 import im.zhaojun.zfile.module.storage.model.enums.StorageTypeEnum;
@@ -13,6 +14,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
@@ -35,6 +37,11 @@ public class S3ServiceImpl extends AbstractS3BaseFileService<S3Param> {
         }
 
         boolean isPathStyle = "path-style".equals(param.getPathStyle());
+        String domain = param.getDomain();
+        if (StringUtils.isNotBlank(domain) && !isPathStyle) {
+            throw new BizException("当使用域名访问时, 域名风格只能使用路径模式, 请修改存储配置中的域名风格选项.");
+        }
+
         String region = param.getRegion();
         if (StringUtils.isEmpty(param.getRegion()) && StringUtils.isNotEmpty(endPoint)) {
             region = endPoint.split("\\.")[1];
@@ -53,8 +60,11 @@ public class S3ServiceImpl extends AbstractS3BaseFileService<S3Param> {
                 .build();
 
         super.s3Presigner = S3Presigner.builder()
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(isPathStyle)
+                        .build())
                 .region(oss)
-                .endpointOverride(endpointOverride)
+                .endpointOverride(StringUtils.isBlank(domain) ? endpointOverride : URI.create(domain))
                 .credentialsProvider(credentialsProvider)
                 .build();
 

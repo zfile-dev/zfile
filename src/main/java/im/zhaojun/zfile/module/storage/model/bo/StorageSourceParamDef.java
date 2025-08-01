@@ -81,6 +81,11 @@ public class StorageSourceParamDef {
 	 */
 	private String condition;
 
+	/**
+	 * 是否隐藏该字段, 默认为 false.
+	 */
+	private boolean hidden;
+
 	@Getter
 	public static class Options {
 

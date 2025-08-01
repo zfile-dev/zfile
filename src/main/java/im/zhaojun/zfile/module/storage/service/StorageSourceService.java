@@ -3,6 +3,7 @@ package im.zhaojun.zfile.module.storage.service;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.ReflectUtil;
+import im.zhaojun.zfile.core.cache.ZFileCacheManager;
 import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.biz.InvalidStorageSourceBizException;
 import im.zhaojun.zfile.core.exception.core.BizException;
@@ -46,10 +47,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 存储源基本信息 Service
@@ -82,6 +80,9 @@ public class StorageSourceService {
     @Resource
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Resource
+    private ZFileCacheManager zfileCacheManager;
+
 
     /**
      * 获取所有存储源列表
@@ -98,10 +99,14 @@ public class StorageSourceService {
      *
      * @return 存储源列表
      */
-    public List<StorageSource> findAllEnableOrderByOrderNum() {
-        return storageSourceMapper.findUserEnableList(ZFileAuthUtil.getCurrentUserId());
+    public List<StorageSource> findAllEnableOrderByOrderNum(Integer userId) {
+        if (userId == null) {
+            return Collections.emptyList();
+        }
+        return zfileCacheManager.findAllEnableOrderByOrderNum(userId,
+                userEnableStorageSourceId -> storageSourceMapper.findUserEnableList(userEnableStorageSourceId)
+        );
     }
-
 
     /**
      * 获取指定存储源设置
@@ -247,6 +252,7 @@ public class StorageSourceService {
 
         StorageSourceContext.destroy(storageSource);
         log.info("删除存储源 {} 成功, 影响行数: {}", id, deleteEntitySize);
+        zfileCacheManager.clearUserEnableStorageSourceCache();
         return storageSource;
     }
 
@@ -277,6 +283,7 @@ public class StorageSourceService {
     })
     public void updateById(StorageSource entity) {
         storageSourceMapper.updateById(entity);
+        zfileCacheManager.clearUserEnableStorageSourceCache();
     }
 
 
@@ -372,6 +379,7 @@ public class StorageSourceService {
             storageSource.setKey(Convert.toStr(storageSource.getId()));
             storageSourceMapper.updateById(storageSource);
         }
+        zfileCacheManager.clearUserEnableStorageSourceCache();
         return storageSource;
     }
 
@@ -397,7 +405,7 @@ public class StorageSourceService {
         ReadmeConfig readmeByPath = null;
         if (verifyPassword.isPassed()) {
             // 获取指定存储源路径下的 readme 信息
-            readmeByPath = readmeConfigService.getByStorageAndPath(storageId, fullPath, storageSource.getCompatibilityReadme());
+            readmeByPath = readmeConfigService.getByStorageAndPath(storageId, fileListConfigRequest.getPath(), storageSource.getCompatibilityReadme());
         } else {
             log.info("文件夹密码验证失败，不获取 readme 信息, storageId: {}, path: {}, password: {}", storageId, fullPath, fileListConfigRequest.getPassword());
         }

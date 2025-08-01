@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import im.zhaojun.zfile.core.cache.ZFileCacheManager;
 import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.util.StringUtils;
@@ -49,6 +50,9 @@ public class UserService {
     @Resource
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Resource
+    private ZFileCacheManager zfileCacheManager;
+
     /**
      * 根据用户 ID 获取用户
      *
@@ -62,6 +66,11 @@ public class UserService {
         return userMapper.selectById(id);
     }
 
+    @Cacheable(key = "#username", unless = "#result == null", condition = "#username != null")
+    public Integer getIdByUsername(String username) {
+        return userMapper.findIdByUsername(username);
+    }
+
     /**
      * 根据用户名获取用户
      *
@@ -71,11 +80,12 @@ public class UserService {
      * @return  用户
      */
     public User getByUsername(String username) {
-        Integer userId = userMapper.findIdByUsername(username);
+        UserService userService = (UserService) AopContext.currentProxy();
+        Integer userId = userService.getIdByUsername(username);
         if (userId == null) {
             return null;
         }
-        return ((UserService) AopContext.currentProxy()).getById(userId);
+        return userService.getById(userId);
     }
 
 
@@ -136,7 +146,7 @@ public class UserService {
      *
      * @return  保存后的用户
      */
-    @CacheEvict(key = "#result.id")
+    @CacheEvict(allEntries = true)
     public User saveOrUpdate(SaveUserRequest saveUserRequest) {
         // 校验用户是否存在
         boolean userNameIsDuplicate = checkDuplicateUsername(saveUserRequest.getId(), saveUserRequest.getUsername());
@@ -155,6 +165,9 @@ public class UserService {
         }
 
         userManager.saveUserInfo(user, saveUserRequest.getUserStorageSourceList());
+        if (user.getId() != null) {
+            zfileCacheManager.clearUserEnableStorageSourceCache(user.getId());
+        }
         return user;
     }
 
@@ -174,6 +187,7 @@ public class UserService {
         user.setId(id);
         user.setEnable(enable);
         userMapper.updateById(user);
+        zfileCacheManager.clearUserEnableStorageSourceCache(id);
     }
 
 
@@ -215,7 +229,7 @@ public class UserService {
      * @param   updateUserPwdRequest
      *          修改密码请求对象
      */
-    @CacheEvict(key = "#id")
+    @CacheEvict(allEntries = true)
     @Transactional(rollbackFor = Exception.class)
     public void updateUserNameAndPwdById(Integer id, UpdateUserPwdRequest updateUserPwdRequest) {
         User user = userMapper.selectById(id);
@@ -245,7 +259,7 @@ public class UserService {
      * @param   id
      *          要删除调用用户 ID
      */
-    @CacheEvict(key = "#id")
+    @CacheEvict(allEntries = true)
     public void deleteById(Integer id) {
         User user = userMapper.selectById(id);
         if (user == null) {
@@ -260,6 +274,7 @@ public class UserService {
 
         // 发布用户删除事件
         applicationEventPublisher.publishEvent(new UserDeleteEvent(user));
+        zfileCacheManager.clearUserEnableStorageSourceCache(id);
     }
 
 
@@ -311,7 +326,7 @@ public class UserService {
      * @param   requestObj
      *          重置用户名和密码请求对象
      */
-    @CacheEvict(key = "1")
+    @CacheEvict(allEntries = true)
     public void resetAdminLoginInfo(ResetAdminUserNameAndPasswordRequest requestObj) {
         User user = userMapper.selectById(UserConstant.ADMIN_ID);
         user.setUsername(requestObj.getUsername());

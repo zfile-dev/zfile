@@ -89,6 +89,11 @@ public @interface StorageParamItem {
 	boolean ignoreInput() default false;
 
 	/**
+	 * 是否前端不显示该字段.
+	 */
+	boolean hidden() default false;
+
+	/**
 	 * 判断条件表达式，表达式结果为 true 时才显示该字段
 	 */
 	String condition() default "";

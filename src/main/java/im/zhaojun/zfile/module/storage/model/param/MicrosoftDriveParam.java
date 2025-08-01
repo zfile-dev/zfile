@@ -27,6 +27,9 @@ public class MicrosoftDriveParam extends OptionalProxyTransferParam {
 	@StorageParamItem(name = "刷新令牌", order = 5)
 	private String refreshToken;
 
+	@StorageParamItem(name = "刷新令牌到期时间戳(秒)", hidden = true, required = false)
+	private Integer refreshTokenExpiredAt;
+
 	@StorageParamItem(name = "基路径", defaultValue = "/", order = 6, description = "基路径表示该存储源哪个目录在 ZFile 中作为根目录，如： '/'，'/文件夹1'")
 	private String basePath;
 

@@ -56,20 +56,6 @@ public class UserStorageSourceService {
         return userStorageSourceMapper.getByUserIdAndStorageId(userId, storageId);
     }
 
-
-    /**
-     * 获取当前登录用户在指定存储策略的权限
-     *
-     * @param   storageId
-     *          存储策略 ID
-     *
-     * @return  当前登录用户在指定存储策略的权限
-     */
-    public UserStorageSource getCurrentUserStoragePermission(Integer storageId) {
-        return ((UserStorageSourceService) AopContext.currentProxy()).getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
-    }
-
-
     /**
      * 判断当前登录用户在指定存储策略是否有指定操作的权限
      *
@@ -82,7 +68,7 @@ public class UserStorageSourceService {
      * @return  当前登录用户在指定存储策略是否有指定操作的权限
      */
     public boolean hasCurrentUserStorageOperatorPermission(Integer storageId, FileOperatorTypeEnum operatorTypeEnum) {
-        UserStorageSource userStorageSource = getCurrentUserStoragePermission(storageId);
+        UserStorageSource userStorageSource = ((UserStorageSourceService) AopContext.currentProxy()).getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
         return userStorageSource.getPermissions().contains(operatorTypeEnum.getValue());
     }
 
@@ -98,7 +84,7 @@ public class UserStorageSourceService {
     public HashMap<String, Boolean> getCurrentUserPermissionMapByStorageId(Integer storageId) {
         HashMap<String, Boolean> map = new HashMap<>();
 
-        UserStorageSource userStorageSource = getCurrentUserStoragePermission(storageId);
+        UserStorageSource userStorageSource = ((UserStorageSourceService) AopContext.currentProxy()).getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
         Set<String> userStoragePermissionsSet = userStorageSource.getPermissions();
 
         for (FileOperatorTypeEnum operatorTypeEnum : FileOperatorTypeEnum.values()) {

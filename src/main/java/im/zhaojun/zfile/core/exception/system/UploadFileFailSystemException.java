@@ -21,14 +21,18 @@ public class UploadFileFailSystemException extends SystemException {
 
     private final String uploadPath;
 
-    private final Integer inputStreamAvailable;
+    private final Long inputStreamAvailable;
 
     private final int responseCode;
 
     private final String responseBody;
 
-    public UploadFileFailSystemException(StorageTypeEnum storageTypeEnum, String uploadPath, Integer inputStreamAvailable, int responseCode, String responseBody) {
-        super(ErrorCode.BIZ_UPLOAD_FILE_ERROR);
+    public UploadFileFailSystemException(StorageTypeEnum storageTypeEnum, String uploadPath, Long inputStreamAvailable, int responseCode, String responseBody) {
+        this(storageTypeEnum, uploadPath, inputStreamAvailable, responseCode, responseBody, null);
+    }
+
+    public UploadFileFailSystemException(StorageTypeEnum storageTypeEnum, String uploadPath, Long inputStreamAvailable, int responseCode, String responseBody, Throwable cause) {
+        super(ErrorCode.BIZ_UPLOAD_FILE_ERROR, cause);
         this.storageTypeEnum = storageTypeEnum;
         this.uploadPath = uploadPath;
         this.inputStreamAvailable = inputStreamAvailable;

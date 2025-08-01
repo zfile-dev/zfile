@@ -59,6 +59,9 @@ public class StorageSourceAllParamDTO implements Serializable {
     @Schema(name = "刷新令牌", example = "15063f61.86400.1292922000-2346678-1243281asd-1asa")
     private String refreshToken;
 
+    @Schema(name = "刷新令牌到期时间(秒)", example = "1752994685")
+    private Integer refreshTokenExpiredAt;
+
     @Schema(name = "secretId", example = "LTAI4FjfXqXxQZQZ")
     private String secretId;
 
