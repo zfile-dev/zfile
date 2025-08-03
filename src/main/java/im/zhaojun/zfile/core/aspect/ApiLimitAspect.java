@@ -10,7 +10,6 @@ import im.zhaojun.zfile.core.util.RequestHolder;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
@@ -32,25 +31,16 @@ public class ApiLimitAspect {
     public static final String API_LIMIT_KEY_PREFIX = "api_limit_";
 
     /**
-     * 定义一个切点（通过注解）
-     */
-    @Pointcut("@annotation(im.zhaojun.zfile.core.annotation.ApiLimit)")
-    public void apiLimit() {
-    }
-
-    /**
      * 在标记了 {@link ApiLimit} 注解的方法执行前进行限流校验.
      *
      * @param joinPoint 切点
      */
-    @Before("apiLimit()")
-    public void before(JoinPoint joinPoint) {
+    @Before("@annotation(apiLimit)")
+    public void before(JoinPoint joinPoint, ApiLimit apiLimit) {
         // 获取当前请求的方法上的注解中设置的值
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         // 反射获取当前被调用的方法
         Method method = signature.getMethod();
-        // 获取方法中的注解
-        ApiLimit apiLimit = method.getDeclaredAnnotation(ApiLimit.class);
         int timeout = apiLimit.timeout();
         TimeUnit timeUnit = apiLimit.timeUnit();
         long millis = timeUnit.toMillis(timeout);

@@ -18,13 +18,10 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -53,12 +50,8 @@ public class FileOperatorCheckAspect {
 	 *
 	 * @return  方法运行结果
 	 */
-	@Around("@annotation(im.zhaojun.zfile.module.storage.annotation.StoragePermissionCheck)")
-	public Object annotationCheck(ProceedingJoinPoint point) throws Throwable {
-		Signature s = point.getSignature();
-		MethodSignature ms = (MethodSignature) s;
-		Method method = ms.getMethod();
-		StoragePermissionCheck storagePermissionCheck = method.getAnnotation(StoragePermissionCheck.class);
+	@Around("@annotation(storagePermissionCheck)")
+	public Object annotationCheck(ProceedingJoinPoint point, StoragePermissionCheck storagePermissionCheck) throws Throwable {
 		FileOperatorTypeEnum action = storagePermissionCheck.action();
 		if (action == FileOperatorTypeEnum.LINK) {
 			return linkActionCheck(point);
