@@ -29,7 +29,7 @@ public class User implements Serializable {
     @JsonIgnore
     private String password;
 
-    @Schema(name="盐")
+    @Schema(title="盐")
     @JsonIgnore
     private String salt;
 

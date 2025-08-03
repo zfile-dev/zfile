@@ -15,14 +15,14 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "获取指定文件信息的请求类")
 public class FileItemRequest {
 
-    @Schema(name = "存储源 key", requiredMode = Schema.RequiredMode.REQUIRED, example = "local")
+    @Schema(title = "存储源 key", requiredMode = Schema.RequiredMode.REQUIRED, example = "local")
     @NotBlank(message = "存储源 key 不能为空")
     private String storageKey;
 
-    @Schema(name = "请求路径", example = "/")
+    @Schema(title = "请求路径", example = "/")
     private String path;
 
-	@Schema(name = "文件夹密码, 如果文件夹需要密码才能访问，则支持请求密码", example = "123456")
+	@Schema(title = "文件夹密码, 如果文件夹需要密码才能访问，则支持请求密码", example = "123456")
 	private String password;
 
     public void handleDefaultValue() {

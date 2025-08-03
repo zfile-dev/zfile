@@ -12,13 +12,13 @@ import lombok.Data;
 @Schema(description = "系统初始化请求类")
 public class InstallSystemRequest {
 
-    @Schema(name = "站点名称", example = "ZFile Site Name")
+    @Schema(title = "站点名称", example = "ZFile Site Name")
     private String siteName;
 
-    @Schema(name = "用户名", example = "admin")
+    @Schema(title = "用户名", example = "admin")
     private String username;
 
-    @Schema(name = "密码", example = "123456")
+    @Schema(title = "密码", example = "123456")
     private String password;
 
 }

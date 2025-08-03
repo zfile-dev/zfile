@@ -13,13 +13,13 @@ import java.util.Date;
  */
 @Data
 @AllArgsConstructor
-@Schema(name="S3 bucket 名称结果类")
+@Schema(title="S3 bucket 名称结果类")
 public class S3BucketNameResult {
 
-	@Schema(name = "bucket 名称", example = "zfile")
+	@Schema(title = "bucket 名称", example = "zfile")
 	private String name;
 
-	@Schema(name = "bucket 创建时间", example = "2022-01-01 15:22")
+	@Schema(title = "bucket 创建时间", example = "2022-01-01 15:22")
 	private Date date;
 
 }

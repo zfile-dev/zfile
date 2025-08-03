@@ -20,19 +20,19 @@ public class AjaxJson<T> implements Serializable {
 
 	public static final String CODE_SUCCESS = "0";            // 成功状态码
 
-	@Schema(name = "业务状态码，0 为正常，其他值均为异常，异常情况下见响应消息", example = "0")
+	@Schema(title = "业务状态码，0 为正常，其他值均为异常，异常情况下见响应消息", example = "0")
 	private final String code;
 
-	@Schema(name = "响应消息", example = "ok")
+	@Schema(title = "响应消息", example = "ok")
 	private String msg;
 
-	@Schema(name = "响应数据")
+	@Schema(title = "响应数据")
 	private T data;
 
-	@Schema(name = "数据总条数，分页情况有效")
+	@Schema(title = "数据总条数，分页情况有效")
 	private final Long dataCount;
 	
-	@Schema(name = "跟踪 ID")
+	@Schema(title = "跟踪 ID")
 	private String traceId;
 
 	public AjaxJson(String code, String msg) {

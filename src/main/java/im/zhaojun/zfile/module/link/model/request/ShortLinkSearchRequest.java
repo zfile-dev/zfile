@@ -14,32 +14,32 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "搜索存储源中文件请求类")
 public class ShortLinkSearchRequest {
 
-    @Schema(name = "存储源 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(title = "存储源 id", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotBlank(message = "存储源 id 不能为空")
     private Integer storageId;
 
-    @Schema(name = "存储源 key", example = "local")
+    @Schema(title = "存储源 key", example = "local")
     private String key;
 
-    @Schema(name = "文件 url/路径", example = "/a")
+    @Schema(title = "文件 url/路径", example = "/a")
     private String url;
 
-    @Schema(name = "开始时间", example = "2022-01-01 00:00:00")
+    @Schema(title = "开始时间", example = "2022-01-01 00:00:00")
     private String dateFrom;
 
-    @Schema(name = "结束时间", example = "2022-12-31 23:59:59")
+    @Schema(title = "结束时间", example = "2022-12-31 23:59:59")
     private String dateTo;
 
-    @Schema(name = "页码", example = "1")
+    @Schema(title = "页码", example = "1")
     private Integer page;
 
-    @Schema(name = "每页数量", example = "10")
+    @Schema(title = "每页数量", example = "10")
     private Integer limit;
 
-    @Schema(name = "排序字段", example = "id")
+    @Schema(title = "排序字段", example = "id")
     private String orderBy;
 
-    @Schema(name = "排序方式", example = "desc")
+    @Schema(title = "排序方式", example = "desc")
     private String orderDirection;
 
 }

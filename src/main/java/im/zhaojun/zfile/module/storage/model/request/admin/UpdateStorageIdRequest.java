@@ -14,12 +14,12 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "更新存储源 id 请求类")
 public class UpdateStorageIdRequest {
 
-    @Schema(name = "存储源原 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(title = "存储源原 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotBlank(message = "源 id 不能为空")
     private Integer updateId;
 
 
-    @Schema(name = "存储源新 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
+    @Schema(title = "存储源新 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "2")
     @NotBlank(message = "修改后的 id 不能为空")
     private Integer newId;
 

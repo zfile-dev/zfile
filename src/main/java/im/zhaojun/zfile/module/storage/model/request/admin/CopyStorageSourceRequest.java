@@ -15,15 +15,15 @@ import jakarta.validation.constraints.NotNull;
 @Schema(description = "复制存储源请求请求类")
 public class CopyStorageSourceRequest {
 
-    @Schema(name = "存储源 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(title = "存储源 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "存储源 id 不能为空")
     private Integer fromId;
 
-    @Schema(name = "复制后存储源名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(title = "复制后存储源名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotBlank(message = "复制后存储源名称不能为空")
     private String toName;
 
-    @Schema(name = "复制后存储源别名", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(title = "复制后存储源别名", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotBlank(message = "复制后存储源别名不能为空")
     private String toKey;
 

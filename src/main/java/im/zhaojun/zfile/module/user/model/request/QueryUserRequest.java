@@ -14,26 +14,26 @@ import java.util.List;
 @Data
 public class QueryUserRequest {
 
-	@Schema(name="用户名")
+	@Schema(title="用户名")
 	private String username;
 
-	@Schema(name="昵称")
+	@Schema(title="昵称")
 	private String nickname;
 
-	@Schema(name="是否启用")
+	@Schema(title="是否启用")
 	private Boolean enable;
 
-	@Schema(name="创建时间")
+	@Schema(title="创建时间")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private List<Date> searchDate;
 
-	@Schema(name="排序字段")
+	@Schema(title="排序字段")
 	private String sortField = "id";
 
-	@Schema(name="排序方式")
+	@Schema(title="排序方式")
 	private Boolean sortAsc = true;
 
-	@Schema(name="是否隐藏未启用的存储源")
+	@Schema(title="是否隐藏未启用的存储源")
 	private Boolean hideDisabledStorage;
 
 	public Date getDateFrom() {

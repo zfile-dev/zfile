@@ -24,22 +24,22 @@ public class SystemConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
-    @Schema(name = "ID, 新增无需填写", example = "1")
+    @Schema(title = "ID, 新增无需填写", example = "1")
     private Integer id;
 
 
     @TableField(value = "name")
-    @Schema(name = "系统设置名称", example = "siteName")
+    @Schema(title = "系统设置名称", example = "siteName")
     private String name;
 
 
     @TableField(value = "`value`")
-    @Schema(name = "系统设置值", example = "ZFile 演示站")
+    @Schema(title = "系统设置值", example = "ZFile 演示站")
     private String value;
 
 
     @TableField(value = "title")
-    @Schema(name = "系统设置描述", example = "站点名称")
+    @Schema(title = "系统设置描述", example = "站点名称")
     private String title;
 
 }

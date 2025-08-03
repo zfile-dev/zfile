@@ -6,13 +6,13 @@ import lombok.Data;
 @Data
 public class PermissionInfoResult {
 
-    @Schema(name="权限名称")
+    @Schema(title="权限名称")
     private String name;
 
-    @Schema(name="权限标识")
+    @Schema(title="权限标识")
     private String value;
 
-    @Schema(name="权限描述")
+    @Schema(title="权限描述")
     private String tips;
 
 }

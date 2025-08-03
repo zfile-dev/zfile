@@ -17,11 +17,11 @@ import java.util.List;
 @Schema(description = "删除文件夹请求类")
 public class BatchDeleteRequest {
 
-    @Schema(name = "存储源 key", requiredMode = Schema.RequiredMode.REQUIRED, example = "local")
+    @Schema(title = "存储源 key", requiredMode = Schema.RequiredMode.REQUIRED, example = "local")
     @NotBlank(message = "存储源 key 不能为空")
     private String storageKey;
     
-    @Schema(name = "删除的文件详情")
+    @Schema(title = "删除的文件详情")
     @NotEmpty(message = "要删除的文件/文件夹不能为空")
     private List<DeleteItem> deleteItems;
     

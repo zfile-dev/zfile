@@ -34,32 +34,32 @@ public class ShortLink implements Serializable {
     public static final Date PERMANENT_EXPIRE_DATE = DateUtil.parseDate("9999-12-31");
 
     @TableId(value = "id", type = IdType.AUTO)
-    @Schema(name = "ID, 新增无需填写", example = "1")
+    @Schema(title = "ID, 新增无需填写", example = "1")
     private Integer id;
 
 
     @TableField(value = "storage_id")
-    @Schema(name = "存储源 ID", example = "1")
+    @Schema(title = "存储源 ID", example = "1")
     private Integer storageId;
 
 
     @TableField(value = "short_key")
-    @Schema(name = "短链 key", example = "voldd3")
+    @Schema(title = "短链 key", example = "voldd3")
     private String shortKey;
 
 
     @TableField(value = "url")
-    @Schema(name = "短链 url", example = "/directlink/1/test02.png")
+    @Schema(title = "短链 url", example = "/directlink/1/test02.png")
     private String url;
 
 
     @TableField(value = "create_date")
-    @Schema(name = "创建时间", example = "2021-11-22 10:05")
+    @Schema(title = "创建时间", example = "2021-11-22 10:05")
     private Date createDate;
 
 
     @TableField(value = "expire_date")
-    @Schema(name = "过期时间", example = "2021-11-23 10:05")
+    @Schema(title = "过期时间", example = "2021-11-23 10:05")
     private Date expireDate;
 
 

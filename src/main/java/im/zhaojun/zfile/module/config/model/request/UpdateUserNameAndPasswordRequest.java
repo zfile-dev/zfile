@@ -14,11 +14,11 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "用户修改密码请求参数类")
 public class UpdateUserNameAndPasswordRequest {
 
-    @Schema(name = "用户名", requiredMode = Schema.RequiredMode.REQUIRED, example = "admin")
+    @Schema(title = "用户名", requiredMode = Schema.RequiredMode.REQUIRED, example = "admin")
     @NotBlank(message = "用户名不能为空")
     private String username;
 
-    @Schema(name = "密码", requiredMode = Schema.RequiredMode.REQUIRED, example = "123456")
+    @Schema(title = "密码", requiredMode = Schema.RequiredMode.REQUIRED, example = "123456")
     @NotBlank(message = "密码不能为空")
     private String password;
 

@@ -14,40 +14,40 @@ import java.util.Date;
 @Data
 public class DownloadLogResult {
 
-	@Schema(name="")
+	@Schema(title="")
 	private Integer id;
 
-	@Schema(name="文件路径")
+	@Schema(title="文件路径")
 	private String path;
 
-	@Schema(name = "存储源类型")
+	@Schema(title = "存储源类型")
 	private StorageTypeEnum storageType;
 	
-	@Schema(name = "存储源名称", example = "我的本地存储")
+	@Schema(title = "存储源名称", example = "我的本地存储")
 	private String storageName;
 
-	@Schema(name = "存储源Key", example = "local")
+	@Schema(title = "存储源Key", example = "local")
 	private String storageKey;
 
-	@Schema(name="访问时间")
+	@Schema(title="访问时间")
 	private Date createTime;
 
-	@Schema(name="访问 ip")
+	@Schema(title="访问 ip")
 	private String ip;
 	
-	@Schema(name = "短链 Key")
+	@Schema(title = "短链 Key")
 	private String shortKey;
 
-	@Schema(name="访问 user_agent")
+	@Schema(title="访问 user_agent")
 	private String userAgent;
 
-	@Schema(name="访问 referer")
+	@Schema(title="访问 referer")
 	private String referer;
 
-	@Schema(name="短链地址")
+	@Schema(title="短链地址")
 	private String shortLink;
 
-	@Schema(name="直链地址")
+	@Schema(title="直链地址")
 	private String pathLink;
 
 }

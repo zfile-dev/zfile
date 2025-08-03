@@ -15,13 +15,13 @@ import java.util.Date;
 @Data
 public class ShortLinkResult {
 
-	@Schema(name = "短链 id", example = "1")
+	@Schema(title = "短链 id", example = "1")
 	private Integer id;
 
-	@Schema(name = "存储源名称", example = "我的本地存储")
+	@Schema(title = "存储源名称", example = "我的本地存储")
 	private String storageName;
 
-	@Schema(name = "存储源类型")
+	@Schema(title = "存储源类型")
 	private StorageTypeEnum storageType;
 
 	@JsonIgnore
@@ -31,19 +31,19 @@ public class ShortLinkResult {
 		return storageType.getDescription();
 	}
 
-	@Schema(name = "短链 key", example = "voldd3")
+	@Schema(title = "短链 key", example = "voldd3")
 	private String shortKey;
 
-	@Schema(name = "文件 url", example = "/directlink/1/test02.png")
+	@Schema(title = "文件 url", example = "/directlink/1/test02.png")
 	private String url;
 
-	@Schema(name = "创建时间", example = "2021-11-22 10:05")
+	@Schema(title = "创建时间", example = "2021-11-22 10:05")
 	private Date createDate;
 
-	@Schema(name = "过期时间", example = "2021-11-23 10:05")
+	@Schema(title = "过期时间", example = "2021-11-23 10:05")
 	private Date expireDate;
 
-	@Schema(name="短链地址")
+	@Schema(title="短链地址")
 	private String shortLink;
 
 }

@@ -24,84 +24,84 @@ public class StorageSource implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
-    @Schema(name = "ID, 新增无需填写", example = "1")
+    @Schema(title = "ID, 新增无需填写", example = "1")
     private Integer id;
 
 
     @TableField(value = "`enable`")
-    @Schema(name = "是否启用", example = "true")
+    @Schema(title = "是否启用", example = "true")
     private Boolean enable;
 
 
     @TableField(value = "`enable_file_operator`")
-    @Schema(name = "是否启用文件操作功能", example = "true", description ="是否启用文件上传，编辑，删除等操作.")
+    @Schema(title = "是否启用文件操作功能", example = "true", description ="是否启用文件上传，编辑，删除等操作.")
     @Deprecated
     private Boolean enableFileOperator;
 
 
     @TableField(value = "`enable_file_anno_operator`")
-    @Schema(name = "是否允许匿名进行文件操作", example = "true", description ="是否允许匿名进行文件上传，编辑，删除等操作.")
+    @Schema(title = "是否允许匿名进行文件操作", example = "true", description ="是否允许匿名进行文件上传，编辑，删除等操作.")
     @Deprecated
     private Boolean enableFileAnnoOperator;
 
 
     @TableField(value = "`enable_cache`")
-    @Schema(name = "是否开启缓存", example = "true")
+    @Schema(title = "是否开启缓存", example = "true")
     private Boolean enableCache;
 
 
     @TableField(value = "`name`")
-    @Schema(name = "存储源名称", example = "阿里云 OSS 存储")
+    @Schema(title = "存储源名称", example = "阿里云 OSS 存储")
     private String name;
 
 
     @TableField(value = "`key`")
-    @Schema(name = "存储源别名", example = "存储源别名，用于 URL 中展示, 如 http://ip:port/{存储源别名}")
+    @Schema(title = "存储源别名", example = "存储源别名，用于 URL 中展示, 如 http://ip:port/{存储源别名}")
     private String key;
 
 
     @TableField(value = "`remark`")
-    @Schema(name = "存储源备注", example = "这是一个备注信息, 用于管理员区分不同的存储源, 此字段仅管理员可见")
+    @Schema(title = "存储源备注", example = "这是一个备注信息, 用于管理员区分不同的存储源, 此字段仅管理员可见")
     private String remark;
 
 
     @TableField(value = "auto_refresh_cache")
-    @Schema(name = "是否开启缓存自动刷新", example = "true")
+    @Schema(title = "是否开启缓存自动刷新", example = "true")
     private Boolean autoRefreshCache;
 
 
     @TableField(value = "`type`")
-    @Schema(name = "存储源类型")
+    @Schema(title = "存储源类型")
     private StorageTypeEnum type;
 
 
     @TableField(value = "search_enable")
-    @Schema(name = "是否开启搜索", example = "true")
+    @Schema(title = "是否开启搜索", example = "true")
     private Boolean searchEnable;
 
 
     @TableField(value = "search_ignore_case")
-    @Schema(name = "搜索是否忽略大小写", example = "true")
+    @Schema(title = "搜索是否忽略大小写", example = "true")
     private Boolean searchIgnoreCase;
 
 
     @TableField(value = "`search_mode`")
-    @Schema(name = "搜索模式", example = "SEARCH_CACHE", description ="仅从缓存中搜索或直接全量搜索")
+    @Schema(title = "搜索模式", example = "SEARCH_CACHE", description ="仅从缓存中搜索或直接全量搜索")
     private SearchModeEnum searchMode;
 
 
     @TableField(value = "order_num")
-    @Schema(name = "排序值", example = "1")
+    @Schema(title = "排序值", example = "1")
     private Integer orderNum;
 
 
     @TableField(value = "default_switch_to_img_mode")
-    @Schema(name = "是否默认开启图片模式", example = "true")
+    @Schema(title = "是否默认开启图片模式", example = "true")
     private Boolean defaultSwitchToImgMode;
     
     
     @TableField(value = "compatibility_readme")
-    @Schema(name = "兼容 readme 模式", example = "true", description ="兼容模式, 目录文档读取 readme.md 文件")
+    @Schema(title = "兼容 readme 模式", example = "true", description ="兼容模式, 目录文档读取 readme.md 文件")
     private Boolean compatibilityReadme;
 
 }

@@ -17,41 +17,41 @@ import java.util.List;
 @Schema(description = "直链设置请求参数类")
 public class UpdateLinkSettingRequest {
 
-	@Schema(name = "是否记录下载日志", example = "true")
+	@Schema(title = "是否记录下载日志", example = "true")
 	private Boolean recordDownloadLog;
 
-	@Schema(name = "直链 Referer 防盗链类型")
+	@Schema(title = "直链 Referer 防盗链类型")
 	private RefererTypeEnum refererType;
 
-	@Schema(name = "直链 Referer 是否允许为空")
+	@Schema(title = "直链 Referer 是否允许为空")
 	private Boolean refererAllowEmpty;
 
-	@Schema(name = "直链 Referer 值")
+	@Schema(title = "直链 Referer 值")
 	private String refererValue;
 
-	@Schema(name = "直链地址前缀")
+	@Schema(title = "直链地址前缀")
 	@NotBlank(message = "直链地址前缀不能为空")
 	private String directLinkPrefix;
 
-	@Schema(name = "是否显示生成直链功能（含直链和路径短链）", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+	@Schema(title = "是否显示生成直链功能（含直链和路径短链）", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Boolean showLinkBtn;
 
-	@Schema(name = "是否显示生成短链功能", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+	@Schema(title = "是否显示生成短链功能", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Boolean showShortLink;
 
-	@Schema(name = "是否显示生成路径链接功能", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+	@Schema(title = "是否显示生成路径链接功能", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Boolean showPathLink;
 
-	@Schema(name = "是否允许路径直链可直接访问", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
+	@Schema(title = "是否允许路径直链可直接访问", example = "true", requiredMode = Schema.RequiredMode.REQUIRED)
 	private Boolean allowPathLinkAnonAccess;
 
-	@Schema(name = "限制直链下载秒数", example = "_blank")
+	@Schema(title = "限制直链下载秒数", example = "_blank")
 	private Integer linkLimitSecond;
 
-	@Schema(name = "限制直链下载次数", example = "_blank")
+	@Schema(title = "限制直链下载次数", example = "_blank")
 	private Integer linkDownloadLimit;
 
-	@Schema(name = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
+	@Schema(title = "短链过期时间设置", example = "[{value: 1, unit: \"day\"}, {value: 1, unit: \"week\"}, {value: 1, unit: \"month\"}, {value: 1, unit: \"year\"}]")
 	private List<LinkExpireDTO> linkExpireTimes;
 
 }

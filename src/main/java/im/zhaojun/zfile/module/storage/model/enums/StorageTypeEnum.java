@@ -46,11 +46,11 @@ public enum StorageTypeEnum implements IEnum {
         }
     }
 
-    @Schema(name = "存储源类型枚举 Key", example = "aliyun")
+    @Schema(title = "存储源类型枚举 Key", example = "aliyun")
     @EnumValue
     private final String key;
 
-    @Schema(name = "存储源类型枚举描述", example = "阿里云 OSS")
+    @Schema(title = "存储源类型枚举描述", example = "阿里云 OSS")
     private final String description;
 
     StorageTypeEnum(String key, String description) {

@@ -16,11 +16,11 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "验证二步验证结果")
 public class VerifyLoginTwoFactorAuthenticatorRequest {
 
-	@Schema(name = "二步验证二维码", requiredMode = Schema.RequiredMode.REQUIRED, example = "EwBoxxxxxxxxxxxxxxxbAI=")
+	@Schema(title = "二步验证二维码", requiredMode = Schema.RequiredMode.REQUIRED, example = "EwBoxxxxxxxxxxxxxxxbAI=")
 	@NotBlank(message = "二步验证密钥不能为空")
 	private String secret;
 
-	@Schema(name = "APP 生成的二步验证验证码", requiredMode = Schema.RequiredMode.REQUIRED, example = "125612")
+	@Schema(title = "APP 生成的二步验证验证码", requiredMode = Schema.RequiredMode.REQUIRED, example = "125612")
 	@NotBlank(message = "二步验证验证码不能为空")
 	private String code;
 

@@ -17,16 +17,16 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class QueryShortLinkLogRequest extends PageQueryRequest {
 	
-	@Schema(name="短链 key")
+	@Schema(title="短链 key")
 	private String key;
 	
-	@Schema(name="存储源 id")
+	@Schema(title="存储源 id")
 	private String storageId;
 	
-	@Schema(name="短链文件路径")
+	@Schema(title="短链文件路径")
 	private String url;
 
-	@Schema(name="访问时间")
+	@Schema(title="访问时间")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private List<Date> searchDate;
 

@@ -19,32 +19,32 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class QueryDownloadLogRequest extends PageQueryRequest {
 
-	@Schema(name="文件路径")
+	@Schema(title="文件路径")
 	private String path;
 
-	@Schema(name="存储源 key")
+	@Schema(title="存储源 key")
 	private String storageKey;
 
-	@Schema(name="链接类型")
+	@Schema(title="链接类型")
 	private String linkType;
 
-	@Schema(name="短链 key")
+	@Schema(title="短链 key")
 	private String shortKey;
 
-	@Schema(name="访问时间")
+	@Schema(title="访问时间")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private List<Date> searchDate;
 
-	@Schema(name="访问 ip")
+	@Schema(title="访问 ip")
 	private String ip;
 
-	@Schema(name="访问 user_agent")
+	@Schema(title="访问 user_agent")
 	private String userAgent;
 
-	@Schema(name="访问 referer")
+	@Schema(title="访问 referer")
 	private String referer;
 	
-	@Schema(name="排序字段")
+	@Schema(title="排序字段")
 	private String orderBy = "create_time";
 
 	public Date getDateFrom() {

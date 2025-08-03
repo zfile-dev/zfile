@@ -11,13 +11,13 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-@Schema(name="gd drive 基本信息结果类")
+@Schema(title="gd drive 基本信息结果类")
 public class GoogleDriveInfoResult {
 	
-	@Schema(name = "drive id", example = "0AGrY0xF1D7PEUk9PVB")
+	@Schema(title = "drive id", example = "0AGrY0xF1D7PEUk9PVB")
 	private String id;
 	
-	@Schema(name = "drive 名称", example = "zfile")
+	@Schema(title = "drive 名称", example = "zfile")
 	private String name;
 	
 }

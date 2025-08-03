@@ -11,19 +11,19 @@ import java.util.List;
 @Data
 public class StorageSourceInitDTO {
 
-    @Schema(name = "ID, 新增无需填写", example = "1")
+    @Schema(title = "ID, 新增无需填写", example = "1")
     private Integer id;
 
-    @Schema(name = "存储源名称", example = "阿里云 OSS 存储")
+    @Schema(title = "存储源名称", example = "阿里云 OSS 存储")
     private String name;
 
-    @Schema(name = "存储源别名", example = "存储源别名，用于 URL 中展示, 如 http://ip:port/{存储源别名}")
+    @Schema(title = "存储源别名", example = "存储源别名，用于 URL 中展示, 如 http://ip:port/{存储源别名}")
     private String key;
 
-    @Schema(name = "存储源类型", example = "ftp")
+    @Schema(title = "存储源类型", example = "ftp")
     private StorageTypeEnum type;
 
-    @Schema(name = "存储源参数")
+    @Schema(title = "存储源参数")
     List<StorageSourceConfig> storageSourceConfigList;
 
     public static StorageSourceInitDTO convert(StorageSource storageSource, List<StorageSourceConfig> storageSourceConfigList) {

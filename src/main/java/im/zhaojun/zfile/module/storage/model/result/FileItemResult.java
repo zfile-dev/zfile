@@ -15,25 +15,25 @@ import java.util.Date;
  * @author zhaojun
  */
 @Data
-@Schema(name="文件列表信息结果类")
+@Schema(title="文件列表信息结果类")
 public class FileItemResult implements Serializable {
 
-    @Schema(name = "文件名", example = "a.mp4")
+    @Schema(title = "文件名", example = "a.mp4")
     private String name;
     
-    @Schema(name = "时间", example = "2020-01-01 15:22")
+    @Schema(title = "时间", example = "2020-01-01 15:22")
     private Date time;
     
-    @Schema(name = "大小", example = "1024")
+    @Schema(title = "大小", example = "1024")
     private Long size;
     
-    @Schema(name = "类型", example = "file")
+    @Schema(title = "类型", example = "file")
     private FileTypeEnum type;
     
-    @Schema(name = "所在路径", example = "/home/")
+    @Schema(title = "所在路径", example = "/home/")
     private String path;
     
-    @Schema(name = "下载地址", example = "http://www.example.com/a.mp4")
+    @Schema(title = "下载地址", example = "http://www.example.com/a.mp4")
     private String url;
     
     /**

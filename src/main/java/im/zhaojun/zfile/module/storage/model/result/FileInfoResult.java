@@ -12,14 +12,14 @@ import java.util.List;
  * @author zhaojun
  */
 @Data
-@Schema(name="文件列表信息结果类")
+@Schema(title="文件列表信息结果类")
 @AllArgsConstructor
 public class FileInfoResult {
 
-	@Schema(name="文件列表")
+	@Schema(title="文件列表")
 	private List<FileItemResult> files;
 
-	@Schema(name="当前目录密码路径表达式")
+	@Schema(title="当前目录密码路径表达式")
 	private String passwordPattern;
 
 }

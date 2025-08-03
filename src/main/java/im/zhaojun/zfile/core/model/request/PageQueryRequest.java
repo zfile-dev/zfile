@@ -11,16 +11,16 @@ import lombok.Data;
 @Data
 public class PageQueryRequest {
 	
-	@Schema(name="分页页数")
+	@Schema(title="分页页数")
 	private Integer page = 1;
 	
-	@Schema(name="每页条数")
+	@Schema(title="每页条数")
 	private Integer limit = 10;
 	
-	@Schema(name="排序字段")
+	@Schema(title="排序字段")
 	private String orderBy = "create_date";
 	
-	@Schema(name="排序顺序")
+	@Schema(title="排序顺序")
 	private String orderDirection = "desc";
 	
 }

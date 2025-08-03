@@ -34,47 +34,47 @@ public class DownloadLog implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.INPUT)
-    @Schema(name = "ID, 新增无需填写", example = "1")
+    @Schema(title = "ID, 新增无需填写", example = "1")
     private Integer id;
 
 
     @TableField(value = "`download_type`")
-    @Schema(name="下载类型", example = "directLink", allowableValues = "directLink, shortLink")
+    @Schema(title="下载类型", example = "directLink", allowableValues = "directLink, shortLink")
     private String downloadType;
 
 
     @TableField(value = "`path`")
-    @Schema(name="文件路径")
+    @Schema(title="文件路径")
     private String path;
 
 
     @TableField(value = "`storage_key`")
-    @Schema(name="存储源 key")
+    @Schema(title="存储源 key")
     private String storageKey;
 
 
     @TableField(value = "`create_time`")
-    @Schema(name="访问时间")
+    @Schema(title="访问时间")
     private Date createTime;
 
 
     @TableField(value = "`ip`")
-    @Schema(name="访问 ip")
+    @Schema(title="访问 ip")
     private String ip;
 
 
     @TableField(value = "short_key")
-    @Schema(name = "短链 key", example = "voldd3")
+    @Schema(title = "短链 key", example = "voldd3")
     private String shortKey;
 
 
     @TableField(value = "`user_agent`")
-    @Schema(name="访问 user_agent")
+    @Schema(title="访问 user_agent")
     private String userAgent;
 
 
     @TableField(value = "`referer`")
-    @Schema(name="访问 referer")
+    @Schema(title="访问 referer")
     private String referer;
 
     public DownloadLog(String downloadType, String path, String storageKey, String shortKey) {

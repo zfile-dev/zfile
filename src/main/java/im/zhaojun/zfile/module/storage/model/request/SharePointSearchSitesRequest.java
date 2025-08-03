@@ -17,7 +17,7 @@ public class SharePointSearchSitesRequest {
 	@StringListValue(message = "账号类型只能是 Standard（标准版、国际版）或 China（世纪互联）", vals = {"Standard", "China"})
 	private String type;
 
-	@Schema(name = "访问令牌 (accessToken)", required = true, example = "EwBoxxxxxxxxxxxxxxxbAI=")
+	@Schema(title = "访问令牌 (accessToken)", required = true, example = "EwBoxxxxxxxxxxxxxxxbAI=")
 	@NotBlank(message = "访问令牌不能为空")
 	private String accessToken;
 

@@ -18,10 +18,10 @@ public class LoginTwoFactorAuthenticatorResult implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Schema(name = "二步验证二维码")
+	@Schema(title = "二步验证二维码")
 	private String qrcode;
 
-	@Schema(name = "二步验证密钥")
+	@Schema(title = "二步验证密钥")
 	private String secret;
 
 }

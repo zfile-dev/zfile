@@ -23,32 +23,32 @@ public class StorageSourceConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
-    @Schema(name = "ID, 新增无需填写", example = "1")
+    @Schema(title = "ID, 新增无需填写", example = "1")
     private Integer id;
 
 
     @TableField(value = "`name`")
-    @Schema(name = "存储源属性名称 name", example = "bucketName")
+    @Schema(title = "存储源属性名称 name", example = "bucketName")
     private String name;
 
 
     @TableField(value = "`type`")
-    @Schema(name = "存储源类型")
+    @Schema(title = "存储源类型")
     private StorageTypeEnum type;
 
 
     @TableField(value = "title")
-    @Schema(name = "存储源属性名称", example = "Bucket 名称")
+    @Schema(title = "存储源属性名称", example = "Bucket 名称")
     private String title;
 
 
     @TableField(value = "storage_id")
-    @Schema(name = "存储源 id", example = "1")
+    @Schema(title = "存储源 id", example = "1")
     private Integer storageId;
 
 
     @TableField(value = "`value`")
-    @Schema(name = "存储源对应的值", example = "my-bucket")
+    @Schema(title = "存储源对应的值", example = "my-bucket")
     private String value;
 
 }

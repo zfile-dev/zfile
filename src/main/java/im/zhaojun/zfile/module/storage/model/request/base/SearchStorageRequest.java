@@ -17,20 +17,20 @@ import java.util.Map;
 @Schema(description = "搜索存储源中文件请求类")
 public class SearchStorageRequest {
 
-    @Schema(name = "存储源 key", requiredMode = Schema.RequiredMode.REQUIRED, example = "local")
+    @Schema(title = "存储源 key", requiredMode = Schema.RequiredMode.REQUIRED, example = "local")
     @NotBlank(message = "存储源 key 不能为空")
     private String storageKey;
 
-    @Schema(name = "搜索关键字", requiredMode = Schema.RequiredMode.REQUIRED, example = "png")
+    @Schema(title = "搜索关键字", requiredMode = Schema.RequiredMode.REQUIRED, example = "png")
     private String searchKeyword;
 
-    @Schema(name = "搜索模式", requiredMode = Schema.RequiredMode.REQUIRED, example = "search_all")
+    @Schema(title = "搜索模式", requiredMode = Schema.RequiredMode.REQUIRED, example = "search_all")
     private SearchFolderModeEnum searchMode;
 
-    @Schema(name = "搜索路径", example = "/")
+    @Schema(title = "搜索路径", example = "/")
     private String path;
 
-    @Schema(name = "密码缓存")
+    @Schema(title = "密码缓存")
     private Map<String, String> passwordCache;
 
 

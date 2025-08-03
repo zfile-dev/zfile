@@ -16,34 +16,34 @@ import java.io.Serializable;
  * @author zhaojun
  */
 @Data
-@Schema(name="密码设置")
+@Schema(title="密码设置")
 @TableName(value = "password_config")
 public class PasswordConfig implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.INPUT)
-    @Schema(name = "ID, 新增无需填写", example = "1")
+    @Schema(title = "ID, 新增无需填写", example = "1")
     private Integer id;
 
 
     @TableField(value = "storage_id")
-    @Schema(name = "存储源 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
+    @Schema(title = "存储源 ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Integer storageId;
 
 
     @TableField(value = "expression")
-    @Schema(name = "密码文件夹表达式", requiredMode = Schema.RequiredMode.REQUIRED, example = "/*.png")
+    @Schema(title = "密码文件夹表达式", requiredMode = Schema.RequiredMode.REQUIRED, example = "/*.png")
     private String expression;
 
 
     @TableField(value = "password")
-    @Schema(name = "密码值", requiredMode = Schema.RequiredMode.REQUIRED, example = "123456")
+    @Schema(title = "密码值", requiredMode = Schema.RequiredMode.REQUIRED, example = "123456")
     private String password;
 
 
     @TableField(value = "description")
-    @Schema(name = "表达式描述", requiredMode = Schema.RequiredMode.REQUIRED, example = "用来辅助记忆表达式")
+    @Schema(title = "表达式描述", requiredMode = Schema.RequiredMode.REQUIRED, example = "用来辅助记忆表达式")
     private String description;
 
 }

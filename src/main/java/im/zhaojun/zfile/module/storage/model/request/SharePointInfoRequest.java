@@ -13,22 +13,22 @@ import lombok.Data;
 @Schema(description = "SharePoint 信息请求类")
 public class SharePointInfoRequest {
 
-    @Schema(name = "SharePoint 类型", description ="Standard(国际版、个人版等) 或 China(世纪互联)", required = true, example = "Standard")
+    @Schema(title = "SharePoint 类型", description ="Standard(国际版、个人版等) 或 China(世纪互联)", required = true, example = "Standard")
     private String type;
 
-    @Schema(name = "访问令牌 (accessToken)", required = true, example = "EwBoxxxxxxxxxxxxxxxbAI=")
+    @Schema(title = "访问令牌 (accessToken)", required = true, example = "EwBoxxxxxxxxxxxxxxxbAI=")
     private String accessToken;
 
-    @Schema(name = "域名前缀", requiredMode = Schema.RequiredMode.REQUIRED, example = "zfile")
+    @Schema(title = "域名前缀", requiredMode = Schema.RequiredMode.REQUIRED, example = "zfile")
     private String domainPrefix;
 
-    @Schema(name = "站点类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "/sites/")
+    @Schema(title = "站点类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "/sites/")
     private String siteType;
 
-    @Schema(name = "站点名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "zfile")
+    @Schema(title = "站点名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "zfile")
     private String siteName;
 
-    @Schema(name = "域名类型", description ="com 或 cn", example = "com")
+    @Schema(title = "域名类型", description ="com 或 cn", example = "com")
     private String domainType;
 
 }

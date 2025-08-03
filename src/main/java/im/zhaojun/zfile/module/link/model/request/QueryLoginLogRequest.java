@@ -19,29 +19,29 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class QueryLoginLogRequest extends PageQueryRequest {
 
-	@Schema(name="用户名")
+	@Schema(title="用户名")
 	private String username;
 
-	@Schema(name="密码")
+	@Schema(title="密码")
 	private String password;
 
-	@Schema(name="IP")
+	@Schema(title="IP")
 	private String ip;
 
-	@Schema(name="User-Agent")
+	@Schema(title="User-Agent")
 	private String userAgent;
 
-	@Schema(name="来源")
+	@Schema(title="来源")
 	private String referer;
 
-	@Schema(name="登录结果")
+	@Schema(title="登录结果")
 	private String result;
 
-	@Schema(name="访问时间")
+	@Schema(title="访问时间")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private List<Date> searchDate;
 
-	@Schema(name="排序字段")
+	@Schema(title="排序字段")
 	private String orderBy = "create_time";
 
 	public Date getDateFrom() {

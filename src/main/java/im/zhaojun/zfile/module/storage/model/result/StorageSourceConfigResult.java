@@ -12,22 +12,22 @@ import java.util.Map;
  *
  * @author zhaojun
  */
-@Schema(name="存储源设置响应类")
+@Schema(title="存储源设置响应类")
 @Data
 public class StorageSourceConfigResult {
 
-	@Schema(name="readme 文本内容, 支持 md 语法.")
+	@Schema(title="readme 文本内容, 支持 md 语法.")
 	private String readmeText;
 
-	@Schema(name = "显示模式", requiredMode = Schema.RequiredMode.REQUIRED, example = "readme 显示模式，支持顶部显示: top, 底部显示:bottom, 弹窗显示: dialog")
+	@Schema(title = "显示模式", requiredMode = Schema.RequiredMode.REQUIRED, example = "readme 显示模式，支持顶部显示: top, 底部显示:bottom, 弹窗显示: dialog")
 	private ReadmeDisplayModeEnum readmeDisplayMode;
 
-	@Schema(name = "是否默认开启图片模式", example = "true")
+	@Schema(title = "是否默认开启图片模式", example = "true")
 	private Boolean defaultSwitchToImgMode;
 
 	private Map<String, Boolean> permission;
 
-	@Schema(name = "存储源元数据")
+	@Schema(title = "存储源元数据")
 	private StorageSourceMetadata metadata;
 
 	private String rootPath;

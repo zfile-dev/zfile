@@ -23,34 +23,34 @@ public class UserStorageSourceDetailDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(name="id")
+    @Schema(title="id")
     private Integer id;
 
-    @Schema(name="用户 id")
+    @Schema(title="用户 id")
     private Integer userId;
 
-    @Schema(name="存储源 ID")
+    @Schema(title="存储源 ID")
     private Integer storageSourceId;
 
     /**
      * 相较于 entity 额外查询的字段
      */
-    @Schema(name="存储源名称")
+    @Schema(title="存储源名称")
     private String storageSourceName;
 
     /**
      * 相较于 entity 额外查询的字段
      */
-    @Schema(name="存储策略类型")
+    @Schema(title="存储策略类型")
     private StorageTypeEnum storageSourceType;
 
-    @Schema(name="允许访问的基础路径")
+    @Schema(title="允许访问的基础路径")
     private String rootPath;
 
-    @Schema(name="是否启用")
+    @Schema(title="是否启用")
     private Boolean enable;
 
-    @Schema(name="权限列表")
+    @Schema(title="权限列表")
     @TableField(typeHandler = im.zhaojun.zfile.core.config.mybatis.CollectionStrTypeHandler.class)
     private Set<String> permissions;
 
