@@ -48,14 +48,14 @@ public class QueryDownloadLogRequest extends PageQueryRequest {
 	private String orderBy = "create_time";
 
 	public Date getDateFrom() {
-		if (searchDate == null) {
+		if (searchDate == null || searchDate.isEmpty()) {
 			return null;
 		}
 		return DateUtil.beginOfDay(searchDate.getFirst());
 	}
 
 	public Date getDateTo() {
-		if (searchDate == null) {
+		if (searchDate == null || searchDate.isEmpty()) {
 			return null;
 		}
 		return DateUtil.endOfDay(searchDate.getLast());
