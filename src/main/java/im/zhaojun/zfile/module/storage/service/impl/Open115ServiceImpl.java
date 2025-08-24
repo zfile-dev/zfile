@@ -14,7 +14,6 @@ import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.exception.core.SystemException;
 import im.zhaojun.zfile.core.exception.status.NotFoundAccessException;
-import im.zhaojun.zfile.core.io.ThrottledOutputStream;
 import im.zhaojun.zfile.core.util.FileSizeConverter;
 import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.RequestHolder;
@@ -438,10 +437,6 @@ public class Open115ServiceImpl extends AbstractProxyTransferService<Open115Para
             HttpServletResponse response = RequestHolder.getResponse();
             response.setStatus(httpResponse.getStatus());
             OutputStream outputStream = response.getOutputStream();
-            Integer limitSpeedKB = param.getProxyLimitSpeed();
-            if (limitSpeedKB != null && limitSpeedKB > 0) {
-                outputStream = new ThrottledOutputStream(response.getOutputStream(), limitSpeedKB * 1024);
-            }
 
             Map<String, List<String>> headers = httpResponse.headers();
             for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
