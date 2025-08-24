@@ -7,6 +7,7 @@ import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.readme.mapper.ReadmeConfigMapper;
 import im.zhaojun.zfile.module.readme.model.entity.ReadmeConfig;
 import im.zhaojun.zfile.module.readme.model.enums.ReadmeDisplayModeEnum;
+import im.zhaojun.zfile.module.readme.model.enums.ReadmePathModeEnum;
 import im.zhaojun.zfile.module.storage.context.StorageSourceContext;
 import im.zhaojun.zfile.module.storage.event.StorageSourceCopyEvent;
 import im.zhaojun.zfile.module.storage.event.StorageSourceDeleteEvent;
@@ -210,7 +211,16 @@ public class ReadmeConfigService {
 			}
 
 			try {
-				boolean match = PatternMatcherUtils.testCompatibilityGlobPattern(expression, test);
+                ReadmePathModeEnum pathMode = readmeConfig.getPathMode();
+                boolean match;
+
+                if (pathMode == ReadmePathModeEnum.ABSOLUTE) {
+                    AbstractBaseFileService<IStorageParam> abstractBaseFileService = StorageSourceContext.getByStorageId(storageId);
+                    String currentUserBasePath = abstractBaseFileService.getCurrentUserBasePath();
+                    match = PatternMatcherUtils.testCompatibilityGlobPattern(expression, StringUtils.concat(currentUserBasePath, test));
+                } else {
+                    match = PatternMatcherUtils.testCompatibilityGlobPattern(expression, test);
+                }
 
 				if (log.isDebugEnabled()) {
 					log.debug("存储源 {} 目录文档规则表达式: {}, 测试字符串: {}, 匹配结果: {}", storageId, expression, test, match);

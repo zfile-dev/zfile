@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import im.zhaojun.zfile.module.readme.model.enums.ReadmeDisplayModeEnum;
+import im.zhaojun.zfile.module.readme.model.enums.ReadmePathModeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -47,6 +47,9 @@ public class ReadmeConfig implements Serializable {
     @Schema(title="readme 文本内容, 支持 md 语法.")
     private String readmeText;
 
+    @TableField(value = "`path_mode`")
+    @Schema(title = "路径模式", requiredMode = Schema.RequiredMode.REQUIRED, example = "相等路径或绝对路径")
+    private ReadmePathModeEnum pathMode;
 
     @TableField(value = "`display_mode`")
     @Schema(title = "显示模式", requiredMode = Schema.RequiredMode.REQUIRED, example = "readme 显示模式，支持顶部显示: top, 底部显示:bottom, 弹窗显示: dialog")
