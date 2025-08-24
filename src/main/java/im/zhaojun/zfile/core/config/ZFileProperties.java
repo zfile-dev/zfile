@@ -25,6 +25,7 @@ public class ZFileProperties {
 	private OAuth2Properties onedrive = new OAuth2Properties();
 	private OAuth2Properties onedriveChina = new OAuth2Properties();
 	private OAuth2Properties gd = new OAuth2Properties();
+	private Open115Properties open115 = new Open115Properties();
 
 	@Data
 	public static class OAuth2Properties {
@@ -32,6 +33,11 @@ public class ZFileProperties {
 		private String clientSecret;
 		private String redirectUri;
 		private String scope;
+	}
+
+	@Data
+	public static class Open115Properties {
+		private String appId;
 	}
 
 }

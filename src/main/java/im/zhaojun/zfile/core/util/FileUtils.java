@@ -23,7 +23,7 @@ public class FileUtils {
     }
 
     public static String getParentPath(final String fileName) {
-        String fullPathNoEndSeparator = FilenameUtils.getFullPathNoEndSeparator(fileName);
+        String fullPathNoEndSeparator = FilenameUtils.getFullPathNoEndSeparator(StringUtils.trimEndSlashes(fileName));
         if (fullPathNoEndSeparator == null || fullPathNoEndSeparator.isEmpty()) {
             return StringUtils.SLASH;
         }

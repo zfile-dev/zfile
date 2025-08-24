@@ -62,6 +62,7 @@ public enum ErrorCode {
     BIZ_FOLDER_NOT_EXIST("41026", "文件夹不存在"),
     BIZ_UPLOAD_FILE_TYPE_NOT_ALLOWED("41027", "不允许上传的文件"),
     BIZ_RENAME_FILE_TYPE_NOT_ALLOWED("41028", "不允许重命名到该名称"),
+    BIZ_UNSUPPORTED_OPERATION_TYPE("41029", "不支持的操作类型"),
 
     // 第二位为 2 时，是登录错误
     BIZ_UNAUTHORIZED("42000", "未登录或未授权"),
