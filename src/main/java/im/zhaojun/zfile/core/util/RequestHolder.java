@@ -154,37 +154,38 @@ public class RequestHolder {
 
     /**
      * 获取后端服务地址，如果经过了反向代理，需反向代理正确配置
-     *
-     * @return Axios-From 字段
      */
     public static String getRequestServerAddress() {
         if (RequestContextHolder.getRequestAttributes() == null) {
             return null;
         }
         HttpServletRequest request = RequestHolder.getRequest();
-        StringBuffer requestURL = request.getRequestURL();
-        String result = requestURL.substring(0, requestURL.indexOf(request.getRequestURI()));
-        String serverName = request.getServerName();
 
-        String port = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Port");
+        String forwardedPort = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Port");
         String forwardedProto = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Proto");
 
-        if (StringUtils.isNotEmpty(port) && !StringUtils.contains(serverName, ":")) {
-            // 优先使用 X-Forwarded-Proto 判断协议，如果不存在，则使用 request.getScheme()
-            String scheme = StringUtils.isNotEmpty(forwardedProto) ? forwardedProto : request.getScheme();
+        String scheme = StringUtils.isBlank(forwardedProto) ? request.getScheme() : forwardedProto;
+        String port = StringUtils.isBlank(forwardedPort) ? String.valueOf(request.getServerPort()) : forwardedPort;
+        String serverName = request.getServerName();
 
-            // 如果是 http 协议，且 port 为 80，或者是 https 协议，且 port 为 443，则不需要添加端口号
-            boolean ignoreHttpPort = "http".equalsIgnoreCase(scheme) && "80".equals(port);
-            boolean ignoreHttpsPort = "https".equalsIgnoreCase(scheme) && "443".equals(port);
-            if (!ignoreHttpPort && !ignoreHttpsPort) {
-                result = result.replace(serverName, serverName + ":" + port);
-            }
+        if (port.equals("443") && "http".equalsIgnoreCase(scheme) && StringUtils.isEmpty(forwardedProto)) {
+            scheme = "https";
+            port = "";
         }
 
-        if (StringUtils.isNotEmpty(forwardedProto)) {
-            return StringUtils.setSchema(result, forwardedProto);
+        if (port.equals("443") && "https".equalsIgnoreCase(scheme)) {
+            port = "";
         }
-        return result;
+
+        if (port.equals("80") && "http".equalsIgnoreCase(scheme)) {
+            port = "";
+        }
+
+        if (StringUtils.isBlank(port)) {
+            return scheme + "://" + serverName;
+        } else {
+            return scheme + "://" + serverName + ":" + port;
+        }
     }
 
 
