@@ -18,7 +18,6 @@ import im.zhaojun.zfile.core.util.FileSizeConverter;
 import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.RequestHolder;
 import im.zhaojun.zfile.core.util.StringUtils;
-import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.module.storage.constant.StorageConfigConstant;
 import im.zhaojun.zfile.module.storage.controller.proxy.Open115UrlController;
 import im.zhaojun.zfile.module.storage.model.bo.RefreshTokenCacheBO;
@@ -54,9 +53,6 @@ import java.util.*;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Slf4j
 public class Open115ServiceImpl extends AbstractProxyTransferService<Open115Param>  implements RefreshTokenService {
-
-    @Resource
-    private SystemConfigService systemConfigService;
 
     @Resource
     private StorageSourceConfigService storageSourceConfigService;
@@ -346,7 +342,7 @@ public class Open115ServiceImpl extends AbstractProxyTransferService<Open115Para
         if (param.isEnableProxyDownload() && StringUtils.isEmpty(param.getDomain())) {
             return getProxyDownloadUrl(pathAndName);
         } else {
-            return StringUtils.concat(systemConfigService.getAxiosFromDomainOrSetting(), Open115UrlController.PROXY_DOWNLOAD_LINK_PREFIX, storageId + "", pickCode);
+            return StringUtils.concat(getSystemConfigService().getAxiosFromDomainOrSetting(), Open115UrlController.PROXY_DOWNLOAD_LINK_PREFIX, storageId + "", pickCode);
         }
     }
 

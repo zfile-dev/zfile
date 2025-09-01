@@ -154,4 +154,8 @@ public abstract class AbstractProxyTransferService<P extends ProxyTransferParam>
 	 */
 	public abstract ResponseEntity<org.springframework.core.io.Resource> downloadToStream(String pathAndName) throws Exception;
 
+    protected SystemConfigService getSystemConfigService() {
+        return systemConfigService;
+    }
+
 }
