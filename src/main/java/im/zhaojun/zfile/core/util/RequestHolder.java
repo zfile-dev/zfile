@@ -161,23 +161,43 @@ public class RequestHolder {
         }
         HttpServletRequest request = RequestHolder.getRequest();
 
+        String forwardedHost = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Host");
         String forwardedPort = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Port");
         String forwardedProto = JakartaServletUtil.getHeaderIgnoreCase(request, "X-Forwarded-Proto");
 
         String scheme = StringUtils.isBlank(forwardedProto) ? request.getScheme() : forwardedProto;
-        String port = StringUtils.isBlank(forwardedPort) ? String.valueOf(request.getServerPort()) : forwardedPort;
-        String serverName = request.getServerName();
-
-        if (port.equals("443") && "http".equalsIgnoreCase(scheme) && StringUtils.isEmpty(forwardedProto)) {
-            scheme = "https";
-            port = "";
+        
+        // 优先使用 X-Forwarded-Host，其次使用 Host 头，最后使用 request.getServerName()
+        String serverName;
+        String hostHeader = StringUtils.isNotBlank(forwardedHost) ? forwardedHost : request.getHeader("Host");
+        if (StringUtils.isNotBlank(hostHeader)) {
+            // Host 头可能包含端口信息，如 "example.com:8080"
+            String[] hostParts = hostHeader.split(":");
+            serverName = hostParts[0];
+            // 如果 Host 头包含端口且没有显式设置 X-Forwarded-Port，则使用 Host 头中的端口
+            if (hostParts.length > 1 && StringUtils.isBlank(forwardedPort)) {
+                forwardedPort = hostParts[1];
+            }
+        } else {
+            serverName = request.getServerName();
+        }
+        
+        // 端口处理逻辑
+        String port;
+        if (StringUtils.isNotBlank(forwardedPort)) {
+            port = forwardedPort;
+        } else if (StringUtils.isNotBlank(forwardedProto)) {
+            // 如果设置了转发协议但没有设置端口，使用协议默认端口
+            port = "https".equalsIgnoreCase(forwardedProto) ? "443" : "80";
+        } else {
+            port = String.valueOf(request.getServerPort());
         }
 
-        if (port.equals("443") && "https".equalsIgnoreCase(scheme)) {
+        // 移除默认端口
+        if ("443".equals(port) && "https".equalsIgnoreCase(scheme)) {
             port = "";
         }
-
-        if (port.equals("80") && "http".equalsIgnoreCase(scheme)) {
+        if ("80".equals(port) && "http".equalsIgnoreCase(scheme)) {
             port = "";
         }
 
