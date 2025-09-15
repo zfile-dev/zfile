@@ -90,7 +90,7 @@ public class RequestHolder {
 
             outputStream = response.getOutputStream();
 
-            if (fileSize != null && fileSize != 0) {
+            if (fileSize != null && fileSize > 0) {
                 String range = RequestHolder.getRequest().getHeader(HttpHeaders.RANGE);
                 List<HttpRange> httpRanges = HttpRange.parseRanges(range);
                 if (httpRanges.isEmpty()) {
