@@ -6,7 +6,6 @@ import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.github.sardine.impl.SardineException;
 import com.github.sardine.impl.io.ContentLengthInputStream;
-import im.zhaojun.zfile.core.util.CollectionUtils;
 import im.zhaojun.zfile.core.util.FileUtils;
 import im.zhaojun.zfile.core.util.RequestHolder;
 import im.zhaojun.zfile.core.util.StringUtils;
@@ -96,23 +95,27 @@ public class WebdavServiceImpl extends AbstractProxyTransferService<WebdavParam>
 		return getFileItem(pathAndName, true);
 	}
 
-	public FileItemResult getFileItem(String pathAndName, boolean containUserBasePath) {
-		try {
-			String requestUrl = getRequestPath(containUserBasePath, pathAndName);
-			List<DavResource> resources = sardine.list(requestUrl);
-			DavResource davResource = CollectionUtils.getLast(resources);
+    public FileItemResult getFileItem(String pathAndName, boolean containUserBasePath) {
+        try {
+            String requestUrl = getRequestPath(containUserBasePath, pathAndName);
+
+            List<DavResource> resources = sardine.list(requestUrl, 0);
+
+            DavResource davResource = resources.isEmpty() ? null : resources.get(0);
+
             if (davResource == null) {
-				return null;
+                return null;
             }
-			String folderPath = FileUtils.getParentPath(pathAndName);
-			return davResourceToFileItem(davResource, folderPath);
+
+            String folderPath = FileUtils.getParentPath(pathAndName);
+            return davResourceToFileItem(davResource, folderPath);
         } catch (Exception e) {
-			if (e instanceof SardineException && ((SardineException) e).getStatusCode() == 404) {
-				return null;
-			}
-			throw ExceptionUtil.wrapRuntime(e);
-		}
-	}
+            if (e instanceof SardineException && ((SardineException) e).getStatusCode() == 404) {
+                return null;
+            }
+            throw ExceptionUtil.wrapRuntime(e);
+        }
+    }
 
 	@Override
 	public boolean newFolder(String path, String name) {
