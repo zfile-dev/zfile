@@ -94,6 +94,15 @@ public class UpdateViewSettingRequest {
 	@Schema(title = "是否默认记住密码", example = "true")
 	private Boolean defaultSavePwd;
 
+	@Schema(title = "普通下载是否启用确认弹窗", example = "true")
+	private Boolean enableNormalDownloadConfirm;
+
+	@Schema(title = "打包下载是否启用确认弹窗", example = "true")
+	private Boolean enablePackageDownloadConfirm;
+
+	@Schema(title = "批量下载是否启用确认弹窗", example = "true")
+	private Boolean enableBatchDownloadConfirm;
+
 	/**
 	 * 废弃的字段，不再使用悬浮菜单
 	 */
