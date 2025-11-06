@@ -33,9 +33,10 @@ public class FileDownloadPermissionCommand implements Command {
     public boolean execute(Context context) throws Exception {
         FileContext fileContext = (FileContext) context;
         Integer storageId = fileContext.getStorageId();
+        Integer operatorUserId = fileContext.getOperatorUserId();
 
-        boolean hasDownloadPermission = userStorageSourceService.hasCurrentUserStorageOperatorPermission(storageId, FileOperatorTypeEnum.DOWNLOAD);
-        boolean hasPreviewPermission = userStorageSourceService.hasCurrentUserStorageOperatorPermission(storageId, FileOperatorTypeEnum.PREVIEW);
+        boolean hasDownloadPermission = userStorageSourceService.hasUserStorageOperatorPermission(operatorUserId, storageId, FileOperatorTypeEnum.DOWNLOAD);
+        boolean hasPreviewPermission = userStorageSourceService.hasUserStorageOperatorPermission(operatorUserId, storageId, FileOperatorTypeEnum.PREVIEW);
 
         if (hasDownloadPermission || hasPreviewPermission) {
             return false;

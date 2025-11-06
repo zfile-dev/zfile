@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.zhaojun.zfile.module.share.mapper.ShareLinkMapper">
+
+    <resultMap id="BaseResultMap" type="im.zhaojun.zfile.module.share.model.entity.ShareLink">
+        <!--@mbg.generated-->
+        <!--@Table share_link-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="share_key" jdbcType="VARCHAR" property="shareKey"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="expire_date" jdbcType="TIMESTAMP" property="expireDate"/>
+        <result column="storage_key" jdbcType="VARCHAR" property="storageKey"/>
+        <result column="share_path" jdbcType="LONGVARCHAR" property="sharePath"/>
+        <result column="share_item" jdbcType="LONGVARCHAR" property="shareItem"/>
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate"/>
+        <result column="share_type" jdbcType="VARCHAR" property="shareType"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="download_count" jdbcType="INTEGER" property="downloadCount"/>
+        <result column="access_count" jdbcType="INTEGER" property="accessCount"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id,
+        share_key,
+        `password`,
+        expire_date,
+        storage_key,
+        share_path,
+        share_item,
+        create_date,
+        share_type,
+        user_id,
+        download_count,
+        access_count
+    </sql>
+
+    <select id="getByShareKey" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            share_link
+        where
+            share_key = #{shareKey}
+    </select>
+
+    <select id="getByUserId" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            share_link
+        where
+            user_id = #{userId}
+        order by create_date desc
+    </select>
+
+    <update id="incrementAccessCount">
+        update share_link
+        set access_count = COALESCE(access_count, 0) + #{increment}
+        where share_key = #{shareKey}
+    </update>
+
+    <update id="incrementDownloadCount">
+        update share_link
+        set download_count = COALESCE(download_count, 0) + #{increment}
+        where share_key = #{shareKey}
+    </update>
+
+    <delete id="deleteExpiredLinks">
+        delete from share_link
+        where expire_date is not null
+          and expire_date &lt;= #{currentTime}
+    </delete>
+
+    <delete id="deleteExpiredLinksByUserId">
+        delete from share_link
+        where user_id = #{userId}
+          and expire_date is not null
+          and expire_date &lt;= #{currentTime}
+    </delete>
+
+</mapper>

@@ -3,6 +3,8 @@ package im.zhaojun.zfile.module.storage.chain.command;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.module.password.model.dto.VerifyResultDTO;
+import im.zhaojun.zfile.module.user.service.UserStorageSourceService;
+import im.zhaojun.zfile.module.storage.model.enums.FileOperatorTypeEnum;
 import im.zhaojun.zfile.module.password.service.PasswordConfigService;
 import im.zhaojun.zfile.module.storage.chain.FileContext;
 import im.zhaojun.zfile.module.storage.model.request.base.FileListRequest;
@@ -24,6 +26,9 @@ public class FolderPasswordVerifyCommand implements Command {
 
 	@Resource
 	private PasswordConfigService passwordConfigService;
+
+    @Resource
+    private UserStorageSourceService userStorageSourceService;
 	
 	/**
 	 * 校验当前文件是否需要密码.
@@ -44,6 +49,15 @@ public class FolderPasswordVerifyCommand implements Command {
 
 		AbstractBaseFileService<?> fileService = fileContext.getFileService();
 		String fullPath = StringUtils.concat(fileService.getCurrentUserBasePath(), path);
+
+        // 分享模式下，如果分享者拥有忽略密码权限，则跳过目录密码校验
+        Integer operatorUserId = fileContext.getOperatorUserId();
+        if (operatorUserId != null) {
+            boolean ignorePwd = userStorageSourceService.hasUserStorageOperatorPermission(operatorUserId, storageId, FileOperatorTypeEnum.IGNORE_PASSWORD);
+            if (ignorePwd) {
+                return false;
+            }
+        }
 
 		// 校验密码, 如果校验不通过, 则返回错误消息
 		VerifyResultDTO verifyResultDTO = passwordConfigService.verifyPassword(storageId, fullPath, password);

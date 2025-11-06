@@ -72,6 +72,20 @@ public class UserStorageSourceService {
         return userStorageSource.getPermissions().contains(operatorTypeEnum.getValue());
     }
 
+    /**
+     * 判断指定用户在指定存储策略是否有指定操作的权限（分享模式下按分享者判断）
+     */
+    public boolean hasUserStorageOperatorPermission(Integer userId, Integer storageId, FileOperatorTypeEnum operatorTypeEnum) {
+        if (userId == null) {
+            return hasCurrentUserStorageOperatorPermission(storageId, operatorTypeEnum);
+        }
+        UserStorageSource userStorageSource = ((UserStorageSourceService) AopContext.currentProxy()).getByUserIdAndStorageId(userId, storageId);
+        if (userStorageSource == null || userStorageSource.getPermissions() == null) {
+            return false;
+        }
+        return userStorageSource.getPermissions().contains(operatorTypeEnum.getValue());
+    }
+
 
     /**
      * 获取当前登录用户在指定存储策略的权限支持情况，数据结构为 Map，Key 为权限名称，Value 为布尔值表示是否支持
@@ -82,15 +96,30 @@ public class UserStorageSourceService {
      * @return  当前登录用户在指定存储策略的权限支持情况
      */
     public HashMap<String, Boolean> getCurrentUserPermissionMapByStorageId(Integer storageId) {
-        HashMap<String, Boolean> map = new HashMap<>();
+        Integer currentUserId = ZFileAuthUtil.getCurrentUserId();
+        UserStorageSource userStorageSource = ((UserStorageSourceService) AopContext.currentProxy()).getByUserIdAndStorageId(currentUserId, storageId);
+        return buildPermissionMap(userStorageSource);
+    }
 
-        UserStorageSource userStorageSource = ((UserStorageSourceService) AopContext.currentProxy()).getByUserIdAndStorageId(ZFileAuthUtil.getCurrentUserId(), storageId);
-        Set<String> userStoragePermissionsSet = userStorageSource.getPermissions();
 
-        for (FileOperatorTypeEnum operatorTypeEnum : FileOperatorTypeEnum.values()) {
-            map.put(operatorTypeEnum.getValue(), userStoragePermissionsSet.contains(operatorTypeEnum.getValue()));
+    /**
+     * 获取指定用户在指定存储源下的权限映射表
+     */
+    public HashMap<String, Boolean> getPermissionMapByUserIdAndStorageId(Integer userId, Integer storageId) {
+        if (userId == null || storageId == null) {
+            return buildPermissionMap(null);
         }
+        UserStorageSource userStorageSource = ((UserStorageSourceService) AopContext.currentProxy()).getByUserIdAndStorageId(userId, storageId);
+        return buildPermissionMap(userStorageSource);
+    }
 
+
+    private HashMap<String, Boolean> buildPermissionMap(UserStorageSource userStorageSource) {
+        HashMap<String, Boolean> map = new HashMap<>();
+        Set<String> permissions = userStorageSource != null ? userStorageSource.getPermissions() : null;
+        for (FileOperatorTypeEnum operatorTypeEnum : FileOperatorTypeEnum.values()) {
+            map.put(operatorTypeEnum.getValue(), permissions != null && permissions.contains(operatorTypeEnum.getValue()));
+        }
         return map;
     }
 

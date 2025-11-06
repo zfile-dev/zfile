@@ -45,6 +45,11 @@ public class FileContext extends ContextBase {
 	/**
 	 * 存储源 Service
 	 */
-	private AbstractBaseFileService<?> fileService;
+    private AbstractBaseFileService<?> fileService;
+
+    /**
+     * 操作者用户ID（在分享模式下为分享者的用户ID）
+     */
+    private Integer operatorUserId;
 
 }

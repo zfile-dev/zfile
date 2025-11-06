@@ -63,6 +63,15 @@ public enum ErrorCode {
     BIZ_UPLOAD_FILE_TYPE_NOT_ALLOWED("41027", "不允许上传的文件"),
     BIZ_RENAME_FILE_TYPE_NOT_ALLOWED("41028", "不允许重命名到该名称"),
     BIZ_UNSUPPORTED_OPERATION_TYPE("41029", "不支持的操作类型"),
+    BIZ_CUSTOM_SHARE_LINK_KEY_FORMAT_ILLEGAL("41030", "自定义分享 key 格式不正确，只能包含字母、数字、下划线和短横线，长度为 3-8 位"),
+    BIZ_SHARE_LINK_KEY_ALREADY_EXIST("41031", "分享 key 已存在"),
+    BIZ_SHARE_LINK_EXPIRY_MUST_BE_FUTURE("41032", "过期时间必须是未来的时间"),
+    BIZ_SHARE_LINK_NOT_EXIST("41033", "分享链接不存在"),
+    BIZ_SHARE_LINK_EXPIRED("41034", "分享链接已过期"),
+    BIZ_SHARE_PASSWORD_ERROR("41036", "分享密码错误"),
+    BIZ_SHARE_FILE_LIST_ERROR("41037", "获取分享文件列表失败"),
+    BIZ_SHARE_FILE_DOWNLOAD_ERROR("41038", "获取文件下载地址失败"),
+    BIZ_SHARE_FILE_INFO_ERROR("41039", "获取文件信息失败"),
 
     // 第二位为 2 时，是登录错误
     BIZ_UNAUTHORIZED("42000", "未登录或未授权"),
@@ -91,6 +100,8 @@ public enum ErrorCode {
      * 通用的无权限异常
      */
     NO_FORBIDDEN("30000", "没有权限"),
+    NO_CUSTOM_SHARE_LINK_KEY_PERMISSION("30001", "没有自定义分享链接 key 的权限"),
+
 
 
     /**

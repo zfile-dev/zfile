@@ -6,6 +6,7 @@ import im.zhaojun.zfile.core.exception.biz.InitializeStorageSourceBizException;
 import im.zhaojun.zfile.core.util.StrPool;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.core.util.ZFileAuthUtil;
+import im.zhaojun.zfile.module.share.context.ShareAccessContext;
 import im.zhaojun.zfile.module.storage.model.bo.StorageSourceMetadata;
 import im.zhaojun.zfile.module.storage.model.param.IStorageParam;
 import im.zhaojun.zfile.module.user.model.constant.UserConstant;
@@ -86,6 +87,12 @@ public abstract class AbstractBaseFileService<P extends IStorageParam> implement
     public abstract StorageSourceMetadata getStorageSourceMetadata();
 
     public String getCurrentUserBasePath() {
+        // 检查是否为分享访问，如果是则返回分享的基础路径
+        if (ShareAccessContext.isShareAccess()) {
+            return ShareAccessContext.getShareBasePath();
+        }
+        
+        // 原有逻辑保持不变
         Integer userId = ZFileAuthUtil.getCurrentUserId();
         if (!this.isInitialized) {
             userId = UserConstant.ADMIN_ID;

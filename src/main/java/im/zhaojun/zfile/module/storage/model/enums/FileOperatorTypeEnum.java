@@ -115,6 +115,18 @@ public enum FileOperatorTypeEnum {
 	SHORT_LINK("生成短链", "generateShortLink",
 			null, ShortLinkFileOperatorTypeEnumDefaultValueFunc.class),
 
+    /**
+     * 创建分享链接
+     */
+    SHARE_LINK("创建分享链接", "createShareLink",
+            "允许用户创建分享链接", AllowAdminFileOperatorTypeEnumDefaultValueFunc.class),
+
+	/**
+	 * 分享自定义 key
+	 */
+	CUSTOM_SHARE_KEY("自定义分享链接 key", "customShareKey",
+			"允许用户在创建分享链接时使用自定义 key，而不是系统自动生成", AllowAdminFileOperatorTypeEnumDefaultValueFunc.class),
+
 	/**
 	 * 忽略密码
 	 */
