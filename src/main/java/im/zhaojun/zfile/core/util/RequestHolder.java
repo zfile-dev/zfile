@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -80,11 +82,14 @@ public class RequestHolder {
         try (InputStream innerInputStream = inputStream) {
             HttpServletResponse response = RequestHolder.getResponse();
 
+            ContentDisposition contentDisposition = ContentDisposition
+                    .builder(forceDownload ? "attachment" : "inline")
+                    .filename(fileName, StandardCharsets.UTF_8)
+                    .build();
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
             if (forceDownload) {
                 response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-                response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + StringUtils.encodeAllIgnoreSlashes(fileName));
             } else {
-                response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=" + StringUtils.encodeAllIgnoreSlashes(fileName));
                 response.setContentType(MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM).toString());
             }
 

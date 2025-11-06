@@ -23,6 +23,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
@@ -33,8 +34,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -249,13 +250,13 @@ public class LocalServiceImpl extends AbstractProxyTransferService<LocalParam> {
         }
 
         HttpHeaders headers = new HttpHeaders();
-        String filename = StringUtils.encodeAllIgnoreSlashes(file.getName());
+        String fileName = file.getName();
 
-        if (ObjectUtil.equals(mimeType, MediaType.APPLICATION_OCTET_STREAM)) {
-            headers.setContentDispositionFormData("attachment", filename);
-        } else {
-            headers.put(HttpHeaders.CONTENT_DISPOSITION, Collections.singletonList("inline; filename=\"" + filename + "\""));
-        }
+        ContentDisposition contentDisposition = ContentDisposition
+                .builder(ObjectUtil.equals(mimeType, MediaType.APPLICATION_OCTET_STREAM) ? "attachment" : "inline")
+                .filename(fileName, StandardCharsets.UTF_8)
+                .build();
+        headers.setContentDisposition(contentDisposition);
 
         return ResponseEntity
                 .ok()

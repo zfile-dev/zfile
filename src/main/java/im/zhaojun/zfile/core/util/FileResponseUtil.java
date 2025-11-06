@@ -6,12 +6,13 @@ import im.zhaojun.zfile.core.exception.status.NotFoundAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.io.File;
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 将文件输出对象
@@ -46,7 +47,11 @@ public class FileResponseUtil {
             fileName = file.getName();
         }
 
-        headers.put(HttpHeaders.CONTENT_DISPOSITION, Collections.singletonList("inline; filename=\"" + StringUtils.encodeAllIgnoreSlashes(fileName) + "\""));
+        ContentDisposition contentDisposition = ContentDisposition
+                .builder("inline")
+                .filename(fileName, StandardCharsets.UTF_8)
+                .build();
+        headers.setContentDisposition(contentDisposition);
 
         return ResponseEntity
                 .ok()

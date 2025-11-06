@@ -26,11 +26,14 @@ import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -179,9 +182,16 @@ public class LinkDownloadService {
         // 判断下载链接是否为 m3u8 格式, 如果是则返回 m3u8 内容.
         if (StringUtils.equalsIgnoreCase(FileUtil.extName(filePath), "m3u8")) {
             String textContent = HttpUtil.getTextContent(downloadUrl);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("application/vnd.apple.mpegurl;charset=utf-8"));
+            ContentDisposition contentDisposition = ContentDisposition
+                    .builder("attachment")
+                    .filename(FileUtils.getName(filePath), StandardCharsets.UTF_8)
+                    .build();
+            headers.setContentDisposition(contentDisposition);
+
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, "application/vnd.apple.mpegurl;charset=utf-8")
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + StringUtils.encodeAllIgnoreSlashes(FileUtils.getName(filePath)))
+                    .headers(headers)
                     .body(textContent);
         }
 
