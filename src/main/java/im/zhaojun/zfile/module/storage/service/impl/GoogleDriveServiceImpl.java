@@ -130,7 +130,7 @@ public class GoogleDriveServiceImpl extends AbstractProxyTransferService<GoogleD
 			return StringUtils.isEmpty(param.getDriveId()) ? "root" : param.getDriveId();
 		}
 
-		List<String> pathList = StringUtils.split(fullPath, StringUtils.SLASH, true, true);
+		List<String> pathList = StringUtils.split(fullPath, StringUtils.SLASH, false, true);
 
 		String driveId = "";
 		for (String subPath : pathList) {

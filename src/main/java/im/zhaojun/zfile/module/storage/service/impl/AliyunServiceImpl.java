@@ -167,7 +167,7 @@ public class AliyunServiceImpl extends AbstractS3BaseFileService<AliyunParam> {
 
             // 手动编码路径, 防止签名中的特殊字符被 URL 编码
             StringBuilder encodePath = new StringBuilder();
-            List<String> split = StringUtils.split(urlBuilder.getPath().toString(), "/", true, true);
+            List<String> split = StringUtils.split(urlBuilder.getPath().toString(), "/", false, true);
             for (String s : split) {
                 encodePath.append("/").append(URLUtil.encodeAll(s));
             }
