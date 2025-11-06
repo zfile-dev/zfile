@@ -55,6 +55,8 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
 
     protected S3Presigner s3Presigner;
 
+    protected S3Presigner s3PresignerDownload;
+
     public static final InputStream EMPTY_INPUT_STREAM = new ByteArrayInputStream(new byte[0]);
 
     Consumer<AwsRequestOverrideConfiguration.Builder> unlimitTimeoutBuilderConsumer = builder -> builder.apiCallTimeout(Duration.ofDays(30)).build();
@@ -95,7 +97,7 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
                 .key(fullPath)
                 .build();
 
-        PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(GetObjectPresignRequest.builder()
+        PresignedGetObjectRequest presignedGetObjectRequest = s3PresignerDownload.presignGetObject(GetObjectPresignRequest.builder()
                 .getObjectRequest(getObjectRequest)
                 .signatureDuration(Duration.ofSeconds(tokenTime))
                 .build());
@@ -386,6 +388,9 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
         }
         if (this.s3Presigner != null) {
             this.s3Presigner.close();
+        }
+        if (this.s3PresignerDownload != null) {
+            this.s3PresignerDownload.close();
         }
     }
 }

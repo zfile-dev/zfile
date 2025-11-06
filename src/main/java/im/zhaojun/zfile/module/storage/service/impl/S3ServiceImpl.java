@@ -59,12 +59,21 @@ public class S3ServiceImpl extends AbstractS3BaseFileService<S3Param> {
                 .credentialsProvider(credentialsProvider)
                 .build();
 
-        super.s3Presigner = S3Presigner.builder()
+        super.s3PresignerDownload = S3Presigner.builder()
                 .serviceConfiguration(S3Configuration.builder()
                         .pathStyleAccessEnabled(isPathStyle)
                         .build())
                 .region(oss)
                 .endpointOverride(StringUtils.isBlank(domain) ? endpointOverride : URI.create(domain))
+                .credentialsProvider(credentialsProvider)
+                .build();
+
+        super.s3Presigner = S3Presigner.builder()
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(isPathStyle)
+                        .build())
+                .region(oss)
+                .endpointOverride(endpointOverride)
                 .credentialsProvider(credentialsProvider)
                 .build();
 
