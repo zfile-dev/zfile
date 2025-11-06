@@ -1,6 +1,8 @@
 package im.zhaojun.zfile.module.admin.controller;
 
 import cn.hutool.extra.servlet.JakartaServletUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONWriter;
 import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.core.util.RequestHolder;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaojun
@@ -37,4 +42,15 @@ public class IpHelperController {
         return AjaxJson.getSuccessData(RequestHolder.getRequestServerAddress());
     }
 
+    @GetMapping("headers")
+    @Operation(summary = "获取 Headers", description = "获取服务器接收到的请求头信息，可用于排查反向代理配置问题")
+    public AjaxJson<String> headers() {
+        Map<String, List<String>> headersMap = JakartaServletUtil.getHeadersMap(httpServletRequest);
+        Map<String, String> singleValueHeaderMap = headersMap.entrySet().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> String.join(",", entry.getValue())
+                ));
+        return AjaxJson.getSuccessData(JSON.toJSONString(singleValueHeaderMap, JSONWriter.Feature.PrettyFormat));
+    }
 }
