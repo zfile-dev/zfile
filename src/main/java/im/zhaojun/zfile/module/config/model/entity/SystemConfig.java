@@ -21,6 +21,8 @@ public class SystemConfig implements Serializable {
 
     public static final String DIRECT_LINK_PREFIX_NAME = "directLinkPrefix";
 
+    public static final String SECURE_LOGIN_ENTRY_NAME = "secureLoginEntry";
+
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)

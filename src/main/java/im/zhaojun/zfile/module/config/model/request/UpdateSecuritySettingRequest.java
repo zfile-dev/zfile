@@ -2,6 +2,8 @@ package im.zhaojun.zfile.module.config.model.request;
 
 import im.zhaojun.zfile.module.user.model.enums.LoginLogModeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -15,6 +17,11 @@ public class UpdateSecuritySettingRequest {
 
 	@Schema(title = "是否在前台显示登陆按钮", example = "true")
 	private Boolean showLogin;
+
+    @Schema(title = "安全登录入口", description = "仅允许字母、数字、短横线和下划线，长度不超过 32", example = "admin")
+    @Size(max = 32, message = "安全登录入口长度不能超过 32 个字符")
+    @Pattern(regexp = "^[A-Za-z0-9_-]*$", message = "安全登录入口只能包含字母、数字、短横线和下划线")
+    private String secureLoginEntry;
 
 	@Schema(title = "登录日志模式", example = "all")
 	private LoginLogModeEnum loginLogMode;

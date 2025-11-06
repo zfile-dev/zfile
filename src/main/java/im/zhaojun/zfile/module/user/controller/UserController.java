@@ -13,6 +13,7 @@ import im.zhaojun.zfile.core.util.AjaxJson;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.core.util.ZFileAuthUtil;
 import im.zhaojun.zfile.module.config.model.dto.SystemConfigDTO;
+import im.zhaojun.zfile.module.config.model.entity.SystemConfig;
 import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.module.user.model.entity.User;
 import im.zhaojun.zfile.module.user.model.enums.LoginVerifyModeEnum;
@@ -23,15 +24,22 @@ import im.zhaojun.zfile.module.user.model.result.CheckLoginResult;
 import im.zhaojun.zfile.module.user.model.result.LoginResult;
 import im.zhaojun.zfile.module.user.model.result.LoginVerifyImgResult;
 import im.zhaojun.zfile.module.user.service.UserService;
+import im.zhaojun.zfile.module.user.service.DynamicLoginEntryService;
 import im.zhaojun.zfile.module.user.service.login.ImgVerifyCodeService;
 import im.zhaojun.zfile.module.user.service.login.LoginService;
+import im.zhaojun.zfile.module.user.util.LoginEntryPathUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+
+import java.lang.reflect.Method;
 
 @Slf4j
 @Tag(name = "用户接口")
@@ -55,9 +63,33 @@ public class UserController {
     @Resource
     private ZFileProperties zFileProperties;
 
+    @EventListener(ApplicationReadyEvent.class)
+    public void initSecureLoginEntry() throws NoSuchMethodException {
+        Method doLoginMethod = UserController.class.getMethod("doLogin", UserLoginRequest.class);
+        SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
+        String secureLoginEntry = systemConfigDTO.getSecureLoginEntry();
+        RequestMappingInfo requestMappingInfo = dynamicLoginEntryService.buildLoginRequestMappingInfo(secureLoginEntry);
+        dynamicLoginEntryService.registerMappingHandlerMapping(SystemConfig.SECURE_LOGIN_ENTRY_NAME, requestMappingInfo, this, doLoginMethod);
+        log.info("注册安全登录入口成功，当前登录路径为: {} ", LoginEntryPathUtils.resolveLoginPath(secureLoginEntry));
+    }
+
+    @Resource
+    private DynamicLoginEntryService dynamicLoginEntryService;
+
+    @ApiOperationSupport(order = 0)
+    @Operation(summary = "校验安全登录入口")
+    @GetMapping("/login/entry/validate")
+    public AjaxJson<Void> validateLoginEntry(@RequestParam(value = "entry", required = false, defaultValue = "") String entry) {
+        SystemConfigDTO systemConfigDTO = systemConfigService.getSystemConfig();
+        boolean matched = systemConfigDTO.getSecureLoginEntry() == null || StringUtils.equals(systemConfigDTO.getSecureLoginEntry(), entry);
+        if (!matched) {
+            return AjaxJson.getError("安全登录入口不正确");
+        }
+        return AjaxJson.getSuccess();
+    }
+
     @ApiOperationSupport(order = 1, ignoreParameters = {"zfile-token"})
     @Operation(summary = "登录")
-    @PostMapping("/login")
     @ApiLimit(timeout = 60, maxCount = 10)
     public AjaxJson<LoginResult> doLogin(@Valid @RequestBody UserLoginRequest userLoginRequest) {
         // 进行登录验证，如果验证失败，会抛出异常

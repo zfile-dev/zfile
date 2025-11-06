@@ -141,6 +141,9 @@ public class SystemConfigDTO implements Serializable {
     @Schema(title = "是否在前台显示登陆按钮", example = "true")
     private Boolean showLogin;
 
+    @Schema(title = "安全登录入口", description = "用于隐藏默认登录地址的安全入口，不包含 '/'", example = "admin")
+    private String secureLoginEntry;
+
     @Schema(title = "登录日志模式", example = "all")
     private LoginLogModeEnum loginLogMode;
 
