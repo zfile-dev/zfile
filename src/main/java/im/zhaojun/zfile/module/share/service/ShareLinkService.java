@@ -3,17 +3,17 @@ package im.zhaojun.zfile.module.share.service;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import im.zhaojun.zfile.core.exception.ErrorCode;
 import im.zhaojun.zfile.core.exception.core.BizException;
 import im.zhaojun.zfile.core.util.StringUtils;
 import im.zhaojun.zfile.core.util.ZFileAuthUtil;
 import im.zhaojun.zfile.module.config.service.SystemConfigService;
 import im.zhaojun.zfile.module.share.mapper.ShareLinkMapper;
-import im.zhaojun.zfile.module.share.model.entity.ShareLink;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import im.zhaojun.zfile.module.share.model.dto.ShareEntryDTO;
+import im.zhaojun.zfile.module.share.model.entity.ShareLink;
 import im.zhaojun.zfile.module.share.model.request.CreateShareLinkRequest;
 import im.zhaojun.zfile.module.share.model.request.ShareLinkListRequest;
 import im.zhaojun.zfile.module.share.model.result.CreateShareLinkResult;
@@ -38,18 +38,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -343,7 +333,7 @@ public class ShareLinkService {
         LambdaQueryWrapper<ShareLink> queryWrapper = buildShareListQueryWrapper(request);
         queryWrapper.eq(ShareLink::getUserId, currentUserId);
 
-        Page<ShareLink> page = shareLinkMapper.selectPage(new Page<>(request.getPage(), request.getLimit()), queryWrapper);
+        Page<ShareLink> page = shareLinkMapper.selectPage(new Page<ShareLink>(request.getPage(), request.getLimit()).addOrder(request.getOrderItem()), queryWrapper);
         return buildShareResultPage(page, false);
     }
 
@@ -354,7 +344,7 @@ public class ShareLinkService {
         request.handleDefaultValue();
 
         LambdaQueryWrapper<ShareLink> queryWrapper = buildShareListQueryWrapper(request);
-        Page<ShareLink> page = shareLinkMapper.selectPage(new Page<>(request.getPage(), request.getLimit()), queryWrapper);
+        Page<ShareLink> page = shareLinkMapper.selectPage(new Page<ShareLink>(request.getPage(), request.getLimit()).addOrder(request.getOrderItem()), queryWrapper);
         return buildShareResultPage(page, true);
     }
 
