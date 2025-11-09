@@ -23,6 +23,7 @@ import im.zhaojun.zfile.module.storage.model.entity.StorageSource;
 import im.zhaojun.zfile.module.storage.model.enums.FileOperatorTypeEnum;
 import im.zhaojun.zfile.module.storage.service.StorageSourceService;
 import im.zhaojun.zfile.module.storage.service.base.AbstractBaseFileService;
+import im.zhaojun.zfile.module.user.model.constant.UserConstant;
 import im.zhaojun.zfile.module.user.model.entity.User;
 import im.zhaojun.zfile.module.user.model.entity.UserStorageSource;
 import im.zhaojun.zfile.module.user.service.UserService;
@@ -127,7 +128,9 @@ public class ShareLinkService {
             throw new BizException(ErrorCode.BIZ_SHARE_LINK_NOT_EXIST);
         }
         Integer currentUserId = ZFileAuthUtil.getCurrentUserId();
-        if (!Objects.equals(shareLink.getUserId(), currentUserId)) {
+        boolean currentIsAdmin = Objects.equals(UserConstant.ADMIN_ID, currentUserId);
+        boolean deleteIsCurrentUser = Objects.equals(shareLink.getUserId(), currentUserId);
+        if (!deleteIsCurrentUser && !currentIsAdmin) {
             throw new BizException(ErrorCode.BIZ_STORAGE_SOURCE_ILLEGAL_OPERATION);
         }
         shareLinkMapper.deleteById(shareLink.getId());
