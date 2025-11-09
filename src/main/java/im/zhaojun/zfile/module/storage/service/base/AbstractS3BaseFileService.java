@@ -97,7 +97,8 @@ public abstract class AbstractS3BaseFileService<P extends S3BaseParam> extends A
                 .key(fullPath)
                 .build();
 
-        PresignedGetObjectRequest presignedGetObjectRequest = s3PresignerDownload.presignGetObject(GetObjectPresignRequest.builder()
+        S3Presigner presigner = s3PresignerDownload != null ? s3PresignerDownload : s3Presigner;
+        PresignedGetObjectRequest presignedGetObjectRequest = presigner.presignGetObject(GetObjectPresignRequest.builder()
                 .getObjectRequest(getObjectRequest)
                 .signatureDuration(Duration.ofSeconds(tokenTime))
                 .build());
