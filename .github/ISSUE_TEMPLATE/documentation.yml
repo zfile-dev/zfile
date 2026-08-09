@@ -1,0 +1,56 @@
+name: "文档问题"
+description: "反馈文档缺失、错误、过期、表述不清或链接失效"
+title: "[Docs] "
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢帮助改进 [ZFile 文档](https://docs.zfile.vip)。请提供准确位置和建议内容，便于快速处理。
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 问题类型
+      options:
+        - 内容错误
+        - 内容缺失
+        - 内容已过期
+        - 表述不清
+        - 链接失效
+        - 排版或拼写问题
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: 文档位置
+      description: 请提供页面链接、文件路径或具体章节名称。
+      placeholder: "例如：https://docs.zfile.vip/... 或 README.md 的“快速开始”章节"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: 当前问题
+      description: 说明当前内容的问题，以及它可能造成的误解或影响。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-content
+    attributes:
+      label: 建议修改
+      description: 如果可以，请给出你建议的正确内容或修改方向。
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 补充信息
+      description: 可添加截图、相关资料或版本信息。

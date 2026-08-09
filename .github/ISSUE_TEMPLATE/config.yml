@@ -1,5 +1,5 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: 创建 Issue
-    url: https://issue.zfile.vip/
-    about: 未通过 https://issue.zfile.vip/ 创建的问题可能会被立即关闭。
+  - name: "安全漏洞 / Security Vulnerability"
+    url: "https://github.com/zfile-dev/zfile/security/advisories/new"
+    about: "通过 GitHub 私密报告安全漏洞，请勿创建公开 Issue。Report vulnerabilities privately through GitHub."

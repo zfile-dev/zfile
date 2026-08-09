@@ -1,0 +1,62 @@
+name: "功能建议"
+description: "提出新功能、交互改进、兼容性或性能优化建议"
+title: "[Feature] "
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你的建议。提交前可先查阅 [项目文档](https://docs.zfile.vip) 和 [现有 Issue](https://github.com/zfile-dev/zfile/issues)。请优先描述需要解决的问题和使用场景，而不只是给出功能名称。
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已查阅 [项目文档](https://docs.zfile.vip)，并搜索过 [现有 Issue](https://github.com/zfile-dev/zfile/issues)，确认没有相同或相近建议。
+          required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 建议类型
+      options:
+        - 新功能
+        - 现有功能改进
+        - 用户体验优化
+        - 存储类型或第三方服务适配
+        - 性能或稳定性优化
+        - 部署与运维改进
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 使用场景与问题
+      description: 当前遇到了什么问题？谁会在什么场景下使用这个能力？
+      placeholder: "例如：当……时，目前只能……，因此会……"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+      description: 描述期望的行为、交互或配置方式。
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 可选方案
+      description: 如果考虑过替代方案或临时解决办法，请一并说明。
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 补充信息
+      description: 可添加示意图、相关产品参考、接口文档或其他背景信息。

@@ -1,13 +1,135 @@
-name: 'Blank Issue'
-description: 请使用 https://issue.zfile.vip 创建新的问题.
+name: "Bug 反馈"
+description: "报告可稳定复现的错误、异常行为或功能退化"
+title: "[Bug] "
+labels: []
+assignees: []
 body:
   - type: markdown
     attributes:
       value: |
-        **注意:**
-        不要通过此页面创建问题, 请使用 https://issue.zfile.vip 创建新的问题.
-        如果不是通过此链接创建的问题, 将会被直接关闭.
-  - type: textarea
-    id: add-a-description
+        感谢反馈。请尽量完整填写以下信息，以便快速定位问题。
+
+        如果问题涉及安全漏洞、敏感数据或可被利用的攻击方式，请勿提交公开 Issue，请通过 [GitHub Security Advisories](https://github.com/zfile-dev/zfile/security/advisories/new) 提交。
+
+  - type: checkboxes
+    id: prerequisites
     attributes:
-      label: Add a description
+      label: 提交前确认
+      options:
+        - label: 我已查阅 [项目文档](https://docs.zfile.vip)，并搜索过 [现有 Issue](https://github.com/zfile-dev/zfile/issues)，确认没有重复问题。
+          required: true
+        - label: 我已尝试升级到 [最新版本](https://github.com/zfile-dev/zfile/releases/latest) 后验证，但问题仍然存在。
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: ZFile 版本
+      description: 请填写完整版本号，不要只填写“最新版”。
+      placeholder: "例如：5.0.4"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: 部署方式
+      options:
+        - Docker
+        - Linux 安装脚本
+        - Windows
+        - 宝塔面板
+        - 群辉应用商店
+        - 1Panel 应用商店
+        - 源码运行
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected-storage-types
+    attributes:
+      label: 问题发生在哪些存储源
+      description: 请选择具体存储源类型、“全部存储源”或“与存储源无关”；可多选，尚未交叉验证时请选择“尚未确认”。
+      multiple: true
+      options:
+        - 全部存储源
+        - 本地存储
+        - 阿里云 OSS
+        - WebDAV
+        - 腾讯云 COS
+        - 又拍云 USS
+        - FTP
+        - SFTP
+        - 华为云 OBS
+        - MINIO
+        - S3通用协议
+        - OneDrive
+        - OneDrive 世纪互联
+        - SharePoint
+        - SharePoint 世纪互联
+        - Google Drive
+        - 七牛云 KODO
+        - 多吉云
+        - "115"
+        - 与存储源无关
+        - 尚未确认
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device-type
+    attributes:
+      label: 设备类型
+      description: 请选择出现问题时使用的设备类型。
+      options:
+        - 手机
+        - 平板电脑（iPad 等）
+        - PC
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: 运行环境
+      description: 请填写浏览器类型和操作系统版本。
+      placeholder: "例如：Safari / IOS 27"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 问题复现步骤
+      description: 请提供能够稳定复现问题的最小步骤。
+      placeholder: |
+        1. 进入……
+        2. 点击……
+        3. 配置……
+        4. 出现……
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+      placeholder: "说明你认为正确的结果。"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      placeholder: "说明实际发生的结果，以及问题出现的频率。"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 补充信息
+      description: 可添加脱敏后的截图、录屏、配置片段或其他有助于定位问题的信息。
