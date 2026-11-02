@@ -215,7 +215,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.3.0-jre</version>
+            <version>33.7.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
